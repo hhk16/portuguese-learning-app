@@ -36,6 +36,14 @@ export default function OrderExercise({ exercise, onNext }: OrderExerciseProps) 
   const handleSubmit = () => {
     const isCorrect = correctAnswer ? selected.join(' ') === correctAnswer || showAnswer : showAnswer;
     setSubmitted(true);
+    
+    // If answer is wrong, automatically show the correct answer
+    if (!isCorrect && !showAnswer) {
+      setShowAnswer(true);
+      setSelected(words);
+      setAvailable([]);
+    }
+    
     setTimeout(() => onNext(isCorrect), 1500);
   };
 

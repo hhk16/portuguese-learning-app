@@ -19,6 +19,12 @@ export default function MCQExercise({ exercise, onNext }: MCQExerciseProps) {
     if (selected || showAnswer) {
       const isCorrect = selected === correct || showAnswer;
       setSubmitted(true);
+      
+      // If answer is wrong, automatically show the correct answer
+      if (!isCorrect && !showAnswer) {
+        setShowAnswer(true);
+      }
+      
       setTimeout(() => onNext(isCorrect), 1500);
     }
   };

@@ -40,6 +40,13 @@ export default function TypingExercise({ exercise, onNext }: TypingExerciseProps
       setIsCorrect(result.isCorrect);
       setFeedback(result.feedback);
       
+      // If answer is wrong, automatically show the correct answer
+      if (!result.isCorrect) {
+        setShowAnswer(true);
+        const expected = Array.isArray(exercise.correct) ? exercise.correct[0] : exercise.correct;
+        setAnswer(expected || '');
+      }
+      
       setTimeout(() => onNext(result.isCorrect), 2000);
     }
   };

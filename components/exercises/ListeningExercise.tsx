@@ -30,6 +30,13 @@ export default function ListeningExercise({ exercise, onNext }: ListeningExercis
     const expected = Array.isArray(exercise.correct) ? exercise.correct[0] : exercise.correct;
     const isCorrect = expected ? answer.toLowerCase().trim() === expected.toLowerCase().trim() || showAnswer : showAnswer;
     setSubmitted(true);
+    
+    // If answer is wrong, automatically show the correct answer
+    if (!isCorrect && !showAnswer) {
+      setShowAnswer(true);
+      setAnswer(expected || '');
+    }
+    
     setTimeout(() => onNext(isCorrect), 1500);
   };
 

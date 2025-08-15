@@ -40,6 +40,18 @@ export default function MatchingExercise({ exercise, onNext }: MatchingExerciseP
   const handleSubmit = () => {
     const isComplete = matched.size === pairs.length * 2 || showAnswer;
     setSubmitted(true);
+    
+    // If answer is wrong (incomplete), automatically show the correct answer
+    if (!isComplete && !showAnswer) {
+      setShowAnswer(true);
+      const allMatched = new Set<string>();
+      pairs.forEach(p => {
+        allMatched.add('left' in p ? (p as any).left : (p as any).a);
+        allMatched.add('right' in p ? (p as any).right : (p as any).b);
+      });
+      setMatched(allMatched);
+    }
+    
     setTimeout(() => onNext(isComplete), 1500);
   };
 
