@@ -1,4 +1,5 @@
 /** TV app: 3D stage + DOM overlay per activity + Blip bubble + input (keyboard / D-pad / phones). */
+import { gameNow } from "./clock.ts";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 import { audio, unlockAudio, setVolumes } from "../audio/sfx.ts";
@@ -11,7 +12,7 @@ import { publicBaseUrl } from "../net/socket.ts";
 import type { NavDir } from "../shared/protocol.ts";
 import { Avatar } from "../ui/Avatar.tsx";
 import { IntroActivity, LobbyActivity, ResultsActivity, TitleActivity } from "./activities.ts";
-import { getRuntime, useRuntime, type RuntimePlayer } from "./runtime.ts";
+import { getRuntime, SPEED_LABEL, useRuntime, type RuntimePlayer } from "./runtime.ts";
 import { AulaScreen } from "./screens/AulaScreen.tsx";
 import { MicroScreen } from "./screens/MicroScreen.tsx";
 import { RaceHud } from "./screens/RaceHud.tsx";
@@ -76,6 +77,7 @@ export function TvApp() {
       {a instanceof MiniAula && <AulaScreen a={a} />}
       {a instanceof ResultsActivity && <ResultsScreen a={a} />}
       <BlipBubble />
+      {rt.paused && <PauseScreen />}
       {!(a instanceof TitleActivity || a instanceof LobbyActivity) && rt.code && <JoinBadge code={rt.code} />}
       {rt.socket !== "open" && <div className="conn-warn">A ligar ao servidor…</div>}
       {showGate && (
@@ -134,15 +136,16 @@ function TitleScreen({ a }: { a: TitleActivity }) {
     <div className="tv-overlay title-screen">
       <div className="title-left">
         <div>
-          <div className="logo" style={{ fontSize: "8rem" }}>
+          <div className="logo" style={{ fontSize: a.menu === "main" ? "8rem" : "5rem" }}>
             PARTY
             <span className="l2">PORTUGUÊS</span>
           </div>
           <div className="tagline">Jogos de festa · Português europeu A1 · TV + telemóveis</div>
         </div>
-        <div className="menu">
-          {a.items.map((it, i) => (
-            <div key={it.id} className={`menu-item ${i === a.focus ? "focus" : ""} ${it.disabled ? "disabled" : ""}`}>
+        {a.menu !== "main" && <div className="menu-crumb">{{ aulas: "AULAS", arcade: "ARCADE", settings: "DEFINIÇÕES" }[a.menu]}</div>}
+        <div className={`menu ${a.menu === "aulas" ? "compact" : ""}`}>
+          {windowed(a.items, a.focus, a.menu === "aulas" ? 5 : 6).map(({ it, i }) => (
+            <div key={it.id} className={`menu-item ${i === a.focus ? "focus" : ""} ${it.disabled ? "disabled" : ""} ${it.badge?.startsWith("✓") ? "done" : ""}`}>
               <div>
                 <div className="mi-label">{it.label}</div>
                 {it.sub && <div className="mi-sub">{it.sub}</div>}
@@ -157,6 +160,12 @@ function TitleScreen({ a }: { a: TitleActivity }) {
   );
 }
 
+/** A scrolling window of at most `n` items around the focused one. */
+function windowed<T>(items: T[], focus: number, n: number): { it: T; i: number }[] {
+  const start = Math.max(0, Math.min(items.length - n, focus - Math.floor(n / 2)));
+  return items.slice(start, start + n).map((it, k) => ({ it, i: start + k }));
+}
+
 function LobbyScreen({ a }: { a: LobbyActivity }) {
   const rt = getRuntime();
   const [, force] = useState(0);
@@ -165,12 +174,21 @@ function LobbyScreen({ a }: { a: LobbyActivity }) {
     const id = setInterval(() => force((x) => x + 1), 100);
     return () => clearInterval(id);
   }, [a.countdownAt]);
-  const secs = a.countdownAt !== null ? Math.max(1, Math.ceil((a.countdownAt - performance.now()) / 1000)) : null;
+  const secs = a.countdownAt !== null ? Math.max(1, Math.ceil((a.countdownAt - gameNow()) / 1000)) : null;
   return (
     <div className="tv-overlay lobby-screen">
       <JoinPanel big />
       <div className="lobby-right">
-        <h1>{({ party: "Noite de Festa", micro: "Micro Loucura", race: "Turbo Corrida", aula: "Mini Aula" } as const)[a.mode]}</h1>
+        <h1 className={a.spec.mode === "lesson" ? "small" : ""}>{a.title}</h1>
+        <div className="speed-pick">
+          <span className="lbl">Velocidade</span>
+          {(["calma", "normal", "turbo"] as const).map((sp) => (
+            <span key={sp} className={`sp ${rt.settings.speed === sp ? "on" : ""}`}>
+              {SPEED_LABEL[sp]}
+            </span>
+          ))}
+          <span className="lbl">◀ ▶</span>
+        </div>
         <div className="steps">
           1. Aponta a câmara ao <b>código QR</b>
           <br />
@@ -244,7 +262,29 @@ function ResultsScreen({ a }: { a: ResultsActivity }) {
         ))}
       </div>
       <div className="hint-bar" style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
-        OK = Mais uma! · Voltar = Menu
+        OK = {a.nextLabel} · Voltar = Menu
+      </div>
+    </div>
+  );
+}
+
+function PauseScreen() {
+  const rt = useRuntime();
+  return (
+    <div className="tv-overlay pause-screen">
+      <div className="panel pause-card">
+        <div className="slam" style={{ fontSize: "6rem" }}>
+          PAUSA
+        </div>
+        <div className="pause-menu">
+          {rt.pauseItems.map((it, i) => (
+            <div key={it.id} className={`menu-item ${i === rt.pauseFocus ? "focus" : ""}`}>
+              <div className="mi-label">{it.label}</div>
+              {it.id === "speed" && <span className="badge">◀ ▶</span>}
+            </div>
+          ))}
+        </div>
+        <div className="pause-hint">Também podes usar o telemóvel · Voltar = continuar</div>
       </div>
     </div>
   );

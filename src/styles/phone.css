@@ -479,3 +479,143 @@
   font-weight: 800;
   opacity: 0.8;
 }
+
+/* ---------- prompt card: the phone as a second screen ---------- */
+.p-card {
+  width: 100%;
+  padding: 14px 16px 16px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+  border: 3px solid color-mix(in srgb, var(--pc) 45%, rgba(255, 255, 255, 0.12));
+  text-align: center;
+  animation: pp-pop-in 0.3s both;
+}
+.pc-kicker {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--cyan);
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.pc-visual {
+  font-size: 48px;
+  line-height: 1.1;
+}
+.pc-head {
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+.pc-head.long {
+  font-size: 21px;
+}
+.pc-head .gap {
+  display: inline-block;
+  min-width: 2.6em;
+  margin: 0 0.15em;
+  padding: 0 0.3em;
+  border-radius: 8px;
+  border-bottom: 4px solid var(--yellow);
+  background: rgba(255, 210, 63, 0.14);
+  color: var(--yellow);
+  animation: pp-pulse 1s infinite;
+}
+.pc-sub {
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-dim);
+}
+
+/* ---------- speed selector ---------- */
+.speed-seg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  padding: 5px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.speed-seg button {
+  min-height: 54px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--ink-dim);
+  font: 900 16px var(--font-body);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.speed-seg button small {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+.speed-seg button.on {
+  background: var(--yellow);
+  color: #2a0a5e;
+}
+
+/* ---------- pause button ---------- */
+.pause-btn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.pause-btn i {
+  width: 5px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+
+/* ---------- stream mirror ---------- */
+.stream-mirror {
+  width: 100%;
+  min-height: 92px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.3);
+}
+.stream-mirror .sw {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 34px;
+  font-weight: 900;
+  animation: pp-pop-in 0.18s both;
+}
+.stream-mirror .sw.dim {
+  color: var(--ink-mute);
+}
+.stream-mirror .sv {
+  font-size: 40px;
+}
+
+/* ---------- lesson lines ---------- */
+.lesson-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: grid;
+  gap: 6px;
+}
+.lesson-lines li {
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 18px;
+  font-weight: 800;
+  animation: pp-fade-up 0.3s both;
+}

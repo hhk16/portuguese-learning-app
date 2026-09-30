@@ -49,6 +49,20 @@ export const Feedback = z.object({
 });
 export type Feedback = z.infer<typeof Feedback>;
 
+export const SPEEDS = ["calma", "normal", "turbo"] as const;
+export const Speed = z.enum(SPEEDS);
+export type Speed = z.infer<typeof Speed>;
+
+/** The prompt as the phone shows it — the phone is a full second screen, not just buttons. */
+export const PromptCard = z.object({
+  kicker: shortText.optional(),
+  visual: z.string().max(32).optional(),
+  /** May contain "___" for the gap. */
+  headline: shortText,
+  sub: shortText.optional(),
+});
+export type PromptCard = z.infer<typeof PromptCard>;
+
 const promptBase = {
   roundId: id,
   promptId: id,
@@ -57,6 +71,7 @@ const promptBase = {
   /** Verb shouted by the microgame, e.g. "ESCOLHE!". */
   title: shortText.optional(),
   question: shortText.optional(),
+  card: PromptCard.optional(),
   feedback: Feedback.optional(),
   /** Small status line (e.g. race position). */
   hud: shortText.optional(),
@@ -71,7 +86,9 @@ export const ControllerView = z.discriminatedUnion("mode", [
     ready: z.boolean(),
     canNavigate: z.boolean(),
     hint: shortText.optional(),
+    speed: Speed,
   }),
+  z.object({ mode: z.literal("paused"), speed: Speed, title: shortText }),
   z.object({ mode: z.literal("remote"), title: shortText, hint: shortText.optional() }),
   z.object({
     mode: z.literal("choices"),
@@ -89,7 +106,20 @@ export const ControllerView = z.discriminatedUnion("mode", [
   }),
   z.object({ mode: z.literal("errorTap"), ...promptBase, words: z.array(z.object({ id, text: shortText })).min(2).max(12) }),
   z.object({ mode: z.literal("merge"), ...promptBase, top: z.array(Option).min(1).max(4), bottom: z.array(Option).min(1).max(6) }),
-  z.object({ mode: z.literal("tapStream"), ...promptBase, rule: shortText }),
+  z.object({
+    mode: z.literal("tapStream"),
+    ...promptBase,
+    rule: shortText,
+    /** Mirror of the TV's word stream, scheduled on the host clock. */
+    stream: z
+      .object({
+        words: z.array(z.object({ text: shortText, visual: z.string().max(16).optional() })).max(16),
+        startAt: z.number(),
+        per: z.number().positive(),
+        lead: z.number().nonnegative(),
+      })
+      .optional(),
+  }),
   z.object({ mode: z.literal("mic"), ...promptBase, target: shortText, lang: z.string().max(10) }),
   z.object({
     mode: z.literal("judge"),
@@ -103,7 +133,14 @@ export const ControllerView = z.discriminatedUnion("mode", [
     ...promptBase,
     items: z.array(z.object({ id, label: shortText, emoji: z.string().max(16), desc: shortText })).min(2).max(4),
   }),
-  z.object({ mode: z.literal("lesson"), ...promptBase, step: shortText, canContinue: z.boolean() }),
+  z.object({
+    mode: z.literal("lesson"),
+    ...promptBase,
+    step: shortText,
+    canContinue: z.boolean(),
+    /** Lesson content mirrored on the phone (paradigm rows, examples, notes). */
+    lines: z.array(shortText).max(10).optional(),
+  }),
   z.object({
     mode: z.literal("results"),
     title: shortText,
@@ -155,6 +192,7 @@ export const PlayerBody = z.discriminatedUnion("k", [
   }),
   z.object({ k: z.literal("nav"), dir: NavDir }),
   z.object({ k: z.literal("ready"), ready: z.boolean() }),
+  z.object({ k: z.literal("menu"), action: z.enum(["pause", "resume", "restart", "quit", "speed", "repeat"]), speed: Speed.optional() }),
 ]);
 export type PlayerBody = z.infer<typeof PlayerBody>;
 
@@ -163,6 +201,8 @@ export const HostBody = z.discriminatedUnion("k", [
   z.object({ k: z.literal("view"), view: ControllerView, snapshotSeq: z.number().int().nonnegative() }),
   z.object({ k: z.literal("ack"), messageIds: z.array(id).max(64) }),
   z.object({ k: z.literal("fx"), fx: z.enum(["buzz", "success", "fail", "boost"]) }),
+  /** Host clock jumped (resume after pause): re-estimate the offset now. */
+  z.object({ k: z.literal("resync") }),
 ]);
 export type HostBody = z.infer<typeof HostBody>;
 

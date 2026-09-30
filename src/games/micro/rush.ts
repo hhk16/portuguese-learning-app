@@ -8,8 +8,9 @@
  * Nonsense-word test: swap the Portuguese for gibberish and it still works as a reflex/panic game
  * (race the clock, race your partner, don't tap the traps). The Portuguese makes it teach.
  */
+import { gameNow } from "../../tv/clock.ts";
 import { ALL_ITEMS } from "../../curriculum/index.ts";
-import { FORMAT_KINDS, generate, mergeForm, spellTiles, streamPrompt, type Prompt, type PromptFormat, type StreamPrompt } from "../../curriculum/generators.ts";
+import { FORMAT_KINDS, generate, mergeForm, spellTiles, streamPrompt, type Prompt, type PromptFormat, type StreamPrompt, type StreamVariant } from "../../curriculum/generators.ts";
 import type { KnowledgeItem } from "../../curriculum/schema.ts";
 import type { Outcome } from "../../learner/events.ts";
 import { isCorrectOutcome } from "../../learner/events.ts";
@@ -53,6 +54,14 @@ export interface PlayerRound {
   given?: string;
 }
 
+export interface MicroOptions {
+  total?: number;
+  kinds?: MicroKind[];
+  /** Focus items (e.g. the lesson just taught). Defaults to all of Unit 1. */
+  lessonItemIds?: readonly string[];
+  lessonShare?: number;
+}
+
 export interface MicroRound {
   roundId: string;
   promptId: string;
@@ -62,10 +71,15 @@ export interface MicroRound {
   endAt: number;
   per: Map<string, PlayerRound>;
   reviewFor?: string;
+  /** NÃO TOQUES: word cadence on the host clock. */
+  streamPer?: number;
+  streamLead?: number;
 }
 
 export class MicroRush implements Activity {
   readonly id = "micro";
+  readonly pausable = true;
+  readonly music = "party" as const;
   rt!: TvRuntime;
   phase: MicroPhase = "intro";
   phaseStart = 0;
@@ -75,23 +89,59 @@ export class MicroRush implements Activity {
   speed = 1;
   private used: string[] = [];
   private kinds: MicroKind[];
-  private readonly total: number;
+  readonly total: number;
   private readonly onDone: () => void;
   private streaks = new Map<string, number>();
   /** Visual pulse counters read by the 3D scene. */
   pulse = { correct: 0, wrong: 0, slam: 0 };
 
-  constructor(onDone: () => void, total = 10, kinds?: MicroKind[]) {
+  private readonly focus: ReadonlySet<string> | null;
+  private readonly lessonShare: number | undefined;
+  /** Lesson practice: keep NÃO TOQUES on the lesson's own category. */
+  private streamVariant: StreamVariant | undefined;
+
+  constructor(onDone: () => void, opts: MicroOptions = {}) {
     this.onDone = onDone;
-    this.total = total;
-    this.kinds = kinds ?? ["escolhe", "completa", "corrige", "arrasta", "naotoques", "diz"];
+    this.total = opts.total ?? 10;
+    this.kinds = opts.kinds ?? ["escolhe", "completa", "corrige", "arrasta", "naotoques", "diz"];
+    this.focus = opts.lessonItemIds ? new Set(opts.lessonItemIds) : null;
+    this.lessonShare = opts.lessonShare;
+    if (this.focus && (opts.lessonShare ?? 0) > 0.6) {
+      // Lesson practice: only interactions the lesson's own items can feed (greetings have no
+      // letter-tile or de+o rounds, so those would silently fall back to unrelated items).
+      const focusItems = ALL_ITEMS.filter((i) => this.focus!.has(i.id));
+      const has = (pred: (i: KnowledgeItem) => boolean) => focusItems.filter(pred).length >= 3;
+      this.streamVariant = has((i) => i.kind === "nationality")
+        ? "nationality"
+        : has((i) => i.kind === "profession")
+          ? "profession"
+          : has((i) => i.kind === "conjugation" && i.verb === "ter")
+            ? "ter"
+            : undefined;
+      const fits = this.kinds.filter((k) => {
+        const f = MICRO_DEFS[k].format;
+        if (f === "stream") return this.streamVariant !== undefined;
+        return focusItems.filter((i) => FORMAT_KINDS[f].includes(i.kind) && canGenerate(f, i)).length >= 2;
+      });
+      if (fits.length >= 2) this.kinds = fits;
+    }
+  }
+
+  /** Duration multiplier: the speed setting (calma = more time) divided by the rush's speed-ups. */
+  private get tf(): number {
+    return this.rt.pace / this.speed;
+  }
+
+  repeat() {
+    const r = this.round;
+    if (r && this.phase === "reveal") this.rt.speakPt(r.prompt.audio ?? r.prompt.answerText);
   }
 
   start(rt: TvRuntime) {
     this.rt = rt;
     playMusic("party");
     rt.say({ type: "microStart" }, true, 2400);
-    this.next(performance.now() + 600);
+    this.next(gameNow() + 600);
   }
 
   stop() {
@@ -115,14 +165,15 @@ export class MicroRush implements Activity {
     let prompt: Prompt | null = null;
     let reviewFor: string | undefined;
     if (kind === "naotoques") {
-      prompt = streamPrompt(this.rt.rng, ALL_ITEMS, 7);
+      prompt = streamPrompt(this.rt.rng, ALL_ITEMS, 7, this.streamVariant);
     } else {
       const candidates = ALL_ITEMS.filter((i) => FORMAT_KINDS[def.format].includes(i.kind) && canGenerate(def.format, i));
       for (let tries = 0; tries < 8 && !prompt; tries++) {
         const sel = selectItem(
           {
             candidates,
-            lessonItemIds: new Set(candidates.filter((c) => c.source.unit === "u01").map((c) => c.id)),
+            lessonItemIds: this.focus ?? new Set(candidates.filter((c) => c.source.unit === "u01").map((c) => c.id)),
+            lessonShare: this.lessonShare,
             profiles: this.rt.activePlayers.map((p) => p.profile),
             recent: this.used,
           },
@@ -156,7 +207,7 @@ export class MicroRush implements Activity {
       this.rt.view("all", { mode: "wait", title: "Fim da Micro Loucura!", emoji: "🏁" });
       return;
     }
-    if (this.index > 0 && this.index % 4 === 0 && this.phase !== "speedup") {
+    if (this.index > 0 && this.index % 4 === 0 && this.phase !== "speedup" && this.rt.settings.speed !== "calma") {
       this.speed = Math.min(1.6, this.speed + 0.15);
       setTempo(1 + (this.speed - 1) * 0.6);
       this.setPhase("speedup", at, SPEEDUP_MS);
@@ -173,10 +224,10 @@ export class MicroRush implements Activity {
     }
     this.round = r;
     this.index++;
-    this.setPhase("intro", at, INTRO_MS / Math.sqrt(this.speed));
+    this.setPhase("intro", at, (INTRO_MS * Math.max(1, this.rt.pace)) / Math.sqrt(this.speed));
     this.pulse.slam++;
     sfx.slam();
-    this.rt.view("all", { mode: "wait", title: MICRO_DEFS[r.kind].title, subtitle: "Olha para a TV!", emoji: MICRO_DEFS[r.kind].icon });
+    this.rt.view("all", { mode: "wait", title: MICRO_DEFS[r.kind].title, subtitle: r.prompt.format === "stream" ? r.prompt.rule : MICRO_DEFS[r.kind].hint, emoji: MICRO_DEFS[r.kind].icon });
   }
 
   private setPhase(phase: MicroPhase, at: number, dur: number) {
@@ -211,8 +262,12 @@ export class MicroRush implements Activity {
   private beginPlay(now: number) {
     const r = this.round!;
     const def = MICRO_DEFS[r.kind];
-    const base = r.kind === "naotoques" ? (r.prompt as StreamPrompt).words.length * STREAM_WORD_MS + 600 : def.baseMs;
-    const dur = r.kind === "naotoques" ? base / this.speed : base / this.speed;
+    let dur = def.baseMs * this.tf;
+    if (r.prompt.format === "stream") {
+      r.streamPer = STREAM_WORD_MS * this.tf;
+      r.streamLead = 300 * this.tf;
+      dur = r.prompt.words.length * r.streamPer + 2 * r.streamLead;
+    }
     r.startAt = now;
     r.endAt = now + dur;
     this.setPhase("play", now, dur);
@@ -230,19 +285,26 @@ export class MicroRush implements Activity {
       return { mode: "wait", title: "Resposta enviada!", subtitle: "Olha para a TV…", emoji: "📨" };
     }
     const q = r.prompt;
+    const review = r.reviewFor ? this.rt.activePlayers.find((x) => x.profile.profileId === r.reviewFor)?.name : undefined;
+    const card = { kicker: review ? `REVISÃO PARA ${review.toUpperCase()}` : undefined, visual: q.visual, headline: q.headline, sub: q.sub };
     switch (q.format) {
       case "choice":
-        return { mode: "choices", ...base, question: q.sub ? `${q.headline} — ${q.sub}` : q.headline, options: q.options };
+        return { mode: "choices", ...base, card, options: q.options };
       case "tiles":
-        return { mode: "tiles", ...base, question: q.headline, tiles: q.tiles, length: q.correctSeq.length };
+        return { mode: "tiles", ...base, card: { ...card, headline: q.headline.includes("___") ? q.headline : `${q.headline} → ___` }, tiles: q.tiles, length: q.correctSeq.length };
       case "errorTap":
-        return { mode: "errorTap", ...base, question: "Qual está errada?", words: q.words };
+        return { mode: "errorTap", ...base, card: { ...card, headline: "Toca na palavra errada:" }, words: q.words };
       case "merge":
-        return { mode: "merge", ...base, question: q.headline, top: q.top, bottom: q.bottom };
+        return { mode: "merge", ...base, card, top: q.top, bottom: q.bottom };
       case "stream":
-        return { mode: "tapStream", ...base, rule: q.rule };
+        return {
+          mode: "tapStream",
+          ...base,
+          rule: q.rule,
+          stream: { words: q.words.map((w) => ({ text: w.text, visual: w.visual })), startAt: r.startAt, per: r.streamPer!, lead: r.streamLead! },
+        };
       case "say":
-        return { mode: "mic", ...base, target: q.headline, lang: "pt-PT", question: q.sub };
+        return { mode: "mic", ...base, card, target: q.headline, lang: "pt-PT" };
     }
   }
 
@@ -250,8 +312,8 @@ export class MicroRush implements Activity {
   streamIndexAt(t: number): number {
     const r = this.round!;
     const words = (r.prompt as StreamPrompt).words;
-    const per = (r.endAt - r.startAt - 600 / this.speed) / words.length;
-    const i = Math.floor((t - r.startAt - 300 / this.speed) / per);
+    const per = r.streamPer ?? STREAM_WORD_MS;
+    const i = Math.floor((t - r.startAt - (r.streamLead ?? 300)) / per);
     return i >= 0 && i < words.length ? i : -1;
   }
 
@@ -271,7 +333,7 @@ export class MicroRush implements Activity {
       tr.points = value.verdict ? 80 : 0;
       const tp = this.rt.players.get(tid);
       if (tp) this.rt.view(p, { mode: "wait", title: value.verdict ? "Aprovado! ✅" : "Chumbado! ❌", emoji: "⚖️" });
-      if (![...r.per.values()].some((x) => x.needsJudge)) this.phaseEnd = performance.now() + 150;
+      if (![...r.per.values()].some((x) => x.needsJudge)) this.phaseEnd = gameNow() + 150;
       this.rt.bump();
       return;
     }
@@ -345,7 +407,8 @@ export class MicroRush implements Activity {
     const r = this.round!;
     const needJudge = [...r.per.entries()].filter(([, x]) => x.needsJudge);
     if (r.kind === "diz" && needJudge.length > 0) {
-      this.setPhase("judge", now, JUDGE_MS);
+      const judgeMs = JUDGE_MS * this.rt.pace;
+      this.setPhase("judge", now, judgeMs);
       const solo = this.rt.activePlayers.length === 1;
       for (const p of this.rt.activePlayers) {
         const target = needJudge.find(([id]) => solo || id !== p.playerId);
@@ -358,7 +421,7 @@ export class MicroRush implements Activity {
           mode: "judge",
           roundId: r.roundId,
           promptId: r.promptId,
-          deadline: now + JUDGE_MS,
+          deadline: now + judgeMs,
           title: "JUIZ!",
           targetPlayerName: solo ? "tu" : (tp?.name ?? "?"),
           target: (r.prompt as { target: string }).target,
@@ -451,7 +514,7 @@ export class MicroRush implements Activity {
       sfx.wrong();
       this.pulse.wrong++;
     }
-    this.setPhase("reveal", now, REVEAL_MS);
+    this.setPhase("reveal", now, REVEAL_MS * Math.sqrt(this.rt.pace));
     setTimeout(() => this.rt.speakPt(q.audio ?? q.answerText), 250);
   }
 

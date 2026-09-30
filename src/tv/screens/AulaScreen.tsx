@@ -13,7 +13,7 @@ export function AulaScreen({ a }: { a: MiniAula }) {
   if (s?.kind === "title")
     body = (
       <>
-        <div className="aula-kicker">MINI AULA · UNIDADE 1</div>
+        <div className="aula-kicker">MINI AULA · {a.lesson.unit === "u00" ? "UNIDADE 0" : "UNIDADE 1"}</div>
         <div className="slam" style={{ fontSize: "8rem" }}>
           {s.big}
         </div>
@@ -23,8 +23,8 @@ export function AulaScreen({ a }: { a: MiniAula }) {
   else if (s?.kind === "example")
     body = (
       <>
-        <div className="aula-kicker">CIDADES</div>
-        <div style={{ fontSize: "7rem" }}>{s.emoji}</div>
+        <div className="aula-kicker">{s.kicker ?? "EXEMPLO"}</div>
+        {s.emoji && <div style={{ fontSize: "7rem" }}>{s.emoji}</div>}
         <div className="aula-big">{s.big}</div>
         <div className="aula-note">{s.note}</div>
       </>
@@ -44,9 +44,24 @@ export function AulaScreen({ a }: { a: MiniAula }) {
   else if (s?.kind === "rule")
     body = (
       <>
-        <div className="aula-kicker">ATENÇÃO</div>
+        <div className="aula-kicker">{s.kicker ?? "ATENÇÃO"}</div>
         <div className="aula-big">{s.big}</div>
         <div className="aula-note">{s.note}</div>
+      </>
+    );
+  else if (s?.kind === "table")
+    body = (
+      <>
+        <div className="aula-kicker">{s.kicker}</div>
+        <div className="aula-table">
+          {s.rows.map(([l, r], i) => (
+            <div key={l} className="aula-row" style={{ animationDelay: `${0.15 + i * 0.35}s` }}>
+              <span className="l">{l}</span>
+              <span className="r">{r}</span>
+            </div>
+          ))}
+        </div>
+        {s.note && <div className="aula-note">{s.note}</div>}
       </>
     );
   else if (s?.kind === "summary")
@@ -61,7 +76,7 @@ export function AulaScreen({ a }: { a: MiniAula }) {
             </Fragment>
           ))}
         </div>
-        <div className="aula-note">Cidades sem artigo: de Lisboa · Exceções: do Porto</div>
+        {s.note && <div className="aula-note">{s.note}</div>}
       </>
     );
   else if (s?.kind === "check" && c)

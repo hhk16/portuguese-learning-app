@@ -13,6 +13,7 @@
  * Catch-up (fairness rule): a trailing kart gets a *visible* "vento de cauda" that makes boosts a
  * bit stronger. Answers are never marked differently and both players always get the same question.
  */
+import { gameNow } from "../../tv/clock.ts";
 import { ALL_ITEMS } from "../../curriculum/index.ts";
 import { choiceFromItem, type ChoicePrompt } from "../../curriculum/generators.ts";
 import { selectItem } from "../../learner/selector.ts";
@@ -75,6 +76,8 @@ export interface RaceResult {
 
 export class TurboRace implements Activity {
   readonly id = "race";
+  readonly pausable = true;
+  readonly music = "race" as const;
   rt!: TvRuntime;
   phase: RacePhase = "countdown";
   phaseStart = 0;
@@ -100,7 +103,7 @@ export class TurboRace implements Activity {
   start(rt: TvRuntime) {
     this.rt = rt;
     playMusic("race");
-    const now = performance.now();
+    const now = gameNow();
     rt.activePlayers.forEach((p, i) => this.karts.set(p.playerId, newKart(p.playerId, i)));
     this.setPhase("countdown", now, COUNTDOWN_MS);
     rt.say({ type: "raceStart" }, true, 2600);
@@ -117,7 +120,7 @@ export class TurboRace implements Activity {
   }
 
   onPlayersChanged() {
-    const now = performance.now();
+    const now = gameNow();
     for (const p of this.rt.activePlayers) if (!this.karts.has(p.playerId)) this.karts.set(p.playerId, { ...newKart(p.playerId, this.karts.size), u: Math.max(0, this.minU() - 0.02), boostUntil: now });
   }
 
@@ -225,11 +228,11 @@ export class TurboRace implements Activity {
       this.setPhase("gap", now, 1000);
       return;
     }
-    const pool = ALL_ITEMS.filter((i) => ["origin", "frame", "nationality", "profession", "conjugation"].includes(i.kind) && !(i.kind === "conjugation" && i.form.includes("-")));
+    const pool = ALL_ITEMS.filter((i) => ["origin", "frame", "nationality", "profession", "conjugation", "phrase", "number"].includes(i.kind) && !(i.kind === "conjugation" && i.form.includes("-")));
     let prompt: ChoicePrompt | null = null;
     for (let t = 0; t < 6 && !prompt; t++) {
       const sel = selectItem(
-        { candidates: pool, lessonItemIds: this.lessonIds, profiles: this.rt.activePlayers.map((p) => p.profile), recent: this.used },
+        { candidates: pool, lessonItemIds: this.lessonIds, profiles: this.rt.activePlayers.map((p) => p.profile), recent: this.used, lessonShare: 0.6 },
         this.rt.rng,
       );
       if (!sel) break;
@@ -238,8 +241,9 @@ export class TurboRace implements Activity {
     }
     if (!prompt) return;
     this.qCount++;
-    this.question = { roundId: randomId(6), promptId: randomId(6), prompt, startAt: now, endAt: now + QUESTION_MS, answers: new Map() };
-    this.setPhase("question", now, QUESTION_MS);
+    const qms = QUESTION_MS * this.rt.pace;
+    this.question = { roundId: randomId(6), promptId: randomId(6), prompt, startAt: now, endAt: now + qms, answers: new Map() };
+    this.setPhase("question", now, qms);
     sfx.blip();
     for (const p of this.rt.activePlayers) this.rt.conn.sendView(p.playerId, this.questionView(p));
   }
@@ -255,7 +259,7 @@ export class TurboRace implements Activity {
       promptId: q.promptId,
       deadline: q.endAt,
       title: "TURBO!",
-      question: q.prompt.sub ? `${q.prompt.headline} — ${q.prompt.sub}` : q.prompt.headline,
+      card: { visual: q.prompt.visual, headline: q.prompt.headline, sub: q.prompt.sub },
       options: q.prompt.options,
       ink: k?.ink ?? 0,
       hud: this.hud(p),
@@ -273,7 +277,7 @@ export class TurboRace implements Activity {
       this.itemPicks.set(p.playerId, item);
       sfx.select();
       this.rt.view(p, { mode: "wait", title: `${ITEM_INFO[item].emoji} ${ITEM_INFO[item].label}!`, emoji: ITEM_INFO[item].emoji });
-      if (this.rt.activePlayers.every((x) => this.itemPicks.has(x.playerId))) this.phaseEnd = performance.now() + 300;
+      if (this.rt.activePlayers.every((x) => this.itemPicks.has(x.playerId))) this.phaseEnd = gameNow() + 300;
       return;
     }
     const q = this.question;
@@ -294,7 +298,7 @@ export class TurboRace implements Activity {
         this.rt.say({ type: "combo", name: p.name });
         this.rt.perf(p, "race", "combo");
         this.rt.addScore(p, 150, "race");
-      } else if (latency < TURBO_MS) {
+      } else if (latency < TURBO_MS * this.rt.pace) {
         boost(k, t, 1.5, 1900, "turbo");
         k.label = { text: "TURBO!", at: t, tone: "good" };
         sfx.boost();
@@ -327,8 +331,13 @@ export class TurboRace implements Activity {
     }
     if (k.ink > 0) k.ink = 0; // ink lasts one question
     this.rt.conn.sendView(p.playerId, this.questionView(p));
-    if (this.rt.activePlayers.every((x) => q.answers.has(x.playerId) || this.karts.get(x.playerId)?.finishedAt)) this.phaseEnd = Math.min(this.phaseEnd, performance.now() + 400);
+    if (this.rt.activePlayers.every((x) => q.answers.has(x.playerId) || this.karts.get(x.playerId)?.finishedAt)) this.phaseEnd = Math.min(this.phaseEnd, gameNow() + 400);
     this.rt.bump();
+  }
+
+  repeat() {
+    const q = this.question;
+    if (q) this.rt.speakPt(q.prompt.audio ?? q.prompt.answerText);
   }
 
   private closeQuestion(now: number) {
@@ -344,7 +353,7 @@ export class TurboRace implements Activity {
     }
     const answers = [...q.answers.values()];
     if (this.rt.activePlayers.length > 1 && answers.length > 1 && answers.every((a) => !a.correct)) this.rt.say({ type: "bothWrong" });
-    this.setPhase("reveal", now, REVEAL_MS);
+    this.setPhase("reveal", now, REVEAL_MS * Math.sqrt(this.rt.pace));
     this.rt.speakPt(q.prompt.audio ?? q.prompt.answerText);
   }
 
@@ -354,7 +363,7 @@ export class TurboRace implements Activity {
     this.itemsDone = true;
     this.itemPicks.clear();
     this.question = null;
-    this.setPhase("items", now, ITEMS_MS);
+    this.setPhase("items", now, ITEMS_MS * this.rt.pace);
     sfx.coin();
     const solo = this.rt.activePlayers.length < 2;
     const items: RaceItem[] = solo ? ["shield", "nitro"] : ["shield", "nitro", "ink"];
@@ -365,7 +374,7 @@ export class TurboRace implements Activity {
         mode: "itemPick",
         roundId,
         promptId,
-        deadline: now + ITEMS_MS,
+        deadline: now + ITEMS_MS * this.rt.pace,
         title: "RONDA DE ITENS!",
         question: "Escolhe um item:",
         items: items.map((id) => ({ id, ...ITEM_INFO[id] })),

@@ -152,6 +152,24 @@ export function choiceFromItem(item: KnowledgeItem, rng: Rng, pool?: readonly Kn
         wrong: rng.sample(siblings.map((s) => s.form), 2),
       });
     }
+    case "number": {
+      // Distractors are the numbers learners actually confuse (3/13, 2/12, 6/16, 16/17…).
+      const all = itemsOf("number", pool);
+      const near = [item.value + 10, item.value - 10, item.value + 1, item.value - 1].filter((v) => v >= 0 && v <= 20 && v !== item.value);
+      const wrong = rng.sample(all.filter((n) => near.includes(n.value)), 2).map((n) => n.pt);
+      while (wrong.length < 2) wrong.push(rng.pick(all.filter((n) => n.value !== item.value && !wrong.includes(n.pt))).pt);
+      return choice(rng, {
+        itemIds: [item.id],
+        tier: 1,
+        headline: String(item.value),
+        sub: "Como se diz?",
+        answerText: item.pt,
+        audio: item.pt,
+        why: item.why,
+        correct: item.pt,
+        wrong,
+      });
+    }
     case "phrase": {
       const others = itemsOf("phrase", pool).filter((p) => p.id !== item.id && p.fn !== item.fn);
       return choice(rng, {
@@ -307,10 +325,12 @@ export function mergeForm(top: string, bottom: string): string {
 /* NÃO TOQUES — tap only on the target category (tier 1)               */
 /* ------------------------------------------------------------------ */
 
-export function streamPrompt(rng: Rng, pool: readonly KnowledgeItem[], length = 7): StreamPrompt {
+export type StreamVariant = "nationality" | "profession" | "ter";
+
+export function streamPrompt(rng: Rng, pool: readonly KnowledgeItem[], length = 7, only?: StreamVariant): StreamPrompt {
   const nats = itemsOf("nationality", pool);
   const profs = itemsOf("profession", pool);
-  const variant = rng.pick(["nationality", "profession", "ter"] as const);
+  const variant = only ?? rng.pick(["nationality", "profession", "ter"] as const);
   const words: StreamPrompt["words"] = [];
   const targetsWanted = 2 + rng.int(2);
   let rule: string;
@@ -380,7 +400,7 @@ export function sayFromItem(item: KnowledgeItem): SayPrompt | null {
 
 /** Which item kinds each format can consume (used by the selector). */
 export const FORMAT_KINDS: Record<PromptFormat, readonly KnowledgeItem["kind"][]> = {
-  choice: ["nationality", "profession", "frame", "origin", "conjugation", "phrase"],
+  choice: ["nationality", "profession", "frame", "origin", "conjugation", "phrase", "number"],
   tiles: ["frame", "conjugation"],
   errorTap: ["error"],
   merge: ["frame"],

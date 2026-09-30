@@ -6,7 +6,10 @@ The **TV** is the stage (three.js). **Phones are the controllers**: scan the QR 
 - **Noite de Festa**: a continuous game show with no menus between segments: Micro Loucura rush → Mini Aula → Turbo Race → results.
 - **Micro Loucura**: 5–8 second microgames (ESCOLHE · COMPLETA · CORRIGE · ARRASTA · NÃO TOQUES · DIZ). The phone turns into buttons, letter tiles, word chips, a drag board, one big button, or a microphone.
 - **Turbo Race**: answers are physical. A fast answer gives TURBO, 3 in a row gives COMBO, a wrong answer spins you out. There's an item round with shield, nitro and ink sabotage.
-- **Mini Aula**: a 60–90 s animated lesson and a quick check. The race then uses what it taught.
+- **Aulas**: 11 Mini Aulas covering Units 0–1 in book order (greetings, survival phrases, ser, ter, -ar verbs, chamar-se, nationalities, professions, de/do/da, em/no/na, numbers 0–20). Each is a 60–90 s animated lesson with a quick check, then a practice rush focused on that lesson. Noite de Festa teaches the next lesson you haven't done yet.
+- **The phone is a second screen.** Every prompt (the sentence with its gap, emoji, hint), lesson tables and the NÃO TOQUES word stream are mirrored on the phone, so nobody has to look back and forth.
+- **Pause and speed.** Back on the TV remote (or ⏸ on any phone) pauses the game clock: Continuar · Velocidade · Recomeçar · Sair para o menu. Speed is **Calma 🐢** (≈1.7× time), **Normal** or **Turbo ⚡**. Set it in the lobby, in Definições, or while paused.
+- **Installable controller.** `/play` is a PWA: "Adicionar ao ecrã principal" on Android or iPhone gives a full-screen app icon, and the screen stays awake while you play.
 - **Blip**, the MC, reacts to everything (in PT-PT, with optional English subtitles).
 
 The learning engine underneath is built from atomic knowledge items. Each has provenance back to the book, and is generated at four tiers (recognise → recall → transform → use). A tier goes up only after correct answers in **two different games**. Language evidence is stored separately from game performance, so winning races doesn't count as knowing Portuguese.

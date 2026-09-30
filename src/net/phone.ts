@@ -126,6 +126,10 @@ export class PhoneConnection {
         } else if (body.k === "ack") {
           for (const id of body.messageIds) this.pending.delete(id);
         } else if (body.k === "fx") this.onFx(body.fx);
+        else if (body.k === "resync") {
+          this.clock.reset();
+          this.startPings(true);
+        }
         return;
       }
     }
@@ -190,6 +194,10 @@ export class PhoneConnection {
 
   nav(dir: NavDir) {
     this.sendBody({ k: "nav", dir });
+  }
+
+  menu(action: "pause" | "resume" | "restart" | "quit" | "speed" | "repeat", speed?: "calma" | "normal" | "turbo") {
+    this.sendBody({ k: "menu", action, speed });
   }
 
   ready(ready: boolean) {

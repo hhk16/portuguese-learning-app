@@ -1,4 +1,5 @@
 /** Burning-fuse timer. Animated with rAF + a CSS variable (no React re-render per frame). */
+import { gameNow } from "../clock.ts";
 import { useEffect, useRef } from "react";
 
 export function Fuse({ start, end }: { start: number; end: number }) {
@@ -6,7 +7,7 @@ export function Fuse({ start, end }: { start: number; end: number }) {
   useEffect(() => {
     let raf = 0;
     const loop = () => {
-      const p = Math.max(0, Math.min(1, (end - performance.now()) / Math.max(1, end - start)));
+      const p = Math.max(0, Math.min(1, (end - gameNow()) / Math.max(1, end - start)));
       if (ref.current) {
         ref.current.style.setProperty("--p", String(p));
         ref.current.classList.toggle("hot", p < 0.3);

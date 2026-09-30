@@ -1,4 +1,5 @@
 /** Turbo Race overlay: standings + lap progress, countdown, question card, item round, finish. */
+import { gameNow } from "../clock.ts";
 import { useEffect, useState } from "react";
 import { ITEM_INFO, type TurboRace } from "../../games/race/race.ts";
 import { Avatar } from "../../ui/Avatar.tsx";
@@ -12,7 +13,7 @@ export function RaceHud({ a }: { a: TurboRace }) {
     const id = setInterval(() => tick((x) => x + 1), 120);
     return () => clearInterval(id);
   }, []);
-  const now = performance.now();
+  const now = gameNow();
   const order = a.order();
   const q = a.question;
 

@@ -1,6 +1,7 @@
 /**
  * TV-side connection: owns the room, stamps envelopes, answers clock pings, de-duplicates inputs.
  */
+import { gameNow } from "../tv/clock.ts";
 import { randomId } from "../shared/ids.ts";
 import {
   PROTOCOL_VERSION,
@@ -87,7 +88,7 @@ export class HostConnection {
         const msg = m.msg;
         if (msg.roomEpoch !== this.epoch) return;
         if (msg.body.k === "ping") {
-          this.sendBody(msg.playerId, { k: "pong", id: msg.body.id, t0: msg.body.t0, hostTime: performance.now() });
+          this.sendBody(msg.playerId, { k: "pong", id: msg.body.id, t0: msg.body.t0, hostTime: gameNow() });
           return;
         }
         if (this.seen.has(msg.messageId)) {
@@ -121,6 +122,10 @@ export class HostConnection {
   sendView(playerId: string, view: ControllerView) {
     this.lastViews.set(playerId, view);
     this.sendBody(playerId, { k: "view", view, snapshotSeq: ++this.snapshotSeq });
+  }
+
+  resync(playerId: string) {
+    this.sendBody(playerId, { k: "resync" });
   }
 
   fx(playerId: string, fx: "buzz" | "success" | "fail" | "boost") {

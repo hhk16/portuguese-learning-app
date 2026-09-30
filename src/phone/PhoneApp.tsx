@@ -8,6 +8,8 @@ import { Avatar, AVATAR_NAME, COLOR_HEX, COLOR_NAME } from "../ui/Avatar.tsx";
 import { Controller } from "./Controller.tsx";
 
 const PROFILE_KEY = "pp.phone.profile";
+/** Screens where ⏸ makes no sense (menus, results, already paused). */
+const NO_PAUSE = new Set<ControllerView["mode"]>(["lobby", "remote", "results", "paused"]);
 
 interface Profile {
   id: string;
@@ -62,6 +64,24 @@ export function PhoneApp() {
     if (!conn && profile.name && code.length >= 4 && localStorage.getItem("pp.phone.resume")) join();
   }, []);
 
+  // Keep the screen awake while connected (phones dim mid-round otherwise).
+  useEffect(() => {
+    if (!conn) return;
+    type Lock = { release(): Promise<void> };
+    const wl = (navigator as unknown as { wakeLock?: { request(t: "screen"): Promise<Lock> } }).wakeLock;
+    if (!wl) return;
+    let lock: Lock | null = null;
+    const acquire = () => {
+      if (document.visibilityState === "visible") wl.request("screen").then((l) => (lock = l), () => {});
+    };
+    acquire();
+    document.addEventListener("visibilitychange", acquire);
+    return () => {
+      document.removeEventListener("visibilitychange", acquire);
+      void lock?.release().catch(() => {});
+    };
+  }, [conn]);
+
   // Test hook for the automated e2e harness.
   useEffect(() => {
     (window as unknown as { __pp?: unknown }).__pp = { view, conn };
@@ -97,6 +117,12 @@ export function PhoneApp() {
           {code}
         </span>
         <span className={`dot ${online ? "" : "off"}`} title={online ? "ligado" : "a ligar…"} />
+        {!NO_PAUSE.has(view.mode) && (
+          <button className="pause-btn" aria-label="Pausa" onClick={() => conn.menu("pause")}>
+            <i />
+            <i />
+          </button>
+        )}
       </div>
       {!online && state.status === "joined" && state.hostAway && <div className="err" style={{ padding: 8 }}>A TV desligou-se… à espera 📺</div>}
       <div className="phone-main">

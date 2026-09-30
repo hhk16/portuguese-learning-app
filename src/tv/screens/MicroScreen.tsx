@@ -1,4 +1,5 @@
 /** Micro Loucura overlay: verb slam → prompt + fuse → (judge) → reveal stamps. */
+import { gameNow } from "../clock.ts";
 import { useEffect, useState } from "react";
 import { MICRO_DEFS, type MicroRush } from "../../games/micro/rush.ts";
 import { isCorrectOutcome } from "../../learner/events.ts";
@@ -21,7 +22,7 @@ export function MicroScreen({ a }: { a: MicroRush }) {
   const top = (
     <div className="hud-top">
       <div className="pips">
-        {Array.from({ length: 10 }, (_, i) => (
+        {Array.from({ length: a.total }, (_, i) => (
           <div key={i} className={`pip ${i < a.index - 1 || (i === a.index - 1 && a.phase === "reveal") ? "done" : i === a.index - 1 ? "now" : ""}`} />
         ))}
       </div>
@@ -151,7 +152,7 @@ export function MicroScreen({ a }: { a: MicroRush }) {
       );
       break;
     case "stream": {
-      const i = a.phase === "play" ? a.streamIndexAt(performance.now()) : -1;
+      const i = a.phase === "play" ? a.streamIndexAt(gameNow()) : -1;
       const w = i >= 0 ? q.words[i] : null;
       body = (
         <>

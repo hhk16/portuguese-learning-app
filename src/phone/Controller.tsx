@@ -4,7 +4,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PhoneConnection } from "../net/phone.ts";
-import type { ControllerView, InputValue } from "../shared/protocol.ts";
+import { SPEEDS, type ControllerView, type InputValue, type PromptCard, type Speed } from "../shared/protocol.ts";
 import { unlockAudio } from "../audio/sfx.ts";
 
 type ViewOf<M extends ControllerView["mode"]> = Extract<ControllerView, { mode: M }>;
@@ -18,7 +18,7 @@ export function Controller({ view, conn }: { view: ControllerView; conn: PhoneCo
   const key = "promptId" in view ? `${view.mode}:${view.promptId}` : view.mode + ("title" in view ? view.title : "");
   return (
     <div key={key} style={{ display: "contents" }} onPointerDown={unlockAudio}>
-      {"title" in view && view.mode !== "wait" && view.mode !== "results" && view.title && <h1 className="p-title">{view.title}</h1>}
+      {"title" in view && view.mode !== "wait" && view.mode !== "results" && view.mode !== "paused" && view.title && <h1 className="p-title">{view.title}</h1>}
       {"deadline" in view && <Timer conn={conn} deadline={view.deadline} />}
       <Body view={view} conn={conn} send={send} />
     </div>
@@ -31,6 +31,8 @@ function Body({ view, conn, send }: { view: ControllerView; conn: PhoneConnectio
       return <Wait v={view} />;
     case "lobby":
       return <Lobby v={view} conn={conn} />;
+    case "paused":
+      return <Paused v={view} conn={conn} />;
     case "remote":
       return <Remote conn={conn} hint={view.hint} />;
     case "choices":
@@ -50,7 +52,7 @@ function Body({ view, conn, send }: { view: ControllerView; conn: PhoneConnectio
     case "itemPick":
       return <ItemPick v={view} send={send} />;
     case "lesson":
-      return <LessonStep v={view} send={send} />;
+      return <LessonStep v={view} conn={conn} send={send} />;
     case "results":
       return <Results v={view} conn={conn} />;
   }
@@ -76,6 +78,89 @@ function Timer({ conn, deadline }: { conn: PhoneConnection; deadline: number }) 
   return (
     <div className="timer" ref={ref}>
       <div />
+    </div>
+  );
+}
+
+/* ------------------------------ prompt card ------------------------------ */
+
+const SPEED_UI: Record<Speed, { label: string; sub: string }> = {
+  calma: { label: "🐢 Calma", sub: "mais tempo" },
+  normal: { label: "Normal", sub: "" },
+  turbo: { label: "⚡ Turbo", sub: "menos tempo" },
+};
+
+/** Renders "___" as a highlighted gap. */
+function Gap({ text }: { text: string }) {
+  const parts = text.split(/_{3,}/);
+  return (
+    <>
+      {parts.map((p, i) => (
+        <span key={i}>
+          {p}
+          {i < parts.length - 1 && <span className="gap">?</span>}
+        </span>
+      ))}
+    </>
+  );
+}
+
+/** The prompt as the TV shows it — so nobody has to look back and forth between screens. */
+function Card({ card, fallback }: { card?: PromptCard; fallback?: string }) {
+  if (!card) return fallback ? <div className="p-question">{fallback}</div> : null;
+  const long = card.headline.length > 38;
+  return (
+    <div className="p-card">
+      {card.kicker && <div className="pc-kicker">{card.kicker}</div>}
+      {card.visual && <div className="pc-visual">{card.visual}</div>}
+      <div className={`pc-head ${long ? "long" : ""}`}>
+        <Gap text={card.headline} />
+      </div>
+      {card.sub && <div className="pc-sub">{card.sub}</div>}
+    </div>
+  );
+}
+
+function SpeedPicker({ speed, conn }: { speed: Speed; conn: PhoneConnection }) {
+  return (
+    <div className="speed-seg" role="radiogroup" aria-label="Velocidade">
+      {SPEEDS.map((sp) => (
+        <button
+          key={sp}
+          role="radio"
+          aria-checked={sp === speed}
+          className={sp === speed ? "on" : ""}
+          onClick={() => {
+            navigator.vibrate?.(10);
+            conn.menu("speed", sp);
+          }}
+        >
+          {SPEED_UI[sp].label}
+          {SPEED_UI[sp].sub && <small>{SPEED_UI[sp].sub}</small>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Paused({ v, conn }: { v: ViewOf<"paused">; conn: PhoneConnection }) {
+  return (
+    <div className="wait">
+      <div className="emoji">⏸️</div>
+      <h2>{v.title}</h2>
+      <button className="bbtn good" style={{ minHeight: 96, fontSize: 28 }} onClick={() => conn.menu("resume")}>
+        ▶ Continuar
+      </button>
+      <div className="p-sub">Velocidade</div>
+      <SpeedPicker speed={v.speed} conn={conn} />
+      <div style={{ display: "flex", gap: 10, width: "100%" }}>
+        <button className="bbtn alt" onClick={() => conn.menu("restart")}>
+          ↺ Recomeçar
+        </button>
+        <button className="bbtn ghost" onClick={() => conn.menu("quit")}>
+          ⏏ Sair
+        </button>
+      </div>
     </div>
   );
 }
@@ -112,6 +197,8 @@ function Lobby({ v, conn }: { v: ViewOf<"lobby">; conn: PhoneConnection }) {
         {v.ready ? "PRONTO! ✅" : "ESTOU PRONTO!"}
       </button>
       {v.ready && <div className="p-sub">Toca outra vez para cancelar</div>}
+      <div className="p-sub">Velocidade do jogo</div>
+      <SpeedPicker speed={v.speed} conn={conn} />
       <button className="bbtn ghost" onClick={() => conn.nav("back")}>
         ← Menu
       </button>
@@ -184,7 +271,7 @@ function Choices({ v, send }: { v: ViewOf<"choices">; send: Send }) {
   return (
     <>
       {v.hud && <div className="p-sub pixel" style={{ fontSize: 11 }}>{v.hud}</div>}
-      {v.question && <div className="p-question">{v.question}</div>}
+      <Card card={v.card} fallback={v.question} />
       <div className="choice-stack">
         {v.options.map((o) => (
           <button
@@ -241,7 +328,7 @@ function Tiles({ v, send }: { v: ViewOf<"tiles">; send: Send }) {
   const ch = (id: string) => v.tiles.find((t) => t.id === id)?.ch ?? "";
   return (
     <>
-      {v.question && <div className="p-question">{v.question}</div>}
+      <Card card={v.card} fallback={v.question} />
       <div className="slots">
         {Array.from({ length: v.length }, (_, i) => (
           <button key={i} className={`slot ${seq[i] ? "full" : ""}`} style={{ background: "none", color: "inherit" }} onClick={() => !sent && setSeq(seq.slice(0, i))}>
@@ -269,7 +356,7 @@ function ErrorTap({ v, send }: { v: ViewOf<"errorTap">; send: Send }) {
   const [picked, setPicked] = useState<string | null>(null);
   return (
     <>
-      <div className="p-question">{v.question}</div>
+      <Card card={v.card} fallback={v.question} />
       <div className="chips">
         {v.words.map((w) => (
           <button
@@ -312,7 +399,7 @@ function Merge({ v, send }: { v: ViewOf<"merge">; send: Send }) {
 
   return (
     <>
-      {v.question && <div className="p-question">{v.question}</div>}
+      <Card card={v.card} fallback={v.question} />
       <div className="p-sub">Arrasta (ou toca) a preposição para o artigo</div>
       <div
         className="merge-board"
@@ -368,9 +455,22 @@ function Merge({ v, send }: { v: ViewOf<"merge">; send: Send }) {
 
 function TapStream({ v, conn, send }: { v: ViewOf<"tapStream">; conn: PhoneConnection; send: Send }) {
   const [taps, setTaps] = useState(0);
+  const word = useStreamWord(v.stream, conn);
   return (
     <>
       <div className="p-question">{v.rule}</div>
+      {v.stream && (
+        <div className="stream-mirror">
+          {word ? (
+            <span key={word.i} className="sw">
+              {word.visual && <span className="sv">{word.visual}</span>}
+              {word.text}
+            </span>
+          ) : (
+            <span className="sw dim">…</span>
+          )}
+        </div>
+      )}
       <div className="mega">
         <button
           onPointerDown={() => {
@@ -383,9 +483,28 @@ function TapStream({ v, conn, send }: { v: ViewOf<"tapStream">; conn: PhoneConne
           TOCA!
         </button>
       </div>
-      <div className="p-sub">Olha para a TV · toques: {taps}</div>
+      <div className="p-sub">{v.stream ? "Toca quando a palavra certa aparecer" : "Olha para a TV"} · toques: {taps}</div>
     </>
   );
+}
+
+/** Which word of the TV's stream is showing right now, on the synced host clock. */
+function useStreamWord(stream: ViewOf<"tapStream">["stream"], conn: PhoneConnection) {
+  const [i, setI] = useState(-1);
+  useEffect(() => {
+    if (!stream) return;
+    let raf = 0;
+    const loop = () => {
+      const now = conn.hostNow();
+      const idx = now === null ? -1 : Math.floor((now - stream.startAt - stream.lead) / stream.per);
+      setI(idx >= 0 && idx < stream.words.length ? idx : -1);
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+    return () => cancelAnimationFrame(raf);
+  }, [stream, conn]);
+  const w = stream && i >= 0 ? stream.words[i] : undefined;
+  return w ? { ...w, i } : null;
 }
 
 /* ----------------------------------- mic ---------------------------------- */
@@ -461,10 +580,16 @@ function Mic({ v, send }: { v: ViewOf<"mic">; send: Send }) {
 
   return (
     <>
-      <div className="p-question" style={{ fontSize: 34 }}>
-        {v.target}
-      </div>
-      {v.question && <div className="p-sub">{v.question}</div>}
+      {v.card ? (
+        <Card card={v.card} />
+      ) : (
+        <>
+          <div className="p-question" style={{ fontSize: 34 }}>
+            {v.target}
+          </div>
+          {v.question && <div className="p-sub">{v.question}</div>}
+        </>
+      )}
       <div className="mega">
         <button className={state === "listening" ? "mic-on" : ""} disabled={state === "sent"} onClick={start}>
           {state === "sent" ? "✅" : state === "listening" ? "A OUVIR…" : "🎤 DIZ!"}
@@ -510,7 +635,7 @@ function ItemPick({ v, send }: { v: ViewOf<"itemPick">; send: Send }) {
   const [picked, setPicked] = useState<string | null>(null);
   return (
     <>
-      {v.question && <div className="p-question">{v.question}</div>}
+      <Card card={v.card} fallback={v.question} />
       <div className="item-cards">
         {v.items.map((it) => (
           <button
@@ -535,18 +660,25 @@ function ItemPick({ v, send }: { v: ViewOf<"itemPick">; send: Send }) {
   );
 }
 
-function LessonStep({ v, send }: { v: ViewOf<"lesson">; send: Send }) {
+function LessonStep({ v, conn, send }: { v: ViewOf<"lesson">; conn: PhoneConnection; send: Send }) {
   return (
-    <div className="wait">
-      <div className="emoji">🎓</div>
-      <div className="p-question" style={{ fontSize: 30 }}>
-        {v.step}
-      </div>
-      <div className="p-sub">Olha para a TV e ouve</div>
-      <button className="bbtn" disabled={!v.canContinue} onClick={() => send({ mode: "lesson", ok: true })} style={{ minHeight: 100 }}>
-        👍 Percebi!
+    <>
+      <Card card={v.card ?? { headline: v.step }} />
+      {v.lines && v.lines.length > 0 && (
+        <ul className="lesson-lines">
+          {v.lines.map((l) => (
+            <li key={l}>{l}</li>
+          ))}
+        </ul>
+      )}
+      <div style={{ flex: 1 }} />
+      <button className="bbtn ghost" onClick={() => conn.menu("repeat")}>
+        🔊 Ouvir outra vez
       </button>
-    </div>
+      <button className="bbtn" disabled={!v.canContinue} onClick={() => send({ mode: "lesson", ok: true })} style={{ minHeight: 96 }}>
+        {v.canContinue ? "👍 Percebi!" : "✅ À espera do teu par…"}
+      </button>
+    </>
   );
 }
 
@@ -576,7 +708,7 @@ function Results({ v, conn }: { v: ViewOf<"results">; conn: PhoneConnection }) {
       )}
       <div style={{ flex: 1 }} />
       <button className="bbtn" onClick={() => conn.nav("ok")}>
-        Mais uma! 🔁
+        {v.lines[1]?.includes("Próxima aula") ? "Próxima aula ▶" : "Mais uma! 🔁"}
       </button>
       <button className="bbtn ghost" onClick={() => conn.nav("back")}>
         Menu

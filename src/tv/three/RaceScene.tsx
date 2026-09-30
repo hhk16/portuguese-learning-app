@@ -2,6 +2,7 @@
  * Turbo Race scene: a neon ribbon track floating over the grid, arches, and chunky karts driven by
  * the players' avatars. Reads the race's mutable state every frame (no React re-render per frame).
  */
+import { gameNow } from "../clock.ts";
 import { Html } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
@@ -109,7 +110,7 @@ export function RaceScene({ race, players }: { race: TurboRace; players: Runtime
     camTarget.current.lerp(look, Math.min(1, dt * 3));
     camera.position.copy(camPos.current);
     camera.lookAt(camTarget.current);
-    const boosting = karts.some((k) => performance.now() < k.boostUntil);
+    const boosting = karts.some((k) => gameNow() < k.boostUntil);
     const pc = camera as THREE.PerspectiveCamera;
     pc.fov += ((boosting ? 72 : 60) - pc.fov) * Math.min(1, dt * 3);
     pc.updateProjectionMatrix();
@@ -148,7 +149,7 @@ function KartMesh({ race, player, curve }: { race: TurboRace; player: RuntimePla
   useFrame((state, dt) => {
     const k = race.karts.get(player.playerId);
     if (!k || !root.current) return;
-    const now = performance.now();
+    const now = gameNow();
     const u = ((k.u % 1) + 1) % 1;
     const p = curve.getPointAt(u);
     const tan = curve.getTangentAt(u);
@@ -181,7 +182,7 @@ function KartMesh({ race, player, curve }: { race: TurboRace; player: RuntimePla
 
   return (
     <group ref={root}>
-      {label && performance.now() - label.at < 1500 && (
+      {label && gameNow() - label.at < 1500 && (
         <Html center position={[0, 3.4, 0]} zIndexRange={[20, 10]}>
           <div key={label.at} className={`kart-label ${label.tone === "bad" ? "bad" : label.tone === "item" ? "item" : ""}`} data-color={player.color} style={{ position: "static", fontSize: `calc(100vh / 54 * ${label.tone === "bad" ? 3 : 3.8})` }}>
             {label.text}

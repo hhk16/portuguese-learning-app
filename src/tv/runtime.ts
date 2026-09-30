@@ -20,7 +20,9 @@ import type { LearnerProfile } from "../learner/model.ts";
 import { HostConnection } from "../net/host.ts";
 import type { SocketStatus } from "../net/socket.ts";
 import { Rng } from "../shared/rng.ts";
-import type { ControllerView, InputValue, NavDir, PlayerBody, PlayerInfo } from "../shared/protocol.ts";
+import type { ControllerView, InputValue, NavDir, PlayerBody, PlayerInfo, Speed } from "../shared/protocol.ts";
+import { playMusic, stopMusic } from "../audio/music.ts";
+import { clockPaused, gameNow, pauseClock, resumeClock } from "./clock.ts";
 import { sfx } from "../audio/sfx.ts";
 import { speak } from "../audio/tts.ts";
 import { LearnerStore } from "./learner-store.ts";
@@ -46,9 +48,16 @@ export interface Activity {
   /** View a (re)joining phone should see right now. */
   viewFor(p: RuntimePlayer): ControllerView;
   stop?(): void;
+  /** Game segments can be paused (Back on the TV / ⏸ on a phone); menus cannot. */
+  readonly pausable?: boolean;
+  /** Re-play the current audio (phone "🔊 ouvir outra vez"). */
+  repeat?(): void;
+  /** Music track to restore after a pause. */
+  readonly music?: "title" | "party" | "race" | "aula";
 }
 
 export interface Settings {
+  speed: Speed;
   lowFx: boolean;
   music: boolean;
   subtitles: boolean;
@@ -73,7 +82,12 @@ export class TvRuntime {
   code = "";
   socket: SocketStatus = "connecting";
   activity: Activity | null = null;
-  settings: Settings = { lowFx: false, music: true, subtitles: true, ...readSettings() };
+  settings: Settings = { speed: "normal", lowFx: false, music: true, subtitles: true, ...readSettings() };
+  paused = false;
+  pauseFocus = 0;
+  /** Set by the mode runner: how to restart the current mode / leave to the title screen. */
+  onRestart: (() => void) | null = null;
+  onQuit: (() => void) | null = null;
   mc: McBubble | null = null;
   mcMood: Line["mood"] = "happy";
   mcTalkUntil = 0;
@@ -106,11 +120,11 @@ export class TvRuntime {
     // Game logic ticks on a timer, independent of the render frame rate (slow TV GPUs must not
     // slow the rules down). Rendering reads the state on its own rAF.
     setInterval(() => {
-      const now = performance.now();
-      const dt = Math.min(0.1, (now - this.lastTick) / 1000);
+      const now = gameNow();
+      const dt = Math.min(0.1, Math.max(0, (now - this.lastTick) / 1000));
       this.lastTick = now;
-      this.activity?.tick(now, dt);
-      if (this.mc && now > this.mc.until) {
+      if (!this.paused) this.activity?.tick(now, dt);
+      if (this.mc && performance.now() > this.mc.until) {
         this.mc = null;
         this.bump();
       }
@@ -152,7 +166,7 @@ export class TvRuntime {
       }
     }
     const p = this.players.get(info.playerId)!;
-    this.conn.sendView(p.playerId, this.activity ? this.activity.viewFor(p) : { mode: "wait", title: "Olha para a TV!" });
+    this.conn.sendView(p.playerId, this.currentView(p));
     this.activity?.onPlayersChanged?.();
     this.bump();
   }
@@ -162,14 +176,19 @@ export class TvRuntime {
     if (!p) return;
     switch (body.k) {
       case "input": {
+        if (this.paused) return;
         // Latency-sensitive: prefer the phone's host-synced timestamp, bounded by receipt time.
-        const now = performance.now();
+        const now = gameNow();
         const t = body.clientHostTime > 0 && body.clientHostTime <= now + 50 && body.clientHostTime > now - 3000 ? body.clientHostTime : now;
         this.activity?.onInput?.(p, body.promptId, body.roundId, body.value, t);
         return;
       }
       case "nav":
+        if (this.paused || body.dir === "back") return this.tvNav(body.dir);
         this.activity?.onNav?.(body.dir, p);
+        return;
+      case "menu":
+        this.menu(body.action, body.speed);
         return;
       case "ready":
         p.ready = body.ready;
@@ -179,9 +198,103 @@ export class TvRuntime {
     }
   }
 
-  /** Remote from TV keyboard / D-pad. */
+  /** Remote from TV keyboard / D-pad. Back pauses a running game. */
   tvNav(dir: NavDir) {
+    if (this.paused) {
+      const items = this.pauseItems;
+      if (dir === "up" || dir === "down") {
+        this.pauseFocus = (this.pauseFocus + (dir === "up" ? -1 : 1) + items.length) % items.length;
+        sfx.nav();
+        this.bump();
+      } else if (dir === "ok") this.menu(items[this.pauseFocus]!.id);
+      else if (dir === "back") this.resume();
+      else if ((dir === "left" || dir === "right") && items[this.pauseFocus]!.id === "speed") this.menu("speed");
+      return;
+    }
+    if (dir === "back" && this.activity?.pausable) return this.pause();
     this.activity?.onNav?.(dir, "tv");
+  }
+
+  /* --------------------------------- pause --------------------------------- */
+
+  get pauseItems(): { id: "resume" | "speed" | "restart" | "quit"; label: string }[] {
+    return [
+      { id: "resume", label: "▶ Continuar" },
+      { id: "speed", label: `Velocidade: ${SPEED_LABEL[this.settings.speed]}` },
+      { id: "restart", label: "↺ Recomeçar" },
+      { id: "quit", label: "⏏ Sair para o menu" },
+    ];
+  }
+
+  /** Relative duration multiplier for timers: calma gives more time, turbo less. */
+  get pace(): number {
+    return PACE[this.settings.speed];
+  }
+
+  menu(action: "pause" | "resume" | "restart" | "quit" | "speed" | "repeat", speed?: Speed) {
+    switch (action) {
+      case "pause":
+        if (this.activity?.pausable) this.pause();
+        return;
+      case "resume":
+        return this.resume();
+      case "speed": {
+        const next = speed ?? SPEED_ORDER[(SPEED_ORDER.indexOf(this.settings.speed) + 1) % SPEED_ORDER.length]!;
+        this.setSettings({ speed: next });
+        sfx.select();
+        for (const p of this.activePlayers) this.conn.sendView(p.playerId, this.currentView(p));
+        return;
+      }
+      case "restart":
+        this.unpauseQuietly();
+        sfx.select();
+        this.onRestart?.();
+        return;
+      case "quit":
+        this.unpauseQuietly();
+        sfx.select();
+        this.onQuit?.();
+        return;
+      case "repeat":
+        if (!this.paused) this.activity?.repeat?.();
+        return;
+    }
+  }
+
+  pause() {
+    if (this.paused || !this.activity?.pausable) return;
+    pauseClock();
+    this.paused = true;
+    this.pauseFocus = 0;
+    stopMusic();
+    sfx.select();
+    for (const p of this.activePlayers) this.conn.sendView(p.playerId, this.currentView(p));
+    this.bump();
+  }
+
+  resume() {
+    if (!this.paused) return;
+    resumeClock();
+    this.paused = false;
+    // Phones' clock offsets are stale after the host clock stood still: resync, then resend views
+    // (deadlines are unchanged in game time, so they are still correct).
+    for (const p of this.activePlayers) {
+      this.conn.resync(p.playerId);
+      this.conn.sendView(p.playerId, this.currentView(p));
+    }
+    if (this.activity?.music && this.settings.music) playMusic(this.activity.music);
+    sfx.select();
+    this.bump();
+  }
+
+  private unpauseQuietly() {
+    if (clockPaused()) resumeClock();
+    this.paused = false;
+  }
+
+  currentView(p: RuntimePlayer): ControllerView {
+    if (this.paused) return { mode: "paused", speed: this.settings.speed, title: "Pausa" };
+    return this.activity ? this.activity.viewFor(p) : { mode: "wait", title: "Olha para a TV!" };
   }
 
   /* ------------------------------ activities ------------------------------ */
@@ -197,6 +310,7 @@ export class TvRuntime {
   }
 
   run(a: Activity) {
+    this.unpauseQuietly();
     this.activity?.stop?.();
     this.activity = a;
     a.start(this);
@@ -275,6 +389,10 @@ export class TvRuntime {
     this.bump();
   }
 }
+
+export const SPEED_LABEL: Record<Speed, string> = { calma: "Calma 🐢", normal: "Normal", turbo: "Turbo ⚡" };
+const SPEED_ORDER: Speed[] = ["calma", "normal", "turbo"];
+const PACE: Record<Speed, number> = { calma: 1.7, normal: 1, turbo: 0.8 };
 
 function readSettings(): Partial<Settings> {
   try {

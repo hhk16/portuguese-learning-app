@@ -18,6 +18,8 @@ export interface SelectContext {
   /** Items already used this session (avoid immediate repeats). */
   recent: readonly string[];
   now?: number;
+  /** Share of rounds drawn from the lesson (default 0.5; ~0.8 right after its Mini Aula). */
+  lessonShare?: number;
 }
 
 export interface Selection {
@@ -35,7 +37,9 @@ export function selectItem(ctx: SelectContext, rng: Rng): Selection | null {
   if (pool.length === 0) return null;
 
   const roll = rng.next();
-  if (roll < 0.3) {
+  const reviewCut = ctx.lessonShare !== undefined && ctx.lessonShare > 0.6 ? 0.15 : 0.3;
+  const lessonCut = Math.min(0.97, reviewCut + (ctx.lessonShare ?? 0.5));
+  if (roll < reviewCut) {
     // Review: weakest or due item among players present.
     let best: { item: KnowledgeItem; score: number; profileId: string } | null = null;
     for (const p of ctx.profiles) {
@@ -48,7 +52,7 @@ export function selectItem(ctx: SelectContext, rng: Rng): Selection | null {
     }
     if (best) return { item: best.item, reason: "review", forProfileId: best.profileId };
   }
-  if (roll < 0.8) {
+  if (roll < lessonCut) {
     const lesson = pool.filter((c) => ctx.lessonItemIds.has(c.id));
     if (lesson.length > 0) return { item: rng.pick(lesson), reason: "lesson" };
   }

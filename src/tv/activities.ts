@@ -4,16 +4,23 @@
  * Party Night has no navigation menus between segments: once it starts, the director carries the
  * players from one segment to the next like a TV game show. Menus exist only on the title screen.
  */
-import { LESSONS } from "../curriculum/lessons.ts";
-import { MiniAula } from "../games/aula/aula.ts";
+import { gameNow } from "./clock.ts";
+import { getLesson, LESSONS } from "../curriculum/lessons.ts";
+import { lessonsDone, MiniAula, nextLessonId } from "../games/aula/aula.ts";
 import { MicroRush } from "../games/micro/rush.ts";
 import { TurboRace, type RaceResult } from "../games/race/race.ts";
 import type { ControllerView, NavDir } from "../shared/protocol.ts";
 import { sfx } from "../audio/sfx.ts";
 import { playMusic } from "../audio/music.ts";
-import type { Activity, RuntimePlayer, TvRuntime } from "./runtime.ts";
+import { SPEED_LABEL, type Activity, type RuntimePlayer, type TvRuntime } from "./runtime.ts";
 
-export type Mode = "party" | "micro" | "race" | "aula";
+export type Mode = "party" | "micro" | "race" | "lesson";
+
+export interface ModeSpec {
+  mode: Mode;
+  /** For "lesson": which Mini Aula. */
+  lessonId?: string;
+}
 
 /* -------------------------------------------------------------------------- */
 /* Title                                                                       */
@@ -30,7 +37,7 @@ export interface MenuItem {
 export class TitleActivity implements Activity {
   readonly id = "title";
   rt!: TvRuntime;
-  menu: "main" | "arcade" | "settings" = "main";
+  menu: "main" | "aulas" | "arcade" | "settings" = "main";
   focus = 0;
 
   start(rt: TvRuntime) {
@@ -40,15 +47,27 @@ export class TitleActivity implements Activity {
 
   get items(): MenuItem[] {
     const s = this.rt.settings;
+    if (this.menu === "aulas") {
+      const done = lessonsDone();
+      return [
+        ...LESSONS.map((l, i) => ({
+          id: `lesson:${l.id}`,
+          label: `${i + 1}. ${l.title}`,
+          sub: `${l.unit === "u00" ? "Unidade 0" : "Unidade 1"} · Mini Aula + treino`,
+          badge: done.has(l.id) ? "✓ FEITA" : undefined,
+        })),
+        { id: "back", label: "← Voltar" },
+      ];
+    }
     if (this.menu === "arcade")
       return [
         { id: "micro", label: "Micro Loucura", sub: "Microjogos de 5 segundos" },
         { id: "race", label: "Turbo Corrida", sub: "Respostas rápidas = TURBO" },
-        { id: "aula", label: "Mini Aula", sub: "de · do · da · dos · das" },
         { id: "back", label: "← Voltar" },
       ];
     if (this.menu === "settings")
       return [
+        { id: "speed", label: `Velocidade: ${SPEED_LABEL[s.speed]}`, sub: "Calma = mais tempo para pensar" },
         { id: "lowFx", label: `Efeitos: ${s.lowFx ? "Leves" : "Máximos"}`, sub: "Leves = mais fluido em TVs antigas" },
         { id: "music", label: `Música: ${s.music ? "Ligada" : "Desligada"}` },
         { id: "subtitles", label: `Legendas EN do Blip: ${s.subtitles ? "Sim" : "Não"}` },
@@ -56,6 +75,7 @@ export class TitleActivity implements Activity {
       ];
     return [
       { id: "party", label: "Noite de Festa", sub: "O espetáculo completo" },
+      { id: "aulas", label: "Aulas", sub: `${lessonsDone().size}/${LESSONS.length} feitas · aprende e treina` },
       { id: "arcade", label: "Arcade", sub: "Escolhe um jogo" },
       { id: "desafio", label: "Desafio", sub: "Desafia o teu par", disabled: true, badge: "EM BREVE" },
       { id: "profiles", label: "Perfis", sub: "Progresso e metas A1", disabled: true, badge: "EM BREVE" },
@@ -77,10 +97,14 @@ export class TitleActivity implements Activity {
       this.rt.bump();
       return;
     }
+    if ((dir === "left" || dir === "right") && items[this.focus]?.id === "speed") {
+      this.rt.menu("speed");
+      return;
+    }
     if (dir === "back") {
       if (this.menu !== "main") {
+        this.focus = MAIN_INDEX[this.menu] ?? 0;
         this.menu = "main";
-        this.focus = 0;
         sfx.nav();
         this.rt.bump();
       }
@@ -90,21 +114,32 @@ export class TitleActivity implements Activity {
     const item = items[this.focus]!;
     if (item.disabled) return sfx.wrong();
     sfx.select();
+    if (item.id.startsWith("lesson:")) {
+      this.rt.run(new LobbyActivity({ mode: "lesson", lessonId: item.id.slice("lesson:".length) }));
+      return;
+    }
     switch (item.id) {
       case "party":
       case "micro":
       case "race":
-      case "aula":
-        this.rt.run(new LobbyActivity(item.id as Mode));
+        this.rt.run(new LobbyActivity({ mode: item.id }));
         return;
+      case "aulas":
+        this.menu = "aulas";
+        // Start on the next lesson in book order.
+        this.focus = Math.max(0, LESSONS.findIndex((l) => l.id === nextLessonId()));
+        break;
       case "arcade":
       case "settings":
         this.menu = item.id;
         this.focus = 0;
         break;
       case "back":
+        this.focus = MAIN_INDEX[this.menu] ?? 0;
         this.menu = "main";
-        this.focus = 0;
+        break;
+      case "speed":
+        this.rt.menu("speed");
         break;
       case "lowFx":
         this.rt.setSettings({ lowFx: !this.rt.settings.lowFx });
@@ -126,20 +161,29 @@ export class TitleActivity implements Activity {
   }
 }
 
+const MAIN_INDEX: Record<string, number> = { aulas: 1, arcade: 2, settings: 5 };
+
 /* -------------------------------------------------------------------------- */
 /* Lobby: ready check                                                          */
 /* -------------------------------------------------------------------------- */
 
-export const MODE_TITLES: Record<Mode, string> = { party: "Noite de Festa", micro: "Micro Loucura", race: "Turbo Corrida", aula: "Mini Aula" };
+export function specTitle(spec: ModeSpec): string {
+  if (spec.mode === "lesson") return getLesson(spec.lessonId ?? "")?.title ?? "Aula";
+  return { party: "Noite de Festa", micro: "Micro Loucura", race: "Turbo Corrida" }[spec.mode];
+}
 
 export class LobbyActivity implements Activity {
   readonly id = "lobby";
   rt!: TvRuntime;
   countdownAt: number | null = null;
-  readonly mode: Mode;
+  readonly spec: ModeSpec;
 
-  constructor(mode: Mode) {
-    this.mode = mode;
+  constructor(spec: ModeSpec) {
+    this.spec = spec;
+  }
+
+  get title() {
+    return specTitle(this.spec);
   }
 
   start(rt: TvRuntime) {
@@ -163,7 +207,7 @@ export class LobbyActivity implements Activity {
       this.countdownAt = null;
       sfx.countdown(true);
       this.rt.resetSession();
-      startMode(this.rt, this.mode);
+      startMode(this.rt, this.spec);
     }
   }
 
@@ -178,6 +222,11 @@ export class LobbyActivity implements Activity {
 
   onNav(dir: NavDir, from: RuntimePlayer | "tv") {
     if (dir === "back") this.rt.run(new TitleActivity());
+    if (dir === "left" || dir === "right") {
+      const order = ["calma", "normal", "turbo"] as const;
+      const i = order.indexOf(this.rt.settings.speed) + (dir === "left" ? -1 : 1);
+      this.rt.menu("speed", order[Math.min(2, Math.max(0, i))]);
+    }
     if (dir === "ok" && from === "tv") {
       // TV remote "OK" = everyone connected is ready (handy with one phone + remote).
       for (const p of this.rt.activePlayers) p.ready = true;
@@ -186,7 +235,7 @@ export class LobbyActivity implements Activity {
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
-    return { mode: "lobby", ready: p.ready, canNavigate: true, hint: MODE_TITLES[this.mode] };
+    return { mode: "lobby", ready: p.ready, canNavigate: true, hint: this.title, speed: this.rt.settings.speed };
   }
 }
 
@@ -196,6 +245,8 @@ export class LobbyActivity implements Activity {
 
 export class IntroActivity implements Activity {
   readonly id = "intro";
+  readonly pausable = true;
+  readonly music = "party" as const;
   rt!: TvRuntime;
   startAt = 0;
   readonly title: string;
@@ -209,7 +260,7 @@ export class IntroActivity implements Activity {
 
   start(rt: TvRuntime) {
     this.rt = rt;
-    this.startAt = performance.now();
+    this.startAt = gameNow();
     playMusic("party");
     sfx.slam();
     rt.say({ type: "partyStart" }, true, 3000);
@@ -238,18 +289,18 @@ export class ResultsActivity implements Activity {
   readonly ranking: RuntimePlayer[] = [];
   readonly title: string;
   readonly race?: RaceResult;
-  readonly mode: Mode;
+  readonly spec: ModeSpec;
   startAt = 0;
 
-  constructor(mode: Mode, title: string, race?: RaceResult) {
-    this.mode = mode;
+  constructor(spec: ModeSpec, title: string, race?: RaceResult) {
+    this.spec = spec;
     this.title = title;
     this.race = race;
   }
 
   start(rt: TvRuntime) {
     this.rt = rt;
-    this.startAt = performance.now();
+    this.startAt = gameNow();
     this.ranking.push(...rt.sessionPlayers.sort((a, b) => b.score - a.score));
     playMusic("title");
     sfx.fanfare();
@@ -257,7 +308,7 @@ export class ResultsActivity implements Activity {
     if (a && b && a.score === b.score) rt.say({ type: "tie" }, true, 4000);
     else if (a && b) {
       rt.say({ type: "win", name: a.name, other: b.name }, true, 4200);
-      rt.perf(a, this.mode, "win");
+      rt.perf(a, this.spec.mode, "win");
     } else if (a) rt.say({ type: "solo", name: a.name }, true, 4000);
     for (const p of rt.activePlayers) rt.view(p, this.viewFor(p));
     void rt.learner.sync().then(() => rt.learner.pushSnapshot());
@@ -268,8 +319,19 @@ export class ResultsActivity implements Activity {
   onNav(dir: NavDir) {
     if (dir === "ok") {
       sfx.select();
-      this.rt.run(new LobbyActivity(this.mode));
+      this.rt.run(new LobbyActivity(this.next));
     } else if (dir === "back") this.rt.run(new TitleActivity());
+  }
+
+  /** After a lesson, "OK" moves on to the next lesson; otherwise it replays the mode. */
+  get next(): ModeSpec {
+    if (this.spec.mode !== "lesson") return this.spec;
+    const i = LESSONS.findIndex((l) => l.id === this.spec.lessonId);
+    return { mode: "lesson", lessonId: LESSONS[(i + 1) % LESSONS.length]!.id };
+  }
+
+  get nextLabel(): string {
+    return this.spec.mode === "lesson" ? `Próxima aula: ${specTitle(this.next)}` : "Mais uma!";
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
@@ -277,7 +339,7 @@ export class ResultsActivity implements Activity {
     return {
       mode: "results",
       title: rank === 1 ? "🏆 Ganhaste!" : `${rank}.º lugar`,
-      lines: [`${p.score} pontos`, "OK na TV / no telemóvel = Mais uma!"],
+      lines: [`${p.score} pontos`, `OK = ${this.nextLabel}`],
       review: p.missed.slice(0, 8).map((m) => ({ pt: m.answer, why: m.why })),
     };
   }
@@ -287,26 +349,35 @@ export class ResultsActivity implements Activity {
 /* Mode runner                                                                 */
 /* -------------------------------------------------------------------------- */
 
-export function startMode(rt: TvRuntime, mode: Mode) {
-  const lessonIds = LESSONS[0]!.itemIds;
-  const results = (race?: RaceResult) => rt.run(new ResultsActivity(mode, MODE_TITLES[mode], race));
-  switch (mode) {
+export function startMode(rt: TvRuntime, spec: ModeSpec) {
+  const results = (race?: RaceResult) => rt.run(new ResultsActivity(spec, specTitle(spec), race));
+  rt.onRestart = () => {
+    rt.resetSession();
+    startMode(rt, spec);
+  };
+  rt.onQuit = () => rt.run(new TitleActivity());
+  switch (spec.mode) {
     case "micro":
-      rt.run(new MicroRush(() => results(), 10));
+      rt.run(new MicroRush(() => results(), { total: 10 }));
       return;
     case "race":
-      rt.run(new TurboRace((r) => results(r), lessonIds));
+      rt.run(new TurboRace((r) => results(r), getLesson(nextLessonId())?.itemIds ?? []));
       return;
-    case "aula":
-      rt.run(new MiniAula(() => results()));
+    case "lesson": {
+      // Teach (Mini Aula) → Recognise/Produce (a short rush focused on the lesson) → results.
+      const lesson = getLesson(spec.lessonId ?? "") ?? LESSONS[0]!;
+      rt.run(new MiniAula(() => rt.run(new MicroRush(() => results(), { total: 6, lessonItemIds: lesson.itemIds, lessonShare: 0.85 })), lesson.id));
       return;
-    case "party":
-      // Intro → Micro Loucura → Mini Aula (teach) → Turbo Race (use) → Results.
+    }
+    case "party": {
+      // Intro → Micro Loucura (warm-up) → Mini Aula (teach the next lesson) → Turbo Race (use it) → Results.
+      const lesson = getLesson(nextLessonId()) ?? LESSONS[0]!;
       rt.run(
         new IntroActivity("NOITE DE FESTA", () =>
-          rt.run(new MicroRush(() => rt.run(new MiniAula(() => rt.run(new TurboRace((r) => results(r), lessonIds)))), 8)),
+          rt.run(new MicroRush(() => rt.run(new MiniAula(() => rt.run(new TurboRace((r) => results(r), lesson.itemIds)), lesson.id)), { total: 8 })),
         ),
       );
       return;
+    }
   }
 }
