@@ -43,6 +43,8 @@ import requests
 REPO = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO / "public" / "audio"
 MANIFEST = OUT_DIR / "manifest.json"
+# A voice being built over several days (--stage): the game ignores it until it is complete.
+MANIFEST_NEXT = OUT_DIR / "manifest.next.json"
 SOURCES = REPO / "scripts" / "audio" / "sources.json"
 OVERRIDES = REPO / "scripts" / "audio" / "overrides.json"
 CREDITS = REPO / "docs" / "credits-audio.md"
@@ -63,6 +65,10 @@ GEMINI_MODEL = "gemini-3.8-flash-tts"
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 
+class QuotaExhausted(Exception):
+    """The API's daily request quota is used up (free tier: ~100 TTS requests/day)."""
+
+
 def gemini_tts(text: str, voice: str, dst: Path) -> None:
     """Synthesise `text` in European Portuguese with a Gemini prebuilt voice → WAV at `dst`.
 
@@ -81,6 +87,8 @@ def gemini_tts(text: str, voice: str, dst: Path) -> None:
     }
     for attempt in range(10):
         r = requests.post(GEMINI_URL.format(model=GEMINI_MODEL), json=body, headers={"x-goog-api-key": key}, timeout=120)
+        if r.status_code == 429 and "PerDay" in r.text:
+            raise QuotaExhausted(r.json().get("error", {}).get("message", "daily quota")[:200])
         if r.status_code in (429, 500, 503):
             time.sleep(min(90, 15 * (attempt + 1)))
             continue
@@ -452,6 +460,10 @@ def main() -> None:
     ap.add_argument("--engine", choices=["gemini", "piper"], default="gemini" if os.environ.get("GEMINI_API_KEY") else "piper",
                     help="TTS for texts without a native recording (default: gemini when GEMINI_API_KEY is set)")
     ap.add_argument("--gemini-voice", default="Leda", help="Gemini prebuilt voice (default Leda)")
+    ap.add_argument("--stage", action="store_true",
+                    help="build the new voice over several runs (daily quota): encode what the quota allows into "
+                         "public/audio, record it in manifest.next.json, and switch manifest.json over only when "
+                         "every text is done. The game keeps the current audio until then.")
     args = ap.parse_args()
 
     work = Path(args.work).resolve()
@@ -521,9 +533,15 @@ def main() -> None:
             print(f"  skip LL {title}: speaker={m['speaker']!r} license={m['license']!r}", file=sys.stderr)
         plan[k] = piper_plan(k, text)
 
-    todo = [k for k, p in plan.items()
-            if args.force or manifest.get(k) != p["file"] or not (OUT_DIR / p["file"]).exists()]
-    print(f"{len(plan) - len(todo)} up to date, {len(todo)} to render", file=sys.stderr)
+    if args.stage:
+        # Only what isn't encoded yet; short texts (single words) first, then sentences.
+        todo = sorted((k for k, p in plan.items() if args.force or not (OUT_DIR / p["file"]).exists()), key=lambda k: (len(by_key[k]), k))
+        print(f"staging: {len(plan) - len(todo)}/{len(plan)} done, {len(todo)} left", file=sys.stderr)
+    else:
+        todo = [k for k, p in plan.items()
+                if args.force or manifest.get(k) != p["file"] or not (OUT_DIR / p["file"]).exists()]
+        print(f"{len(plan) - len(todo)} up to date, {len(todo)} to render", file=sys.stderr)
+    quota_hit = False
 
     # 2. Fetch / synthesise raw audio.
     raw: dict[str, Path] = {}
@@ -532,6 +550,8 @@ def main() -> None:
     voice = None
     for k in todo:
         p = plan[k]
+        if quota_hit and p["source"] == "gemini" and not (work / "gemini" / (short_hash(p["say"], GEMINI_MODEL, p["voice"]) + ".wav")).exists():
+            continue  # not cached and no quota left today
         try:
             if p["source"] == "lingua-libre":
                 try:
@@ -571,6 +591,9 @@ def main() -> None:
                 with wave.open(str(dst), "wb") as w:
                     voice.synthesize_wav(p["say"], w, syn_config=cfg)
             raw[k] = dst
+        except QuotaExhausted as e:
+            quota_hit = True
+            print(f"  daily quota used up — stopping Gemini requests for today ({e})", file=sys.stderr)
         except Exception as e:  # noqa: BLE001
             failed[k] = f"{type(e).__name__}: {e}"
 
@@ -591,6 +614,18 @@ def main() -> None:
             else:
                 print(f"  {plan[k]['source']:12} {d:5.2f}s  {plan[k]['file']}  {plan[k]['text']}", file=sys.stderr)
 
+    if args.stage:
+        staged = {k: p["file"] for k, p in plan.items() if (OUT_DIR / p["file"]).exists()}
+        if len(staged) < len(plan):
+            write_json(MANIFEST_NEXT, staged)
+            print(f"\nstaged {len(staged)}/{len(plan)} texts in {MANIFEST_NEXT.name}; manifest.json unchanged"
+                  + (" (daily quota reached — run again tomorrow)" if quota_hit else ""), file=sys.stderr)
+            for k, e in failed.items():
+                print(f"FAILED {by_key[k]!r}: {e}", file=sys.stderr)
+            sys.exit(0)
+        print("\nall texts staged — switching manifest.json to the new voice", file=sys.stderr)
+        MANIFEST_NEXT.unlink(missing_ok=True)
+
     # 4. Manifest + provenance for current texts. A failed text keeps its previous file if any.
     new_manifest: dict[str, str] = {}
     new_sources: dict[str, dict] = {}
@@ -606,7 +641,7 @@ def main() -> None:
     write_credits(new_sources)
 
     if not args.keep_orphans:
-        used = set(new_manifest.values())
+        used = set(new_manifest.values()) | set(load_json(MANIFEST_NEXT, {}).values())
         for f in OUT_DIR.glob("*.mp3"):
             if f.name not in used:
                 f.unlink()

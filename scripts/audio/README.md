@@ -58,6 +58,10 @@ export GEMINI_API_KEY=…   # from the environment/secret store — never commit
   index, for example after a speaker uploads new words.
 - `--force` re-renders everything. `--no-ll` skips Lingua Libre (TTS only).
 - `--engine piper|gemini` picks the TTS voice; changing voice or engine re-renders those texts.
+- `--stage` builds a new voice over several runs when the API has a daily quota (Gemini free tier:
+  100 TTS requests/day). Each run encodes what the quota allows into `public/audio/`, short texts
+  first, and records it in `manifest.next.json`; the game keeps playing `manifest.json` until every
+  text is staged, then the run that finishes switches `manifest.json` over in one go.
 - Exit code 1 means some text failed. The failures are listed at the end of the log, and a failed
   text keeps its previous file if it had one.
 
