@@ -182,8 +182,8 @@ async function botStep(b: Bot, seen: Set<string>) {
   const pg = b.page;
   switch (v.mode) {
     case "lobby":
-      if (!v.ready && !seen.has(`lobby:${modeIndex}`)) {
-        seen.add(`lobby:${modeIndex}`);
+      if (!v.ready && !seen.has(`lobby:${modeIndex}:${resultsSeen}`)) {
+        seen.add(`lobby:${modeIndex}:${resultsSeen}`);
         await nap(pg, 700);
         // Hadi sets the difficulty (E2E_LEVEL, default Médio) with ◀ ▶ before getting ready.
         const want = Number(process.env.E2E_LEVEL ?? 2);
@@ -456,6 +456,8 @@ const seen = bots.map(() => new Set<string>());
 const start = Date.now();
 const LIMIT = 260_000 * (NIGHT ? 5 : MODES.length);
 let inResults = false;
+/** Results screens so far (a game night has several lobbies in one run). */
+let resultsSeen = 0;
 let finished = false;
 let pauseChecked = false;
 let gameStart = 0;
@@ -474,6 +476,7 @@ while (Date.now() - start < LIMIT) {
     await tv.waitForTimeout(2500);
     await shoot(`results-${MODES[modeIndex]}`, bots[0]);
     const kicker = (await tv.textContent(".results-card .kicker"))?.trim() ?? "";
+    resultsSeen++;
     console.log(`results after ${NIGHT ? kicker : MODES[modeIndex]}: ${(await tv.textContent(".results-card h1"))?.trim()}`);
     if (NIGHT) {
       if (kicker.startsWith("Grande Final")) {
