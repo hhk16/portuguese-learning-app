@@ -10,7 +10,7 @@
  * Also checks pause: Back on the TV mid-game → pause on TV + phones → resume from a phone.
  */
 import { spawn } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { chromium, type Page } from "playwright-core";
 
 const PORT = 8799;
@@ -20,10 +20,16 @@ const OUT = "e2e-output";
 type M = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen";
 const MODES = (process.env.E2E_MODES ?? "lesson,secret,wave,sync,draw,stop,kitchen").split(",") as M[];
 const LESSON_INDEX = Number(process.env.E2E_LESSON ?? 0);
+/** E2E_VIDEO=1 records the TV and both phones (plus a sound log) for scripts/e2e-video.py. */
+const VIDEO = !!process.env.E2E_VIDEO;
+/** Bot think-time multiplier (videos default to a human-ish pace). */
+const PACE = Number(process.env.E2E_PACE ?? (VIDEO ? 2.2 : 1));
+const nap = (p: Page, ms: number) => p.waitForTimeout(ms * PACE);
+const starts: Record<string, number> = {};
 const EXE = process.env.CHROME_PATH ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 
 rmSync(OUT, { recursive: true, force: true });
-mkdirSync(OUT, { recursive: true });
+mkdirSync(`${OUT}/video`, { recursive: true });
 
 const server = REMOTE ? null : spawn(process.execPath, ["server/index.ts"], { env: { ...process.env, PORT: String(PORT), TOKEN_SIGNING_KEY: "e2e" }, stdio: "inherit" });
 if (server) await new Promise((r) => setTimeout(r, 1200));
@@ -40,8 +46,9 @@ const watch = (p: Page, name: string) => {
   p.on("console", (m) => m.type() === "error" && !m.text().includes("favicon") && errors.push(`[${name}] console: ${m.text()}`));
 };
 
-const tvCtx = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+const tvCtx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, ...(VIDEO ? { recordVideo: { dir: `${OUT}/video`, size: { width: 1280, height: 720 } } } : {}) });
 const tv = await tvCtx.newPage();
+starts.tv = Date.now();
 watch(tv, "tv");
 await tv.goto(`${BASE}/tv?test=1`);
 await tv.waitForSelector(".room-code", { timeout: 20000 });
@@ -52,8 +59,9 @@ await tv.screenshot({ path: `${OUT}/00-tv-title-empty.png` });
 
 type Bot = { page: Page; name: string; skill: number };
 async function makePhone(name: string, avatarIdx: number, colorIdx: number, skill: number): Promise<Bot> {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2, ...(VIDEO ? { recordVideo: { dir: `${OUT}/video`, size: { width: 390, height: 844 } } } : {}) });
   const page = await ctx.newPage();
+  starts[name] = Date.now();
   watch(page, name);
   await page.goto(`${BASE}/play?room=${code}`);
   await page.fill('input[autocomplete="nickname"]', name);
@@ -130,7 +138,7 @@ async function learnStep(b: Bot, v: View, seen: Set<string>) {
   if (seen.has(key) || v.waiting) return;
   seen.add(key);
   const pg = b.page;
-  await pg.waitForTimeout(400 + Math.random() * 800);
+  await nap(pg, 400 + Math.random() * 800);
   await shoot(`learn-${ex.kind}${result ? "-result" : ""}`, b);
   if (result) return click(pg, ".learn-sheet .btn", "Continuar");
   if (ex.kind === "intro" || ex.kind === "tip") return click(pg, ".btn", "Percebi");
@@ -169,7 +177,7 @@ async function botStep(b: Bot, seen: Set<string>) {
     case "lobby":
       if (!v.ready && !seen.has(`lobby:${modeIndex}`)) {
         seen.add(`lobby:${modeIndex}`);
-        await pg.waitForTimeout(700);
+        await nap(pg, 700);
         await shoot(`lobby-${MODES[modeIndex]}`, b);
         await click(pg, ".btn", "Estou pronto");
       }
@@ -179,7 +187,7 @@ async function botStep(b: Bot, seen: Set<string>) {
       if (!allowPick || seen.has(key) || b.name !== "Hadi") return;
       seen.add(key);
       allowPick = false;
-      await pg.waitForTimeout(1200);
+      await nap(pg, 1200);
       const opts = v.options as { id: string; label: string }[];
       const want = opts.find((o) => o.id === MODES[modeIndex]) ?? opts.find((o) => o.id === "menu")!;
       // Results suggest only three games: otherwise go back to the menu and open it from there.
@@ -194,7 +202,7 @@ async function botStep(b: Bot, seen: Set<string>) {
       const key = `secret:${v.promptId}:${v.role}`;
       if (seen.has(key)) return;
       seen.add(key);
-      await pg.waitForTimeout(600 + Math.random() * 900);
+      await nap(pg, 600 + Math.random() * 900);
       await shoot(`secret-${v.role}`, b);
       const d = v.debugAnswer as { cardId?: string; targets?: number } | undefined;
       if (v.role === "clue") {
@@ -217,13 +225,13 @@ async function botStep(b: Bot, seen: Set<string>) {
       if (v.phase === "reveal") {
         if (b.name !== "Hadi") return;
         seen.add(key);
-        await pg.waitForTimeout(2500);
+        await nap(pg, 2500);
         await shoot("wave-reveal", b);
         return click(pg, ".btn", "Próximo");
       }
       if (v.role === "psychic" && v.phase === "clue") {
         seen.add(key);
-        await pg.waitForTimeout(1200);
+        await nap(pg, 1200);
         await shoot("wave-psychic", b);
         return click(pg, ".btn", "Já disse a pista");
       }
@@ -235,7 +243,7 @@ async function botStep(b: Bot, seen: Set<string>) {
         const from = v.value as number;
         for (let s = 1; s <= 6; s++) {
           await input(b, v, { mode: "dial", action: { a: "move", value: Math.round(from + ((aim - from) * s) / 6) } });
-          await pg.waitForTimeout(250);
+          await nap(pg, 250);
         }
         await shoot("wave-guess", b);
         await input(b, v, { mode: "dial", action: { a: "lock" } });
@@ -252,7 +260,7 @@ async function botStep(b: Bot, seen: Set<string>) {
       const key = `sync:${v.promptId}`;
       if (v.submitted || seen.has(key)) return;
       seen.add(key);
-      await pg.waitForTimeout(800 + Math.random() * 1500);
+      await nap(pg, 800 + Math.random() * 1500);
       const bank = v.bank as { pt: string }[];
       const d = v.debugAnswer as { word?: string } | undefined;
       const word = b.name === "Ana" && Math.random() > b.skill ? (bank[1]?.pt ?? "casa") : (d?.word ?? bank[0]?.pt ?? "casa");
@@ -282,7 +290,7 @@ async function drawStep(b: Bot, v: View, seen: Set<string>) {
       }
       for (let seg = 0; seg < 3; seg++) {
         await input(b, v, { mode: "draw", action: { a: "stroke", s: s0 + s, seg, c: s % 5, w: 2, pts: pts.slice(seg * 16, seg * 16 + 20) } });
-        await pg.waitForTimeout(90);
+        await nap(pg, 90);
       }
     }
     await shoot("draw-drawer", b);
@@ -292,7 +300,7 @@ async function drawStep(b: Bot, v: View, seen: Set<string>) {
   const key = `draw:${v.promptId}:g:${tried.length}`;
   if (seen.has(key)) return;
   seen.add(key);
-  await pg.waitForTimeout(2500 + Math.random() * 2500);
+  await nap(pg, 2500 + Math.random() * 2500);
   await shoot("draw-guesser", b);
   const opts = v.options as { id: string; label: string }[];
   const d = v.debugAnswer as { id: string };
@@ -307,7 +315,7 @@ async function stopStep(b: Bot, v: View, seen: Set<string>) {
     const key = `stop:${v.promptId}:vote`;
     if (seen.has(key)) return;
     seen.add(key);
-    await pg.waitForTimeout(1500);
+    await nap(pg, 1500);
     await shoot("stop-vote", b);
     const rows = await pg.locator(".vote-row").count();
     if (rows > 1) await pg.locator(".vote-row .vbtn").nth(1).click().catch(() => {});
@@ -318,14 +326,14 @@ async function stopStep(b: Bot, v: View, seen: Set<string>) {
   seen.add(key);
   const d = (v.debugAnswer ?? {}) as Record<string, string>;
   const cats = v.categories as { id: string }[];
-  await pg.waitForTimeout(b.name === "Hadi" ? 1500 : 4000);
+  await nap(pg, b.name === "Hadi" ? 1500 : 4000);
   for (let i = 0; i < cats.length; i++) {
     const known = d[cats[i]!.id] ?? "";
     // Sometimes a word the dictionary doesn't know (partner votes), sometimes a blank.
     const r = Math.random();
     const word = r < 0.12 ? "" : r < 0.3 ? `${String(v.letter).toLowerCase()}arabalho` : known;
     await pg.locator(".stop-field input").nth(i).fill(word).catch(() => {});
-    await pg.waitForTimeout(700 + Math.random() * 900);
+    await nap(pg, 700 + Math.random() * 900);
   }
   await shoot("stop-write", b);
   if (b.name === "Hadi") {
@@ -333,7 +341,7 @@ async function stopStep(b: Bot, v: View, seen: Set<string>) {
       const el = pg.locator(".stop-field input").nth(i);
       if (!(await el.inputValue().catch(() => "x"))) await el.fill(`${String(v.letter).toLowerCase()}ola`).catch(() => {});
     }
-    await pg.waitForTimeout(600);
+    await nap(pg, 600);
     await click(pg, ".btn", "STOP!");
   }
 }
@@ -342,7 +350,7 @@ async function kitchenStep(b: Bot, v: View) {
   const pg = b.page;
   const now = Date.now();
   if ((cooldown.get(b.name) ?? 0) > now) return;
-  cooldown.set(b.name, now + 700 + Math.random() * 600);
+  cooldown.set(b.name, now + (700 + Math.random() * 600) * PACE);
   await shoot(`kitchen-${b.name}`, b);
   const d = v.debugAnswer as { add: string[]; wrongTray: boolean; serve: boolean };
   const pantry = v.pantry as { id: string; pt: string }[];
@@ -379,7 +387,7 @@ while (Date.now() - start < LIMIT) {
   await Promise.all(bots.map((b, i) => botStep(b, seen[i]!)));
   const screen = await tv.evaluate(() => (document.querySelector(".results-screen") ? "results" : document.querySelector(".game-screen") ? "game" : "other"));
   if (screen === "game" && !gameStart) gameStart = Date.now();
-  if (!pauseChecked && gameStart && Date.now() - gameStart > 12_000) {
+  if (!VIDEO && !pauseChecked && gameStart && Date.now() - gameStart > 12_000) {
     pauseChecked = true;
     await checkPause();
   }
@@ -416,6 +424,17 @@ while (Date.now() - start < LIMIT) {
   await tv.waitForTimeout(150);
 }
 
+if (VIDEO) {
+  await tv.waitForTimeout(3000); // let the results screen breathe
+  const sounds = await tv.evaluate(() => (window as unknown as { __ppSoundLog?: unknown[] }).__ppSoundLog ?? []);
+  const pages = { tv, Hadi: bots[0]!.page, Ana: bots[1]!.page };
+  const end = Date.now();
+  for (const pg of Object.values(pages)) await pg.context().close();
+  const videos: Record<string, string> = {};
+  for (const [k, pg] of Object.entries(pages)) videos[k] = (await pg.video()?.path()) ?? "";
+  writeFileSync(`${OUT}/video/meta.json`, JSON.stringify({ modes: MODES, starts, end, videos, sounds }, null, 1));
+  console.log(`video: ${Object.keys(videos).length} recordings, ${sounds.length} sounds → ${OUT}/video/meta.json`);
+}
 console.log(errors.length ? `ERRORS:\n${errors.join("\n")}` : "no page errors");
 console.log(finished ? `PLAYED ${MODES.join(" → ")} ✓` : `did NOT finish (stopped in ${MODES[modeIndex]}) ✗`);
 await browser.close();

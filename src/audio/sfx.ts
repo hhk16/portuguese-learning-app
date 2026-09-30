@@ -3,6 +3,7 @@
  * through Web Audio for instant, overlapping playback. Until a file has loaded (or if it's
  * missing), a gentle synthesised fallback plays instead so nothing is ever silent.
  */
+import { logSound } from "./log.ts";
 export type SfxName =
   | "tap"
   | "select"
@@ -66,6 +67,7 @@ export function setVolume(v: number) {
 }
 
 export function play(name: SfxName, volume = 1) {
+  logSound(`/sfx/${name}.mp3`, volume);
   const a = audio();
   if (!a || a.ctx.state !== "running") return;
   const buf = buffers.get(name);

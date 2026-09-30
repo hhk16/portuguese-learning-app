@@ -41,6 +41,7 @@ export function TvApp() {
 
   useEffect(() => {
     document.documentElement.classList.add("tv-root");
+    if (rt.testMode) (window as unknown as { __ppSoundLog?: unknown[] }).__ppSoundLog ??= [];
     void loadAudioManifest();
     if (!rt.activity) rt.run(new TitleActivity());
     const onKey = (e: KeyboardEvent) => {

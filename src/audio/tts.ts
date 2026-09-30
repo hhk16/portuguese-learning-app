@@ -5,6 +5,7 @@
  *  2. the device's speech synthesis with a pt-PT voice (never pt-BR if pt-PT exists).
  * Provider-independent: curriculum data only stores text.
  */
+import { logSound } from "./log.ts";
 let manifest: Record<string, string> | null = null;
 let manifestLoad: Promise<void> | null = null;
 
@@ -66,6 +67,7 @@ export function speak(text: string, opts: SpeakOpts = {}): Promise<void> {
     currentAudio?.pause();
     if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
     const a = new Audio(`/audio/${file}`);
+    logSound(`/audio/${file}`, 1, opts.slow ? 0.75 : 1);
     if (opts.slow) {
       a.playbackRate = 0.75;
       a.preservesPitch = true;
