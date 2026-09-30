@@ -1,4 +1,12 @@
 {
+ "a abelha": {
+  "file": "9cbd793d74.mp3",
+  "lengthScale": 1.12,
+  "say": "a abelha.",
+  "source": "piper",
+  "text": "a abelha",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a ana tem um gato.": {
   "file": "76cb6fa52b.mp3",
   "lengthScale": 1.12,
@@ -47,12 +55,28 @@
   "text": "a bicicleta",
   "voice": "pt_PT-tugão-medium"
  },
+ "a boca": {
+  "file": "0321e47ab2.mp3",
+  "lengthScale": 1.12,
+  "say": "a boca.",
+  "source": "piper",
+  "text": "a boca",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a bola": {
   "file": "70a0351c95.mp3",
   "lengthScale": 1.12,
   "say": "a bola.",
   "source": "piper",
   "text": "a bola",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a bolacha": {
+  "file": "779ff3ee86.mp3",
+  "lengthScale": 1.12,
+  "say": "a bolacha.",
+  "source": "piper",
+  "text": "a bolacha",
   "voice": "pt_PT-tugão-medium"
  },
  "a cabeça": {
@@ -87,12 +111,36 @@
   "text": "a camisola",
   "voice": "pt_PT-tugão-medium"
  },
+ "a caneta": {
+  "file": "a96cc7f10b.mp3",
+  "lengthScale": 1.12,
+  "say": "a caneta.",
+  "source": "piper",
+  "text": "a caneta",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a carne": {
+  "file": "80db5c9e0c.mp3",
+  "lengthScale": 1.12,
+  "say": "a carne.",
+  "source": "piper",
+  "text": "a carne",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a casa": {
   "file": "effd0bfc79.mp3",
   "lengthScale": 1.12,
   "say": "a casa.",
   "source": "piper",
   "text": "a casa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a cebola": {
+  "file": "719ee569b7.mp3",
+  "lengthScale": 1.12,
+  "say": "a cebola.",
+  "source": "piper",
+  "text": "a cebola",
   "voice": "pt_PT-tugão-medium"
  },
  "a cenoura": {
@@ -175,6 +223,22 @@
   "text": "a escola",
   "voice": "pt_PT-tugão-medium"
  },
+ "a estação": {
+  "file": "4e749b5ced.mp3",
+  "lengthScale": 1.12,
+  "say": "a estação.",
+  "source": "piper",
+  "text": "a estação",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a estrela": {
+  "file": "defe184ed3.mp3",
+  "lengthScale": 1.12,
+  "say": "a estrela.",
+  "source": "piper",
+  "text": "a estrela",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a faca": {
   "file": "02d2167ae0.mp3",
   "lengthScale": 1.12,
@@ -199,12 +263,44 @@
   "text": "a frigideira",
   "voice": "pt_PT-tugão-medium"
  },
+ "a galinha": {
+  "file": "c398bbea9b.mp3",
+  "lengthScale": 1.12,
+  "say": "a galinha.",
+  "source": "piper",
+  "text": "a galinha",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a grande final! um contra o outro.": {
+  "file": "a909273113.mp3",
+  "lengthScale": 1.12,
+  "say": "A Grande Final! Um contra o outro.",
+  "source": "piper",
+  "text": "A Grande Final! Um contra o outro.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a guitarra": {
   "file": "a94573c544.mp3",
   "lengthScale": 1.12,
   "say": "a guitarra.",
   "source": "piper",
   "text": "a guitarra",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a igreja": {
+  "file": "4c977bdc00.mp3",
+  "lengthScale": 1.12,
+  "say": "a igreja.",
+  "source": "piper",
+  "text": "a igreja",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a janela": {
+  "file": "788d7158d5.mp3",
+  "lengthScale": 1.12,
+  "say": "a janela.",
+  "source": "piper",
+  "text": "a janela",
   "voice": "pt_PT-tugão-medium"
  },
  "a laranja": {
@@ -223,6 +319,14 @@
   "text": "a lua",
   "voice": "pt_PT-tugão-medium"
  },
+ "a mala": {
+  "file": "d0aec6fd90.mp3",
+  "lengthScale": 1.12,
+  "say": "a mala.",
+  "source": "piper",
+  "text": "a mala",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a mara é do brasil.": {
   "file": "5821f107fb.mp3",
   "lengthScale": 1.12,
@@ -237,6 +341,22 @@
   "say": "a maçã.",
   "source": "piper",
   "text": "a maçã",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a meia": {
+  "file": "b44412ca5c.mp3",
+  "lengthScale": 1.12,
+  "say": "a meia.",
+  "source": "piper",
+  "text": "a meia",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a melancia": {
+  "file": "7e131d72b9.mp3",
+  "lengthScale": 1.12,
+  "say": "a melancia.",
+  "source": "piper",
+  "text": "a melancia",
   "voice": "pt_PT-tugão-medium"
  },
  "a mesma palavra? estão em sintonia!": {
@@ -263,6 +383,14 @@
   "text": "a montanha",
   "voice": "pt_PT-tugão-medium"
  },
+ "a mota": {
+  "file": "31334548f7.mp3",
+  "lengthScale": 1.12,
+  "say": "a mota.",
+  "source": "piper",
+  "text": "a mota",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a mão": {
   "file": "340edb9b21.mp3",
   "lengthScale": 1.12,
@@ -287,6 +415,14 @@
   "text": "a neve",
   "voice": "pt_PT-tugão-medium"
  },
+ "a nuvem": {
+  "file": "a53c005353.mp3",
+  "lengthScale": 1.12,
+  "say": "a nuvem.",
+  "source": "piper",
+  "text": "a nuvem",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a orelha": {
   "file": "7d232d9873.mp3",
   "lengthScale": 1.12,
@@ -295,12 +431,28 @@
   "text": "a orelha",
   "voice": "pt_PT-tugão-medium"
  },
+ "a pera": {
+  "file": "4c6cd32fc5.mp3",
+  "lengthScale": 1.12,
+  "say": "a pera.",
+  "source": "piper",
+  "text": "a pera",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a pizza": {
   "file": "43a1d73a74.mp3",
   "lengthScale": 1.12,
   "say": "a pizza.",
   "source": "piper",
   "text": "a pizza",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a porta": {
+  "file": "27f3617256.mp3",
+  "lengthScale": 1.12,
+  "say": "a porta.",
+  "source": "piper",
+  "text": "a porta",
   "voice": "pt_PT-tugão-medium"
  },
  "a praia": {
@@ -317,6 +469,22 @@
   "say": "a salada.",
   "source": "piper",
   "text": "a salada",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a sandes": {
+  "file": "9a0a3030f0.mp3",
+  "lengthScale": 1.12,
+  "say": "a sandes.",
+  "source": "piper",
+  "text": "a sandes",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a sanita": {
+  "file": "198bdd58e4.mp3",
+  "lengthScale": 1.12,
+  "say": "a sanita.",
+  "source": "piper",
+  "text": "a sanita",
   "voice": "pt_PT-tugão-medium"
  },
  "a sapatilha": {
@@ -343,6 +511,14 @@
   "text": "a televisão",
   "voice": "pt_PT-tugão-medium"
  },
+ "a trotinete": {
+  "file": "0a46624941.mp3",
+  "lengthScale": 1.12,
+  "say": "a trotinete.",
+  "source": "piper",
+  "text": "a trotinete",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a tv mostra e diz cada exercício.": {
   "file": "4665a291a0.mp3",
   "lengthScale": 1.12,
@@ -357,6 +533,14 @@
   "say": "a uva.",
   "source": "piper",
   "text": "a uva",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a vaca": {
+  "file": "f4016813b3.mp3",
+  "lengthScale": 1.12,
+  "say": "a vaca.",
+  "source": "piper",
+  "text": "a vaca",
   "voice": "pt_PT-tugão-medium"
  },
  "a yuki é japonesa.": {
@@ -408,7 +592,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "adeus!": {
-  "downloaded": "transcode.ogg",
   "file": "bb2339940b.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -427,7 +610,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "advogado": {
-  "downloaded": "transcode.ogg",
   "file": "3369022e6c.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -461,6 +643,14 @@
   "text": "Ai, a bomba!",
   "voice": "pt_PT-tugão-medium"
  },
+ "ai, ai, ai…": {
+  "file": "a32f59ff49.mp3",
+  "lengthScale": 1.12,
+  "say": "Ai, ai, ai, .",
+  "source": "piper",
+  "text": "Ai, ai, ai…",
+  "voice": "pt_PT-tugão-medium"
+ },
  "alemã": {
   "file": "56c71de0dc.mp3",
   "lengthScale": 1.12,
@@ -483,6 +673,62 @@
   "say": "alemão, alemã.",
   "source": "piper",
   "text": "alemão, alemã",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ana ganha!": {
+  "file": "29665ebe7b.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana ganha!",
+  "source": "piper",
+  "text": "Ana ganha!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ana é a estrela da noite!": {
+  "file": "559bc12f20.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana é a estrela da noite!",
+  "source": "piper",
+  "text": "Ana é a estrela da noite!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ana, adivinha!": {
+  "file": "7e0f8c928d.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana, adivinha!",
+  "source": "piper",
+  "text": "Ana, adivinha!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ana, desenha!": {
+  "file": "127a092131.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana, desenha!",
+  "source": "piper",
+  "text": "Ana, desenha!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ana, dá uma pista!": {
+  "file": "2d2e1fe67f.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana, dá uma pista!",
+  "source": "piper",
+  "text": "Ana, dá uma pista!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ana, escolhe uma pista!": {
+  "file": "6e880cc44b.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana, escolhe uma pista!",
+  "source": "piper",
+  "text": "Ana, escolhe uma pista!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ana, é a tua vez!": {
+  "file": "52cf196d91.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana, é a tua vez!",
+  "source": "piper",
+  "text": "Ana, é a tua vez!",
   "voice": "pt_PT-tugão-medium"
  },
  "angolana": {
@@ -557,28 +803,12 @@
   "text": "Até logo!",
   "voice": "pt_PT-tugão-medium"
  },
- "barato": {
-  "file": "a30316ffa2.mp3",
-  "lengthScale": 1.12,
-  "say": "barato.",
-  "source": "piper",
-  "text": "barato",
-  "voice": "pt_PT-tugão-medium"
- },
  "barato, barata": {
   "file": "9a67ac392a.mp3",
   "lengthScale": 1.12,
   "say": "barato, barata.",
   "source": "piper",
   "text": "barato, barata",
-  "voice": "pt_PT-tugão-medium"
- },
- "barulhento": {
-  "file": "3af09c42bf.mp3",
-  "lengthScale": 1.12,
-  "say": "barulhento.",
-  "source": "piper",
-  "text": "barulhento",
   "voice": "pt_PT-tugão-medium"
  },
  "barulhento, barulhenta": {
@@ -613,16 +843,40 @@
   "text": "Boa tarde!",
   "voice": "pt_PT-tugão-medium"
  },
- "bom": {
+ "boa!": {
   "downloaded": "transcode.ogg",
-  "file": "aaaed94699.mp3",
+  "file": "49fc01bef2.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
   "source": "lingua-libre",
   "speaker": "Santamarcanda",
-  "text": "bom",
-  "title": "File:LL-Q5146 (por)-Santamarcanda-bom.wav",
-  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-bom.wav"
+  "text": "Boa!",
+  "title": "File:LL-Q5146 (por)-Santamarcanda-boa.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-boa.wav"
+ },
+ "boa, ana!": {
+  "file": "e377a3d876.mp3",
+  "lengthScale": 1.12,
+  "say": "Boa, Ana!",
+  "source": "piper",
+  "text": "Boa, Ana!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "boa, hadi!": {
+  "file": "015c7b822c.mp3",
+  "lengthScale": 1.12,
+  "say": "Boa, Hadi!",
+  "source": "piper",
+  "text": "Boa, Hadi!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bom apetite!": {
+  "file": "8ccfe69c5c.mp3",
+  "lengthScale": 1.12,
+  "say": "Bom apetite!",
+  "source": "piper",
+  "text": "Bom apetite!",
+  "voice": "pt_PT-tugão-medium"
  },
  "bom dia!": {
   "file": "26dec598f4.mp3",
@@ -639,17 +893,6 @@
   "source": "piper",
   "text": "bom, boa",
   "voice": "pt_PT-tugão-medium"
- },
- "bonito": {
-  "downloaded": "transcode.ogg",
-  "file": "2c67171229.mp3",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-  "source": "lingua-libre",
-  "speaker": "Santamarcanda",
-  "text": "bonito",
-  "title": "File:LL-Q5146 (por)-Santamarcanda-bonito.wav",
-  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-bonito.wav"
  },
  "bonito, bonita": {
   "file": "39b4565e4c.mp3",
@@ -681,6 +924,14 @@
   "say": "brasileiro, brasileira.",
   "source": "piper",
   "text": "brasileiro, brasileira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bum! cuidado com as bombas!": {
+  "file": "e9efbc988f.mp3",
+  "lengthScale": 1.12,
+  "say": "Bum! Cuidado com as bombas!",
+  "source": "piper",
+  "text": "Bum! Cuidado com as bombas!",
   "voice": "pt_PT-tugão-medium"
  },
  "cabeleireira": {
@@ -731,14 +982,6 @@
   "text": "Cada um tem imagens secretas para o outro encontrar.",
   "voice": "pt_PT-tugão-medium"
  },
- "calmo": {
-  "file": "d44b555217.mp3",
-  "lengthScale": 1.12,
-  "say": "calmo.",
-  "source": "piper",
-  "text": "calmo",
-  "voice": "pt_PT-tugão-medium"
- },
  "calmo, calma": {
   "file": "7a210b8944.mp3",
   "lengthScale": 1.12,
@@ -770,17 +1013,6 @@
   "source": "piper",
   "text": "canadiano, canadiana",
   "voice": "pt_PT-tugão-medium"
- },
- "caro": {
-  "downloaded": "transcode.ogg",
-  "file": "21e60fca9a.mp3",
-  "license": "CC BY-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-  "source": "lingua-libre",
-  "speaker": "Santamarcanda",
-  "text": "caro",
-  "title": "File:LL-Q5146 (por)-Santamarcanda-caro.wav",
-  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-caro.wav"
  },
  "caro, cara": {
   "file": "359a91ea66.mp3",
@@ -823,7 +1055,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "cinco": {
-  "downloaded": "transcode.ogg",
   "file": "bc330b21a2.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -874,7 +1105,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "da": {
-  "downloaded": "transcode.ogg",
   "file": "d8f93f2113.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -885,7 +1115,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-da.wav"
  },
  "das": {
-  "downloaded": "transcode.ogg",
   "file": "f0e8ffa508.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -912,7 +1141,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "depressa!": {
-  "downloaded": "transcode.ogg",
   "file": "df5613eda2.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -923,7 +1151,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-depressa.wav"
  },
  "desculpe.": {
-  "downloaded": "transcode.ogg",
   "file": "8a60f528e4.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -934,7 +1161,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-desculpe.wav"
  },
  "dez": {
-  "downloaded": "transcode.ogg",
   "file": "db8164f6c6.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -943,6 +1169,14 @@
   "text": "dez",
   "title": "File:LL-Q5146 (por)-Santamarcanda-dez.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-dez.wav"
+ },
+ "dez segundos!": {
+  "file": "6c98ecf63c.mp3",
+  "lengthScale": 1.12,
+  "say": "Dez segundos!",
+  "source": "piper",
+  "text": "Dez segundos!",
+  "voice": "pt_PT-tugão-medium"
  },
  "dezanove": {
   "file": "cc9e589a0a.mp3",
@@ -977,7 +1211,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "difícil": {
-  "downloaded": "transcode.ogg",
   "file": "5c3f9c9c8a.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -988,7 +1221,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-dif%C3%ADcil.wav"
  },
  "do": {
-  "downloaded": "transcode.ogg",
   "file": "47f576f458.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -999,7 +1231,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-do.wav"
  },
  "dois": {
-  "downloaded": "transcode.ogg",
   "file": "f235a8d215.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -1074,7 +1305,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "dos": {
-  "downloaded": "transcode.ogg",
   "file": "480a5f9b7d.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -1420,6 +1650,14 @@
   "text": "Eles têm muitos amigos.",
   "voice": "pt_PT-tugão-medium"
  },
+ "em cheio!": {
+  "file": "0f0ded643a.mp3",
+  "lengthScale": 1.12,
+  "say": "Em cheio!",
+  "source": "piper",
+  "text": "Em cheio!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "em sintonia!": {
   "file": "e918ee7e2b.mp3",
   "lengthScale": 1.12,
@@ -1493,7 +1731,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "engenheiro": {
-  "downloaded": "transcode.ogg",
   "file": "b6b492e808.mp3",
   "license": "CC0",
   "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
@@ -1576,7 +1813,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "estudante": {
-  "downloaded": "transcode.ogg",
   "file": "3e2ce6ebae.mp3",
   "license": "CC0",
   "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
@@ -1714,20 +1950,34 @@
   "text": "eu trabalho",
   "voice": "pt_PT-tugão-medium"
  },
+ "excelente!": {
+  "downloaded": "transcode.ogg",
+  "file": "dafe131e6b.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
+  "text": "Excelente!",
+  "title": "File:LL-Q5146 (por)-Santamarcanda-excelente.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-excelente.wav"
+ },
+ "fantástico!": {
+  "downloaded": "transcode.ogg",
+  "file": "f9cb1b34fa.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
+  "text": "Fantástico!",
+  "title": "File:LL-Q5146 (por)-Santamarcanda-fantástico.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-fant%C3%A1stico.wav"
+ },
  "faz sentido?": {
   "file": "ef24f49a88.mp3",
   "lengthScale": 1.12,
   "say": "Faz sentido?",
   "source": "piper",
   "text": "Faz sentido?",
-  "voice": "pt_PT-tugão-medium"
- },
- "feio": {
-  "file": "ebf3aa16d9.mp3",
-  "lengthScale": 1.12,
-  "say": "feio.",
-  "source": "piper",
-  "text": "feio",
   "voice": "pt_PT-tugão-medium"
  },
  "feio, feia": {
@@ -1739,7 +1989,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "feliz": {
-  "downloaded": "transcode.ogg",
   "file": "b230808ba5.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -1755,6 +2004,14 @@
   "say": "florista.",
   "source": "piper",
   "text": "florista",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "foi por pouco!": {
+  "file": "d5b537cffc.mp3",
+  "lengthScale": 1.12,
+  "say": "Foi por pouco!",
+  "source": "piper",
+  "text": "Foi por pouco!",
   "voice": "pt_PT-tugão-medium"
  },
  "francesa": {
@@ -1781,14 +2038,6 @@
   "text": "francês, francesa",
   "voice": "pt_PT-tugão-medium"
  },
- "frio": {
-  "file": "694c4486e7.mp3",
-  "lengthScale": 1.12,
-  "say": "frio.",
-  "source": "piper",
-  "text": "frio",
-  "voice": "pt_PT-tugão-medium"
- },
  "frio, fria": {
   "file": "76a7c92551.mp3",
   "lengthScale": 1.12,
@@ -1798,12 +2047,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "fácil": {
-  "file": "93f36fa1a3.mp3",
-  "lengthScale": 1.12,
-  "say": "fácil.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "63c1195bec.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "fácil",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-fácil.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-f%C3%A1cil.wav"
  },
  "gestor": {
   "file": "495e84193d.mp3",
@@ -1830,12 +2082,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "grande": {
-  "file": "db07e0fc9e.mp3",
-  "lengthScale": 1.12,
-  "say": "grande.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "ebe4d63bbc.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "grande",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-grande.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-grande.wav"
  },
  "guineense": {
   "file": "bdca2b1e44.mp3",
@@ -1843,6 +2098,62 @@
   "say": "guineense.",
   "source": "piper",
   "text": "guineense",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi ganha!": {
+  "file": "21d3f7702b.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi ganha!",
+  "source": "piper",
+  "text": "Hadi ganha!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi é a estrela da noite!": {
+  "file": "8db95b646e.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi é a estrela da noite!",
+  "source": "piper",
+  "text": "Hadi é a estrela da noite!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi, adivinha!": {
+  "file": "d9ee1b9c9c.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi, adivinha!",
+  "source": "piper",
+  "text": "Hadi, adivinha!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi, desenha!": {
+  "file": "adbef882e8.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi, desenha!",
+  "source": "piper",
+  "text": "Hadi, desenha!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi, dá uma pista!": {
+  "file": "111773413a.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi, dá uma pista!",
+  "source": "piper",
+  "text": "Hadi, dá uma pista!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi, escolhe uma pista!": {
+  "file": "bcee2659c5.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi, escolhe uma pista!",
+  "source": "piper",
+  "text": "Hadi, escolhe uma pista!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi, é a tua vez!": {
+  "file": "3f74711ae1.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi, é a tua vez!",
+  "source": "piper",
+  "text": "Hadi, é a tua vez!",
   "voice": "pt_PT-tugão-medium"
  },
  "hora de ponta! pontos a dobrar!": {
@@ -1862,12 +2173,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "inglês": {
-  "file": "3835ad73da.mp3",
-  "lengthScale": 1.12,
-  "say": "inglês.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "33f551f30f.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "inglês",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-inglês.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-ingl%C3%AAs.wav"
  },
  "inglês, inglesa": {
   "file": "6febecb91f.mp3",
@@ -1875,6 +2189,22 @@
   "say": "inglês, inglesa.",
   "source": "piper",
   "text": "inglês, inglesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "isso mesmo!": {
+  "file": "b7c78210ac.mp3",
+  "lengthScale": 1.12,
+  "say": "Isso mesmo!",
+  "source": "piper",
+  "text": "Isso mesmo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "isso não é o pedido!": {
+  "file": "71c1f987f5.mp3",
+  "lengthScale": 1.12,
+  "say": "Isso não é o pedido!",
+  "source": "piper",
+  "text": "Isso não é o pedido!",
   "voice": "pt_PT-tugão-medium"
  },
  "italiana": {
@@ -1950,20 +2280,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "jornalista": {
-  "file": "d2237c7930.mp3",
-  "lengthScale": 1.12,
-  "say": "jornalista.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "3cf480fef7.mp3",
+  "license": "CC0",
+  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source": "lingua-libre",
+  "speaker": "Waldyrious",
   "text": "jornalista",
-  "voice": "pt_PT-tugão-medium"
- },
- "lento": {
-  "file": "b8a6b69945.mp3",
-  "lengthScale": 1.12,
-  "say": "lento.",
-  "source": "piper",
-  "text": "lento",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
  },
  "lento, lenta": {
   "file": "93d71ee732.mp3",
@@ -2134,20 +2459,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "leve": {
-  "file": "876bdac0ef.mp3",
-  "lengthScale": 1.12,
-  "say": "leve.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "fed0a3d2c2.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "leve",
-  "voice": "pt_PT-tugão-medium"
- },
- "limpo": {
-  "file": "272538ea21.mp3",
-  "lengthScale": 1.12,
-  "say": "limpo.",
-  "source": "piper",
-  "text": "limpo",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-leve.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-leve.wav"
  },
  "limpo, limpa": {
   "file": "7d496591fd.mp3",
@@ -2173,20 +2493,44 @@
   "text": "Mais rápido, mais pontos!",
   "voice": "pt_PT-tugão-medium"
  },
- "mau": {
-  "file": "807eadff1f.mp3",
-  "lengthScale": 1.12,
-  "say": "mau.",
-  "source": "piper",
-  "text": "mau",
-  "voice": "pt_PT-tugão-medium"
- },
  "mau, má": {
   "file": "7376c21446.mp3",
   "lengthScale": 1.12,
   "say": "mau, má.",
   "source": "piper",
   "text": "mau, má",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mesa dois.": {
+  "file": "54b99c72a2.mp3",
+  "lengthScale": 1.12,
+  "say": "Mesa dois.",
+  "source": "piper",
+  "text": "Mesa dois.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mesa errada!": {
+  "file": "ca87a23c18.mp3",
+  "lengthScale": 1.12,
+  "say": "Mesa errada!",
+  "source": "piper",
+  "text": "Mesa errada!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mesa três.": {
+  "file": "779e8d5615.mp3",
+  "lengthScale": 1.12,
+  "say": "Mesa três.",
+  "source": "piper",
+  "text": "Mesa três.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mesa um.": {
+  "file": "e317be7203.mp3",
+  "lengthScale": 1.12,
+  "say": "Mesa um.",
+  "source": "piper",
+  "text": "Mesa um.",
   "voice": "pt_PT-tugão-medium"
  },
  "moro em faro.": {
@@ -2205,28 +2549,20 @@
   "text": "Moro no Porto.",
   "voice": "pt_PT-tugão-medium"
  },
+ "morte súbita! sem pistas. um erro e acabou!": {
+  "file": "e9b4ed2bf6.mp3",
+  "lengthScale": 1.12,
+  "say": "Morte súbita! Sem pistas. Um erro e acabou!",
+  "source": "piper",
+  "text": "Morte súbita! Sem pistas. Um erro e acabou!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "motorista": {
   "file": "cbe5dda5e3.mp3",
   "lengthScale": 1.12,
   "say": "motorista.",
   "source": "piper",
   "text": "motorista",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito barato": {
-  "file": "3bd56a1876.mp3",
-  "lengthScale": 1.12,
-  "say": "muito barato.",
-  "source": "piper",
-  "text": "muito barato",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito barulhento": {
-  "file": "6a8bf1f271.mp3",
-  "lengthScale": 1.12,
-  "say": "muito barulhento.",
-  "source": "piper",
-  "text": "muito barulhento",
   "voice": "pt_PT-tugão-medium"
  },
  "muito bem!": {
@@ -2237,197 +2573,35 @@
   "text": "Muito bem!",
   "voice": "pt_PT-tugão-medium"
  },
- "muito bom": {
-  "file": "1cc79a50dc.mp3",
+ "muito bem, equipa!": {
+  "file": "1d218201c6.mp3",
   "lengthScale": 1.12,
-  "say": "muito bom.",
+  "say": "Muito bem, equipa!",
   "source": "piper",
-  "text": "muito bom",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito bonito": {
-  "file": "af74a97b77.mp3",
-  "lengthScale": 1.12,
-  "say": "muito bonito.",
-  "source": "piper",
-  "text": "muito bonito",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito calmo": {
-  "file": "cb50c651ba.mp3",
-  "lengthScale": 1.12,
-  "say": "muito calmo.",
-  "source": "piper",
-  "text": "muito calmo",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito caro": {
-  "file": "5b8de9626a.mp3",
-  "lengthScale": 1.12,
-  "say": "muito caro.",
-  "source": "piper",
-  "text": "muito caro",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito difícil": {
-  "file": "fb8da4402b.mp3",
-  "lengthScale": 1.12,
-  "say": "muito difícil.",
-  "source": "piper",
-  "text": "muito difícil",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito feio": {
-  "file": "ec85e5d458.mp3",
-  "lengthScale": 1.12,
-  "say": "muito feio.",
-  "source": "piper",
-  "text": "muito feio",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito feliz": {
-  "file": "3d5c4c6d7c.mp3",
-  "lengthScale": 1.12,
-  "say": "muito feliz.",
-  "source": "piper",
-  "text": "muito feliz",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito frio": {
-  "file": "39a0729406.mp3",
-  "lengthScale": 1.12,
-  "say": "muito frio.",
-  "source": "piper",
-  "text": "muito frio",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito fácil": {
-  "file": "8054cef5cb.mp3",
-  "lengthScale": 1.12,
-  "say": "muito fácil.",
-  "source": "piper",
-  "text": "muito fácil",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito grande": {
-  "file": "8caa3193dc.mp3",
-  "lengthScale": 1.12,
-  "say": "muito grande.",
-  "source": "piper",
-  "text": "muito grande",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito lento": {
-  "file": "9f417d21f3.mp3",
-  "lengthScale": 1.12,
-  "say": "muito lento.",
-  "source": "piper",
-  "text": "muito lento",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito leve": {
-  "file": "ee8a78cddd.mp3",
-  "lengthScale": 1.12,
-  "say": "muito leve.",
-  "source": "piper",
-  "text": "muito leve",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito limpo": {
-  "file": "e66c2ad5b8.mp3",
-  "lengthScale": 1.12,
-  "say": "muito limpo.",
-  "source": "piper",
-  "text": "muito limpo",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito mau": {
-  "file": "d508503b27.mp3",
-  "lengthScale": 1.12,
-  "say": "muito mau.",
-  "source": "piper",
-  "text": "muito mau",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito novo": {
-  "file": "df2dfc4528.mp3",
-  "lengthScale": 1.12,
-  "say": "muito novo.",
-  "source": "piper",
-  "text": "muito novo",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito pequeno": {
-  "file": "0798373283.mp3",
-  "lengthScale": 1.12,
-  "say": "muito pequeno.",
-  "source": "piper",
-  "text": "muito pequeno",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito pesado": {
-  "file": "c9c46fe84d.mp3",
-  "lengthScale": 1.12,
-  "say": "muito pesado.",
-  "source": "piper",
-  "text": "muito pesado",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito quente": {
-  "file": "1a9c896655.mp3",
-  "lengthScale": 1.12,
-  "say": "muito quente.",
-  "source": "piper",
-  "text": "muito quente",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito rápido": {
-  "file": "dd2f208bd7.mp3",
-  "lengthScale": 1.12,
-  "say": "muito rápido.",
-  "source": "piper",
-  "text": "muito rápido",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito sujo": {
-  "file": "8c5f36eeae.mp3",
-  "lengthScale": 1.12,
-  "say": "muito sujo.",
-  "source": "piper",
-  "text": "muito sujo",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito triste": {
-  "file": "f3c915ca4b.mp3",
-  "lengthScale": 1.12,
-  "say": "muito triste.",
-  "source": "piper",
-  "text": "muito triste",
-  "voice": "pt_PT-tugão-medium"
- },
- "muito velho": {
-  "file": "047f487198.mp3",
-  "lengthScale": 1.12,
-  "say": "muito velho.",
-  "source": "piper",
-  "text": "muito velho",
+  "text": "Muito bem, equipa!",
   "voice": "pt_PT-tugão-medium"
  },
  "médica": {
-  "file": "c0ba47a0bb.mp3",
-  "lengthScale": 1.12,
-  "say": "médica.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "718f689d6b.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "médica",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-médica.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-m%C3%A9dica.wav"
  },
  "médico": {
-  "file": "09aaddbd84.mp3",
-  "lengthScale": 1.12,
-  "say": "médico.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "43cc1d4a8c.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "médico",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-médico.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-m%C3%A9dico.wav"
  },
  "médico, médica": {
   "file": "f2c5af59fb.mp3",
@@ -2438,124 +2612,45 @@
   "voice": "pt_PT-tugão-medium"
  },
  "na": {
-  "file": "6a8f6aefef.mp3",
-  "lengthScale": 1.12,
-  "say": "na.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "adb2956cca.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "na",
+  "title": "File:LL-Q5146 (por)-Santamarcanda-na.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-na.wav"
+ },
+ "nada disso!": {
+  "file": "a53a5512eb.mp3",
+  "lengthScale": 1.12,
+  "say": "Nada disso!",
+  "source": "piper",
+  "text": "Nada disso!",
   "voice": "pt_PT-tugão-medium"
  },
  "nas": {
-  "file": "8e7691ce45.mp3",
-  "lengthScale": 1.12,
-  "say": "nas.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "68ac49bb03.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "nas",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem barato nem caro": {
-  "file": "a6be0b0118.mp3",
-  "lengthScale": 1.12,
-  "say": "nem barato nem caro.",
-  "source": "piper",
-  "text": "nem barato nem caro",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem barulhento nem calmo": {
-  "file": "daf15e673d.mp3",
-  "lengthScale": 1.12,
-  "say": "nem barulhento nem calmo.",
-  "source": "piper",
-  "text": "nem barulhento nem calmo",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem bom nem mau": {
-  "file": "31e54cadbc.mp3",
-  "lengthScale": 1.12,
-  "say": "nem bom nem mau.",
-  "source": "piper",
-  "text": "nem bom nem mau",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem bonito nem feio": {
-  "file": "699705256e.mp3",
-  "lengthScale": 1.12,
-  "say": "nem bonito nem feio.",
-  "source": "piper",
-  "text": "nem bonito nem feio",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem difícil nem fácil": {
-  "file": "9106ed41aa.mp3",
-  "lengthScale": 1.12,
-  "say": "nem difícil nem fácil.",
-  "source": "piper",
-  "text": "nem difícil nem fácil",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem feliz nem triste": {
-  "file": "8f5f76fb05.mp3",
-  "lengthScale": 1.12,
-  "say": "nem feliz nem triste.",
-  "source": "piper",
-  "text": "nem feliz nem triste",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem frio nem quente": {
-  "file": "61fab0f2cc.mp3",
-  "lengthScale": 1.12,
-  "say": "nem frio nem quente.",
-  "source": "piper",
-  "text": "nem frio nem quente",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem grande nem pequeno": {
-  "file": "529bb2f4b9.mp3",
-  "lengthScale": 1.12,
-  "say": "nem grande nem pequeno.",
-  "source": "piper",
-  "text": "nem grande nem pequeno",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem lento nem rápido": {
-  "file": "a3e825a203.mp3",
-  "lengthScale": 1.12,
-  "say": "nem lento nem rápido.",
-  "source": "piper",
-  "text": "nem lento nem rápido",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem leve nem pesado": {
-  "file": "58c545de47.mp3",
-  "lengthScale": 1.12,
-  "say": "nem leve nem pesado.",
-  "source": "piper",
-  "text": "nem leve nem pesado",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem limpo nem sujo": {
-  "file": "2b375f9c7a.mp3",
-  "lengthScale": 1.12,
-  "say": "nem limpo nem sujo.",
-  "source": "piper",
-  "text": "nem limpo nem sujo",
-  "voice": "pt_PT-tugão-medium"
- },
- "nem novo nem velho": {
-  "file": "2087b0d71b.mp3",
-  "lengthScale": 1.12,
-  "say": "nem novo nem velho.",
-  "source": "piper",
-  "text": "nem novo nem velho",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-nas.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-nas.wav"
  },
  "no": {
-  "file": "03b46ec0a3.mp3",
-  "lengthScale": 1.12,
-  "say": "no.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "a0a5984aa0.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "no",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-no.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-no.wav"
  },
  "norte-americana": {
   "file": "73ac67a2df.mp3",
@@ -2606,28 +2701,26 @@
   "voice": "pt_PT-tugão-medium"
  },
  "nos": {
-  "file": "f9228b1073.mp3",
-  "lengthScale": 1.12,
-  "say": "nos.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "632791272f.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "nos",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-nos.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-nos.wav"
  },
  "nove": {
-  "file": "2efa8302f8.mp3",
-  "lengthScale": 1.12,
-  "say": "nove.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "bb7f051644.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "nove",
-  "voice": "pt_PT-tugão-medium"
- },
- "novo": {
-  "file": "2755170970.mp3",
-  "lengthScale": 1.12,
-  "say": "novo.",
-  "source": "piper",
-  "text": "novo",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-nove.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-nove.wav"
  },
  "novo recorde!": {
   "file": "41f98a9aa9.mp3",
@@ -2651,6 +2744,14 @@
   "say": "Não percebo.",
   "source": "piper",
   "text": "Não percebo.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "não é bem isso!": {
+  "file": "b1301946ce.mp3",
+  "lengthScale": 1.12,
+  "say": "Não é bem isso!",
+  "source": "piper",
+  "text": "Não é bem isso!",
   "voice": "pt_PT-tugão-medium"
  },
  "não é isso!": {
@@ -2765,6 +2866,38 @@
   "text": "nós trabalhamos",
   "voice": "pt_PT-tugão-medium"
  },
+ "o aeroporto": {
+  "file": "4613e8356b.mp3",
+  "lengthScale": 1.12,
+  "say": "o aeroporto.",
+  "source": "piper",
+  "text": "o aeroporto",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o ananás": {
+  "file": "c384899fd1.mp3",
+  "lengthScale": 1.12,
+  "say": "o ananás.",
+  "source": "piper",
+  "text": "o ananás",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o arco-íris": {
+  "file": "f1f755bb85.mp3",
+  "lengthScale": 1.12,
+  "say": "o arco-íris.",
+  "source": "piper",
+  "text": "o arco-íris",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o arroz": {
+  "file": "bdea82964f.mp3",
+  "lengthScale": 1.12,
+  "say": "o arroz.",
+  "source": "piper",
+  "text": "o arroz",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o autocarro": {
   "file": "0c348ca92d.mp3",
   "lengthScale": 1.12,
@@ -2781,12 +2914,36 @@
   "text": "o avião",
   "voice": "pt_PT-tugão-medium"
  },
+ "o balão": {
+  "file": "a7dace62a2.mp3",
+  "lengthScale": 1.12,
+  "say": "o balão.",
+  "source": "piper",
+  "text": "o balão",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o barco": {
+  "file": "1062e7fcc2.mp3",
+  "lengthScale": 1.12,
+  "say": "o barco.",
+  "source": "piper",
+  "text": "o barco",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o bolo": {
   "file": "644049550f.mp3",
   "lengthScale": 1.12,
   "say": "o bolo.",
   "source": "piper",
   "text": "o bolo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o cachecol": {
+  "file": "b092a0c15b.mp3",
+  "lengthScale": 1.12,
+  "say": "o cachecol.",
+  "source": "piper",
+  "text": "o cachecol",
   "voice": "pt_PT-tugão-medium"
  },
  "o café": {
@@ -2797,6 +2954,14 @@
   "text": "o café",
   "voice": "pt_PT-tugão-medium"
  },
+ "o caracol": {
+  "file": "a99f657fc1.mp3",
+  "lengthScale": 1.12,
+  "say": "o caracol.",
+  "source": "piper",
+  "text": "o caracol",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o carro": {
   "file": "c092f71216.mp3",
   "lengthScale": 1.12,
@@ -2805,12 +2970,68 @@
   "text": "o carro",
   "voice": "pt_PT-tugão-medium"
  },
+ "o casaco": {
+  "file": "01bb4597b1.mp3",
+  "lengthScale": 1.12,
+  "say": "o casaco.",
+  "source": "piper",
+  "text": "o casaco",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o castelo": {
+  "file": "13ede3d9d9.mp3",
+  "lengthScale": 1.12,
+  "say": "o castelo.",
+  "source": "piper",
+  "text": "o castelo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o cavalo": {
+  "file": "41dbb8a483.mp3",
+  "lengthScale": 1.12,
+  "say": "o cavalo.",
+  "source": "piper",
+  "text": "o cavalo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o chapéu": {
+  "file": "5ad7c0fa78.mp3",
+  "lengthScale": 1.12,
+  "say": "o chapéu.",
+  "source": "piper",
+  "text": "o chapéu",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o chocolate": {
   "file": "02a684a537.mp3",
   "lengthScale": 1.12,
   "say": "o chocolate.",
   "source": "piper",
   "text": "o chocolate",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o chuveiro": {
+  "file": "0a02ae29da.mp3",
+  "lengthScale": 1.12,
+  "say": "o chuveiro.",
+  "source": "piper",
+  "text": "o chuveiro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o chá": {
+  "file": "601eba725a.mp3",
+  "lengthScale": 1.12,
+  "say": "o chá.",
+  "source": "piper",
+  "text": "o chá",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o cinema": {
+  "file": "eca29a8596.mp3",
+  "lengthScale": 1.12,
+  "say": "o cinema.",
+  "source": "piper",
+  "text": "o cinema",
   "voice": "pt_PT-tugão-medium"
  },
  "o cliente foi-se embora…": {
@@ -2869,12 +3090,28 @@
   "text": "o elefante",
   "voice": "pt_PT-tugão-medium"
  },
+ "o elétrico": {
+  "file": "e7e9aa4899.mp3",
+  "lengthScale": 1.12,
+  "say": "o elétrico.",
+  "source": "piper",
+  "text": "o elétrico",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o fogo": {
   "file": "099f1dd12a.mp3",
   "lengthScale": 1.12,
   "say": "o fogo.",
   "source": "piper",
   "text": "o fogo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o frango": {
+  "file": "3b959dbe62.mp3",
+  "lengthScale": 1.12,
+  "say": "o frango.",
+  "source": "piper",
+  "text": "o frango",
   "voice": "pt_PT-tugão-medium"
  },
  "o gato": {
@@ -2901,12 +3138,36 @@
   "text": "o gelo",
   "voice": "pt_PT-tugão-medium"
  },
+ "o guarda-chuva": {
+  "file": "bfd027eca9.mp3",
+  "lengthScale": 1.12,
+  "say": "o guarda-chuva.",
+  "source": "piper",
+  "text": "o guarda-chuva",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o hambúrguer": {
+  "file": "789fe9169d.mp3",
+  "lengthScale": 1.12,
+  "say": "o hambúrguer.",
+  "source": "piper",
+  "text": "o hambúrguer",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o hospital": {
   "file": "3c82c99a56.mp3",
   "lengthScale": 1.12,
   "say": "o hospital.",
   "source": "piper",
   "text": "o hospital",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o jornal": {
+  "file": "037b65d8b0.mp3",
+  "lengthScale": 1.12,
+  "say": "o jornal.",
+  "source": "piper",
+  "text": "o jornal",
   "voice": "pt_PT-tugão-medium"
  },
  "o leite": {
@@ -2917,12 +3178,28 @@
   "text": "o leite",
   "voice": "pt_PT-tugão-medium"
  },
+ "o leão": {
+  "file": "a3dd83c4e3.mp3",
+  "lengthScale": 1.12,
+  "say": "o leão.",
+  "source": "piper",
+  "text": "o leão",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o li é da china.": {
   "file": "326227106a.mp3",
   "lengthScale": 1.12,
   "say": "O Li é da China.",
   "source": "piper",
   "text": "O Li é da China.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o limão": {
+  "file": "3ac69a8a72.mp3",
+  "lengthScale": 1.12,
+  "say": "o limão.",
+  "source": "piper",
+  "text": "o limão",
   "voice": "pt_PT-tugão-medium"
  },
  "o livro": {
@@ -2941,12 +3218,44 @@
   "text": "o lápis",
   "voice": "pt_PT-tugão-medium"
  },
+ "o mar": {
+  "file": "e9874d0779.mp3",
+  "lengthScale": 1.12,
+  "say": "o mar.",
+  "source": "piper",
+  "text": "o mar",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o metro": {
+  "file": "2f51f6edb4.mp3",
+  "lengthScale": 1.12,
+  "say": "o metro.",
+  "source": "piper",
+  "text": "o metro",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o morango": {
   "file": "7eb46899ad.mp3",
   "lengthScale": 1.12,
   "say": "o morango.",
   "source": "piper",
   "text": "o morango",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o museu": {
+  "file": "67b322e315.mp3",
+  "lengthScale": 1.12,
+  "say": "o museu.",
+  "source": "piper",
+  "text": "o museu",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o nariz": {
+  "file": "3f7d0a8bac.mp3",
+  "lengthScale": 1.12,
+  "say": "o nariz.",
+  "source": "piper",
+  "text": "o nariz",
   "voice": "pt_PT-tugão-medium"
  },
  "o nori é do japão.": {
@@ -3011,6 +3320,14 @@
   "say": "o peixe.",
   "source": "piper",
   "text": "o peixe",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o porco": {
+  "file": "f365efc3be.mp3",
+  "lengthScale": 1.12,
+  "say": "o porco.",
+  "source": "piper",
+  "text": "o porco",
   "voice": "pt_PT-tugão-medium"
  },
  "o presente": {
@@ -3085,12 +3402,36 @@
   "text": "O Rui é do Porto.",
   "voice": "pt_PT-tugão-medium"
  },
+ "o sal": {
+  "file": "94c2e6eb0d.mp3",
+  "lengthScale": 1.12,
+  "say": "o sal.",
+  "source": "piper",
+  "text": "o sal",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o sofá": {
+  "file": "e8a25bd98c.mp3",
+  "lengthScale": 1.12,
+  "say": "o sofá.",
+  "source": "piper",
+  "text": "o sofá",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o sol": {
   "file": "eec34accd3.mp3",
   "lengthScale": 1.12,
   "say": "o sol.",
   "source": "piper",
   "text": "o sol",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o sumo": {
+  "file": "ac6879b534.mp3",
+  "lengthScale": 1.12,
+  "say": "o sumo.",
+  "source": "piper",
+  "text": "o sumo",
   "voice": "pt_PT-tugão-medium"
  },
  "o supermercado": {
@@ -3125,6 +3466,14 @@
   "text": "o tomate",
   "voice": "pt_PT-tugão-medium"
  },
+ "o tubarão": {
+  "file": "2d3267615c.mp3",
+  "lengthScale": 1.12,
+  "say": "o tubarão.",
+  "source": "piper",
+  "text": "o tubarão",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o vinho": {
   "file": "a05be4558c.mp3",
   "lengthScale": 1.12,
@@ -3134,7 +3483,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "obrigado.": {
-  "downloaded": "transcode.ogg",
   "file": "14fb7722d9.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -3153,15 +3501,17 @@
   "voice": "pt_PT-tugão-medium"
  },
  "oito": {
-  "file": "c47f374461.mp3",
-  "lengthScale": 1.12,
-  "say": "oito.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "507ac7cf12.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "oito",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-oito.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-oito.wav"
  },
  "olá!": {
-  "downloaded": "transcode.ogg",
   "file": "4138419691.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -3747,14 +4097,6 @@
   "text": "Pedido servido!",
   "voice": "pt_PT-tugão-medium"
  },
- "pequeno": {
-  "file": "869283eb08.mp3",
-  "lengthScale": 1.12,
-  "say": "pequeno.",
-  "source": "piper",
-  "text": "pequeno",
-  "voice": "pt_PT-tugão-medium"
- },
  "pequeno, pequena": {
   "file": "04011749ce.mp3",
   "lengthScale": 1.12,
@@ -3764,7 +4106,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "perfeito!": {
-  "downloaded": "transcode.ogg",
   "file": "83db3e35d0.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -3773,14 +4114,6 @@
   "text": "Perfeito!",
   "title": "File:LL-Q5146 (por)-Santamarcanda-perfeito.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-perfeito.wav"
- },
- "pesado": {
-  "file": "0f2ecdf617.mp3",
-  "lengthScale": 1.12,
-  "say": "pesado.",
-  "source": "piper",
-  "text": "pesado",
-  "voice": "pt_PT-tugão-medium"
  },
  "pesado, pesada": {
   "file": "383f699864.mp3",
@@ -3887,7 +4220,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "quase!": {
-  "downloaded": "transcode.ogg",
   "file": "2917c76879.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -3903,6 +4235,14 @@
   "say": "quatro.",
   "source": "piper",
   "text": "quatro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "que pena!": {
+  "file": "9fc00dd94b.mp3",
+  "lengthScale": 1.12,
+  "say": "Que pena!",
+  "source": "piper",
+  "text": "Que pena!",
   "voice": "pt_PT-tugão-medium"
  },
  "quem vê o alvo escolhe uma pista: muito frio, um pouco quente…": {
@@ -4481,6 +4821,14 @@
   "text": "quinze",
   "voice": "pt_PT-tugão-medium"
  },
+ "responde primeiro no telemóvel e ganha a coroa!": {
+  "file": "615e1cb143.mp3",
+  "lengthScale": 1.12,
+  "say": "Responde primeiro no telemóvel e ganha a coroa!",
+  "source": "piper",
+  "text": "Responde primeiro no telemóvel e ganha a coroa!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "russa": {
   "file": "9810009318.mp3",
   "lengthScale": 1.12,
@@ -4505,20 +4853,20 @@
   "text": "russo, russa",
   "voice": "pt_PT-tugão-medium"
  },
- "rápido": {
-  "file": "23375cd98d.mp3",
-  "lengthScale": 1.12,
-  "say": "rápido.",
-  "source": "piper",
-  "text": "rápido",
-  "voice": "pt_PT-tugão-medium"
- },
  "rápido, rápida": {
   "file": "c176eb06bb.mp3",
   "lengthScale": 1.12,
   "say": "rápido, rápida.",
   "source": "piper",
   "text": "rápido, rápida",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "rápido, rápido!": {
+  "file": "eafb936ae0.mp3",
+  "lengthScale": 1.12,
+  "say": "Rápido, rápido!",
+  "source": "piper",
+  "text": "Rápido, rápido!",
   "voice": "pt_PT-tugão-medium"
  },
  "secretária": {
@@ -4737,14 +5085,6 @@
   "text": "sueco, sueca",
   "voice": "pt_PT-tugão-medium"
  },
- "sujo": {
-  "file": "6806028a37.mp3",
-  "lengthScale": 1.12,
-  "say": "sujo.",
-  "source": "piper",
-  "text": "sujo",
-  "voice": "pt_PT-tugão-medium"
- },
  "sujo, suja": {
   "file": "42f3870cd7.mp3",
   "lengthScale": 1.12,
@@ -4768,6 +5108,17 @@
   "source": "piper",
   "text": "taxista",
   "voice": "pt_PT-tugão-medium"
+ },
+ "tempo!": {
+  "downloaded": "transcode.ogg",
+  "file": "5340845e79.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
+  "text": "Tempo!",
+  "title": "File:LL-Q5146 (por)-Santamarcanda-tempo.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-tempo.wav"
  },
  "timorense": {
   "file": "8fab6655ba.mp3",
@@ -4802,7 +5153,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "troca!": {
-  "downloaded": "transcode.ogg",
   "file": "5876c754f2.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -4930,6 +5280,14 @@
   "say": "Tu és de Lisboa?",
   "source": "piper",
   "text": "Tu és de Lisboa?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tão perto!": {
+  "file": "b7dbb9da43.mp3",
+  "lengthScale": 1.12,
+  "say": "Tão perto!",
+  "source": "piper",
+  "text": "Tão perto!",
   "voice": "pt_PT-tugão-medium"
  },
  "um": {
@@ -5146,198 +5504,6 @@
   "say": "Um ovo, se faz favor.",
   "source": "piper",
   "text": "Um ovo, se faz favor.",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco barato": {
-  "file": "70baf8dd5a.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco barato.",
-  "source": "piper",
-  "text": "um pouco barato",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco barulhento": {
-  "file": "ee9698f8c3.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco barulhento.",
-  "source": "piper",
-  "text": "um pouco barulhento",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco bom": {
-  "file": "5761ed5e07.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco bom.",
-  "source": "piper",
-  "text": "um pouco bom",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco bonito": {
-  "file": "b86d1fe781.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco bonito.",
-  "source": "piper",
-  "text": "um pouco bonito",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco calmo": {
-  "file": "0a1dac8bc6.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco calmo.",
-  "source": "piper",
-  "text": "um pouco calmo",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco caro": {
-  "file": "60079246ff.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco caro.",
-  "source": "piper",
-  "text": "um pouco caro",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco difícil": {
-  "file": "fa1a760ac2.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco difícil.",
-  "source": "piper",
-  "text": "um pouco difícil",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco feio": {
-  "file": "451d67b090.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco feio.",
-  "source": "piper",
-  "text": "um pouco feio",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco feliz": {
-  "file": "1269c665a7.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco feliz.",
-  "source": "piper",
-  "text": "um pouco feliz",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco frio": {
-  "file": "1cc1179e9f.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco frio.",
-  "source": "piper",
-  "text": "um pouco frio",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco fácil": {
-  "file": "1318724854.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco fácil.",
-  "source": "piper",
-  "text": "um pouco fácil",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco grande": {
-  "file": "8f8af5c2fe.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco grande.",
-  "source": "piper",
-  "text": "um pouco grande",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco lento": {
-  "file": "eb2c0bc356.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco lento.",
-  "source": "piper",
-  "text": "um pouco lento",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco leve": {
-  "file": "c5c0ffe06e.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco leve.",
-  "source": "piper",
-  "text": "um pouco leve",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco limpo": {
-  "file": "fad8be89a6.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco limpo.",
-  "source": "piper",
-  "text": "um pouco limpo",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco mau": {
-  "file": "36e1e6b483.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco mau.",
-  "source": "piper",
-  "text": "um pouco mau",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco novo": {
-  "file": "35a40bee0c.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco novo.",
-  "source": "piper",
-  "text": "um pouco novo",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco pequeno": {
-  "file": "6bec329b50.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco pequeno.",
-  "source": "piper",
-  "text": "um pouco pequeno",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco pesado": {
-  "file": "d178f709ff.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco pesado.",
-  "source": "piper",
-  "text": "um pouco pesado",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco quente": {
-  "file": "4442dd6faf.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco quente.",
-  "source": "piper",
-  "text": "um pouco quente",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco rápido": {
-  "file": "1f7c799009.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco rápido.",
-  "source": "piper",
-  "text": "um pouco rápido",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco sujo": {
-  "file": "9ca5851f79.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco sujo.",
-  "source": "piper",
-  "text": "um pouco sujo",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco triste": {
-  "file": "8bc22c7b47.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco triste.",
-  "source": "piper",
-  "text": "um pouco triste",
-  "voice": "pt_PT-tugão-medium"
- },
- "um pouco velho": {
-  "file": "1ef02757bf.mp3",
-  "lengthScale": 1.12,
-  "say": "um pouco velho.",
-  "source": "piper",
-  "text": "um pouco velho",
   "voice": "pt_PT-tugão-medium"
  },
  "um pão e um ovo, se faz favor.": {
@@ -5564,12 +5730,12 @@
   "text": "Vamos jogar!",
   "voice": "pt_PT-tugão-medium"
  },
- "velho": {
-  "file": "53e91f0b1c.mp3",
+ "vamos lá!": {
+  "file": "675874f28f.mp3",
   "lengthScale": 1.12,
-  "say": "velho.",
+  "say": "Vamos lá!",
   "source": "piper",
-  "text": "velho",
+  "text": "Vamos lá!",
   "voice": "pt_PT-tugão-medium"
  },
  "velho, velha": {
@@ -5586,6 +5752,22 @@
   "say": "vinte.",
   "source": "piper",
   "text": "vinte",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "vão conseguir da próxima vez!": {
+  "file": "cd96ff4649.mp3",
+  "lengthScale": 1.12,
+  "say": "Vão conseguir da próxima vez!",
+  "source": "piper",
+  "text": "Vão conseguir da próxima vez!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "vês uma imagem ou ouves uma palavra.": {
+  "file": "98ba9c8257.mp3",
+  "lengthScale": 1.12,
+  "say": "Vês uma imagem ou ouves uma palavra.",
+  "source": "piper",
+  "text": "Vês uma imagem ou ouves uma palavra.",
   "voice": "pt_PT-tugão-medium"
  },
  "zero": {

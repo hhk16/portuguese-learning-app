@@ -4,9 +4,9 @@ Pre-rendered European Portuguese (pt-PT) speech in `public/audio/`, built by
 `scripts/audio/render.py` (see `scripts/audio/README.md`). This file is generated; re-run the
 script instead of editing it by hand.
 
-- **23** clips are native recordings from Lingua Libre (Wikimedia Commons).
+- **37** clips are native recordings from Lingua Libre (Wikimedia Commons).
 - **0** clips are synthesised with Google Gemini TTS (`gemini-3.8-flash-tts`, voice -, language pt-PT).
-- **670** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
+- **676** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
 
 ## Gemini TTS
 
@@ -40,9 +40,7 @@ Wikimedia Commons. Licence per file as stated on its Commons page.
 |---|---|---|---|
 | Adeus! | [LL-Q5146 (por)-Santamarcanda-adeus.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-adeus.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | advogado | [LL-Q5146 (por)-Santamarcanda-advogado.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-advogado.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
-| bom | [LL-Q5146 (por)-Santamarcanda-bom.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-bom.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
-| bonito | [LL-Q5146 (por)-Santamarcanda-bonito.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-bonito.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
-| caro | [LL-Q5146 (por)-Santamarcanda-caro.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-caro.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| Boa! | [LL-Q5146 (por)-Santamarcanda-boa.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-boa.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | cinco | [LL-Q5146 (por)-Santamarcanda-cinco.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-cinco.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | da | [LL-Q5146 (por)-Santamarcanda-da.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-da.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | das | [LL-Q5146 (por)-Santamarcanda-das.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-das.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
@@ -55,9 +53,25 @@ Wikimedia Commons. Licence per file as stated on its Commons page.
 | dos | [LL-Q5146 (por)-Santamarcanda-dos.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-dos.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | engenheiro | [LL-Q5146 (por)-Waldyrious-engenheiro.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav) | Waldyrious | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
 | estudante | [LL-Q5146 (por)-Waldyrious-estudante.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav) | Waldyrious | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| Excelente! | [LL-Q5146 (por)-Santamarcanda-excelente.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-excelente.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| Fantástico! | [LL-Q5146 (por)-Santamarcanda-fantástico.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-fant%C3%A1stico.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | feliz | [LL-Q5146 (por)-Santamarcanda-feliz.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-feliz.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| fácil | [LL-Q5146 (por)-Santamarcanda-fácil.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-f%C3%A1cil.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| grande | [LL-Q5146 (por)-Santamarcanda-grande.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-grande.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| inglês | [LL-Q5146 (por)-Santamarcanda-inglês.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-ingl%C3%AAs.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| jornalista | [LL-Q5146 (por)-Waldyrious-jornalista.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav) | Waldyrious | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
+| leve | [LL-Q5146 (por)-Santamarcanda-leve.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-leve.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| médica | [LL-Q5146 (por)-Santamarcanda-médica.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-m%C3%A9dica.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| médico | [LL-Q5146 (por)-Santamarcanda-médico.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-m%C3%A9dico.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| na | [LL-Q5146 (por)-Santamarcanda-na.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-na.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| nas | [LL-Q5146 (por)-Santamarcanda-nas.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-nas.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| no | [LL-Q5146 (por)-Santamarcanda-no.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-no.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| nos | [LL-Q5146 (por)-Santamarcanda-nos.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-nos.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| nove | [LL-Q5146 (por)-Santamarcanda-nove.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-nove.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Obrigado. | [LL-Q5146 (por)-Santamarcanda-obrigado.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-obrigado.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| oito | [LL-Q5146 (por)-Santamarcanda-oito.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-oito.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Olá! | [LL-Q5146 (por)-Santamarcanda-olá.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-ol%C3%A1.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Perfeito! | [LL-Q5146 (por)-Santamarcanda-perfeito.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-perfeito.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Quase! | [LL-Q5146 (por)-Santamarcanda-quase.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quase.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| Tempo! | [LL-Q5146 (por)-Santamarcanda-tempo.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-tempo.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Troca! | [LL-Q5146 (por)-Santamarcanda-troca.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-troca.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
