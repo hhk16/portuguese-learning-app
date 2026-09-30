@@ -11,7 +11,9 @@ import { mkdirSync, rmSync } from "node:fs";
 import { chromium, type Page } from "playwright-core";
 
 const PORT = 8799;
-const BASE = `http://localhost:${PORT}`;
+/** E2E_BASE=https://… runs against a deployed server instead of spawning one. */
+const REMOTE = process.env.E2E_BASE;
+const BASE = REMOTE ?? `http://localhost:${PORT}`;
 const OUT = "e2e-output";
 const MODE = (process.env.E2E_MODE ?? "party") as "party" | "micro" | "race" | "aula";
 const EXE = process.env.CHROME_PATH ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
@@ -19,11 +21,13 @@ const EXE = process.env.CHROME_PATH ?? "/opt/pw-browsers/chromium-1194/chrome-li
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/video`, { recursive: true });
 
-const server = spawn(process.execPath, ["server/index.ts"], { env: { ...process.env, PORT: String(PORT), TOKEN_SIGNING_KEY: "e2e" }, stdio: "inherit" });
-await new Promise((r) => setTimeout(r, 1200));
+const server = REMOTE ? null : spawn(process.execPath, ["server/index.ts"], { env: { ...process.env, PORT: String(PORT), TOKEN_SIGNING_KEY: "e2e" }, stdio: "inherit" });
+if (server) await new Promise((r) => setTimeout(r, 1200));
 
+const proxy = REMOTE && process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY } : undefined;
 const browser = await chromium.launch({
   executablePath: EXE,
+  proxy,
   args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--autoplay-policy=no-user-gesture-required"],
 });
 const errors: string[] = [];
@@ -190,5 +194,5 @@ console.log(errors.length ? `ERRORS:\n${errors.join("\n")}` : "no page errors");
 console.log(lastActivity === "results" ? "REACHED RESULTS ✓" : "did NOT reach results ✗");
 await tvCtx.close();
 await browser.close();
-server.kill();
+server?.kill();
 process.exit(lastActivity === "results" && errors.length === 0 ? 0 : 1);
