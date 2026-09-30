@@ -26,7 +26,7 @@ export const RULES: Record<Mode, Line[]> = {
   ],
   wave: [
     { pt: "Um mostrador entre dois opostos, por exemplo frio e quente.", en: "A dial between two opposites, like cold and hot." },
-    { pt: "Quem vê o alvo escolhe uma pista: muito frio, um pouco quente…", en: "Whoever sees the target picks a clue: very cold, a bit hot…" },
+    { pt: "Quem vê o alvo escolhe uma coisa como pista: o gelado, o café…", en: "Whoever sees the target picks a thing as the clue: ice cream, coffee…" },
     { pt: "O outro roda o mostrador. Mais perto, mais pontos!", en: "The other turns the dial. Closer means more points!" },
   ],
   sync: [
