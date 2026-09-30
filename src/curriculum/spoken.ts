@@ -6,7 +6,6 @@
 import { ALL_ITEMS } from "./index.ts";
 import { cardOf } from "./learn.ts";
 import { kitchenSpoken } from "../games/kitchen/menu.ts";
-import { waveSpoken } from "../games/wave/scale.ts";
 import { stopSpoken } from "../games/stop/dictionary.ts";
 import { hostSpoken } from "../tv/host-lines.ts";
 
@@ -31,7 +30,7 @@ export function allSpokenTexts(): string[] {
       out.add(it.fs);
     }
   }
-  for (const t of [...kitchenSpoken(), ...stopSpoken(), ...waveSpoken(), ...hostSpoken()]) out.add(t);
+  for (const t of [...kitchenSpoken(), ...stopSpoken(), ...hostSpoken()]) out.add(t);
   for (const t of extra) out.add(t);
   return [...out].filter((t) => t.trim().length > 0).sort();
 }

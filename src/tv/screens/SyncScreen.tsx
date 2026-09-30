@@ -1,7 +1,7 @@
 /** Em Sintonia on the TV: two words, a countdown, and both secret words revealed together. */
 import { useEffect, useState } from "react";
 import type { EmSintonia } from "../../games/sync/sync.ts";
-import { ATTEMPTS, ROUNDS } from "../../games/sync/sync.ts";
+import { ROUNDS } from "../../games/sync/sync.ts";
 import { Face } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
 import { gameNow } from "../clock.ts";
@@ -20,10 +20,10 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
     <div className="tv-overlay game-screen centered">
       <GameTop title="Em Sintonia" pic="🤝">
         <span className="pill">
-          Par {Math.min(a.round + 1, ROUNDS)}/{ROUNDS} · tentativa {a.attempt}/{ATTEMPTS}
+          {a.inPractice ? "" : `Par ${Math.min(a.round + 1, ROUNDS)}/${ROUNDS} · `}tentativa {a.attempt}/{a.rules.tries}
         </span>
         {a.final && <span className="pill double-pill">×2</span>}
-        {a.phase === "write" && <span className={`pill clock ${a.msLeft < 8000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
+        {a.phase === "write" && !a.inPractice && <span className={`pill clock ${a.msLeft < 8000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
         <span className="pill star-pill">{a.score} pontos</span>
       </GameTop>
       <div className="sync-stage">
@@ -75,8 +75,8 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
       )}
       {a.phase === "reveal" && (
         <div className={`sync-verdict display ${a.lastMatch ? "match" : ""}`}>
-          {a.lastMatch ? "Em sintonia!" : a.attempt < ATTEMPTS ? "Quase! Outra vez…" : "Próximo par!"}
-          <i>{a.lastMatch ? "In sync!" : a.attempt < ATTEMPTS ? "So close — same pair again" : "Next pair!"}</i>
+          {a.lastMatch ? "Em sintonia!" : `${a.closeMiss ? "Quase!" : "Nada disso!"} ${a.attempt < a.rules.tries ? "Outra vez…" : "Próximo par!"}`}
+          <i>{a.lastMatch ? "In sync!" : `${a.closeMiss ? "So close" : "Not quite"} — ${a.attempt < a.rules.tries ? "same pair again" : "next pair"}`}</i>
         </div>
       )}
     </div>

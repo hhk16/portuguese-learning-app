@@ -8,6 +8,8 @@ export interface Clue {
   pic?: string;
   /** Where an intensifier clue sits on the dial (nouns have no fixed spot). */
   at?: number;
+  /** What the TV says (when it differs from the label). */
+  say?: string;
 }
 
 /** The seven intensifier clues along a spectrum ("muito frio" … "muito quente"). */

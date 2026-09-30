@@ -14,6 +14,7 @@ import { Sync } from "./Sync.tsx";
 import { Draw } from "./Draw.tsx";
 import { StopPad } from "./Stop.tsx";
 import { Kitchen } from "./Kitchen.tsx";
+import { Final } from "./Final.tsx";
 
 export type ViewOf<M extends ControllerView["mode"]> = Extract<ControllerView, { mode: M }>;
 export type Send = (value: InputValue) => void;
@@ -28,6 +29,16 @@ export function Controller({ view, conn }: { view: ControllerView; conn: PhoneCo
   const idle = view.mode === "wait" || view.mode === "lobby" || ("role" in view && view.role === "watch");
   return (
     <div key={key} className="p-screen" onPointerDown={unlockAudio}>
+      {"practice" in view && view.practice && (
+        <div className="practice-bar">
+          <span>
+            🎓 <b>Ensaio</b> · Practice — doesn't count
+          </span>
+          <button className="btn white mini" onClick={() => conn.input(view.roundId, view.promptId, { mode: "skip" })}>
+            Saltar · Skip
+          </button>
+        </div>
+      )}
       <Body view={view} conn={conn} send={send} />
       {idle && <ReactBar conn={conn} />}
     </div>
@@ -60,19 +71,20 @@ function Body({ view, conn, send }: { view: ControllerView; conn: PhoneConnectio
       return <StopPad v={view} send={send} />;
     case "kitchen":
       return <Kitchen v={view} send={send} />;
+    case "final":
+      return <Final v={view} send={send} />;
   }
 }
 
 function Wait({ v }: { v: ViewOf<"wait"> }) {
+  // Never a blank phone: at least a picture and a pointer to the TV.
   return (
     <div className="p-center">
-      {v.pic && (
-        <div className="p-bob">
-          <Picture glyph={v.pic} size="112px" />
-        </div>
-      )}
+      <div className="p-bob">
+        <Picture glyph={v.pic ?? "👀"} size="112px" />
+      </div>
       <div className="p-big">{v.title}</div>
-      {v.subtitle && <div className="p-sub">{v.subtitle}</div>}
+      <div className="p-sub">{v.subtitle ?? "Olha para a TV! · Look at the TV!"}</div>
     </div>
   );
 }

@@ -9,6 +9,8 @@ import type { LearnCard } from "../curriculum/learn.ts";
 import { getLesson, LESSONS } from "../curriculum/lessons.ts";
 import type { Lesson } from "../curriculum/schema.ts";
 import { LearnActivity, type LearnSummary } from "../games/learn/learn.ts";
+import { GrandeFinal } from "../games/final/final.ts";
+import type { Stroke } from "../games/draw/ink.ts";
 import { ParesSecretos } from "../games/secret/secret.ts";
 import { EmSintonia } from "../games/sync/sync.ts";
 import { NaMesmaOnda } from "../games/wave/wave.ts";
@@ -19,11 +21,11 @@ import { randomId } from "../shared/ids.ts";
 import type { ControllerView, InputValue, NavDir } from "../shared/protocol.ts";
 import { play } from "../audio/sfx.ts";
 import { RULES, SAY } from "./host-lines.ts";
-import { bestScore, lastLevel, LEVELS, recordScore, rememberLevel, type Level } from "./progress.ts";
+import { bestScore, countPlay, lastLevel, LEVELS, recordScore, rememberLevel, wantsPractice, type Level } from "./progress.ts";
 import { lessonsDone, lessonStars, nextLessonId, playableLessons } from "./progress.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "./runtime.ts";
 
-export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen";
+export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen" | "final";
 
 export interface ModeSpec {
   mode: Mode;
@@ -34,7 +36,7 @@ export interface ModeSpec {
 }
 
 export interface GameInfo {
-  mode: Exclude<Mode, "lesson">;
+  mode: Exclude<Mode, "lesson" | "final">;
   name: string;
   pic: string;
   kind: string;
@@ -118,6 +120,7 @@ export class TitleActivity implements Activity {
     }
     const done = lessonsDone().size;
     return [
+      { id: "night", label: "Noite de jogos", sub: "3 jogos seguidos + a Grande Final", subEn: "Game night: 3 games in a row + a Grand Final", pic: "🎉", badge: "Novo" },
       { id: "learn", label: "Aprender juntos", sub: `Lições do livro · ${done}/${LESSONS.length} feitas`, subEn: "Learn together: lessons from the book", pic: "📖" },
       { id: "play", label: "Jogar", sub: "Jogos a dois com as palavras que aprenderam", subEn: "Play: party games with your new words", pic: "🎲" },
       { id: "settings", label: "Definições", subEn: "Settings", pic: "⚙️" },
@@ -143,7 +146,7 @@ export class TitleActivity implements Activity {
     if (dir === "down") return move(cols);
     if (dir === "back") {
       if (this.menu !== "main") {
-        this.focus = { learn: 0, play: 1, settings: 2, main: 0 }[this.menu];
+        this.focus = { learn: 1, play: 2, settings: 3, main: 0 }[this.menu];
         this.menu = "main";
         play("back");
         this.rt.bump();
@@ -163,6 +166,8 @@ export class TitleActivity implements Activity {
       case "stop":
       case "kitchen":
         return this.rt.run(new LobbyActivity({ mode: item.id }));
+      case "night":
+        return startNight(this.rt);
       case "learn":
         this.menu = "learn";
         this.focus = Math.max(0, LESSONS.findIndex((l) => l.id === nextLessonId()));
@@ -216,11 +221,13 @@ export function lessonPic(l: Lesson): string {
 
 export function specTitle(spec: ModeSpec): string {
   if (spec.mode === "lesson") return getLesson(spec.lessonId ?? "")?.title ?? "Lição";
+  if (spec.mode === "final") return "Grande Final";
   return GAMES.find((g) => g.mode === spec.mode)?.name ?? "";
 }
 
 export function specPic(spec: ModeSpec): string {
   if (spec.mode === "lesson") return lessonPic(getLesson(spec.lessonId ?? "") ?? LESSONS[0]!);
+  if (spec.mode === "final") return "🏆";
   return GAMES.find((g) => g.mode === spec.mode)?.pic ?? "🎲";
 }
 
@@ -299,6 +306,8 @@ export class LobbyActivity implements Activity {
         this.spec = { ...this.spec, level: next };
         rememberLevel(this.spec.mode, next);
         play("select");
+        const l = LEVELS[next - 1]!;
+        this.rt.cue({ pt: `${l.pt} ${l.stars}`, en: `Difficulty: ${l.en}` }, from === "tv" ? undefined : from);
         this.rt.refreshViews();
         this.rt.bump();
       }
@@ -339,6 +348,15 @@ export interface GameOutcome {
   subEn?: string;
   /** Words you used or met in the game, for the recap (the TV says them). */
   words?: { pt: string; en?: string; pic?: string }[];
+  /** Desenha!: the drawings, replayed on the results screen. */
+  gallery?: GalleryItem[];
+}
+
+export interface GalleryItem {
+  pt: string;
+  en?: string;
+  guessed: boolean;
+  strokes: Stroke[];
 }
 
 /** Stars from a score: 35% / 60% / 85% of the maximum. */
@@ -365,11 +383,19 @@ export interface ResultsInfo {
   max?: number;
   stars?: 0 | 1 | 2 | 3;
   practiced?: { pt: string; en?: string; pic?: string }[];
+  gallery?: GalleryItem[];
+  /** Game night: go on to the first option by itself after this many ms. */
+  autoGo?: number;
+  /** The end of a game night: crown the champion. */
+  champion?: boolean;
   win: boolean;
   lesson?: LearnSummary;
   words?: LearnCard[];
   options: ResultOption[];
 }
+
+/** How long phones show "Olha para a TV!" while the TV reveals the results. */
+const RESULTS_HOLD_MS = 4200;
 
 export class ResultsActivity implements Activity {
   readonly id = "results";
@@ -388,8 +414,12 @@ export class ResultsActivity implements Activity {
   start(rt: TvRuntime) {
     this.rt = rt;
     this.startAt = gameNow();
+    setTimeout(() => rt.activity === this && rt.refreshViews(), RESULTS_HOLD_MS + 50);
     const { spec, score } = this.info;
-    if (spec.mode !== "lesson" && score !== undefined) this.record = recordScore(spec.mode, spec.level ?? 1, score);
+    if (spec.mode !== "lesson" && score !== undefined) {
+      this.record = recordScore(spec.mode, spec.level ?? 1, score);
+      countPlay(spec.mode);
+    }
     const stars = this.info.stars;
     rt.say(this.record?.isNew && this.record.previous !== null ? SAY.record : stars === undefined || stars >= 2 ? SAY.youDidIt : SAY.nextTime);
     // Recap: the TV says the words you met, so the round ends on listening.
@@ -407,7 +437,14 @@ export class ResultsActivity implements Activity {
     void rt.learner.sync().then(() => rt.learner.pushSnapshot());
   }
 
-  tick() {}
+  tick(now: number) {
+    const auto = this.info.autoGo;
+    if (auto && now - this.startAt > auto && !this.went) {
+      this.went = true;
+      this.info.options[0]?.go();
+    }
+  }
+  private went = false;
 
   private choose(i: number) {
     const o = this.info.options[i];
@@ -432,6 +469,8 @@ export class ResultsActivity implements Activity {
   }
 
   viewFor(): ControllerView {
+    // Phones wait for the TV's reveal (stars, record) before showing the menu.
+    if (gameNow() - this.startAt < RESULTS_HOLD_MS) return { mode: "wait", title: "Olha para a TV!", subtitle: "Look at the TV — here come the results!", pic: "👀" };
     return {
       mode: "pick",
       roundId: "results",
@@ -450,6 +489,22 @@ export class ResultsActivity implements Activity {
 function lessonsFor(spec: ModeSpec): Lesson[] {
   const l = spec.lessonId ? getLesson(spec.lessonId) : undefined;
   return l ? [l] : playableLessons();
+}
+
+/** Game night: three different games in a row (at least one versus), then the Grande Final. */
+export function startNight(rt: TvRuntime) {
+  rt.resetSession();
+  const coop = rt.rng.shuffle(GAMES.filter((g) => g.mode !== "stop").map((g) => g.mode));
+  rt.night = { games: rt.rng.shuffle(["stop", coop[0]!, coop[1]!]), index: 0, words: [] };
+  rt.run(new LobbyActivity({ mode: rt.night.games[0] as Mode }));
+}
+
+/** Next game of the night, or the final. Session points are kept between games. */
+function nextInNight(rt: TvRuntime) {
+  const n = rt.night;
+  if (!n) return rt.run(new TitleActivity());
+  n.index++;
+  rt.run(new LobbyActivity({ mode: (n.games[n.index] ?? "final") as Mode }));
 }
 
 export function startMode(rt: TvRuntime, spec: ModeSpec) {
@@ -476,8 +531,36 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
       : [];
 
   const level: Level = spec.level ?? 1;
+  const night = rt.night && rt.night.games[rt.night.index] === spec.mode ? rt.night : null;
   const gameDone = (title: string, o: GameOutcome) => {
     const stars = starsFor(o.score, o.max);
+    if (night) {
+      night.words.push(...(o.words ?? []));
+      const nextMode = night.games[night.index + 1];
+      const nextGame = GAMES.find((g) => g.mode === nextMode);
+      const advance: ResultOption = nextGame
+        ? { id: "night-next", label: `A seguir: ${nextGame.name}`, sub: `Next game (${night.index + 2}/${night.games.length})`, pic: nextGame.pic, go: () => nextInNight(rt) }
+        : { id: "night-final", label: "Grande Final! 🏆", sub: "The Grand Final: who's tonight's star?", pic: "🏆", go: () => nextInNight(rt) };
+      rt.run(
+        new ResultsActivity({
+          spec,
+          title: `Noite de jogos ${night.index + 1}/${night.games.length} · ${title}`,
+          headline: o.headline,
+          headlineEn: o.headlineEn,
+          sub: o.sub,
+          subEn: o.subEn,
+          win: stars > 0,
+          score: o.score,
+          max: o.max,
+          stars,
+          practiced: o.words,
+        gallery: o.gallery,
+          options: [advance, { ...menu, label: "Terminar a noite", sub: "End the night" }],
+          autoGo: 15_000,
+        }),
+      );
+      return;
+    }
     const up: ResultOption[] =
       stars === 3 && level < 3 ? [{ id: "levelup", label: `Tentar ${LEVELS[level]!.pt} ${LEVELS[level]!.stars}`, sub: `Try ${LEVELS[level]!.en}`, pic: "🚀", go: go({ ...spec, level: (level + 1) as Level }) }] : [];
     rt.run(
@@ -493,6 +576,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
         max: o.max,
         stars,
         practiced: o.words,
+        gallery: o.gallery,
         options: [...up, { ...again, label: "Outra vez!", sub: "Play again" }, ...games(spec.mode), menu],
       }),
     );
@@ -528,23 +612,58 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
     case "secret": {
       const g = new ParesSecretos(lessonsFor(spec), (o) => gameDone("Pares Secretos", o));
       g.level = level;
+      if ("practice" in g) g.practice = wantsPractice(spec.mode);
       rt.run(g);
       return;
     }
     case "wave": {
       const g = new NaMesmaOnda((o) => gameDone("Na Mesma Onda", o));
       g.level = level;
+      if ("practice" in g) g.practice = wantsPractice(spec.mode);
       rt.run(g);
       return;
     }
     case "sync": {
       const g = new EmSintonia(lessonsFor(spec), (o) => gameDone("Em Sintonia", o));
       g.level = level;
+      if ("practice" in g) g.practice = wantsPractice(spec.mode);
       rt.run(g);
       return;
     }
     case "draw": {
       const g = new Desenha(lessonsFor(spec), (o) => gameDone("Desenha!", o));
+      g.level = level;
+      if ("practice" in g) g.practice = wantsPractice(spec.mode);
+      rt.run(g);
+      return;
+    }
+    case "final": {
+      const words = rt.night?.words ?? [];
+      const g = new GrandeFinal(words, (o) => {
+        rt.night = null;
+        rt.run(
+          new ResultsActivity({
+            spec,
+            title: "Grande Final · Noite de jogos",
+            headline: o.headline,
+            headlineEn: o.headlineEn,
+            sub: o.sub,
+            subEn: o.subEn,
+            win: true,
+            score: o.score,
+            max: o.max,
+            stars: starsFor(o.score, o.max),
+            practiced: o.words,
+        gallery: o.gallery,
+            champion: true,
+            options: [
+              { id: "night", label: "Outra noite!", sub: "Another game night", pic: "🎉", go: () => startNight(rt) },
+              ...games(),
+              menu,
+            ],
+          }),
+        );
+      });
       g.level = level;
       rt.run(g);
       return;
@@ -552,12 +671,14 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
     case "stop": {
       const g = new Stop((o) => gameDone("Stop!", o));
       g.level = level;
+      if ("practice" in g) g.practice = wantsPractice(spec.mode);
       rt.run(g);
       return;
     }
     case "kitchen": {
       const g = new Cozinha((o) => gameDone("Cozinha Caótica", o));
       g.level = level;
+      if ("practice" in g) g.practice = wantsPractice(spec.mode);
       rt.run(g);
       return;
     }

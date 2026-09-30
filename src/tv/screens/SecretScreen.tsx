@@ -27,10 +27,16 @@ export function SecretScreen({ a }: { a: ParesSecretos }) {
           Turno {Math.min(a.turnsUsed + 1, a.rules.turns)}/{a.rules.turns}
         </span>
         <span className="pill">{"❤️".repeat(Math.max(0, a.lives))}</span>
-        {a.phase === "clue" && <span className={`pill clock ${a.msLeft < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
+        {a.phase === "clue" && !a.inPractice && <span className={`pill clock ${a.msLeft < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
       </GameTop>
-      <div className="turn-banner card">
-        {giver && <PlayerChip p={giver} size="2em" />}
+      <div className={`turn-banner card ${a.phase === "sudden" ? "sudden" : ""}`}>
+        {a.phase === "sudden" && (
+          <span className="bi-line">
+            <b className="display">💓 Morte súbita!</b>
+            <i>Sudden death — no clues, both tap. One wrong card and it's over.</i>
+          </span>
+        )}
+        {giver && a.phase !== "sudden" && <PlayerChip p={giver} size="2em" />}
         {a.phase === "clue" && (
           <span className="bi-line">
             está a escolher uma pista…<i>is choosing a clue</i>

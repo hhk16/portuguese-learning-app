@@ -1,13 +1,15 @@
 /** Title menu, lobby, results and pause — calm white cards on the toy-world stage. */
 import { QRCodeSVG } from "qrcode.react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { paintStrokes } from "../../ui/Sketch.tsx";
 import { publicBaseUrl } from "../../net/socket.ts";
 import { Picture } from "../../ui/Picture.tsx";
 import { PlayerChip } from "../../ui/Face.tsx";
-import { GAMES, HOW_TO, specPic, toNextStar, type LobbyActivity, type ResultsActivity, type TitleActivity } from "../activities.ts";
+import { GAMES, HOW_TO, specPic, toNextStar, type GalleryItem, type LobbyActivity, type ResultsActivity, type TitleActivity } from "../activities.ts";
 import { gameNow } from "../clock.ts";
 import { useRuntime } from "../runtime.ts";
 import { LEVELS } from "../progress.ts";
+import { useTick } from "./useTick.ts";
 
 export function joinUrl(code: string) {
   return `${publicBaseUrl()}/play?room=${code}`;
@@ -125,7 +127,13 @@ export function LobbyScreen({ a }: { a: LobbyActivity }) {
         <div className="lobby-title">
           <Picture glyph={specPic(a.spec)} size="3.6em" />
           <div>
-            <div className="kicker">{a.spec.mode === "lesson" ? "Aprender juntos" : "Jogo a dois"}</div>
+            <div className="kicker">
+              {rt.night
+                ? `Noite de jogos · ${rt.night.index < rt.night.games.length ? `${rt.night.index + 1}/${rt.night.games.length}` : "Grande Final"} · Game night`
+                : a.spec.mode === "lesson"
+                  ? "Aprender juntos"
+                  : "Jogo a dois"}
+            </div>
             <h1 className="display">{a.title}</h1>
           </div>
         </div>
@@ -182,6 +190,7 @@ export function LobbyScreen({ a }: { a: LobbyActivity }) {
 export function ResultsScreen({ a }: { a: ResultsActivity }) {
   const rt = useRuntime();
   const info = a.info;
+  useTick(500, !!info.autoGo);
   const per = info.lesson?.perPlayer;
   return (
     <div className="tv-overlay results-screen">
@@ -214,7 +223,17 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             Faltam {toNextStar(info.score, info.max)} pontos para a próxima estrela · {toNextStar(info.score, info.max)} points to the next star
           </p>
         )}
-        {info.practiced && info.practiced.length > 0 && (
+        {info.gallery && info.gallery.length > 0 && (
+          <div className="words">
+            <div className="kicker">Galeria · Your drawings</div>
+            <div className="gallery">
+              {info.gallery.map((g, i) => (
+                <GalleryThumb key={i} g={g} delay={i * 1400} />
+              ))}
+            </div>
+          </div>
+        )}
+        {!info.gallery?.length && info.practiced && info.practiced.length > 0 && (
           <div className="words">
             <div className="kicker">Palavras do jogo · Words you used</div>
             <div className="word-chips">
@@ -263,18 +282,28 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             </div>
           </div>
         )}
-        {rt.activePlayers.length >= 2 && (
-          <div className="tonight">
-            <span className="kicker">Quem manda hoje? · Tonight's points</span>
-            <div className="tonight-row">
-              {[...rt.activePlayers]
-                .sort((x, y) => y.score - x.score)
-                .map((p, i, all) => (
-                  <PlayerChip key={p.playerId} p={p} size="2em" extra={<b className="pp-score">{i === 0 && p.score > (all[1]?.score ?? 0) ? "👑 " : ""}{p.score}</b>} />
+        {rt.activePlayers.length >= 2 && (() => {
+          const ps = [...rt.activePlayers].sort((x, y) => y.score - x.score);
+          const tied = ps.every((p) => p.score === ps[0]!.score);
+          // Co-op games give both the same points: show the team total instead of a fake rivalry.
+          if (tied && !info.champion)
+            return (
+              <div className="tonight">
+                <span className="kicker">Equipa · Team tonight</span>
+                <b className="pp-score">{ps[0]!.score} pontos</b>
+              </div>
+            );
+          return (
+            <div className={`tonight ${info.champion ? "champion" : ""}`}>
+              <span className="kicker">{info.champion ? "Estrela da noite · Tonight's star" : "Quem manda hoje? · Tonight's points"}</span>
+              <div className="tonight-row">
+                {ps.map((p, i) => (
+                  <PlayerChip key={p.playerId} p={p} size={info.champion && i === 0 ? "3em" : "2em"} extra={<b className="pp-score">{i === 0 && !tied ? "👑 " : ""}{p.score}</b>} />
                 ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
         <div className="next-list">
           {info.options.map((o, i) => (
             <div key={o.id} className={`next-item ${i === a.focus ? "focus" : ""}`}>
@@ -283,6 +312,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
                 <b>{o.label}</b>
                 {o.sub && <small>{o.sub}</small>}
               </span>
+              {i === 0 && info.autoGo && <span className="auto-go">{Math.max(0, Math.ceil((info.autoGo - (gameNow() - a.startAt)) / 1000))}s</span>}
             </div>
           ))}
         </div>
@@ -312,13 +342,22 @@ export function PauseScreen() {
 
 /** Game header: title pill on the left, a status slot in the middle, the join badge on the right. */
 export function GameTop({ title, pic, children }: { title: string; pic?: string; children?: React.ReactNode }) {
+  const rt = useRuntime();
+  const practicing = !!(rt.activity as { inPractice?: boolean } | null)?.inPractice;
   return (
     <div className="game-top">
       <span className="title-pill card">
         {pic && <Picture glyph={pic} size="1.8em" />}
         <b className="display">{title}</b>
       </span>
-      <div className="game-status">{children}</div>
+      <div className="game-status">
+        {practicing && (
+          <span className="pill practice-pill">
+            🎓 Ensaio <i>Practice — doesn't count</i>
+          </span>
+        )}
+        {children}
+      </div>
       <JoinBadge />
     </div>
   );
@@ -330,14 +369,52 @@ export { GAMES };
 export function HostBubble() {
   const rt = useRuntime();
   const l = rt.hostLine;
-  if (!l || rt.activity?.id === "lobby") return null;
+  const speaking = !!l;
+  // Beak flaps while Pipo talks.
+  const [flap, setFlap] = useState(false);
+  useEffect(() => {
+    if (!speaking) return;
+    const id = setInterval(() => setFlap((f) => !f), 170);
+    return () => clearInterval(id);
+  }, [speaking]);
+  if (rt.activity?.id === "title") return null;
+  const mood = l?.mood ?? "idle";
+  const pose = mood === "cheer" ? "cheer" : mood === "oops" ? "oops" : speaking && flap ? "talk" : "idle";
   return (
-    <div className="host-bubble card" key={l.seq}>
-      <span className="host-mic">🎙️</span>
-      <span>
-        <b className="display">{l.pt}</b>
-        <i>{l.en}</i>
+    <>
+      <img className={`pipo pose-${pose} at-${rt.activity?.id ?? "none"} ${speaking ? "speaking" : ""}`} src={`/art/host/pipo-${pose}.webp`} alt="Pipo" />
+      {l && rt.activity?.id !== "lobby" && (
+        <div className="host-bubble card" key={l.seq}>
+          <span>
+            <b className="display">{l.pt}</b>
+            <i>{l.en}</i>
+          </span>
+        </div>
+      )}
+    </>
+  );
+}
+
+/** The big one-verb command ("Ana: Roda o mostrador! · Turn the dial!"), with a phone pointer. */
+export function Command() {
+  const rt = useRuntime();
+  const c = rt.command;
+  const [, force] = useState(0);
+  useEffect(() => {
+    if (!c) return;
+    const id = setTimeout(() => force((x) => x + 1), 3000);
+    return () => clearTimeout(id);
+  }, [c]);
+  if (!c || performance.now() - c.at > 2900) return null;
+  const p = c.playerId ? rt.players.get(c.playerId) : undefined;
+  return (
+    <div className="command" key={c.seq}>
+      {p && <PlayerChip p={p} size="2.2em" />}
+      <span className="bi-line">
+        <b className="display">{c.pt}</b>
+        <i>{c.en}</i>
       </span>
+      <span className="command-phone">📱</span>
     </div>
   );
 }
@@ -360,5 +437,36 @@ export function Reactions() {
           );
         })}
     </div>
+  );
+}
+
+/** One drawing, replayed stroke by stroke (Telestrations-style gallery). */
+function GalleryThumb({ g, delay }: { g: GalleryItem; delay: number }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    let n = 0;
+    let id: ReturnType<typeof setInterval> | undefined;
+    const start = setTimeout(() => {
+      id = setInterval(() => {
+        n++;
+        const c = ref.current?.getContext("2d");
+        if (c) paintStrokes(c, 240, g.strokes.slice(0, n));
+        if (n >= g.strokes.length && id) clearInterval(id);
+      }, 180);
+    }, 1500 + delay);
+    const c = ref.current?.getContext("2d");
+    if (c) paintStrokes(c, 240, []);
+    return () => {
+      clearTimeout(start);
+      if (id) clearInterval(id);
+    };
+  }, [g, delay]);
+  return (
+    <figure className={`gallery-item ${g.guessed ? "ok" : ""}`}>
+      <canvas ref={ref} width={240} height={240} />
+      <figcaption>
+        <b>{g.pt}</b> {g.guessed ? "✓" : "✗"}
+      </figcaption>
+    </figure>
   );
 }

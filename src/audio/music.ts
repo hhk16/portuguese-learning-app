@@ -1,12 +1,12 @@
 /**
  * Background music (TV only). One track per mood, generated for this game (see ASSETS.md):
- * menu · learn · coop · draw · versus · rush. Tracks loop without their fade-in/out, crossfade
+ * menu · learn · secret · wave · sync · draw · versus · rush · final. Tracks loop without their fade-in/out, crossfade
  * when the scene changes, duck under the Portuguese voice, and can speed up for "hurry up!".
  */
 import { logSound } from "./log.ts";
 import { audio } from "./sfx.ts";
 
-export type Track = "menu" | "learn" | "coop" | "draw" | "versus" | "rush";
+export type Track = "menu" | "learn" | "secret" | "wave" | "sync" | "draw" | "versus" | "rush" | "final";
 
 const LEVEL = 0.55;
 const DUCKED = 0.18;

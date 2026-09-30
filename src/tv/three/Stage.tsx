@@ -23,26 +23,70 @@ function useTex(url: string): THREE.Texture {
   return t;
 }
 
-function Backdrop() {
-  const tex = useTex("/art/backdrop.webp");
+/** One themed set per game (public/art/sets), the meadow for menus. */
+const SETS = ["menu", "learn", "secret", "wave", "sync", "draw", "stop", "kitchen"] as const;
+type SetId = (typeof SETS)[number];
+const setUrl = (id: SetId) => (id === "menu" ? "/art/backdrop.webp" : `/art/sets/${id}.webp`);
+
+/** Which set an activity plays in (lobby and results use their game's set). */
+export function setOf(a: { id: string } | null | undefined): SetId {
+  if (!a || a.id === "title") return "menu";
+  const spec = (a as { spec?: { mode?: string } }).spec ?? (a as { info?: { spec?: { mode?: string } } }).info?.spec;
+  const mode = a.id === "lobby" || a.id === "results" ? (spec?.mode ?? "menu") : a.id;
+  if (mode === "lesson" || mode === "learn") return "learn";
+  // The Grande Final plays on the game-show stage.
+  if (mode === "final") return "stop";
+  return (SETS as readonly string[]).includes(mode) ? (mode as SetId) : "menu";
+}
+
+function Backdrop({ set }: { set: SetId }) {
+  const textures = SETS.map((id) => useTex(setUrl(id))); // eslint-disable-line react-hooks/rules-of-hooks
   const { size } = useThree();
-  const ref = useRef<THREE.Mesh>(null);
+  const group = useRef<THREE.Group>(null);
+  const top = useRef<THREE.MeshBasicMaterial>(null);
+  const under = useRef<THREE.MeshBasicMaterial>(null);
+  // Crossfade: the previous set stays underneath while the new one fades in on top.
+  const fade = useRef({ current: set, prev: set, t: 1 });
+  if (fade.current.current !== set) fade.current = { current: set, prev: fade.current.current, t: 0 };
   // Cover the viewport (3:2 art), with a little overscan for the drift.
   const aspect = 1536 / 1024;
   const w = Math.max(size.width, size.height * aspect) * 1.06;
   const h = w / aspect;
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, dt) => {
     const t = clock.elapsedTime;
-    if (ref.current) {
-      ref.current.position.x = Math.sin(t * 0.05) * size.width * 0.012;
-      ref.current.position.y = Math.cos(t * 0.04) * size.height * 0.006;
+    if (group.current) {
+      group.current.position.x = Math.sin(t * 0.05) * size.width * 0.012;
+      group.current.position.y = Math.cos(t * 0.04) * size.height * 0.006;
+    }
+    const f = fade.current;
+    f.t = Math.min(1, f.t + dt / 0.9);
+    if (top.current) {
+      const tex = textures[SETS.indexOf(f.current)]!;
+      if (top.current.map !== tex) {
+        top.current.map = tex;
+        top.current.needsUpdate = true;
+      }
+      top.current.opacity = f.t;
+    }
+    if (under.current) {
+      const tex = textures[SETS.indexOf(f.prev)]!;
+      if (under.current.map !== tex) {
+        under.current.map = tex;
+        under.current.needsUpdate = true;
+      }
     }
   });
   return (
-    <mesh ref={ref} position={[0, 0, -10]}>
-      <planeGeometry args={[w, h]} />
-      <meshBasicMaterial map={tex} toneMapped={false} />
-    </mesh>
+    <group ref={group}>
+      <mesh position={[0, 0, -11]}>
+        <planeGeometry args={[w, h]} />
+        <meshBasicMaterial ref={under} map={textures[SETS.indexOf(set)]} toneMapped={false} />
+      </mesh>
+      <mesh position={[0, 0, -10]}>
+        <planeGeometry args={[w, h]} />
+        <meshBasicMaterial ref={top} map={textures[SETS.indexOf(set)]} toneMapped={false} transparent />
+      </mesh>
+    </group>
   );
 }
 
@@ -192,7 +236,7 @@ function Scene() {
   const spots = layout(rt.activity?.id, players.length, size.width, size.height);
   return (
     <>
-      <Backdrop />
+      <Backdrop set={setOf(rt.activity)} />
       {players.map((p, i) => (
         <Suspense key={p.playerId} fallback={null}>
           <Character rt={rt} p={p} x={spots[i]!.x} y={spots[i]!.y} height={spots[i]!.height} flip={rt.activity?.id !== "title" && rt.activity?.id !== "lobby" && rt.activity?.id !== "results" && i % 2 === 1} />

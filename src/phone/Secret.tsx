@@ -34,7 +34,7 @@ export function Secret({ v, send }: { v: V; send: Send }) {
       {v.cards.map((c) => (
         <button
           key={c.id}
-          className={`scard card s-${c.state} ${c.key ? `k-${c.key}` : ""}`}
+          className={`scard card s-${c.state} ${c.key && (v.role === "clue" || v.sudden || showBoard) ? `k-${c.key}` : ""}`}
           disabled={v.role !== "guess" || c.state !== "hidden"}
           onClick={() => {
             play("tap");
@@ -95,6 +95,12 @@ export function Secret({ v, send }: { v: V; send: Send }) {
   return (
     <div className="p-col">
       {head}
+      {v.sudden && (
+        <div className="p-callout clue-callout sudden">
+          <b className="display">💓 Morte súbita!</b>
+          <span>Sudden death: no clues. Tap {v.partner}'s pictures — one wrong card and it's over. Your own key is shown.</span>
+        </div>
+      )}
       {v.role === "guess" && v.clue && (
         <div className="p-callout clue-callout">
           <span className="kicker">Pista · Clue</span>
@@ -113,7 +119,7 @@ export function Secret({ v, send }: { v: V; send: Send }) {
       )}
       {board}
       <div className="p-grow" />
-      {v.role === "guess" && (
+      {v.role === "guess" && !v.sudden && (
         <button className="btn block white" onClick={() => act({ a: "stop" })}>
           <span className="bi">
             Parar e passar a vez<small>Stop and pass the turn</small>

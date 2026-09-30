@@ -14,13 +14,15 @@ export function WaveScreen({ a }: { a: NaMesmaOnda }) {
   const psychic = a.psychic;
   const guesser = a.guesser;
   const reveal = a.phase === "reveal";
-  const timed = a.phase === "clue" || a.phase === "guess";
+  const timed = (a.phase === "clue" || a.phase === "guess") && !a.inPractice;
   return (
     <div className={`tv-overlay game-screen centered ${a.phase === "suspense" ? "suspense" : ""}`}>
       <GameTop title="Na Mesma Onda" pic="🔮">
-        <span className="pill">
-          Mostrador {Math.min(a.round + 1, ROUNDS)}/{ROUNDS}
-        </span>
+        {!a.inPractice && (
+          <span className="pill">
+            Mostrador {Math.min(a.round + 1, ROUNDS)}/{ROUNDS}
+          </span>
+        )}
         {a.final && <span className="pill double-pill">×2</span>}
         {timed && <span className={`pill clock ${a.msLeft < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
         <span className="pill star-pill">{a.score} pontos</span>

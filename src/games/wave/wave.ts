@@ -2,13 +2,13 @@
  * Na Mesma Onda — co-op dial game for two (Wavelength's two-player mode, A1 edition).
  *
  * A dial between two opposites (frio ↔ quente). The psychic's phone shows where the hidden target
- * is; they pick ONE clue on the phone — "muito frio", "um pouco quente" or a thing ("o gelado")
- * — and the TV says it out loud. The partner turns the dial (the TV dial moves live), can bet
- * "Tenho a certeza!" for double-or-nothing, then locks it. Drumroll, reveal. Closer = more points;
- * the last dial counts double. Harder levels: narrower bands, less time, things only (no
- * intensifiers).
+ * is; they pick ONE thing as the clue ("o gelado", "o café", "o mar"…) from a few spread over the
+ * dial — with no positions shown, so it's a judgement call — and the TV says it out loud. The
+ * partner turns the dial (the TV dial moves live), can bet "Tenho a certeza!" for
+ * double-or-nothing, then locks it. Drumroll, reveal. Closer = more points; the last dial counts
+ * double. Harder levels: narrower bands, fewer clue chips, less time.
  */
-import { ALL_ITEMS } from "../../curriculum/index.ts";
+import { getItem } from "../../curriculum/index.ts";
 import { cardOf, type LearnCard } from "../../curriculum/learn.ts";
 import type { ItemOf } from "../../curriculum/schema.ts";
 import { randomId } from "../../shared/ids.ts";
@@ -18,19 +18,20 @@ import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { SAY } from "../../tv/host-lines.ts";
+import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
-import { intensifiers, spectra, type Clue, type Spectrum } from "./scale.ts";
+import { spectra, type Clue, type Spectrum } from "./scale.ts";
+import { THINGS } from "./things.ts";
 
 export const ROUNDS = 6;
 /** Points in the bullseye; outer bands give 3 and 2. */
 export const BULLSEYE = 4;
 
 /** Difficulty: band half-widths (dial is 0..100), clue types, and timers. */
-export const LEVEL_RULES: Record<Level, { bands: [number, number, number]; intensifiers: boolean; clueMs: number; guessMs: number }> = {
-  1: { bands: [5, 10, 15], intensifiers: true, clueMs: 45_000, guessMs: 40_000 },
-  2: { bands: [4, 8, 12], intensifiers: true, clueMs: 35_000, guessMs: 30_000 },
-  3: { bands: [3, 7, 11], intensifiers: false, clueMs: 30_000, guessMs: 25_000 },
+export const LEVEL_RULES: Record<Level, { bands: [number, number, number]; chips: number; clueMs: number; guessMs: number }> = {
+  1: { bands: [5, 10, 15], chips: 8, clueMs: 45_000, guessMs: 40_000 },
+  2: { bands: [3, 7, 11], chips: 6, clueMs: 35_000, guessMs: 30_000 },
+  3: { bands: [3, 6, 10], chips: 4, clueMs: 30_000, guessMs: 25_000 },
 };
 
 export function pointsFor(target: number, value: number, bands: [number, number, number] = LEVEL_RULES[1].bands): number {
@@ -54,6 +55,7 @@ export class NaMesmaOnda implements Activity {
   readonly pausable = true;
   rt!: TvRuntime;
   level: Level = 1;
+  practice = false;
   round = 0;
   phase: "clue" | "guess" | "suspense" | "reveal" | "end" = "clue";
   spectrum!: Spectrum;
@@ -64,8 +66,8 @@ export class NaMesmaOnda implements Activity {
   sure = false;
   clue: Clue | null = null;
   phaseEnd = 0;
-  history: { spectrum: Spectrum; clue: string; target: number; value: number; points: number }[] = [];
-  ideas: LearnCard[] = [];
+  history: { spectrum: Spectrum; clue: string; clueEn?: string; cluePic?: string; target: number; value: number; points: number }[] = [];
+  chips: { card: LearnCard; at: number }[] = [];
   promptId = randomId(6);
   private readonly roundId = randomId(6);
   private deck: Spectrum[] = [];
@@ -84,45 +86,73 @@ export class NaMesmaOnda implements Activity {
     return this.rt.activePlayers.slice(0, 2);
   }
   get psychic(): RuntimePlayer | undefined {
-    return this.players[this.round % Math.max(1, this.players.length)];
+    return this.players[(this.round + 2) % Math.max(1, this.players.length)];
   }
   get guesser(): RuntimePlayer | undefined {
-    return this.players.length < 2 ? this.players[0] : this.players[(this.round + 1) % 2];
+    return this.players.length < 2 ? this.players[0] : this.players[(this.round + 3) % 2];
   }
   get final() {
     return this.round === ROUNDS - 1;
   }
+  /** Round -1 is the practice dial ("Ensaio") on the first plays: no timer, no points. */
+  get inPractice() {
+    return this.round < 0;
+  }
   get msLeft() {
     return Math.max(0, this.phaseEnd - gameNow());
   }
+  /**
+   * The psychic's clue chips: things spread over the dial (a couple per third), in random order and
+   * with no positions shown — which one sits where the target is, is the psychic's call.
+   */
   get clues(): Clue[] {
-    const nouns = this.ideas.map((c) => ({ pt: c.pt, en: c.en, pic: c.emoji }));
-    return this.rules.intensifiers ? [...intensifiers(this.spectrum.left, this.spectrum.right), ...nouns.slice(0, 6)] : nouns;
+    return this.chips.map((t) => ({ pt: t.card.pt, en: t.card.en, pic: t.card.emoji, at: t.at, say: t.card.say }));
+  }
+
+  private dealChips(): { card: LearnCard; at: number }[] {
+    const key = `${this.spectrum.left.id.split(".").pop()}|${this.spectrum.right.id.split(".").pop()}`;
+    const things = (THINGS[key] ?? [])
+      .map((t) => {
+        const it = getItem(`vocab.noun.${t.noun}`);
+        const card = it ? cardOf(it) : null;
+        return card ? { card, at: t.at } : null;
+      })
+      .filter((x): x is { card: LearnCard; at: number } => !!x);
+    const n = this.rules.chips;
+    // Spread: take from each third in turn, then shuffle so position isn't given away by order.
+    const thirds = [0, 1, 2].map((k) => this.rt.rng.shuffle(things.filter((t) => Math.min(2, Math.floor(t.at / 33.4)) === k)));
+    const out: { card: LearnCard; at: number }[] = [];
+    for (let i = 0; out.length < n && i < 20; i++) {
+      const t = thirds[i % 3]!.shift();
+      if (t) out.push(t);
+    }
+    return this.rt.rng.shuffle(out);
   }
 
   start(rt: TvRuntime) {
     this.rt = rt;
+    if (this.practice) this.round = -1;
     this.deck = rt.rng.shuffle(spectra());
     this.newRound();
   }
 
   private newRound() {
-    this.spectrum = this.deck[this.round % this.deck.length]!;
+    this.spectrum = this.deck[(this.round + 1) % this.deck.length]!;
     // Keep targets off the extreme ends so every band is reachable.
     this.target = 8 + this.rt.rng.int(85);
     this.value = 50;
     this.sure = false;
     this.clue = null;
     this.phase = "clue";
-    this.phaseEnd = gameNow() + this.rules.clueMs;
+    this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.clueMs);
     this.promptId = randomId(6);
-    const nouns = ALL_ITEMS.filter((i) => i.kind === "noun").map(cardOf).filter((c): c is LearnCard => !!c && !!c.emoji);
-    this.ideas = this.rt.rng.sample(nouns, 12);
+    this.chips = this.dealChips();
     this.hurried = false;
     setHurry(false);
     play("whoosh");
     if (this.final) this.rt.say(SAY.finalRound);
     this.rt.speakPt(`${this.spectrum.left.m} ou ${this.spectrum.right.m}?`);
+    if (this.psychic) this.rt.cue(CUE.pickClue, this.psychic, this.players.length > 1 ? NAMED.pickClue : undefined);
     this.rt.refreshViews();
     this.rt.bump();
   }
@@ -138,15 +168,13 @@ export class NaMesmaOnda implements Activity {
     if (left > 0) return;
     this.rt.say(SAY.timeUp);
     play("whistle");
-    // Out of time: the clue closest to the target is given for you; the dial locks where it is.
-    if (this.phase === "clue") {
-      const near = intensifiers(this.spectrum.left, this.spectrum.right).reduce((a, b) => (Math.abs(b.at! - this.target) < Math.abs(a.at! - this.target) ? b : a));
-      this.giveClue(near);
-    } else this.lock(false);
+    // Out of time: a random chip is given for you; the dial locks where it is.
+    if (this.phase === "clue") this.giveClue(this.rt.rng.pick(this.clues));
+    else this.lock(false);
   }
 
   repeat() {
-    if (this.clue) this.rt.speakPt(this.clue.pt);
+    if (this.clue) this.rt.speakPt(this.clue.say ?? this.clue.pt);
     else this.rt.speakPt(`${this.spectrum.left.m} ou ${this.spectrum.right.m}?`);
   }
 
@@ -157,19 +185,24 @@ export class NaMesmaOnda implements Activity {
   private giveClue(c: Clue) {
     this.clue = c;
     this.phase = "guess";
-    this.phaseEnd = gameNow() + this.rules.guessMs;
+    this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.guessMs);
     this.hurried = false;
     setHurry(false);
     this.promptId = randomId(6);
     play("card-flip");
     // The TV says the clue: listening practice for the guesser.
-    this.rt.speakPt(c.pt);
+    this.rt.speakPt(c.say ?? c.pt);
+    if (this.guesser) this.rt.cue(CUE.turn, this.guesser);
     if (this.psychic) this.rt.emote(this.psychic.playerId, "think", 2200);
     this.rt.refreshViews();
     this.rt.bump();
   }
 
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
+    if (value.mode === "skip" && this.inPractice) {
+      this.round = 0;
+      return this.newRound();
+    }
     if (value.mode !== "dial" || this.phase === "end") return;
     const a = value.action;
     if (a.a === "clue" && this.phase === "clue" && p === this.psychic && promptId === this.promptId) {
@@ -216,8 +249,8 @@ export class NaMesmaOnda implements Activity {
     this.promptId = randomId(6);
     const raw = pointsFor(this.target, this.value, this.rules.bands);
     this.lastPoints = betPoints(raw, this.sure) * (this.final ? 2 : 1);
-    this.score += this.lastPoints;
-    this.history.push({ spectrum: this.spectrum, clue: this.clue?.pt ?? "", target: this.target, value: this.value, points: this.lastPoints });
+    if (!this.inPractice) this.score += this.lastPoints;
+    if (!this.inPractice) this.history.push({ spectrum: this.spectrum, clue: this.clue?.pt ?? "", clueEn: this.clue?.en, cluePic: this.clue?.pic, target: this.target, value: this.value, points: this.lastPoints });
     play("cymbal");
     if (raw >= BULLSEYE) {
       play(this.sure ? "fanfare" : "success-jingle");
@@ -250,8 +283,8 @@ export class NaMesmaOnda implements Activity {
       this.rt.bump();
       const bulls = this.history.filter((h) => h.points >= BULLSEYE).length;
       const max = ROUNDS * BULLSEYE + BULLSEYE;
-      const headline = this.score >= max * 0.85 ? "Telepatia! 🔮" : this.score >= max * 0.6 ? "Em sintonia!" : this.score >= max * 0.35 ? "Boa onda!" : "Quase… outra vez?";
-      const headlineEn = this.score >= max * 0.85 ? "Telepathy!" : this.score >= max * 0.6 ? "In tune!" : this.score >= max * 0.35 ? "Good vibes!" : "Almost… again?";
+      const headline = this.score >= max * 0.85 ? "Telepatia! 🔮" : this.score >= max * 0.6 ? "Na mesma onda!" : this.score >= max * 0.35 ? "Boa onda!" : "Quase… outra vez?";
+      const headlineEn = this.score >= max * 0.85 ? "Telepathy!" : this.score >= max * 0.6 ? "On the same wavelength!" : this.score >= max * 0.35 ? "Good vibes!" : "Almost… again?";
       this.onDone({
         score: this.score,
         max,
@@ -259,7 +292,7 @@ export class NaMesmaOnda implements Activity {
         headlineEn: `${headlineEn} ${this.score} points`,
         sub: `${bulls} em cheio`,
         subEn: `${bulls} bullseye${bulls === 1 ? "" : "s"}`,
-        words: this.history.slice(0, 4).map((h) => ({ pt: h.clue })),
+        words: this.history.map((h) => ({ pt: h.clue, en: h.clueEn, pic: h.cluePic })),
       });
       return;
     }
@@ -291,9 +324,10 @@ export class NaMesmaOnda implements Activity {
       locked: this.phase === "suspense",
       final: this.final,
       sure: this.phase === "reveal" ? this.sure : undefined,
-      msLeft: phase === "clue" || (phase === "guess" && this.phase !== "suspense") ? this.msLeft : undefined,
+      msLeft: !this.inPractice && (phase === "clue" || (phase === "guess" && this.phase !== "suspense")) ? this.msLeft : undefined,
       points: this.phase === "reveal" ? this.lastPoints : undefined,
-      debugAnswer: this.rt.testMode ? { target: this.target } : undefined,
+      practice: this.inPractice || undefined,
+      debugAnswer: this.rt.testMode ? { target: this.target, ats: this.clues.map((c) => c.at ?? 50) } : undefined,
     };
   }
 }

@@ -47,9 +47,11 @@ export function DrawScreen({ a }: { a: Desenha }) {
   return (
     <div className="tv-overlay game-screen centered">
       <GameTop title="Desenha!" pic="🎨">
-        <span className="pill">
-          Desenho {Math.min(a.round + 1, ROUNDS)}/{ROUNDS}
-        </span>
+        {!a.inPractice && (
+          <span className="pill">
+            Desenho {Math.min(a.round + 1, ROUNDS)}/{ROUNDS}
+          </span>
+        )}
         {a.final && <span className="pill double-pill">×2</span>}
         {a.reviewFor && a.phase === "draw" && <span className="pill review-pill">🔁 Revisão para {a.reviewFor} · Review word</span>}
         <span className="pill star-pill">{a.score} pontos</span>
@@ -90,7 +92,7 @@ export function DrawScreen({ a }: { a: Desenha }) {
               <Picture glyph={a.word.emoji} size="5em" />
               <b className="display">{a.word.pt}</b>
               <i>{a.word.en}</i>
-              <span className="display pts">{a.lastGuessed ? `+${a.lastPoints}` : "Ninguém adivinhou…"}</span>
+              <span className="display pts">{a.lastGuessed ? (a.inPractice ? "Boa! · Ensaio" : `+${a.lastPoints}`) : "Ninguém adivinhou…"}</span>
               {a.lastGuessed && a.lastHow !== "option" && <small>{a.lastTypo ? "Quase bem escrito! · Nearly spelled right" : a.lastHow === "said" ? "Disseste bem! · Said it!" : "Escreveste bem! · Spelled it!"}</small>}
               {!a.lastGuessed && <small>Nobody got it</small>}
             </div>

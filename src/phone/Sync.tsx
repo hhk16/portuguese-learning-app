@@ -53,7 +53,10 @@ export function Sync({ v, send }: { v: V; send: Send }) {
   if (sent)
     return (
       <div className="p-center">
-        <div className="p-big">“{word}”</div>
+        <div className="p-bob">
+          <Picture glyph="🔒" size="72px" />
+        </div>
+        <div className="p-big">“{v.mine ?? word}”</div>
         <div className="p-sub">Segredo guardado! À espera do teu par… · Locked in! Waiting for your partner…</div>
       </div>
     );
@@ -62,7 +65,7 @@ export function Sync({ v, send }: { v: V; send: Send }) {
     <div className="p-col">
       <div className="sync-head">
         <span className="kicker">
-          Tentativa {v.attempt}/3 · Try {v.attempt} of 3{v.final ? " · ×2!" : ""}
+          Tentativa {v.attempt}/{v.tries ?? 3} · Try {v.attempt} of {v.tries ?? 3}{v.final ? " · ×2!" : ""}
         </span>
         {v.msLeft !== undefined && <span className={`pill ${left < 8000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>}
       </div>

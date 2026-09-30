@@ -73,7 +73,7 @@ export function Dial({ v, send }: { v: V; send: Send }) {
         {head}
         <div className="p-callout">
           <b className="display">{v.phase === "clue" ? `Escolhe uma pista para ${v.partner}` : `${v.partner} está a rodar…`}</b>
-          <span>{v.phase === "clue" ? "The target is here. Pick the clue that best describes this spot — the TV says it." : `${v.partner} is turning the dial…`}</span>
+          <span>{v.phase === "clue" ? "The target is here. Which thing belongs at this spot between the two words? The TV says it." : `${v.partner} is turning the dial…`}</span>
         </div>
         <DialFace value={v.phase === "guess" ? v.value : (v.target ?? 50)} target={v.target} widths={v.bands} />
         {ends}

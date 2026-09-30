@@ -13,12 +13,14 @@ import type { NavDir } from "../shared/protocol.ts";
 import { LobbyActivity, ResultsActivity, TitleActivity } from "./activities.ts";
 import { useRuntime } from "./runtime.ts";
 import { LearnScreen } from "./screens/LearnScreen.tsx";
-import { HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
+import { Command, HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
 import { SecretScreen } from "./screens/SecretScreen.tsx";
 import { SyncScreen } from "./screens/SyncScreen.tsx";
 import { WaveScreen } from "./screens/WaveScreen.tsx";
 import { DrawScreen } from "./screens/DrawScreen.tsx";
 import { StopScreen } from "./screens/StopScreen.tsx";
+import { GrandeFinal } from "../games/final/final.ts";
+import { FinalScreen } from "./screens/FinalScreen.tsx";
 import { KitchenScreen } from "./screens/KitchenScreen.tsx";
 import { Stage } from "./three/Stage.tsx";
 
@@ -79,7 +81,9 @@ export function TvApp() {
       {a instanceof Desenha && <DrawScreen a={a} />}
       {a instanceof Stop && <StopScreen a={a} />}
       {a instanceof Cozinha && <KitchenScreen a={a} />}
+      {a instanceof GrandeFinal && <FinalScreen a={a} />}
       <HostBubble />
+      <Command />
       <Reactions />
       {rt.paused && <PauseScreen />}
       {rt.socket !== "open" && <div className="conn-warn">A ligar ao servidor…</div>}

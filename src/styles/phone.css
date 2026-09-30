@@ -1261,3 +1261,53 @@ body,
 .react-bar button:active {
   transform: scale(1.35);
 }
+.p-callout.sudden {
+  background: #3a1f3d;
+  color: #fff;
+}
+.replay-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.btn.mini {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+.serve-tables {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.practice-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 6px 6px 6px 12px;
+  border-radius: 999px;
+  background: var(--sky-p, #4ba3f5);
+  color: #fff;
+  font-size: 13px;
+}
+.final-pics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.final-pic {
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  border: 0;
+}
+.ink.size {
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  color: var(--ink, #1f2a44);
+}

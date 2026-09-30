@@ -17,8 +17,10 @@ const PORT = 8799;
 const REMOTE = process.env.E2E_BASE;
 const BASE = REMOTE ?? `http://localhost:${PORT}`;
 const OUT = "e2e-output";
-type M = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen";
+type M = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen" | "night";
 const MODES = (process.env.E2E_MODES ?? "lesson,secret,wave,sync,draw,stop,kitchen").split(",") as M[];
+/** E2E_MODES=night: a whole game night (three games + the Grande Final) from the main menu. */
+const NIGHT = MODES[0] === "night";
 const LESSON_INDEX = Number(process.env.E2E_LESSON ?? 0);
 /** E2E_VIDEO=1 records the TV and both phones (plus a sound log) for scripts/e2e-video.py. */
 const VIDEO = !!process.env.E2E_VIDEO;
@@ -86,16 +88,19 @@ const press = async (key: string, n = 1) => {
   }
 };
 
-// Main menu: Aprender juntos · Jogar · Definições
+// Main menu: Noite de jogos · Aprender juntos · Jogar · Definições
 const first = MODES[0]!;
-if (first === "lesson") {
+if (first === "night") {
+  await tv.screenshot({ path: `${OUT}/04-tv-main-menu.png` });
+} else if (first === "lesson") {
+  await press("ArrowDown");
   await press("Enter");
   await tv.waitForTimeout(400);
   await press("Home"); // no-op; focus starts on the next lesson (the first on a fresh TV)
   await press("ArrowRight", LESSON_INDEX);
   await tv.screenshot({ path: `${OUT}/04-tv-learn-menu.png` });
 } else {
-  await press("ArrowDown");
+  await press("ArrowDown", 2);
   await press("Enter");
   await tv.waitForTimeout(400);
   await press("ArrowRight", { secret: 0, wave: 1, sync: 2, draw: 3, stop: 4, kitchen: 5 }[first]);
@@ -199,9 +204,10 @@ async function botStep(b: Bot, seen: Set<string>) {
       allowPick = false;
       await nap(pg, 1200);
       const opts = v.options as { id: string; label: string }[];
-      const want = opts.find((o) => o.id === MODES[modeIndex]) ?? opts.find((o) => o.id === "menu")!;
+      // Game night: carry on to the next game / the final.
+      const want = (NIGHT ? opts.find((o) => o.id.startsWith("night-")) : undefined) ?? opts.find((o) => o.id === MODES[modeIndex]) ?? opts.find((o) => o.id === "menu")!;
       // Results suggest only three games: otherwise go back to the menu and open it from there.
-      if (want.id === "menu") viaMenu = MODES[modeIndex] ?? null;
+      if (want.id === "menu" && !NIGHT) viaMenu = MODES[modeIndex] ?? null;
       console.log("picked next:", want.id);
       await click(pg, ".pick-item", want.label);
       return;
@@ -209,7 +215,7 @@ async function botStep(b: Bot, seen: Set<string>) {
     case "learn":
       return learnStep(b, v, seen);
     case "secret": {
-      const key = `secret:${v.promptId}:${v.role}`;
+      const key = `secret:${v.promptId}:${v.role}:${v.found}`;
       if (seen.has(key)) return;
       seen.add(key);
       await nap(pg, 600 + Math.random() * 900);
@@ -251,12 +257,10 @@ async function botStep(b: Bot, seen: Set<string>) {
         seen.add(key);
         await nap(pg, 1800);
         await shoot("wave-psychic", b);
-        // Intensifier chips come first ("muito frio" … "muito quente"); pick the one nearest the target.
-        const target = (v.debugAnswer as { target: number }).target;
-        const clues = (v.clues as { pt: string }[] | undefined) ?? [];
-        const AT = [7, 20, 35, 50, 65, 80, 93];
-        const hasScale = clues.length > 7 && /^muito /.test(clues[0]!.pt);
-        const i = hasScale ? AT.reduce((best, at, k) => (Math.abs(at - target) < Math.abs(AT[best]! - target) ? k : best), 0) : Math.floor(Math.random() * clues.length);
+        // Pick the thing that sits nearest the target (a human's judgement, with the odd lapse).
+        const { target, ats } = v.debugAnswer as { target: number; ats: number[] };
+        const near = ats.reduce((best, at, k) => (Math.abs(at - target) < Math.abs(ats[best]! - target) ? k : best), 0);
+        const i = Math.random() < b.skill ? near : Math.floor(Math.random() * ats.length);
         return pg.locator(".clue-words .bank-word").nth(i).click({ timeout: 2500 }).catch(() => {});
       }
       if (v.role === "guess" && v.phase === "guess") {
@@ -276,6 +280,24 @@ async function botStep(b: Bot, seen: Set<string>) {
         await input(b, v, { mode: "dial", action: { a: "lock", sure } });
       }
       return;
+    }
+    case "final": {
+      const key = `final:${v.promptId}`;
+      if (v.answered || seen.has(key)) return;
+      seen.add(key);
+      // Race: whoever "knows" it answers after a human-ish pause; sometimes a wrong pick.
+      await nap(pg, 1200 + Math.random() * 2600);
+      await shoot(`final-${v.kind}`, b);
+      const answer = (v.debugAnswer as { answer: string }).answer;
+      const right = Math.random() < b.skill;
+      const opts = (v.options as { pt: string }[] | undefined) ?? [];
+      if (opts.length) {
+        const pick = right ? opts.find((o) => o.pt === answer) : opts.find((o) => o.pt !== answer);
+        const i = opts.indexOf(pick ?? opts[0]!);
+        return pg.locator(v.pictures ? ".final-pics .final-pic" : ".draw-options .lopt").nth(i).click({ timeout: 2500 }).catch(() => {});
+      }
+      await pg.fill(".sync-form input", right ? answer.replace(/^(o|a) /, "") : "casa").catch(() => {});
+      return click(pg, ".sync-form .btn");
     }
     case "draw":
       return drawStep(b, v, seen);
@@ -406,9 +428,11 @@ async function kitchenStep(b: Bot, v: View) {
   if ((cooldown.get(b.name) ?? 0) > now) return;
   cooldown.set(b.name, now + (700 + Math.random() * 600) * PACE);
   await shoot(`kitchen-${b.name}`, b);
-  const d = v.debugAnswer as { add: string[]; wrongTray: boolean; serve: boolean };
+  const d = v.debugAnswer as { add: string[]; wrongTray: boolean; serve: boolean; table?: number };
   const pantry = v.pantry as { id: string; pt: string }[];
-  if (d.serve) return click(pg, ".btn", "Servir");
+  // Listening levels: now and then ask to hear an order again (it costs patience).
+  if (Array.isArray(v.replay) && v.replay.length && Math.random() < 0.06) return click(pg, ".replay-row .btn");
+  if (d.serve) return v.tables ? click(pg, ".serve-tables .btn", `Mesa ${d.table}`) : click(pg, ".btn", "Servir");
   if (d.wrongTray) return click(pg, ".btn", "Deitar fora");
   const want = Math.random() < 0.08 ? pantry.find((x) => !d.add.includes(x.id)) : pantry.find((x) => d.add.includes(x.id));
   if (want) await click(pg, ".pantry-item", new RegExp(`^.?${want.pt}$`));
@@ -430,7 +454,7 @@ async function checkPause() {
 
 const seen = bots.map(() => new Set<string>());
 const start = Date.now();
-const LIMIT = 200_000 * MODES.length;
+const LIMIT = 260_000 * (NIGHT ? 5 : MODES.length);
 let inResults = false;
 let finished = false;
 let pauseChecked = false;
@@ -449,8 +473,15 @@ while (Date.now() - start < LIMIT) {
     inResults = true;
     await tv.waitForTimeout(2500);
     await shoot(`results-${MODES[modeIndex]}`, bots[0]);
-    console.log(`results after ${MODES[modeIndex]}: ${(await tv.textContent(".results-card h1"))?.trim()}`);
-    modeIndex++;
+    const kicker = (await tv.textContent(".results-card .kicker"))?.trim() ?? "";
+    console.log(`results after ${NIGHT ? kicker : MODES[modeIndex]}: ${(await tv.textContent(".results-card h1"))?.trim()}`);
+    if (NIGHT) {
+      if (kicker.startsWith("Grande Final")) {
+        await tv.waitForTimeout(6000 * PACE);
+        finished = true;
+        break;
+      }
+    } else modeIndex++;
     if (modeIndex >= MODES.length) {
       finished = true;
       break;
@@ -462,9 +493,11 @@ while (Date.now() - start < LIMIT) {
     const m = viaMenu;
     viaMenu = null;
     await tv.waitForTimeout(600);
-    if (m === "lesson") await press("Enter");
-    else {
+    if (m === "lesson") {
       await press("ArrowDown");
+      await press("Enter");
+    } else {
+      await press("ArrowDown", 2);
       await press("Enter");
       await tv.waitForTimeout(300);
       await press("ArrowRight", { secret: 0, wave: 1, sync: 2, draw: 3, stop: 4, kitchen: 5 }[m]);

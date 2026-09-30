@@ -335,17 +335,41 @@ html.tv-root #root {
 }
 
 /* The host's subtitle bubble (bottom centre, above the stage). */
+/* Pipo the host stands bottom-left, beside the first player; his subtitles run along the bottom
+   (a caption strip the game layouts keep free). */
+.pipo {
+  position: absolute;
+  left: 10.5vw;
+  bottom: 0.4vh;
+  height: 17vh;
+  z-index: 16;
+  pointer-events: none;
+  filter: drop-shadow(0 0.4rem 0.4rem rgba(31, 42, 68, 0.25));
+  transform-origin: 50% 100%;
+  animation: bob 2.6s ease-in-out infinite;
+}
+.pipo.at-results {
+  left: 1vw;
+}
+.pipo.at-lobby {
+  left: 2vw;
+}
+.pipo.pose-cheer {
+  animation: pipo-hop 0.5s ease-out 2;
+}
+@keyframes pipo-hop {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-1.4rem) scale(1.04); }
+}
 .host-bubble {
   position: absolute;
-  left: 50%;
-  bottom: 2.2rem;
-  transform: translateX(-50%);
+  left: 19vw;
+  bottom: 1.2vh;
   display: flex;
   align-items: center;
-  gap: 0.7em;
-  padding: 0.6em 1.4em 0.6em 0.8em;
-  border-radius: 999px;
-  max-width: 60vw;
+  padding: 0.45em 1.3em;
+  border-radius: 1.2em 1.2em 1.2em 0.3em;
+  max-width: 58vw;
   z-index: 15;
   animation: bubble-in 0.35s cubic-bezier(0.3, 1.5, 0.5, 1) both;
 }
@@ -359,12 +383,50 @@ html.tv-root #root {
   font-size: 0.7em;
   color: var(--ink-3);
 }
-.host-mic {
-  font-size: 1.4em;
-}
 @keyframes bubble-in {
-  from { transform: translate(-50%, 1.5rem) scale(0.9); opacity: 0; }
-  to { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  from { transform: translateY(1.5rem) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.command {
+  position: absolute;
+  left: 50%;
+  top: 10.5vh;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.5em 1.4em;
+  border-radius: 999px;
+  background: var(--sun);
+  box-shadow: 0 0.35rem 0 #d99a00, 0 0.8rem 1.6rem rgba(31, 42, 68, 0.25);
+  z-index: 17;
+  font-size: 1.5em;
+  animation: command-in 2.9s ease both;
+  pointer-events: none;
+}
+.command b {
+  display: block;
+}
+.command i {
+  display: block;
+  font-style: normal;
+  font-size: 0.55em;
+  color: var(--ink-2);
+}
+.command-phone {
+  font-size: 1.2em;
+  animation: phone-nudge 0.6s ease-in-out infinite alternate;
+}
+@keyframes phone-nudge {
+  from { transform: translateY(-0.1em) rotate(-8deg); }
+  to { transform: translateY(0.15em) rotate(8deg); }
+}
+@keyframes command-in {
+  0% { transform: translate(-50%, -1rem) scale(0.7); opacity: 0; }
+  10% { transform: translate(-50%, 0) scale(1.08); opacity: 1; }
+  16% { transform: translate(-50%, 0) scale(1); }
+  85% { opacity: 1; }
+  100% { transform: translate(-50%, -0.5rem) scale(0.96); opacity: 0; }
 }
 .lobby-side {
   flex: 1;
@@ -533,7 +595,8 @@ html.tv-root #root {
   flex-direction: column;
   align-items: center;
   gap: 1.1rem;
-  padding-bottom: 1.6rem;
+  /* Keeps the bottom caption strip (Pipo's subtitles) free of game content. */
+  padding-bottom: 8.5vh;
 }
 .game-screen.centered > .game-top + * {
   margin-top: auto;
@@ -1760,4 +1823,149 @@ html.tv-root #root {
 .review-pill {
   background: var(--sky-p);
   color: #fff;
+}
+.turn-banner.sudden {
+  background: #3a1f3d;
+  color: #fff;
+  animation: suspense-pulse 0.7s ease-in-out infinite;
+}
+.turn-banner.sudden i {
+  color: #f6c9dc;
+}
+.practice-pill {
+  background: var(--sky-p);
+  color: #fff;
+}
+.practice-pill i {
+  font-style: normal;
+  font-size: 0.7em;
+  opacity: 0.85;
+}
+.auto-go {
+  margin-left: auto;
+  padding: 0.1em 0.6em;
+  border-radius: 999px;
+  background: var(--sun);
+  font-weight: 800;
+}
+.tonight.champion {
+  padding: 0.4em 1em;
+  border-radius: 1em;
+  background: linear-gradient(90deg, #fff4c9, #ffe08a);
+  animation: pop-in 0.6s 1.2s ease-out both;
+}
+
+/* ---------------------------------------------------------------- Grande Final */
+
+.final-stage {
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+}
+.final-q {
+  position: relative;
+  width: 30rem;
+  min-height: 22rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.4rem;
+}
+.final-en {
+  font-style: normal;
+  font-size: 1.5em;
+  color: var(--ink-2);
+}
+.final-ear {
+  font-size: 7em;
+  animation: pulse-soft 0.9s ease-in-out infinite;
+}
+.final-answer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2em;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.94);
+  animation: pop-in 0.35s ease-out both;
+}
+.final-answer b {
+  font-size: 2.6em;
+}
+.final-answer i {
+  font-style: normal;
+  color: var(--ink-3);
+}
+.final-race {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 30rem;
+}
+.race-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+}
+.race-bar {
+  flex: 1;
+  height: 1rem;
+  border-radius: 999px;
+  background: #eee8dc;
+  overflow: hidden;
+}
+.race-bar div {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--pc, var(--sun));
+  transition: width 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.race-tag {
+  min-width: 3em;
+  text-align: center;
+  font-weight: 800;
+}
+.race-tag.ok {
+  color: var(--mint-d);
+}
+.race-tag.bad {
+  color: var(--coral);
+}
+.gallery {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+.gallery-item {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  animation: pop-in 0.4s ease-out both;
+}
+.gallery-item canvas {
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 0.7rem;
+  border: 0.15rem solid var(--line);
+  background: #fff;
+  transform: rotate(-2deg);
+}
+.gallery-item:nth-child(even) canvas {
+  transform: rotate(2deg);
+}
+.gallery-item figcaption {
+  font-size: 0.75em;
+}
+.gallery-item.ok figcaption {
+  color: var(--mint-d);
 }

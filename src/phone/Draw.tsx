@@ -1,7 +1,8 @@
 /** Desenha! on the phone: a sketch pad with the secret word, or a box to type/say your guess. */
 import { useEffect, useRef, useState } from "react";
 import type { ControllerView } from "../shared/protocol.ts";
-import { INK } from "../games/draw/ink.ts";
+import { INK, type Stroke } from "../games/draw/ink.ts";
+import { paintStrokes } from "../ui/Sketch.tsx";
 import { play } from "../audio/sfx.ts";
 import { Picture } from "../ui/Picture.tsx";
 import type { Send } from "./Controller.tsx";
@@ -25,6 +26,9 @@ export function Draw({ v, send }: { v: V; send: Send }) {
 function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [color, setColor] = useState(0);
+  const [thick, setThick] = useState(false);
+  /** What's on this pad (for undo). */
+  const local = useRef<Stroke[]>([]);
   const stroke = useRef<{ id: number; seg: number; buf: number[]; last: number[] | null; c: number; w: number } | null>(null);
   const nextId = useRef(0);
   const flushTimer = useRef<number | null>(null);
@@ -91,7 +95,8 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
         onPointerDown={(e) => {
           (e.target as Element).setPointerCapture?.(e.pointerId);
           const [x, y] = point(e);
-          stroke.current = { id: nextId.current++, seg: 0, buf: [x, y], last: null, c: color, w: color === 5 ? 4 : 2 };
+          stroke.current = { id: nextId.current++, seg: 0, buf: [x, y], last: null, c: color, w: color === 5 ? 4 : thick ? 4 : 2 };
+          local.current.push({ c: stroke.current.c, w: stroke.current.w, segs: [[x, y]] });
           drawTo(x, y);
           flushTimer.current = window.setInterval(flush, 80);
         }}
@@ -102,6 +107,7 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
           if (b.length >= 2 && Math.abs(b[b.length - 2]! - x) + Math.abs(b[b.length - 1]! - y) < 4) return;
           drawTo(x, y);
           b.push(x, y);
+          local.current[local.current.length - 1]?.segs[0]!.push(x, y);
         }}
         onPointerUp={() => {
           flush();
@@ -115,6 +121,22 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
         }}
       />
       <div className="palette">
+        <button className={`ink size ${thick ? "sel" : ""}`} aria-label="Pincel grosso · Thick brush" onClick={() => setThick(!thick)}>
+          {thick ? "⬤" : "•"}
+        </button>
+        <button
+          className="ink size"
+          aria-label="Desfazer · Undo"
+          onClick={() => {
+            local.current.pop();
+            const c = canvas.current;
+            const g = ctx();
+            if (c && g) paintStrokes(g, c.width, local.current);
+            send({ mode: "draw", action: { a: "undo" } });
+          }}
+        >
+          ↩️
+        </button>
         {INK.map((c, i) => (
           <button key={c} className={`ink ${i === color ? "sel" : ""} ${i === 5 ? "eraser" : ""}`} style={{ background: c }} aria-label={i === 5 ? "Borracha" : `Cor ${i + 1}`} onClick={() => setColor(i)}>
             {i === 5 ? "🧽" : ""}
@@ -126,6 +148,7 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
           className="btn white"
           onClick={() => {
             reset();
+            local.current = [];
             send({ mode: "draw", action: { a: "clear" } });
           }}
         >

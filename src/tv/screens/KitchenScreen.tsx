@@ -13,6 +13,7 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
         <GameTop title="Cozinha Caótica" pic="🍳" />
         <div className="card stage-card center">
           <h2 className="display">Este jogo precisa de duas pessoas</h2>
+          <p>This game needs two players.</p>
         </div>
       </div>
     );
@@ -25,9 +26,11 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
   return (
     <div className="tv-overlay game-screen centered">
       <GameTop title={`Cozinha Caótica · ${a.menu.name}`} pic="🍳">
-        <span className={`pill clock ${left < 20_000 ? "low" : ""}`}>
-          ⏱ {mm}:{ss}
-        </span>
+        {!a.inPractice && (
+          <span className={`pill clock ${left < 20_000 ? "low" : ""}`}>
+            ⏱ {mm}:{ss}
+          </span>
+        )}
         <span className="pill hearts" aria-label={`${a.hearts} corações`}>
           {Array.from({ length: HEARTS }, (_, i) => (
             <span key={i} className={i < a.hearts ? "on" : ""}>
@@ -44,15 +47,15 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
           return (
             <div key={t.id} className={`card ticket ${t.done ?? ""} ${i === 0 && !t.done ? "first" : ""}`}>
               <div className="ticket-no display">
-                #{i + 1}
+                {a.rules.tables ? `Mesa ${t.table}` : `#${i + 1}`}
                 {t.done === "served" && t.points ? <b className="ticket-pts">+{t.points}</b> : null}
               </div>
               {a.ticketShows(t).text ? (
                 <div className="ticket-text">“{t.order.text}”</div>
               ) : (
                 <div className="ticket-text listen">
-                  🔊 <span>Ouve o pedido!</span>
-                  <i>Listen to the order!</i>
+                  🔊 <span>{a.itemCount(t)} itens</span>
+                  <i>{a.itemCount(t)} items — listen! {a.rules.show === "audio" ? "Replay on your phone to see it (−3 s)" : ""}</i>
                 </div>
               )}
               {a.ticketShows(t).pictures && (
@@ -92,8 +95,16 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
         <div style={{ width: `${(left / SHIFT_MS) * 100}%` }} />
       </div>
       {a.rush && <div className="rush-banner display">🔥 Hora de ponta! ×2 <i>Rush hour!</i></div>}
-      {flash?.kind === "swap" && <div className="kitchen-swap display">Troca! 🔄</div>}
-      {flash?.kind === "wrong" && <div className="kitchen-swap bad display">Não é isso!</div>}
+      {flash?.kind === "swap" && (
+        <div className="kitchen-swap display">
+          Troca! 🔄 <i>Swap pantries!</i>
+        </div>
+      )}
+      {flash?.kind === "wrong" && (
+        <div className="kitchen-swap bad display">
+          Não é isso! <i>Not that!</i>
+        </div>
+      )}
     </div>
   );
 }

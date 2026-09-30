@@ -15,9 +15,11 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
       <div className="kitchen-head">
         <span className="pill">⭐ {v.score}</span>
         <span className="pill hearts-mini">{"♥".repeat(v.hearts)}</span>
-        <span className="pill">
-          ⏱ {Math.floor(left / 60000)}:{String(Math.floor((left % 60000) / 1000)).padStart(2, "0")}
-        </span>
+        {!v.practice && (
+          <span className="pill">
+            ⏱ {Math.floor(left / 60000)}:{String(Math.floor((left % 60000) / 1000)).padStart(2, "0")}
+          </span>
+        )}
       </div>
       {v.swapped && <div className="p-warn">Troca! 🔄 Tens comida nova. · Swap! You have new food.</div>}
       {v.rush && <div className="p-warn rush">🔥 Hora de ponta! ×2 · Rush hour!</div>}
@@ -56,25 +58,57 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
         </div>
       </div>
       <div className="p-grow" />
+      {v.replay && v.replay.length > 0 && (
+        <div className="replay-row">
+          <span className="kicker">🔊 Ouvir outra vez · Hear again (−3 s)</span>
+          {v.replay.map((t) => (
+            <button key={t} className="btn white mini" onClick={() => act({ a: "replay", table: t })}>
+              {v.tables ? `Mesa ${t}` : "🔊"}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="row2">
         <button className="btn white" disabled={v.tray.length === 0} onClick={() => act({ a: "trash" })}>
           <span className="bi">
             🗑️ Deitar fora<small>Throw away</small>
           </span>
         </button>
-        <button
-          className="btn player"
-          disabled={v.tray.length === 0}
-          onClick={() => {
-            navigator.vibrate?.(20);
-            act({ a: "serve" });
-          }}
-        >
-          <span className="bi">
-            Servir 🍽️<small>Serve</small>
-          </span>
-        </button>
+        {!v.tables && (
+          <button
+            className="btn player"
+            disabled={v.tray.length === 0}
+            onClick={() => {
+              navigator.vibrate?.(20);
+              act({ a: "serve" });
+            }}
+          >
+            <span className="bi">
+              Servir 🍽️<small>Serve</small>
+            </span>
+          </button>
+        )}
       </div>
+      {v.tables && (
+        <div className="serve-tables">
+          {[1, 2, 3].map((t) => (
+            <button
+              key={t}
+              className="btn player"
+              disabled={v.tray.length === 0 || !v.tables!.includes(t)}
+              onClick={() => {
+                navigator.vibrate?.(20);
+                act({ a: "serve", table: t });
+              }}
+            >
+              <span className="bi">
+                Mesa {t}
+                <small>Serve table {t}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

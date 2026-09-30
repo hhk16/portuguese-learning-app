@@ -6,7 +6,9 @@ Party Português is procedural by design. Almost everything you see and hear is 
 |---|---|---|
 | 3D world, karts, track, Blip, avatars | Procedural (three.js primitives + shaders in `src/tv/three/`) | Project code |
 | 2D avatars | Procedural SVG (`src/ui/Avatar.tsx`) | Project code |
-| Sound effects & music | Synthesised with Web Audio (`src/audio/sfx.ts`, `src/audio/music.ts`); original patterns | Project code |
+| Sound effects | `public/sfx/*.mp3` — Mixkit (Free SFX License) and CC0 Freesound; per-file sources in `docs/credits-sfx.md`. A small Web Audio fallback plays until a file loads | Mixkit SFX Free License / CC0 1.0 |
+| Music | `public/music/*.mp3` — generated for this game with Google Lyria (see `docs/credits-art.md`) | Project audio (private use) |
+| Game sets, host mascot (Pipo) | `public/art/sets/*.webp`, `public/art/host/*.webp` — generated with OpenAI gpt-image | Project art (private use) |
 | Font: Bungee | Google Fonts via `@fontsource/bungee` | SIL OFL 1.1 |
 | Font: Press Start 2P | Google Fonts via `@fontsource/press-start-2p` | SIL OFL 1.1 |
 | Font: Nunito | Google Fonts via `@fontsource/nunito` | SIL OFL 1.1 |

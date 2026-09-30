@@ -23,7 +23,10 @@ import { clockPaused, gameNow, pauseClock, resumeClock } from "./clock.ts";
 import { play } from "../audio/sfx.ts";
 import { speak, stopSpeech } from "../audio/tts.ts";
 import { playMusic, setHurry, setMusicEnabled, type Track } from "../audio/music.ts";
-import type { Line } from "./host-lines.ts";
+import { moodOf, SAY, VARIANTS, type Line, type Mood } from "./host-lines.ts";
+
+/** SAY line → its variants. */
+const VARIANT_OF = new Map<Line, Line[]>(Object.entries(VARIANTS).map(([k, v]) => [SAY[k as keyof typeof SAY], v!]));
 import { LearnerStore } from "./learner-store.ts";
 
 export interface RuntimePlayer extends PlayerInfo {
@@ -64,7 +67,7 @@ export interface Settings {
 const SETTINGS_KEY = "pp.tv.settings.v3";
 
 /** Background music per activity (menus, lobby and results share the menu theme). */
-const MUSIC: Record<string, Track> = { lesson: "learn", learn: "learn", secret: "coop", wave: "coop", sync: "coop", draw: "draw", stop: "versus", kitchen: "rush" };
+const MUSIC: Record<string, Track> = { lesson: "learn", learn: "learn", secret: "secret", wave: "wave", sync: "sync", draw: "draw", stop: "versus", kitchen: "rush", final: "final" };
 
 export class TvRuntime {
   readonly conn: HostConnection;
@@ -81,6 +84,8 @@ export class TvRuntime {
   /** Set by the mode runner: how to restart the current game / leave to the menu. */
   onRestart: (() => void) | null = null;
   onQuit: (() => void) | null = null;
+  /** A game night in progress: the playlist, where we are, and the words met so far. */
+  night: { games: string[]; index: number; words: { pt: string; en?: string; pic?: string }[] } | null = null;
   /** Emoji reactions flying up the TV (performance.now ms). */
   reactions: { id: number; playerId: string; emoji: string; at: number; x: number }[] = [];
   private reactSeq = 0;
@@ -294,6 +299,7 @@ export class TvRuntime {
     this.activity = a;
     this.hostQueue = [];
     this.hostLine = null;
+    this.command = null;
     setHurry(false);
     playMusic(MUSIC[a.id] ?? "menu");
     a.start(this);
@@ -355,8 +361,12 @@ export class TvRuntime {
 
   /** Speak Portuguese from the TV (pre-recorded audio when available). */
   /** What the host is saying right now (TV subtitle bubble: Portuguese + English). */
-  hostLine: (Line & { seq: number }) | null = null;
-  private hostQueue: Line[] = [];
+  hostLine: (Line & { seq: number; mood: Mood }) | null = null;
+  /** The big one-verb command on the TV ("Escolhe uma pista!"), and who it's for. */
+  command: (Line & { seq: number; playerId?: string; at: number }) | null = null;
+  private commandSeq = 0;
+  private hostQueue: (Line & { mood: Mood })[] = [];
+  private lastVariant = new Map<Line, Line>();
   private hostBusy = false;
   private hostSeq = 0;
 
@@ -364,11 +374,26 @@ export class TvRuntime {
    * The host says one or more lines, in order: the TV shows a bubble (PT + EN) and speaks the PT.
    * `interrupt` drops whatever the host was still going to say.
    */
-  say(lines: Line | Line[], opts: { interrupt?: boolean } = {}) {
-    const ls = Array.isArray(lines) ? lines : [lines];
+  say(lines: Line | Line[], opts: { interrupt?: boolean; name?: string } = {}) {
+    const ls = (Array.isArray(lines) ? lines : [lines]).map((l) => {
+      // Pick a variant (never the same one twice in a row), fill in the name, keep the mood.
+      const pool = [l, ...(VARIANT_OF.get(l) ?? [])];
+      const options = pool.length > 1 ? pool.filter((x) => x !== this.lastVariant.get(l)) : pool;
+      const v = options[Math.floor(Math.random() * options.length)]!;
+      this.lastVariant.set(l, v);
+      const name = opts.name ?? "";
+      return { pt: v.pt.replace("{name}", name), en: v.en.replace("{name}", name), mood: moodOf(l) };
+    });
     if (opts.interrupt) this.hostQueue = [];
     this.hostQueue.push(...ls);
     if (!this.hostBusy) void this.drainHost();
+  }
+
+  /** Show a big command on the TV for a player ("Ana: Roda o mostrador!"), optionally with a named host line. */
+  cue(command: Line, p?: RuntimePlayer, line?: Line) {
+    this.command = { ...command, seq: ++this.commandSeq, playerId: p?.playerId, at: performance.now() };
+    if (line) this.say(line, { name: p?.name });
+    this.bump();
   }
 
   private async drainHost() {
@@ -399,6 +424,12 @@ export class TvRuntime {
   speakPt(text: string | undefined, opts: { slow?: boolean } = {}) {
     if (!text || !this.settings.sound) return;
     void speak(text, opts);
+  }
+
+  /** Several clips one after another ("Queria dois cafés." … "Mesa dois."). */
+  async speakSeq(texts: string[]) {
+    if (!this.settings.sound) return;
+    for (const t of texts) await speak(t);
   }
 
   setSettings(s: Partial<Settings>) {

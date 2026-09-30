@@ -19,7 +19,7 @@ import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { SAY } from "../../tv/host-lines.ts";
+import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { normWord } from "../sync/sync.ts";
 import { selectItem } from "../../learner/selector.ts";
@@ -65,6 +65,7 @@ export class Desenha implements Activity {
   readonly pausable = true;
   rt!: TvRuntime;
   level: Level = 1;
+  practice = false;
   round = 0;
   phase: "draw" | "reveal" | "end" = "draw";
   phaseStart = 0;
@@ -88,6 +89,8 @@ export class Desenha implements Activity {
   /** "Revisão para Ana!" — this word is one the guesser has been missing. */
   reviewFor: string | null = null;
   guessed: { pt: string; en: string; pic?: string; secs: number }[] = [];
+  /** Every drawing of the game, for the results gallery. */
+  gallery: { pt: string; en?: string; guessed: boolean; strokes: Stroke[] }[] = [];
   promptId = randomId(6);
   private readonly roundId = randomId(6);
   private pool: LearnCard[] = [];
@@ -110,16 +113,20 @@ export class Desenha implements Activity {
     return this.rt.activePlayers.slice(0, 2);
   }
   get drawer(): RuntimePlayer | undefined {
-    return this.players[this.round % 2];
+    return this.players[(this.round + 2) % 2];
   }
   get guesser(): RuntimePlayer | undefined {
-    return this.players[(this.round + 1) % 2];
+    return this.players[(this.round + 3) % 2];
   }
   get msLeft() {
     return Math.max(0, this.phaseEnd - gameNow());
   }
   get final() {
     return this.round === ROUNDS - 1;
+  }
+  /** Round -1 is the practice drawing ("Ensaio") on the first plays: no points. */
+  get inPractice() {
+    return this.round < 0;
   }
   /** The tap-a-word options are showing (after a while, on easier levels). */
   get optionsOpen() {
@@ -139,6 +146,7 @@ export class Desenha implements Activity {
       .filter((c): c is LearnCard => !!c && !!c.emoji);
     const fromLessons = new Set(this.lessons.flatMap((l) => l.itemIds));
     this.pool = [...rt.rng.shuffle(nouns.filter((c) => fromLessons.has(c.itemId))), ...rt.rng.shuffle(nouns.filter((c) => !fromLessons.has(c.itemId)))];
+    if (this.practice) this.round = -1;
     this.newTurn();
   }
 
@@ -166,7 +174,7 @@ export class Desenha implements Activity {
   private newTurn() {
     this.phase = "draw";
     this.phaseStart = gameNow();
-    this.phaseEnd = this.phaseStart + TURN_MS;
+    this.phaseEnd = this.phaseStart + (this.inPractice ? TURN_MS * 1.5 : TURN_MS);
     this.word = this.pickWord();
     this.passesLeft = 1;
     this.optionsShown = false;
@@ -179,7 +187,10 @@ export class Desenha implements Activity {
     setHurry(false);
     play("whoosh");
     if (this.final) this.rt.say(SAY.finalRound);
-    if (this.drawer) this.rt.emote(this.drawer.playerId, "think", 2500);
+    if (this.drawer) {
+      this.rt.emote(this.drawer.playerId, "think", 2500);
+      this.rt.cue(CUE.draw, this.drawer, NAMED.drawIt);
+    }
     this.rt.refreshViews();
     this.rt.bump();
   }
@@ -235,6 +246,10 @@ export class Desenha implements Activity {
   }
 
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
+    if (value.mode === "skip" && this.inPractice) {
+      this.round = 0;
+      return this.newTurn();
+    }
     if (value.mode !== "draw" || this.phase !== "draw") return;
     const act = value.action;
     if (p === this.drawer) {
@@ -242,6 +257,11 @@ export class Desenha implements Activity {
         const s = this.strokes.get(act.s) ?? { c: act.c, w: act.w, segs: [] };
         s.segs[act.seg] = act.pts;
         this.strokes.set(act.s, s);
+        this.ink++;
+        this.rt.bump();
+      } else if (act.a === "undo") {
+        const last = Math.max(-1, ...this.strokes.keys());
+        if (last >= 0) this.strokes.delete(last);
         this.ink++;
         this.rt.bump();
       } else if (act.a === "clear") {
@@ -290,24 +310,27 @@ export class Desenha implements Activity {
 
   private reveal(how: "typed" | "said" | "option" | null) {
     const left = this.msLeft;
+    if (!this.inPractice && this.strokes.size)
+      this.gallery.push({ pt: this.word.pt, en: this.word.en, guessed: how !== null, strokes: [...this.strokes.entries()].sort((a, b) => a[0] - b[0]).map(([, s]) => ({ c: s.c, w: s.w, segs: s.segs.map((x) => [...(x ?? [])]) })) });
     this.phase = "reveal";
     this.phaseEnd = gameNow() + REVEAL_MS;
     this.lastGuessed = how !== null;
     this.lastHow = how;
     const base = how === null ? 0 : how === "option" ? 1 : pointsForTime(left);
-    this.lastPoints = base * (this.final ? 2 : 1);
+    this.lastPoints = this.inPractice ? 0 : base * (this.final ? 2 : 1);
     this.score += this.lastPoints;
     setHurry(false);
     const g = this.guesser;
     const d = this.drawer;
     if (how && g) {
-      this.guessed.push({ pt: this.word.pt, en: this.word.en, pic: this.word.emoji, secs: Math.round((TURN_MS - left) / 1000) });
+      if (!this.inPractice) this.guessed.push({ pt: this.word.pt, en: this.word.en, pic: this.word.emoji, secs: Math.round((TURN_MS - left) / 1000) });
       // Producing the word (typed/said) is stronger evidence than recognising it in a list.
       this.rt.evidence(g, this.word.itemId, "draw.guess", how === "option" ? "close" : this.lastTypo ? "close" : "correct");
       for (const p of [g, d]) if (p) this.rt.addScore(p, this.lastPoints * 50, "draw");
       play(base >= 3 ? "success-jingle" : "correct");
       this.rt.celebrate();
-      this.rt.say(base >= 3 ? SAY.perfect : SAY.good, { interrupt: true });
+      if (base >= 3 && Math.random() < 0.5) this.rt.say(NAMED.wellDone, { interrupt: true, name: g.name });
+      else this.rt.say(base >= 3 ? SAY.perfect : SAY.good, { interrupt: true });
       for (const p of this.players) this.rt.emote(p.playerId, "cheer", 2500);
     } else {
       play("fail-jingle");
@@ -332,6 +355,7 @@ export class Desenha implements Activity {
       sub: n ? `Mais rápido: ${[...this.guessed].sort((a, b) => a.secs - b.secs)[0]!.pt}` : "Desenhem maior e mais simples!",
       subEn: n ? `Fastest guess: ${[...this.guessed].sort((a, b) => a.secs - b.secs)[0]!.secs}s` : "Draw bigger and simpler!",
       words: this.guessed.map((w) => ({ pt: w.pt, en: w.en, pic: w.pic })),
+      gallery: this.gallery,
     });
   }
 
@@ -352,7 +376,7 @@ export class Desenha implements Activity {
       promptId: this.promptId,
       role,
       partner: this.rt.partnerOf(p)?.name ?? "",
-      round: this.round,
+      round: Math.max(0, this.round),
       rounds: ROUNDS,
       msLeft: this.msLeft,
       final: this.final,
@@ -362,6 +386,7 @@ export class Desenha implements Activity {
       hint: role === "guess" ? this.hint : undefined,
       tried: role === "guess" ? [...this.tried] : undefined,
       canPass: role === "draw" ? this.passesLeft > 0 : undefined,
+      practice: this.inPractice || undefined,
       debugAnswer: this.rt.testMode ? { id: this.word.itemId, pt: this.word.pt } : undefined,
     };
   }

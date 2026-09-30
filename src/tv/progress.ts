@@ -72,6 +72,21 @@ export function rememberLevel(mode: string, level: Level) {
   write(LEVEL_KEY, all);
 }
 
+const PLAYS_KEY = "pp.tv.gamePlays";
+/** How many times a game was finished on this TV. */
+export function playCount(mode: string): number {
+  return read<Record<string, number>>(PLAYS_KEY, {})[mode] ?? 0;
+}
+export function countPlay(mode: string) {
+  const all = read<Record<string, number>>(PLAYS_KEY, {});
+  all[mode] = (all[mode] ?? 0) + 1;
+  write(PLAYS_KEY, all);
+}
+/** The first two plays of a game start with an unscored practice round ("Ensaio"). */
+export function wantsPractice(mode: string): boolean {
+  return playCount(mode) < 2;
+}
+
 export function bestScore(mode: string, level: Level): number | null {
   return read<Record<string, number>>(BEST_KEY, {})[`${mode}:${level}`] ?? null;
 }

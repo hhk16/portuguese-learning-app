@@ -168,6 +168,12 @@ export class LearnActivity implements Activity {
     const at = Date.now();
     const everyone = [...this.answers.values()];
     const allRight = everyone.length > 0 && everyone.every((x) => x.ok);
+    // Everyone playing is graded on every exercise (no answer = not right), so the counts match.
+    for (const p of this.players) if (!this.answers.has(p.playerId)) {
+      const pp = this.perPlayer.get(p.playerId) ?? { correct: 0, graded: 0 };
+      pp.graded++;
+      this.perPlayer.set(p.playerId, pp);
+    }
     for (const [pid, ans] of this.answers) {
       const p = this.rt.players.get(pid);
       if (!p) continue;
@@ -190,7 +196,11 @@ export class LearnActivity implements Activity {
       play("wrong");
       // Bring it back once at the end.
       if (!this.retried.has(this.index) && ex.kind !== "speak") {
-        this.queue.push(ex);
+        // Same exercise, new order, so a retry tests the Portuguese, not the button position.
+        const again = { ...ex } as typeof ex;
+        if ("options" in again && Array.isArray(again.options)) (again as { options: unknown[] }).options = this.rt.rng.shuffle(again.options);
+        if (again.kind === "pairs") again.pairs = this.rt.rng.shuffle(again.pairs);
+        this.queue.push(again);
         this.retried.add(this.queue.length - 1);
       }
     }

@@ -7,7 +7,10 @@ export interface Line {
   en: string;
 }
 
-export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen";
+/** Pipo's pose while saying a line. */
+export type Mood = "talk" | "cheer" | "oops";
+
+export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen" | "final";
 
 /** Rules, spoken one by one in the lobby. */
 export const RULES: Record<Mode, Line[]> = {
@@ -41,6 +44,11 @@ export const RULES: Record<Mode, Line[]> = {
     { pt: "Escreve uma palavra para cada uma, com essa letra.", en: "Write a word for each one, starting with that letter." },
     { pt: "Acabaste? Carrega STOP! O outro tem poucos segundos.", en: "Done? Hit STOP! The other player gets a few seconds." },
   ],
+  final: [
+    { pt: "A Grande Final! Um contra o outro.", en: "The Grand Final! Head to head." },
+    { pt: "Vês uma imagem ou ouves uma palavra.", en: "You see a picture or hear a word." },
+    { pt: "Responde primeiro no telemóvel e ganha a coroa!", en: "Answer first on your phone and win the crown!" },
+  ],
   kitchen: [
     { pt: "Os clientes pedem em português. Ouçam bem!", en: "Customers order in Portuguese. Listen carefully!" },
     { pt: "A comida está nos dois telemóveis. Falem um com o outro!", en: "The food is split across both phones. Talk to each other!" },
@@ -56,6 +64,7 @@ export const SAY = {
   good: { pt: "Muito bem!", en: "Well done!" },
   perfect: { pt: "Perfeito!", en: "Perfect!" },
   close: { pt: "Quase!", en: "So close!" },
+  notQuite: { pt: "Nada disso!", en: "Not quite!" },
   ohNo: { pt: "Oh, não!", en: "Oh no!" },
   bomb: { pt: "Ai, a bomba!", en: "Oops, the bomb!" },
   timeUp: { pt: "Acabou o tempo!", en: "Time's up!" },
@@ -74,8 +83,82 @@ export const SAY = {
   listen: { pt: "Ouçam com atenção.", en: "Listen carefully." },
   stop: { pt: "Stop!", en: "Stop!" },
   rush: { pt: "Hora de ponta! Pontos a dobrar!", en: "Rush hour! Double points!" },
+  suddenDeath: { pt: "Morte súbita! Sem pistas. Um erro e acabou!", en: "Sudden death! No clues. One mistake and it's over!" },
 } satisfies Record<string, Line>;
 
+/** Other ways Pipo says the same thing, so the host doesn't repeat itself. */
+export const VARIANTS: Partial<Record<keyof typeof SAY, Line[]>> = {
+  start: [{ pt: "Vamos lá!", en: "Here we go!" }],
+  good: [
+    { pt: "Boa!", en: "Nice!" },
+    { pt: "Isso mesmo!", en: "That's it!" },
+    { pt: "Excelente!", en: "Excellent!" },
+  ],
+  perfect: [
+    { pt: "Em cheio!", en: "Spot on!" },
+    { pt: "Fantástico!", en: "Fantastic!" },
+  ],
+  close: [
+    { pt: "Foi por pouco!", en: "That was close!" },
+    { pt: "Tão perto!", en: "So near!" },
+  ],
+  ohNo: [
+    { pt: "Ai, ai, ai…", en: "Oh dear…" },
+    { pt: "Que pena!", en: "What a shame!" },
+  ],
+  bomb: [{ pt: "Bum! Cuidado com as bombas!", en: "Boom! Careful with the bombs!" }],
+  timeUp: [{ pt: "Tempo!", en: "Time!" }],
+  hurry: [
+    { pt: "Rápido, rápido!", en: "Quick, quick!" },
+    { pt: "Dez segundos!", en: "Ten seconds!" },
+  ],
+  youDidIt: [{ pt: "Muito bem, equipa!", en: "Well done, team!" }],
+  nextTime: [{ pt: "Vão conseguir da próxima vez!", en: "You'll get it next time!" }],
+  served: [{ pt: "Bom apetite!", en: "Enjoy your meal!" }],
+  notThat: [{ pt: "Isso não é o pedido!", en: "That's not the order!" }],
+  notQuite: [{ pt: "Não é bem isso!", en: "Not really!" }],
+};
+
+/** Lines with the player's name ("Boa, Ana!"). Pre-recorded for NAMES; other names use the device voice. */
+export const NAMED = {
+  yourTurn: { pt: "{name}, é a tua vez!", en: "{name}, it's your turn!" },
+  giveClue: { pt: "{name}, dá uma pista!", en: "{name}, give a clue!" },
+  pickClue: { pt: "{name}, escolhe uma pista!", en: "{name}, pick a clue!" },
+  drawIt: { pt: "{name}, desenha!", en: "{name}, draw!" },
+  guessIt: { pt: "{name}, adivinha!", en: "{name}, guess!" },
+  wellDone: { pt: "Boa, {name}!", en: "Nice one, {name}!" },
+  wins: { pt: "{name} ganha!", en: "{name} wins!" },
+  mvp: { pt: "{name} é a estrela da noite!", en: "{name} is tonight's star!" },
+} satisfies Record<string, Line>;
+
+/** Names the host's lines are pre-recorded with. */
+export const NAMES = ["Hadi", "Ana"];
+
+/** Big one-verb commands on the TV ("Escolhe! · Pick!"). */
+export const CUE = {
+  pickClue: { pt: "Escolhe uma pista!", en: "Pick a clue!" },
+  tap: { pt: "Toca nas imagens!", en: "Tap the pictures!" },
+  turn: { pt: "Roda o mostrador!", en: "Turn the dial!" },
+  write: { pt: "Escreve uma palavra!", en: "Write one word!" },
+  draw: { pt: "Desenha!", en: "Draw!" },
+  guess: { pt: "Escreve ou diz!", en: "Type or say it!" },
+  fill: { pt: "Escreve!", en: "Write!" },
+  cook: { pt: "Ouve e serve!", en: "Listen and serve!" },
+  vote: { pt: "Vota!", en: "Vote!" },
+} satisfies Record<string, Line>;
+
+const CHEER = new Set<Line>([SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
+const OOPS = new Set<Line>([SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
+export function moodOf(l: Line): Mood {
+  return CHEER.has(l) ? "cheer" : OOPS.has(l) ? "oops" : "talk";
+}
+
 export function hostSpoken(): string[] {
-  return [...Object.values(RULES).flatMap((ls) => ls.map((l) => l.pt)), ...Object.values(SAY).map((l) => l.pt)];
+  const named = Object.values(NAMED).flatMap((l) => NAMES.map((n) => l.pt.replace("{name}", n)));
+  return [
+    ...Object.values(RULES).flatMap((ls) => ls.map((l) => l.pt)),
+    ...Object.values(SAY).map((l) => l.pt),
+    ...Object.values(VARIANTS).flatMap((ls) => ls!.map((l) => l.pt)),
+    ...named,
+  ];
 }

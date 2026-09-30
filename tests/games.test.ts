@@ -144,3 +144,50 @@ describe("Desenha!", () => {
     expect(hintPattern("o gato", "none")).toBeUndefined();
   });
 });
+
+import { finalPoints } from "../src/games/final/final.ts";
+import { THINGS } from "../src/games/wave/things.ts";
+import { LINKS } from "../src/games/sync/links.ts";
+import { REFERENCE } from "../src/games/stop/reference.ts";
+import { getItem } from "../src/curriculum/index.ts";
+import { hostSpoken, NAMED, VARIANTS } from "../src/tv/host-lines.ts";
+
+describe("Grande Final", () => {
+  it("pays 3 to the first right answer, 1 after, double on the last question", () => {
+    expect(finalPoints(true, false)).toBe(3);
+    expect(finalPoints(false, false)).toBe(1);
+    expect(finalPoints(true, true)).toBe(6);
+  });
+});
+
+describe("Word data", () => {
+  it("every Na Mesma Onda spectrum has things spread over the whole dial", () => {
+    for (const s of spectra()) {
+      const key = `${s.left.id.split(".").pop()}|${s.right.id.split(".").pop()}`;
+      const things = THINGS[key];
+      expect(things, key).toBeDefined();
+      for (const k of [0, 1, 2]) expect(things!.filter((t) => Math.min(2, Math.floor(t.at / 33.4)) === k).length, `${key} third ${k}`).toBeGreaterThanOrEqual(3);
+      for (const t of things!) expect(getItem(`vocab.noun.${t.noun}`), t.noun).toBeDefined();
+    }
+  });
+
+  it("link words have real members and no duplicates", () => {
+    expect(new Set(LINKS.map((l) => l.pt)).size).toBe(LINKS.length);
+    for (const l of LINKS) {
+      expect(l.members.length, l.pt).toBeGreaterThanOrEqual(2);
+      for (const m of l.members) expect(getItem(m.startsWith("prof:") ? `vocab.profession.${m.slice(5)}` : `vocab.noun.${m}`), `${l.pt}: ${m}`).toBeDefined();
+    }
+  });
+
+  it("Stop suggestions have plenty of words per category", () => {
+    for (const [cat, words] of Object.entries(REFERENCE)) expect(words.length, cat).toBeGreaterThanOrEqual(60);
+  });
+});
+
+describe("Host lines", () => {
+  it("pre-records every variant and every named line for the couple", () => {
+    const spoken = new Set(hostSpoken());
+    for (const ls of Object.values(VARIANTS)) for (const l of ls!) expect(spoken.has(l.pt)).toBe(true);
+    for (const l of Object.values(NAMED)) for (const n of ["Hadi", "Ana"]) expect(spoken.has(l.pt.replace("{name}", n))).toBe(true);
+  });
+});

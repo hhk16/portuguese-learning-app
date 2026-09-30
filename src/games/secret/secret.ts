@@ -13,19 +13,23 @@ import type { Lesson } from "../../curriculum/schema.ts";
 import { randomId } from "../../shared/ids.ts";
 import type { ControllerView, InputValue, SecretCard, Word } from "../../shared/protocol.ts";
 import { play } from "../../audio/sfx.ts";
+import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { SAY } from "../../tv/host-lines.ts";
+import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { LINKS, linksOf, type Link } from "../sync/links.ts";
 
 /** Difficulty: board size, targets per player, bombs, turns, lives, clue timer. */
-export const LEVEL_RULES: Record<Level, { board: number; targets: number; bombs: number; turns: number; lives: number; clueMs: number; suddenDeath: boolean }> = {
-  1: { board: 12, targets: 3, bombs: 2, turns: 9, lives: 2, clueMs: 60_000, suddenDeath: false },
-  2: { board: 16, targets: 4, bombs: 3, turns: 9, lives: 2, clueMs: 45_000, suddenDeath: false },
-  3: { board: 20, targets: 4, bombs: 3, turns: 8, lives: 1, clueMs: 35_000, suddenDeath: true },
+export const LEVEL_RULES: Record<Level, { board: number; targets: number; bombs: number; turns: number; lives: number; clueMs: number; bombEnds: boolean }> = {
+  1: { board: 12, targets: 3, bombs: 2, turns: 9, lives: 3, clueMs: 60_000, bombEnds: false },
+  2: { board: 16, targets: 4, bombs: 3, turns: 9, lives: 3, clueMs: 45_000, bombEnds: false },
+  3: { board: 20, targets: 4, bombs: 3, turns: 8, lives: 1, clueMs: 35_000, bombEnds: true },
 };
+
+/** How many clue chips the giver chooses from. */
+const CLUE_CHIPS = 14;
 
 interface Card {
   id: string;
@@ -48,8 +52,11 @@ export class ParesSecretos implements Activity {
   readonly pausable = true;
   rt!: TvRuntime;
   level: Level = 1;
+  /** First play: the first turn is a practice turn ("Ensaio"): no timer, doesn't use a turn, bombs don't hurt. */
+  practice = false;
   cards: Card[] = [];
-  phase: "clue" | "guess" | "end" = "clue";
+  /** "sudden": out of turns — no more clues, both keep tapping; one wrong card and it's over. */
+  phase: "clue" | "guess" | "sudden" | "end" = "clue";
   phaseEnd = 0;
   giverIndex = 0;
   clueCount = 0;
@@ -66,6 +73,9 @@ export class ParesSecretos implements Activity {
   private flashSeq = 0;
   private ended = false;
   private streak = 0;
+  /** This turn's clue chips (dealt once per turn). */
+  private turnClues: Link[] = [];
+  private heartbeat: ReturnType<typeof setInterval> | null = null;
 
   constructor(lessons: Lesson[], onDone: (r: GameOutcome) => void) {
     this.lessons = lessons;
@@ -89,6 +99,9 @@ export class ParesSecretos implements Activity {
   }
   get found() {
     return this.cards.filter((c) => c.state === "found").length;
+  }
+  get inPractice() {
+    return this.practice && this.phase !== "end";
   }
   get turnsLeft() {
     return this.rules.turns - this.turnsUsed;
@@ -136,22 +149,45 @@ export class ParesSecretos implements Activity {
     return out;
   }
 
-  /** Clue words: every link word that isn't on the board, most useful for your targets first. */
-  clueWords(p: RuntimePlayer): Link[] {
+  /**
+   * Clue chips for a turn, in alphabetical order: links that touch your hidden targets, mixed with
+   * decoys that touch bombs and other cards. Working out which one is safe is the game.
+   */
+  private dealClues(p: RuntimePlayer): Link[] {
     const board = new Set(this.cards.map((c) => c.card.pt.replace(/^(o|a) /, "").toLowerCase()));
-    const mine = this.cards.filter((c) => c.targetOf === p.playerId && c.state === "hidden").map((c) => c.member);
-    const useful = (l: Link) => l.members.filter((m) => mine.includes(m)).length;
-    return LINKS.filter((l) => !board.has(l.pt.toLowerCase())).sort((x, y) => useful(y) - useful(x) || x.pt.localeCompare(y.pt));
+    const hidden = this.cards.filter((c) => c.state === "hidden");
+    const mine = hidden.filter((c) => c.targetOf === p.playerId).map((c) => c.member);
+    const others = hidden.filter((c) => c.targetOf !== p.playerId).map((c) => c.member);
+    const avail = LINKS.filter((l) => !board.has(l.pt.toLowerCase()));
+    const useful = this.rt.rng.shuffle(avail.filter((l) => l.members.some((m) => mine.includes(m))));
+    const decoys = this.rt.rng.shuffle(avail.filter((l) => !useful.includes(l) && l.members.some((m) => others.includes(m))));
+    const filler = this.rt.rng.shuffle(avail.filter((l) => !useful.includes(l) && !decoys.includes(l)));
+    const n = Math.min(useful.length, Math.ceil(CLUE_CHIPS / 2));
+    return [...useful.slice(0, n), ...decoys, ...filler].slice(0, CLUE_CHIPS).sort((x, y) => x.pt.localeCompare(y.pt, "pt"));
+  }
+
+  clueWords(p: RuntimePlayer): Link[] {
+    return p === this.giver && this.turnClues.length ? this.turnClues : this.dealClues(p);
+  }
+
+  /** Best clue among the chips (for bots/tests): most targets, no bombs. */
+  private bestClue(p: RuntimePlayer): Link | undefined {
+    const hidden = this.cards.filter((c) => c.state === "hidden");
+    const score = (l: Link) =>
+      hidden.filter((c) => c.targetOf === p.playerId && l.members.includes(c.member)).length * 2 - hidden.filter((c) => c.bomb && l.members.includes(c.member)).length * 5;
+    return [...this.clueWords(p)].sort((a, b) => score(b) - score(a))[0];
   }
 
   private newTurn() {
     this.phase = "clue";
-    this.phaseEnd = gameNow() + this.rules.clueMs;
+    this.turnClues = this.giver ? this.dealClues(this.giver) : [];
+    this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.clueMs);
     this.clueCount = 0;
     this.clueWord = null;
     this.guessesLeft = 0;
     this.promptId = randomId(6);
     play("whoosh");
+    if (this.giver) this.rt.cue(CUE.pickClue, this.giver, NAMED.giveClue);
     this.rt.refreshViews();
     this.rt.bump();
   }
@@ -174,6 +210,10 @@ export class ParesSecretos implements Activity {
   }
 
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
+    if (value.mode === "skip" && this.inPractice) {
+      this.practice = false;
+      return this.newTurn();
+    }
     if (value.mode !== "secret" || this.phase === "end" || promptId !== this.promptId) return;
     const act = value.action;
     if (this.phase === "clue" && act.a === "clue" && p === this.giver) {
@@ -189,11 +229,12 @@ export class ParesSecretos implements Activity {
       // The TV says the clue: listening practice for the guesser.
       this.rt.speakPt(word.pt);
       this.rt.emote(p.playerId, "think", 2000);
-      if (this.guesser) this.rt.say(SAY.nowGuess);
+      if (this.guesser) this.rt.cue(CUE.tap, this.guesser, NAMED.guessIt);
       this.rt.refreshViews();
       this.rt.bump();
       return;
     }
+    if (this.phase === "sudden" && act.a === "tap") return this.suddenTap(p, act.cardId);
     if (this.phase !== "guess" || p !== this.guesser) return;
     if (act.a === "stop") return this.endTurn();
     if (act.a !== "tap") return;
@@ -201,6 +242,18 @@ export class ParesSecretos implements Activity {
     if (!c || c.state !== "hidden") return;
     const giver = this.giver!;
     this.rt.speakPt(c.card.say);
+    if (c.bomb && this.inPractice) {
+      // Practice: show what a bomb does, then put it back.
+      c.state = "boom";
+      this.flash = { id: c.id, kind: "boom", seq: ++this.flashSeq };
+      play("boom");
+      this.rt.say(SAY.bomb, { interrupt: true });
+      setTimeout(() => {
+        if (c.state === "boom") c.state = "hidden";
+        this.rt.bump();
+      }, 1800);
+      return this.endTurn();
+    }
     if (c.bomb) {
       c.state = "boom";
       this.lives--;
@@ -209,7 +262,7 @@ export class ParesSecretos implements Activity {
       this.rt.say(SAY.bomb, { interrupt: true });
       this.rt.emote(p.playerId, "sad", 2500);
       this.rt.emote(giver.playerId, "sad", 2500);
-      if (this.lives <= 0 || this.rules.suddenDeath) return this.finish(false);
+      if (this.lives <= 0 || this.rules.bombEnds) return this.finish(false);
       return this.endTurn();
     }
     if (c.targetOf) {
@@ -240,9 +293,35 @@ export class ParesSecretos implements Activity {
     return this.endTurn();
   }
 
+  private suddenTap(p: RuntimePlayer, cardId: string) {
+    const c = this.cards.find((x) => x.id === cardId);
+    const partner = this.rt.partnerOf(p);
+    if (!c || c.state !== "hidden" || !partner) return;
+    this.rt.speakPt(c.card.say);
+    if (c.targetOf === partner.playerId) {
+      c.state = "found";
+      this.flash = { id: c.id, kind: "found", seq: ++this.flashSeq };
+      this.rt.evidence(p, c.card.itemId, "secret.guess", "correct");
+      play("correct", 1, 1 + this.streak++ * 0.06);
+      this.rt.emote(p.playerId, "cheer");
+      this.rt.addScore(p, 50, "secret");
+      if (this.found >= this.goal) return this.finish(true);
+      this.rt.refreshViews();
+      this.rt.bump();
+      return;
+    }
+    c.state = c.bomb ? "boom" : "neutral";
+    this.flash = { id: c.id, kind: c.bomb ? "boom" : "neutral", seq: ++this.flashSeq };
+    play(c.bomb ? "boom" : "buzzer");
+    this.rt.say(c.bomb ? SAY.bomb : SAY.ohNo, { interrupt: true });
+    return this.finish(false);
+  }
+
   private endTurn() {
-    this.turnsUsed++;
-    if (this.turnsLeft <= 0) return this.finish(this.found >= this.goal);
+    if (this.practice) this.practice = false;
+    else this.turnsUsed++;
+    if (this.found >= this.goal) return this.finish(true);
+    if (this.turnsLeft <= 0) return this.rules.bombEnds ? this.finish(false) : this.toSuddenDeath();
     this.giverIndex++;
     // If the new giver has nothing left for the partner to find, skip to the other.
     const g = this.giver;
@@ -253,7 +332,25 @@ export class ParesSecretos implements Activity {
     this.rt.bump();
   }
 
+  /** Out of turns: no more clues. Both of you keep tapping your partner's pictures — one miss and it's over. */
+  private toSuddenDeath() {
+    this.phase = "sudden";
+    this.promptId = randomId(6);
+    setHurry(true);
+    play("heartbeat");
+    this.heartbeat = setInterval(() => this.rt.activity === this && this.phase === "sudden" && !this.rt.paused && play("heartbeat", 0.7), 1400);
+    this.rt.say(SAY.suddenDeath, { interrupt: true });
+    this.rt.refreshViews();
+    this.rt.bump();
+  }
+
+  stop() {
+    if (this.heartbeat) clearInterval(this.heartbeat);
+  }
+
   private finish(won: boolean) {
+    if (this.heartbeat) clearInterval(this.heartbeat);
+    setHurry(false);
     if (this.ended) return;
     this.ended = true;
     this.phase = "end";
@@ -283,19 +380,21 @@ export class ParesSecretos implements Activity {
   viewFor(p: RuntimePlayer): ControllerView {
     if (this.players.length < 2) return { mode: "wait", title: "Pares Secretos precisa de 2", subtitle: "Chama o teu par! · Needs two players", pic: "🤝" };
     if (this.phase === "end") return { mode: "wait", title: this.found >= this.goal ? "Conseguiram!" : "Fim do jogo", subtitle: `${this.found}/${this.goal} pares · pairs found`, pic: this.found >= this.goal ? "🏆" : "💣" };
-    const isGiver = p === this.giver;
-    const role = this.phase === "clue" ? (isGiver ? "clue" : "watch") : p === this.guesser ? "guess" : "watch";
+    const sudden = this.phase === "sudden";
+    const isGiver = p === this.giver && !sudden;
+    const role = sudden ? "guess" : this.phase === "clue" ? (isGiver ? "clue" : "watch") : p === this.guesser ? "guess" : "watch";
     const partner = this.rt.partnerOf(p)?.name ?? "";
+    // The giver sees their own key (which cards their partner must find, and the bombs); in sudden death everyone does.
+    const showKey = isGiver || sudden;
     const cards: SecretCard[] = this.cards.map((c) => ({
       id: c.id,
       word: { pt: c.card.pt, en: isGiver ? c.card.en : undefined, pic: c.card.emoji },
       state: c.state,
-      // The giver sees their own key: which cards their partner must find (and the bombs).
-      key: isGiver ? (c.bomb ? "bomb" : c.targetOf === p.playerId ? "target" : "neutral") : undefined,
+      key: showKey ? (c.bomb ? "bomb" : c.targetOf === p.playerId ? "target" : "neutral") : undefined,
     }));
     const firstHiddenTarget = this.cards.find((c) => c.state === "hidden" && c.targetOf === this.giver?.playerId);
     const toWord = (l: Link): Word => ({ pt: l.pt, en: l.en, pic: l.pic });
-    const bestClue = isGiver && this.phase === "clue" ? this.clueWords(p)[0] : undefined;
+    const bestClue = isGiver && this.phase === "clue" ? this.bestClue(p) : undefined;
     return {
       mode: "secret",
       roundId: this.roundId,
@@ -309,12 +408,16 @@ export class ParesSecretos implements Activity {
       turnsUsed: this.turnsUsed,
       turns: this.rules.turns,
       lives: this.lives,
-      msLeft: this.phase === "clue" ? this.msLeft : undefined,
+      msLeft: this.phase === "clue" && !this.inPractice ? this.msLeft : undefined,
       found: this.found,
       goal: this.goal,
+      sudden: sudden || undefined,
+      practice: this.inPractice || undefined,
       debugAnswer: this.rt.testMode
         ? {
-            cardId: this.phase === "guess" ? this.cards.find((c) => c.state === "hidden" && c.targetOf === this.giver?.playerId && this.clueWord?.members.includes(c.member))?.id ?? firstHiddenTarget?.id : firstHiddenTarget?.id,
+            cardId: sudden
+              ? this.cards.find((c) => c.state === "hidden" && c.targetOf === this.rt.partnerOf(p)?.playerId)?.id
+              : this.phase === "guess" ? this.cards.find((c) => c.state === "hidden" && c.targetOf === this.giver?.playerId && this.clueWord?.members.includes(c.member))?.id ?? firstHiddenTarget?.id : firstHiddenTarget?.id,
             clueWord: bestClue?.pt,
             targets: bestClue ? Math.max(1, bestClue.members.filter((m) => this.cards.some((c) => c.member === m && c.targetOf === p.playerId && c.state === "hidden")).length) : 1,
           }

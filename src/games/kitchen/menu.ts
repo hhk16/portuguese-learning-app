@@ -111,5 +111,8 @@ export function orderBook(menu: Menu): Order[] {
 
 /** Every sentence the kitchen can say (for the audio pipeline). */
 export function kitchenSpoken(): string[] {
-  return [...MENUS.flatMap((m) => orderBook(m).map((o) => o.text)), "Troca!", "Não é isso!"];
+  return [...MENUS.flatMap((m) => orderBook(m).map((o) => o.text)), "Troca!", "Não é isso!", ...TABLE_SAY.slice(1), "Mesa errada!"];
 }
+
+/** How the TV announces a table ("Mesa dois."), index = table number. */
+export const TABLE_SAY = ["", "Mesa um.", "Mesa dois.", "Mesa três."];

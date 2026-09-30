@@ -17,9 +17,10 @@ import { play } from "../../audio/sfx.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { SAY } from "../../tv/host-lines.ts";
+import { CUE, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { LINKS, linksOf, type Link } from "./links.ts";
+import { selectItem } from "../../learner/selector.ts";
 
 export const ROUNDS = 5;
 export const ATTEMPTS = 3;
@@ -27,10 +28,15 @@ const COUNTDOWN_MS = 3200;
 const REVEAL_MS = 3800;
 const SENSE_MS = 15_000;
 /** Difficulty: seconds to choose, and how many of the 8 options each phone sees (0 = type only). */
-export const LEVEL_RULES: Record<Level, { writeMs: number; options: number }> = {
-  1: { writeMs: 45_000, options: 8 },
-  2: { writeMs: 35_000, options: 6 },
-  3: { writeMs: 30_000, options: 0 },
+/**
+ * Difficulty: time, how many word chips each phone gets (0 = type only), and tries per pair.
+ * On Fácil both banks hold the intended link; on Médio only ONE phone has it — the other must
+ * think of it (or type it); on Difícil you type.
+ */
+export const LEVEL_RULES: Record<Level, { writeMs: number; options: number; tries: number; linkInBoth: boolean }> = {
+  1: { writeMs: 45_000, options: 8, tries: 3, linkInBoth: true },
+  2: { writeMs: 35_000, options: 6, tries: 2, linkInBoth: false },
+  3: { writeMs: 30_000, options: 0, tries: 2, linkInBoth: false },
 };
 
 /** Normalise a typed word: lower-case, no accents, no article, no punctuation. */
@@ -71,6 +77,7 @@ export class EmSintonia implements Activity {
   readonly pausable = true;
   rt!: TvRuntime;
   level: Level = 1;
+  practice = false;
   round = 0;
   attempt = 1;
   phase: "write" | "countdown" | "reveal" | "sense" | "end" = "write";
@@ -108,6 +115,10 @@ export class EmSintonia implements Activity {
   get final() {
     return this.round === ROUNDS - 1;
   }
+  /** Round -1 is the practice pair ("Ensaio") on the first plays: no timer, no points. */
+  get inPractice() {
+    return this.round < 0;
+  }
   get msLeft() {
     return Math.max(0, this.phaseEnd - gameNow());
   }
@@ -115,6 +126,7 @@ export class EmSintonia implements Activity {
   start(rt: TvRuntime) {
     this.rt = rt;
     this.pool = ALL_ITEMS.map(cardOf).filter((c): c is LearnCard => !!c && c.short);
+    if (this.practice) this.round = -1;
     this.newRound();
   }
 
@@ -130,7 +142,19 @@ export class EmSintonia implements Activity {
     function lessonHits(l: Link) {
       return l.members.filter((m) => fromLessons.has(m.startsWith("prof:") ? `vocab.profession.${m.slice(5)}` : `vocab.noun.${m}`)).length;
     }
-    this.link = scored[0] ?? this.rt.rng.pick(LINKS);
+    // The learner model picks a word (lesson / someone's weak word / older); use a link it belongs to.
+    const memberItem = (m: string) => getItem(m.startsWith("prof:") ? `vocab.profession.${m.slice(5)}` : `vocab.noun.${m}`);
+    const sel = selectItem(
+      {
+        candidates: [...new Set(candidates.flatMap((l) => l.members))].map(memberItem).filter((i) => !!i),
+        lessonItemIds: fromLessons,
+        profiles: this.players.map((p) => p.profile),
+        recent: [],
+      },
+      this.rt.rng,
+    );
+    const chosen = sel ? scored.find((l) => l.members.some((m) => memberItem(m)?.id === sel.item.id)) : undefined;
+    this.link = chosen ?? scored[0] ?? this.rt.rng.pick(LINKS);
     this.usedLinks.add(this.link);
     const [m1, m2] = this.rt.rng.sample(
       this.link.members.filter((m) => memberCard(m)),
@@ -153,13 +177,16 @@ export class EmSintonia implements Activity {
     this.banks.clear();
     const n = this.rules.options;
     if (!n) return;
-    // 8 options: the link, other links touching the pair, then unrelated link words.
     const good = this.goodLinks();
     const others = this.rt.rng.shuffle(LINKS.filter((l) => !good.includes(l)));
-    const eight = [this.link, ...this.rt.rng.shuffle(good.filter((l) => l !== this.link)), ...others].slice(0, 8);
+    const otherGood = this.rt.rng.shuffle(good.filter((l) => l !== this.link));
+    // Who gets the intended link on its chips (everyone on Fácil; one random phone otherwise).
+    const lucky = this.rt.rng.pick(this.players);
     for (const p of this.players) {
-      // Everyone gets their own order; on medium each phone only sees 6 (the link is always one).
-      const mine = n >= 8 ? eight : [this.link, ...this.rt.rng.sample(eight.slice(1), n - 1)];
+      const withLink = this.rules.linkInBoth || p === lucky;
+      const head = withLink ? [this.link] : [];
+      // A couple of other plausible links, then unrelated words; everyone gets their own mix and order.
+      const mine = [...head, ...this.rt.rng.sample(otherGood, Math.min(otherGood.length, 2)), ...this.rt.rng.sample(others, n)].slice(0, n);
       this.banks.set(
         p.playerId,
         this.rt.rng.shuffle(mine).map((l) => ({ pt: l.pt, en: l.en, pic: l.pic })),
@@ -167,15 +194,23 @@ export class EmSintonia implements Activity {
     }
   }
 
+  /** Both answers were real links for the pair, just different ones ("frio" vs "bebida"). */
+  get closeMiss(): boolean {
+    const norms = this.players.map((p) => normWord(this.submitted.get(p.playerId) ?? ""));
+    const good = this.goodLinks().map((l) => normWord(l.pt));
+    return norms.length === 2 && norms.every((w) => w && good.includes(w));
+  }
+
   private startAttempt() {
     this.phase = "write";
-    this.phaseEnd = gameNow() + this.rules.writeMs;
+    this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.writeMs);
     this.submitted.clear();
     this.senseVotes.clear();
     this.promptId = randomId(6);
     this.dealBanks();
     play("whoosh");
     if (this.final && this.attempt === 1) this.rt.say(SAY.finalRound);
+    this.rt.cue(CUE.write);
     this.rt.speakPt(this.pair[0].pt);
     setTimeout(() => this.rt.activity === this && this.rt.speakPt(this.pair[1].pt), 1200);
     this.rt.refreshViews();
@@ -204,6 +239,10 @@ export class EmSintonia implements Activity {
   }
 
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
+    if (value.mode === "skip" && this.inPractice) {
+      this.round = 0;
+      return this.newRound();
+    }
     if (value.mode !== "sync" || promptId !== this.promptId) return;
     if (this.phase === "sense" && value.sense !== undefined && !this.senseVotes.has(p.playerId)) {
       this.senseVotes.set(p.playerId, value.sense);
@@ -267,9 +306,9 @@ export class EmSintonia implements Activity {
     this.lastMatch = match;
     const words = this.players.map((p) => this.submitted.get(p.playerId) ?? "");
     if (match) {
-      const pts = matchPoints(this.attempt, this.final);
+      const pts = this.inPractice ? 0 : matchPoints(this.attempt, this.final);
       this.score += pts;
-      this.matches.push({ words: [this.pair[0].pt, this.pair[1].pt], word: words[0] ?? "", attempt: this.attempt });
+      if (!this.inPractice) this.matches.push({ words: [this.pair[0].pt, this.pair[1].pt], word: words[0] ?? "", attempt: this.attempt });
       play(this.attempt === 1 ? "fanfare" : "match");
       this.rt.celebrate();
       for (const p of this.players) {
@@ -281,14 +320,14 @@ export class EmSintonia implements Activity {
     } else {
       play("sad-trombone", 0.6);
       for (const p of this.players) this.rt.emote(p.playerId, "think", 2000);
-      this.rt.say(this.attempt < ATTEMPTS ? SAY.close : SAY.ohNo);
+      this.rt.say(this.closeMiss ? SAY.close : SAY.notQuite);
     }
     this.rt.refreshViews();
     this.rt.bump();
   }
 
   private afterReveal() {
-    if (this.lastMatch || this.attempt >= ATTEMPTS) {
+    if (this.lastMatch || this.attempt >= this.rules.tries) {
       this.round++;
       if (this.round >= ROUNDS) return this.finish();
       return this.newRound();
@@ -325,16 +364,23 @@ export class EmSintonia implements Activity {
     if (this.phase === "end") return { mode: "wait", title: "Fim!", subtitle: `${this.score} pontos`, pic: "🔮" };
     if (this.phase === "countdown") return { mode: "wait", title: "3… 2… 1…", subtitle: "Olha para a TV! · Look at the TV!", pic: "👀" };
     if (this.phase === "reveal")
-      return { mode: "wait", title: this.lastMatch ? "Em sintonia! 🎉" : "Quase!", subtitle: this.lastMatch ? "In sync!" : "So close! Try again with the same pair.", pic: this.lastMatch ? "🥳" : "🤔" };
+      return {
+        mode: "wait",
+        title: this.lastMatch ? "Em sintonia! 🎉" : this.closeMiss ? "Quase!" : "Nada disso!",
+        subtitle: this.lastMatch ? "In sync!" : `${this.closeMiss ? "So close" : "Not quite"} — ${this.attempt < this.rules.tries ? "same pair again. Olha para a TV!" : "next pair. Olha para a TV!"}`,
+        pic: this.lastMatch ? "🥳" : "🤔",
+      };
     const base = {
       mode: "sync" as const,
       roundId: this.roundId,
       promptId: this.promptId,
       words: this.pair,
       attempt: this.attempt,
+      tries: this.rules.tries,
       final: this.final || undefined,
-      msLeft: this.msLeft,
+      msLeft: this.inPractice ? undefined : this.msLeft,
       previous: this.previous.length ? this.previous : undefined,
+      practice: this.inPractice || undefined,
     };
     if (this.phase === "sense")
       return { ...base, bank: [], submitted: true, sense: { word: this.submitted.get(p.playerId) ?? "", voted: this.senseVotes.has(p.playerId) } };
@@ -342,6 +388,7 @@ export class EmSintonia implements Activity {
       ...base,
       bank: this.banks.get(p.playerId) ?? [],
       submitted: this.submitted.has(p.playerId),
+      mine: this.submitted.get(p.playerId) || undefined,
       debugAnswer: this.rt.testMode ? { word: this.link.pt } : undefined,
     };
   }

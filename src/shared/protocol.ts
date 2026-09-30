@@ -66,7 +66,13 @@ export const LearnExView = z.discriminatedUnion("kind", [
 ]);
 export type LearnExView = z.infer<typeof LearnExView>;
 
-const round = { roundId: id, promptId: id, debugAnswer: z.unknown().optional() };
+const round = {
+  roundId: id,
+  promptId: id,
+  debugAnswer: z.unknown().optional(),
+  /** Unscored practice round ("Ensaio"): the phone offers "Saltar". */
+  practice: z.boolean().optional(),
+};
 
 export const SecretCard = z.object({
   id,
@@ -122,6 +128,24 @@ export const ControllerView = z.discriminatedUnion("mode", [
     msLeft: z.number().nonnegative().optional(),
     found: z.number().int().nonnegative(),
     goal: z.number().int().positive(),
+    /** Out of turns: no clues, everyone taps; one miss ends it. */
+    sudden: z.boolean().optional(),
+  }),
+  /** Grande Final: quick questions, first right answer wins. */
+  z.object({
+    mode: z.literal("final"),
+    ...round,
+    kind: z.enum(["see", "hear"]),
+    index: z.number().int().nonnegative(),
+    total: z.number().int().positive(),
+    double: z.boolean().optional(),
+    msLeft: z.number().nonnegative(),
+    /** "see": the picture + English to name in Portuguese. */
+    prompt: Word.optional(),
+    /** Choices (Portuguese words for "see", pictures for "hear"); absent = type the answer. */
+    options: z.array(Word).max(8).optional(),
+    pictures: z.boolean().optional(),
+    answered: z.boolean(),
   }),
   /** Na Mesma Onda (Wavelength style). */
   z.object({
@@ -155,8 +179,11 @@ export const ControllerView = z.discriminatedUnion("mode", [
     ...round,
     words: z.tuple([Word, Word]),
     attempt: z.number().int().positive(),
+    tries: z.number().int().positive().optional(),
     bank: z.array(Word).max(16),
     submitted: z.boolean(),
+    /** Your locked-in word. */
+    mine: shortText.optional(),
     final: z.boolean().optional(),
     msLeft: z.number().nonnegative().optional(),
     /** What each of you chose last try (same pair again). */
@@ -209,6 +236,10 @@ export const ControllerView = z.discriminatedUnion("mode", [
     mode: z.literal("kitchen"),
     ...round,
     pantry: z.array(z.object({ id, pt: shortText, pic: emojiField })).max(8),
+    /** Open tables to serve (when the level needs the right table). */
+    tables: z.array(z.number().int().min(1).max(3)).max(3).optional(),
+    /** Tables whose order can be heard again. */
+    replay: z.array(z.number().int().min(1).max(3)).max(3).optional(),
     /** What's on the shared tray right now. */
     tray: z.array(z.object({ pt: shortText, pic: emojiField, n: z.number().int().positive() })).max(12),
     msLeft: z.number().nonnegative(),
@@ -228,6 +259,9 @@ export type ControllerMode = ControllerView["mode"];
 /* ------------------------------------------------------------------ */
 
 export const InputValue = z.discriminatedUnion("mode", [
+  /** Skip the practice round. */
+  z.object({ mode: z.literal("skip") }),
+  z.object({ mode: z.literal("final"), answer: z.string().trim().min(1).max(40) }),
   z.object({
     mode: z.literal("learn"),
     answer: z.discriminatedUnion("t", [
@@ -264,6 +298,7 @@ export const InputValue = z.discriminatedUnion("mode", [
       /** A piece of a stroke: points as x,y pairs on a 0..1000 square, in order (seg = piece index). */
       z.object({ a: z.literal("stroke"), s: z.number().int().nonnegative(), seg: z.number().int().nonnegative(), c: z.number().int().min(0).max(5), w: z.number().int().min(1).max(4), pts: z.array(z.number().int().min(0).max(1000)).max(400) }),
       z.object({ a: z.literal("clear") }),
+      z.object({ a: z.literal("undo") }),
       z.object({ a: z.literal("guess"), id }),
       /** Typed guess, or what speech recognition heard (alternatives). */
       z.object({ a: z.literal("type"), text: z.string().max(40) }),
@@ -282,7 +317,13 @@ export const InputValue = z.discriminatedUnion("mode", [
   }),
   z.object({
     mode: z.literal("kitchen"),
-    action: z.discriminatedUnion("a", [z.object({ a: z.literal("add"), id }), z.object({ a: z.literal("serve") }), z.object({ a: z.literal("trash") })]),
+    action: z.discriminatedUnion("a", [
+      z.object({ a: z.literal("add"), id }),
+      /** table: which table to serve (Médio/Difícil). */
+      z.object({ a: z.literal("serve"), table: z.number().int().min(1).max(3).optional() }),
+      z.object({ a: z.literal("trash") }),
+      z.object({ a: z.literal("replay"), table: z.number().int().min(1).max(3) }),
+    ]),
   }),
 ]);
 export type InputValue = z.infer<typeof InputValue>;

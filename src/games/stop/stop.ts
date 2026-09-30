@@ -8,6 +8,7 @@
  * word as your partner 5, a voted-in word 7, a word written with 💡 help counts half. The last
  * letter is worth double; a tie brings a sudden-death letter.
  */
+import { REFERENCE } from "./reference.ts";
 import { randomId } from "../../shared/ids.ts";
 import type { ControllerView, InputValue } from "../../shared/protocol.ts";
 import { play } from "../../audio/sfx.ts";
@@ -15,7 +16,7 @@ import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { SAY } from "../../tv/host-lines.ts";
+import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { CATEGORIES, examples, fairLetters, lookup, nearMiss, normStop, startsWith, type DictWord, type StopCategory } from "./dictionary.ts";
 
@@ -119,7 +120,8 @@ export class Stop implements Activity {
     // Categories, preferring ones where this letter has known words.
     const cover = CATEGORIES.filter((c) => examples(c.id, this.letter).length > 0);
     const rest = CATEGORIES.filter((c) => !cover.includes(c));
-    this.categories = [...this.rt.rng.shuffle(cover), ...rest].slice(0, this.rules.cats);
+    // The final letter adds a category: a twist, not just double points.
+    this.categories = [...this.rt.rng.shuffle(cover), ...rest].slice(0, this.rules.cats + (this.double ? 1 : 0));
     this.answers.clear();
     this.cells.clear();
     this.voted.clear();
@@ -127,11 +129,13 @@ export class Stop implements Activity {
     this.roundTotals.clear();
     this.stoppedBy = null;
     this.phase = "write";
-    this.phaseEnd = gameNow() + this.rules.writeMs;
+    // Each letter gives a little less time (−12%, then −24%): the game speeds up.
+    this.phaseEnd = gameNow() + this.rules.writeMs * (1 - 0.12 * Math.min(this.round, 2));
     this.promptId = randomId(6);
     play("whoosh");
     if (this.double && !this.suddenDeath) this.rt.say(SAY.finalRound);
     this.rt.speakPt(`Letra ${this.letter}!`);
+    this.rt.cue(CUE.fill);
     this.rt.refreshViews();
     this.rt.bump();
   }
@@ -294,6 +298,8 @@ export class Stop implements Activity {
     const tie = !!b && a!.points === b.points;
     play("fanfare");
     this.rt.celebrate();
+    const winner = this.players.find((p) => p.name === a?.name);
+    if (!tie && winner) this.rt.say(NAMED.wins, { name: winner.name });
     this.rt.bump();
     // Records and stars count the couple's total; the headline is the rivalry.
     const total = scores.reduce((s, x) => s + x.points, 0);
@@ -305,7 +311,8 @@ export class Stop implements Activity {
       headlineEn: tie ? "It's a tie!" : `${a!.name} wins!`,
       sub: `Os dois juntos: ${total} pontos`,
       subEn: `Together: ${total} points`,
-      words: [...this.words.values()],
+      // Newest first, so the last letter's words make the recap.
+      words: [...this.words.values()].reverse(),
     });
   }
 
@@ -314,10 +321,19 @@ export class Stop implements Activity {
     return this.roundTotals.get(p.playerId) ?? 0;
   }
 
-  /** Known words for a category, for the "podiam ter escrito" hints. */
-  hints(catId: string): DictWord[] {
-    return examples(catId, this.letter).slice(0, 3);
+  /** Other words you could have written (from the reference list), never ones you did write. */
+  hints(catId: string): { pt: string }[] {
+    const key = `${this.round}:${catId}`;
+    const cached = this.hintCache.get(key);
+    if (cached) return cached;
+    const typed = new Set(this.players.map((p) => normStop(this.answers.get(p.playerId)?.[catId] ?? "")));
+    const ref = (REFERENCE as Record<string, string[]>)[catId] ?? [];
+    const pool = [...new Set([...ref, ...examples(catId, this.letter).map((d) => d.pt)])].filter((w) => startsWith(w, this.letter) && !typed.has(normStop(w)));
+    const out = this.rt.rng.sample(pool, Math.min(3, pool.length)).map((pt) => ({ pt }));
+    if (this.phase === "score") this.hintCache.set(key, out);
+    return out;
   }
+  private hintCache = new Map<string, { pt: string }[]>();
 
   filled(p: RuntimePlayer): number {
     const a = this.answers.get(p.playerId) ?? {};
