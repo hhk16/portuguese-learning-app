@@ -12,6 +12,7 @@ import { gameNow } from "../../tv/clock.ts";
 import { ALL_ITEMS } from "../../curriculum/index.ts";
 import { FORMAT_KINDS, generate, mergeForm, spellTiles, streamPrompt, type Prompt, type PromptFormat, type StreamPrompt, type StreamVariant } from "../../curriculum/generators.ts";
 import type { KnowledgeItem } from "../../curriculum/schema.ts";
+import { cardById, showEnglishFor } from "../../curriculum/learn.ts";
 import type { Outcome } from "../../learner/events.ts";
 import { isCorrectOutcome } from "../../learner/events.ts";
 import { selectItem } from "../../learner/selector.ts";
@@ -135,6 +136,7 @@ export class MicroRush implements Activity {
   repeat() {
     const r = this.round;
     if (r && this.phase === "reveal") this.rt.speakPt(r.prompt.audio ?? r.prompt.answerText);
+    else if (r && this.phase === "play") this.rt.speakPt(r.prompt.ask, { slow: true });
   }
 
   start(rt: TvRuntime) {
@@ -271,6 +273,7 @@ export class MicroRush implements Activity {
     r.startAt = now;
     r.endAt = now + dur;
     this.setPhase("play", now, dur);
+    if (r.prompt.ask) this.rt.speakPt(r.prompt.ask, { slow: this.rt.settings.speed === "calma" });
     for (const p of this.rt.activePlayers) {
       if (!r.per.has(p.playerId)) r.per.set(p.playerId, { answeredAt: null, outcome: null, points: 0, taps: [] });
       this.rt.conn.sendView(p.playerId, this.playView(p));
@@ -286,7 +289,7 @@ export class MicroRush implements Activity {
     }
     const q = r.prompt;
     const review = r.reviewFor ? this.rt.activePlayers.find((x) => x.profile.profileId === r.reviewFor)?.name : undefined;
-    const card = { kicker: review ? `REVISÃO PARA ${review.toUpperCase()}` : undefined, visual: q.visual, headline: q.headline, sub: q.sub };
+    const card = { kicker: review ? `REVISÃO PARA ${review.toUpperCase()}` : undefined, visual: q.visual, headline: q.headline, sub: subWithEnglish(q, p) };
     switch (q.format) {
       case "choice":
         return { mode: "choices", ...base, card, options: q.options };
@@ -524,6 +527,20 @@ export class MicroRush implements Activity {
     if (this.phase === "play" && this.round) return this.playView(p);
     return { mode: "wait", title: "Olha para a TV!", emoji: "📺" };
   }
+}
+
+/** English meaning for the TV, while anyone playing is still new to the item. */
+export function tvEnglish(q: Prompt, players: readonly RuntimePlayer[]): string | undefined {
+  const en = cardById(q.itemIds[0] ?? "")?.en;
+  if (!en || en === q.headline || q.headline.startsWith(en)) return undefined;
+  return players.some((p) => showEnglishFor(p.profile.items[q.itemIds[0] ?? ""])) ? en : undefined;
+}
+
+/** The card's sub line, plus the English meaning while this player is still new to the item. */
+export function subWithEnglish(q: Prompt, p: RuntimePlayer): string | undefined {
+  const en = cardById(q.itemIds[0] ?? "")?.en;
+  const show = en && en !== q.headline && !q.headline.startsWith(en) && showEnglishFor(p.profile.items[q.itemIds[0] ?? ""]);
+  return [q.sub, show ? `🇬🇧 ${en}` : undefined].filter(Boolean).join(" · ") || undefined;
 }
 
 function canGenerate(format: PromptFormat, item: KnowledgeItem): boolean {

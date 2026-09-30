@@ -128,6 +128,11 @@ export class HostConnection {
     this.sendBody(playerId, { k: "resync" });
   }
 
+  /** Ask a phone to say Portuguese aloud (when the TV has no Portuguese voice). */
+  speakOn(playerId: string, text: string) {
+    this.sendBody(playerId, { k: "speak", text: text.slice(0, 200) });
+  }
+
   fx(playerId: string, fx: "buzz" | "success" | "fail" | "boost") {
     this.sendBody(playerId, { k: "fx", fx });
   }

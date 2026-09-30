@@ -1,4 +1,5 @@
 /** Turbo Race overlay: standings + lap progress, countdown, question card, item round, finish. */
+import { tvEnglish } from "../../games/micro/rush.ts";
 import { gameNow } from "../clock.ts";
 import { useEffect, useState } from "react";
 import { ITEM_INFO, type TurboRace } from "../../games/race/race.ts";
@@ -98,6 +99,7 @@ export function RaceHud({ a }: { a: TurboRace }) {
             <Headline text={q.prompt.headline} fill={reveal ? q.prompt.answerText.split(" ")[0] : undefined} />
           </div>
           {q.prompt.sub && <div className="prompt-sub">{q.prompt.sub}</div>}
+          {tvEnglish(q.prompt, rt.activePlayers) && <div className="prompt-en">🇬🇧 {tvEnglish(q.prompt, rt.activePlayers)}</div>}
           <div className="options">
             {q.prompt.options.map((o) => (
               <div key={o.id} className={`option ${reveal ? (o.id === q.prompt.correctId ? "right" : "dim") : ""}`}>

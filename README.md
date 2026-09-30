@@ -3,12 +3,19 @@
 A couch party game for learning **A1 European Portuguese** together, built around *Português a Valer 1* (Livro do Aluno + Caderno de Exercícios).
 The **TV** is the stage (three.js). **Phones are the controllers**: scan the QR code, pick a creature, play.
 
-- **Noite de Festa**: a continuous game show with no menus between segments: Micro Loucura rush → Mini Aula → Turbo Race → results.
-- **Micro Loucura**: 5–8 second microgames (ESCOLHE · COMPLETA · CORRIGE · ARRASTA · NÃO TOQUES · DIZ). The phone turns into buttons, letter tiles, word chips, a drag board, one big button, or a microphone.
-- **Turbo Race**: answers are physical. A fast answer gives TURBO, 3 in a row gives COMBO, a wrong answer spins you out. There's an item round with shield, nitro and ink sabotage.
-- **Aulas**: 11 Mini Aulas covering Units 0–1 in book order (greetings, survival phrases, ser, ter, -ar verbs, chamar-se, nationalities, professions, de/do/da, em/no/na, numbers 0–20). Each is a 60–90 s animated lesson with a quick check, then a practice rush focused on that lesson. Noite de Festa teaches the next lesson you haven't done yet.
-- **The phone is a second screen.** Every prompt (the sentence with its gap, emoji, hint), lesson tables and the NÃO TOQUES word stream are mirrored on the phone, so nobody has to look back and forth.
-- **Pause and speed.** Back on the TV remote (or ⏸ on any phone) pauses the game clock: Continuar · Velocidade · Recomeçar · Sair para o menu. Speed is **Calma 🐢** (≈1.7× time), **Normal** or **Turbo ⚡**. Set it in the lobby, in Definições, or while paused.
+- **Aprender**: Duolingo-style lessons, played side by side. Each of you plays at your own pace on your own phone, with no timers, while the TV shows both progress lanes, hearts, streaks and the new words. There are 11 lessons covering Units 0–1 in book order: greetings, survival phrases, ser, ter, -ar verbs, chamar-se, nationalities, professions, de/do/da, em/no/na, and numbers 0–20.
+  - **A lesson runs:** tip → new words (picture + Portuguese + English + audio) → exercises that ramp up: listen and tap, what does it mean?, how do you say it?, match the pairs, complete the sentence, build the sentence, say it out loud.
+  - **Feedback:** select → VERIFICAR → a green or red sheet with the answer, its English and a tip.
+  - **Mistakes** come back once at the end.
+  - **English is adaptive:** shown while a word is new, then one tap away.
+- **After a lesson, play with its words:**
+  - **Diz-me!** (co-op): one of you sees a word and must *say* it in Portuguese; the other taps the matching picture. Beat your record.
+  - **Apanha!** (versus): the TV says a word, then pictures flip one by one, and the first to slam their phone on the right one takes it. A false slam freezes you. Warm-up rounds show the word written; later rounds are ear-only and worth ×2.
+- **Noite de Festa**: a continuous game show with no menus between segments: Micro Loucura → Apanha! → Diz-me! → Turbo Race → results, using the words from the lessons you've done.
+- **Micro Loucura** and **Turbo Race**: the fast arcade games. Every question is also read aloud, with 🔊 to hear it again, and the English meaning is shown while a word is new.
+- **Audio:** everything Portuguese is spoken aloud (European Portuguese voice when the device has one; 🐢 for slow). If the TV has no Portuguese voice, a phone reads instead.
+- **The phone is a second screen.** Every prompt is mirrored on the phone, so nobody has to look back and forth.
+- **Pause and speed.** Back on the TV remote (or ⏸ on any phone) pauses the game clock: Continuar · Velocidade · Recomeçar · Sair para o menu. Speed is **Calma 🐢** (the default, ≈1.7× time), **Normal** or **Turbo ⚡**.
 - **Installable controller.** `/play` is a PWA: "Adicionar ao ecrã principal" on Android or iPhone gives a full-screen app icon, and the screen stays awake while you play.
 - **Blip**, the MC, reacts to everything (in PT-PT, with optional English subtitles).
 
@@ -31,7 +38,7 @@ Set `VITE_PUBLIC_URL` at build time to force the URL the QR code encodes.
 ```bash
 npm run typecheck && npm run lint && npm test && npm run content:check
 npm run build && npm run e2e    # Playwright: TV + 2 bot phones play a full Party Night; screenshots in e2e-output/
-E2E_MODE=race npm run e2e       # micro | race | aula
+E2E_MODE=lesson E2E_NEXT=dizme npm run e2e   # lesson → Diz-me! (modes: party | lesson | dizme | snap | micro | race)
 ```
 
 ## Architecture

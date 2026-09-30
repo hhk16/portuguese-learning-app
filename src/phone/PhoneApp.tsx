@@ -6,6 +6,7 @@ import { randomId } from "../shared/ids.ts";
 import { AVATARS, PLAYER_COLORS, type Avatar as AvatarKind, type ControllerView, type PlayerColor } from "../shared/protocol.ts";
 import { Avatar, AVATAR_NAME, COLOR_HEX, COLOR_NAME } from "../ui/Avatar.tsx";
 import { Controller } from "./Controller.tsx";
+import { speak } from "../audio/tts.ts";
 
 const PROFILE_KEY = "pp.phone.profile";
 /** Screens where ⏸ makes no sense (menus, results, already paused). */
@@ -46,6 +47,7 @@ export function PhoneApp() {
     c.onState = setState;
     c.onSocket = setSocket;
     c.onView = setView;
+    c.onSpeak = (text) => void speak(text);
     c.onFx = (fx) => {
       const pattern = fx === "success" ? [30, 40, 30] : fx === "fail" ? [120] : fx === "boost" ? [20, 20, 60] : [15];
       navigator.vibrate?.(pattern);

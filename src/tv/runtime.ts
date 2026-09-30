@@ -24,7 +24,7 @@ import type { ControllerView, InputValue, NavDir, PlayerBody, PlayerInfo, Speed 
 import { playMusic, stopMusic } from "../audio/music.ts";
 import { clockPaused, gameNow, pauseClock, resumeClock } from "./clock.ts";
 import { sfx } from "../audio/sfx.ts";
-import { speak } from "../audio/tts.ts";
+import { hasPortugueseVoice, speak } from "../audio/tts.ts";
 import { LearnerStore } from "./learner-store.ts";
 
 export interface RuntimePlayer extends PlayerInfo {
@@ -50,8 +50,8 @@ export interface Activity {
   stop?(): void;
   /** Game segments can be paused (Back on the TV / ⏸ on a phone); menus cannot. */
   readonly pausable?: boolean;
-  /** Re-play the current audio (phone "🔊 ouvir outra vez"). */
-  repeat?(): void;
+  /** Re-play the current audio (phone "🔊 ouvir outra vez"); `p` = who asked. */
+  repeat?(p?: RuntimePlayer): void;
   /** Music track to restore after a pause. */
   readonly music?: "title" | "party" | "race" | "aula";
 }
@@ -71,7 +71,7 @@ export interface McBubble {
   seq: number;
 }
 
-const SETTINGS_KEY = "pp.tv.settings";
+const SETTINGS_KEY = "pp.tv.settings.v2";
 
 export class TvRuntime {
   readonly conn: HostConnection;
@@ -82,7 +82,7 @@ export class TvRuntime {
   code = "";
   socket: SocketStatus = "connecting";
   activity: Activity | null = null;
-  settings: Settings = { speed: "normal", lowFx: false, music: true, subtitles: true, ...readSettings() };
+  settings: Settings = { speed: "calma", lowFx: false, music: true, subtitles: true, ...readSettings() };
   paused = false;
   pauseFocus = 0;
   /** Set by the mode runner: how to restart the current mode / leave to the title screen. */
@@ -188,7 +188,7 @@ export class TvRuntime {
         this.activity?.onNav?.(body.dir, p);
         return;
       case "menu":
-        this.menu(body.action, body.speed);
+        this.menu(body.action, body.speed, p);
         return;
       case "ready":
         p.ready = body.ready;
@@ -231,7 +231,7 @@ export class TvRuntime {
     return PACE[this.settings.speed];
   }
 
-  menu(action: "pause" | "resume" | "restart" | "quit" | "speed" | "repeat", speed?: Speed) {
+  menu(action: "pause" | "resume" | "restart" | "quit" | "speed" | "repeat", speed?: Speed, from?: RuntimePlayer) {
     switch (action) {
       case "pause":
         if (this.activity?.pausable) this.pause();
@@ -256,7 +256,7 @@ export class TvRuntime {
         this.onQuit?.();
         return;
       case "repeat":
-        if (!this.paused) this.activity?.repeat?.();
+        if (!this.paused) this.activity?.repeat?.(from);
         return;
     }
   }
@@ -370,13 +370,31 @@ export class TvRuntime {
     this.mcMood = line.mood;
     this.mcTalkUntil = now + Math.min(holdMs, 400 + text.length * 55);
     this.mcCooldown = now + holdMs + 1200;
-    void speak(text, { character: true });
+    // Without a Portuguese voice the MC stays silent (an English voice reading PT is worse).
+    if (hasPortugueseVoice() !== false) void speak(text, { character: true });
     this.bump();
   }
 
   /** Speak curriculum audio (correct PT form after a reveal). */
-  speakPt(text: string | undefined) {
-    if (text) void speak(text);
+  speakPt(text: string | undefined, opts: { slow?: boolean } = {}) {
+    if (!text) return;
+    if (hasPortugueseVoice() === false) {
+      // No Portuguese voice on this TV: the first phone reads it out instead.
+      const p = this.activePlayers[0];
+      if (p) this.conn.speakOn(p.playerId, text);
+      return;
+    }
+    void speak(text, opts);
+  }
+
+  /** Speak on one player's phone (personal audio, e.g. self-paced lessons). */
+  speakTo(p: RuntimePlayer, text: string) {
+    this.conn.speakOn(p.playerId, text);
+  }
+
+  /** True when this TV cannot speak Portuguese (phones take over the audio). */
+  get tvVoiceMissing(): boolean {
+    return hasPortugueseVoice() === false;
   }
 
   setSettings(s: Partial<Settings>) {

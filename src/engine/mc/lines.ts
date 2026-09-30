@@ -27,7 +27,16 @@ export type McEvent =
   | { type: "aulaEnd" }
   | { type: "win"; name: string; other?: string }
   | { type: "tie" }
-  | { type: "solo"; name: string };
+  | { type: "solo"; name: string }
+  | { type: "finishFirst"; name: string }
+  | { type: "lessonDone"; name: string }
+  | { type: "dizmeStart"; name: string; other: string }
+  | { type: "dizmeHit"; name: string }
+  | { type: "dizmeRecord" }
+  | { type: "snapStart" }
+  | { type: "snapWin"; name: string }
+  | { type: "snapFalse"; name: string }
+  | { type: "snapNobody" };
 
 export interface Line {
   pt: string;
@@ -125,6 +134,37 @@ export const LINES: Bank = {
   ],
   tie: [{ pt: "Empate! Isto é amor verdadeiro.", en: "A tie! That's true love.", mood: "happy" }],
   solo: [{ pt: "Muito bem, {name}. Mas sozinho é fácil.", en: "Well done, {name}. But alone it's easy.", mood: "smug" }],
+  finishFirst: [
+    { pt: "{name} acabou primeiro! Sem pressa, os outros.", en: "{name} finished first! No rush, everyone else.", mood: "hype" },
+    { pt: "{name} já terminou. Exibicionista.", en: "{name} is already done. Show-off.", mood: "smug" },
+  ],
+  lessonDone: [
+    { pt: "Lição feita, {name}! Palavras novas no bolso.", en: "Lesson done, {name}! New words in your pocket.", mood: "happy" },
+    { pt: "Boa, {name}! Mais uma lição.", en: "Nice, {name}! One more lesson.", mood: "happy" },
+  ],
+  dizmeStart: [
+    { pt: "{name}, diz as palavras. {other}, adivinha!", en: "{name}, say the words. {other}, guess!", mood: "hype" },
+    { pt: "{name} fala, {other} ouve. Nada de inglês!", en: "{name} talks, {other} listens. No English!", mood: "smug" },
+  ],
+  dizmeHit: [
+    { pt: "Isso! Que equipa!", en: "Yes! What a team!", mood: "happy" },
+    { pt: "Perfeito, {name}!", en: "Perfect, {name}!", mood: "hype" },
+    { pt: "Telepatia!", en: "Telepathy!", mood: "shock" },
+  ],
+  dizmeRecord: [{ pt: "NOVO RECORDE! Vocês são perigosos.", en: "NEW RECORD! You two are dangerous.", mood: "hype" }],
+  snapStart: [
+    { pt: "Apanha! Ouve bem e bate quando vires!", en: "Snap! Listen well and slam when you see it!", mood: "hype" },
+    { pt: "Mãos no botão. Ouvidos abertos.", en: "Hands on the button. Ears open.", mood: "smug" },
+  ],
+  snapWin: [
+    { pt: "{name} apanhou!", en: "{name} got it!", mood: "hype" },
+    { pt: "Que reflexos, {name}!", en: "What reflexes, {name}!", mood: "shock" },
+  ],
+  snapFalse: [
+    { pt: "{name}, calma! Isso não era.", en: "{name}, easy! That wasn't it.", mood: "smug" },
+    { pt: "Batida falsa, {name}!", en: "False slam, {name}!", mood: "shock" },
+  ],
+  snapNobody: [{ pt: "Ninguém? Estava mesmo ali!", en: "Nobody? It was right there!", mood: "sad" }],
 };
 
 export function fillTemplate(s: string, e: McEvent): string {

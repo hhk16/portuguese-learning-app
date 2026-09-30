@@ -1,24 +1,32 @@
 /**
- * Title / lobby / results / Party Night sequencing.
+ * Title / lobby / results and the flow between segments.
  *
- * Party Night has no navigation menus between segments: once it starts, the director carries the
- * players from one segment to the next like a TV game show. Menus exist only on the title screen.
+ * The heart of the app is "Aprender": a Duolingo-style lesson side by side, then a game on that
+ * lesson's words (Diz-me! together, or Apanha! against each other). Party Night strings the games
+ * together with no menus in between, like a TV game show.
  */
 import { gameNow } from "./clock.ts";
+import { gameCards, type LearnCard } from "../curriculum/learn.ts";
 import { getLesson, LESSONS } from "../curriculum/lessons.ts";
-import { lessonsDone, MiniAula, nextLessonId } from "../games/aula/aula.ts";
+import type { Lesson } from "../curriculum/schema.ts";
+import { DizMe } from "../games/dizme/dizme.ts";
+import { LearnActivity, type LearnSummary } from "../games/learn/learn.ts";
 import { MicroRush } from "../games/micro/rush.ts";
 import { TurboRace, type RaceResult } from "../games/race/race.ts";
-import type { ControllerView, NavDir } from "../shared/protocol.ts";
+import { Apanha } from "../games/snap/snap.ts";
+import { randomId } from "../shared/ids.ts";
+import type { ControllerView, InputValue, NavDir } from "../shared/protocol.ts";
 import { sfx } from "../audio/sfx.ts";
 import { playMusic } from "../audio/music.ts";
+import { voiceName } from "../audio/tts.ts";
+import { lessonsDone, lessonStars, nextLessonId, playableLessons } from "./progress.ts";
 import { SPEED_LABEL, type Activity, type RuntimePlayer, type TvRuntime } from "./runtime.ts";
 
-export type Mode = "party" | "micro" | "race" | "lesson";
+export type Mode = "party" | "micro" | "race" | "lesson" | "dizme" | "snap";
 
 export interface ModeSpec {
   mode: Mode;
-  /** For "lesson": which Mini Aula. */
+  /** Lesson to learn ("lesson") or whose words to play with (games). Default: all learned so far. */
   lessonId?: string;
 }
 
@@ -34,10 +42,12 @@ export interface MenuItem {
   badge?: string;
 }
 
+const MAIN_INDEX: Record<string, number> = { aprender: 0, jogos: 2, settings: 3 };
+
 export class TitleActivity implements Activity {
   readonly id = "title";
   rt!: TvRuntime;
-  menu: "main" | "aulas" | "arcade" | "settings" = "main";
+  menu: "main" | "aprender" | "jogos" | "settings" = "main";
   focus = 0;
 
   start(rt: TvRuntime) {
@@ -47,38 +57,47 @@ export class TitleActivity implements Activity {
 
   get items(): MenuItem[] {
     const s = this.rt.settings;
-    if (this.menu === "aulas") {
+    if (this.menu === "aprender") {
       const done = lessonsDone();
+      const stars = lessonStars();
+      const next = nextLessonId();
       return [
         ...LESSONS.map((l, i) => ({
           id: `lesson:${l.id}`,
           label: `${i + 1}. ${l.title}`,
-          sub: `${l.unit === "u00" ? "Unidade 0" : "Unidade 1"} · Mini Aula + treino`,
-          badge: done.has(l.id) ? "✓ FEITA" : undefined,
+          sub: `${l.unit === "u00" ? "Unidade 0" : "Unidade 1"} · ${done.has(l.id) ? "⭐".repeat(stars[l.id] ?? 1) + " · repetir = rever" : "palavras novas"}`,
+          badge: l.id === next ? "PRÓXIMA" : done.has(l.id) ? "✓" : undefined,
         })),
         { id: "back", label: "← Voltar" },
       ];
     }
-    if (this.menu === "arcade")
+    if (this.menu === "jogos")
       return [
-        { id: "micro", label: "Micro Loucura", sub: "Microjogos de 5 segundos" },
-        { id: "race", label: "Turbo Corrida", sub: "Respostas rápidas = TURBO" },
+        { id: "dizme", label: "Diz-me! 🗣️", sub: "Juntos: um diz a palavra, o outro adivinha" },
+        { id: "snap", label: "Apanha! ⚡", sub: "Um contra o outro: ouve e bate primeiro" },
+        { id: "micro", label: "Micro Loucura", sub: "Microjogos rápidos" },
+        { id: "race", label: "Turbo Corrida", sub: "Responde para acelerar" },
         { id: "back", label: "← Voltar" },
       ];
     if (this.menu === "settings")
       return [
         { id: "speed", label: `Velocidade: ${SPEED_LABEL[s.speed]}`, sub: "Calma = mais tempo para pensar" },
-        { id: "lowFx", label: `Efeitos: ${s.lowFx ? "Leves" : "Máximos"}`, sub: "Leves = mais fluido em TVs antigas" },
         { id: "music", label: `Música: ${s.music ? "Ligada" : "Desligada"}` },
         { id: "subtitles", label: `Legendas EN do Blip: ${s.subtitles ? "Sim" : "Não"}` },
+        { id: "lowFx", label: `Efeitos: ${s.lowFx ? "Leves" : "Máximos"}`, sub: "Leves = mais fluido em TVs antigas" },
+        {
+          id: "voice",
+          label: this.rt.tvVoiceMissing ? "Voz: sem voz portuguesa nesta TV" : `Voz: ${voiceName() ?? "a carregar…"}`,
+          sub: this.rt.tvVoiceMissing ? "Os telemóveis leem em voz alta" : "Português europeu",
+          disabled: true,
+        },
         { id: "back", label: "← Voltar" },
       ];
+    const done = lessonsDone().size;
     return [
-      { id: "party", label: "Noite de Festa", sub: "O espetáculo completo" },
-      { id: "aulas", label: "Aulas", sub: `${lessonsDone().size}/${LESSONS.length} feitas · aprende e treina` },
-      { id: "arcade", label: "Arcade", sub: "Escolhe um jogo" },
-      { id: "desafio", label: "Desafio", sub: "Desafia o teu par", disabled: true, badge: "EM BREVE" },
-      { id: "profiles", label: "Perfis", sub: "Progresso e metas A1", disabled: true, badge: "EM BREVE" },
+      { id: "aprender", label: "Aprender", sub: `Lições ao estilo Duolingo · ${done}/${LESSONS.length} feitas` },
+      { id: "party", label: "Noite de Festa", sub: "Todos os jogos seguidos, sem menus" },
+      { id: "jogos", label: "Jogos", sub: "Diz-me! · Apanha! · Micro Loucura · Corrida" },
       { id: "settings", label: "Definições" },
     ];
   }
@@ -122,14 +141,15 @@ export class TitleActivity implements Activity {
       case "party":
       case "micro":
       case "race":
+      case "dizme":
+      case "snap":
         this.rt.run(new LobbyActivity({ mode: item.id }));
         return;
-      case "aulas":
-        this.menu = "aulas";
-        // Start on the next lesson in book order.
+      case "aprender":
+        this.menu = "aprender";
         this.focus = Math.max(0, LESSONS.findIndex((l) => l.id === nextLessonId()));
         break;
-      case "arcade":
+      case "jogos":
       case "settings":
         this.menu = item.id;
         this.focus = 0;
@@ -161,16 +181,23 @@ export class TitleActivity implements Activity {
   }
 }
 
-const MAIN_INDEX: Record<string, number> = { aulas: 1, arcade: 2, settings: 5 };
-
 /* -------------------------------------------------------------------------- */
 /* Lobby: ready check                                                          */
 /* -------------------------------------------------------------------------- */
 
 export function specTitle(spec: ModeSpec): string {
-  if (spec.mode === "lesson") return getLesson(spec.lessonId ?? "")?.title ?? "Aula";
-  return { party: "Noite de Festa", micro: "Micro Loucura", race: "Turbo Corrida" }[spec.mode];
+  if (spec.mode === "lesson") return getLesson(spec.lessonId ?? "")?.title ?? "Lição";
+  return { party: "Noite de Festa", micro: "Micro Loucura", race: "Turbo Corrida", dizme: "Diz-me!", snap: "Apanha!" }[spec.mode];
 }
+
+const SPEC_HINT: Record<Mode, string> = {
+  lesson: "Cada um no seu telemóvel, ao seu ritmo. Sem pressa!",
+  party: "Todos os jogos seguidos.",
+  micro: "Microjogos rápidos no telemóvel.",
+  race: "Responde certo e rápido para acelerar.",
+  dizme: "Um diz a palavra em português, o outro toca na imagem certa. Juntos contra o relógio!",
+  snap: "A TV diz uma palavra. Bate no telemóvel quando a imagem certa aparecer!",
+};
 
 export class LobbyActivity implements Activity {
   readonly id = "lobby";
@@ -184,6 +211,10 @@ export class LobbyActivity implements Activity {
 
   get title() {
     return specTitle(this.spec);
+  }
+
+  get hint() {
+    return SPEC_HINT[this.spec.mode];
   }
 
   start(rt: TvRuntime) {
@@ -280,67 +311,113 @@ export class IntroActivity implements Activity {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Results                                                                     */
+/* Results (+ what next)                                                       */
 /* -------------------------------------------------------------------------- */
+
+export interface ResultOption {
+  id: string;
+  label: string;
+  sub?: string;
+  go: () => void;
+}
+
+export interface ResultsInfo {
+  spec: ModeSpec;
+  title: string;
+  race?: RaceResult;
+  /** After a lesson: per-player XP / accuracy, and the words learned. */
+  lesson?: { summaries: LearnSummary[]; words: LearnCard[] };
+  /** Co-op games: the team score. */
+  coop?: { score: number; record: number; isRecord: boolean };
+  /** Versus games with their own points (Apanha!). */
+  points?: Map<string, number>;
+  options: ResultOption[];
+}
 
 export class ResultsActivity implements Activity {
   readonly id = "results";
   rt!: TvRuntime;
   readonly ranking: RuntimePlayer[] = [];
-  readonly title: string;
-  readonly race?: RaceResult;
-  readonly spec: ModeSpec;
+  readonly info: ResultsInfo;
+  focus = 0;
   startAt = 0;
+  private readonly promptId = randomId(6);
 
-  constructor(spec: ModeSpec, title: string, race?: RaceResult) {
-    this.spec = spec;
-    this.title = title;
-    this.race = race;
+  constructor(info: ResultsInfo) {
+    this.info = info;
+  }
+
+  get title() {
+    return this.info.title;
   }
 
   start(rt: TvRuntime) {
     this.rt = rt;
     this.startAt = gameNow();
-    this.ranking.push(...rt.sessionPlayers.sort((a, b) => b.score - a.score));
+    const score = (p: RuntimePlayer) =>
+      this.info.lesson ? (this.info.lesson.summaries.find((s) => s.playerId === p.playerId)?.xp ?? 0) : (this.info.points?.get(p.playerId) ?? p.score);
+    this.ranking.push(...rt.sessionPlayers.sort((a, b) => score(b) - score(a)));
     playMusic("title");
     sfx.fanfare();
     const [a, b] = this.ranking;
-    if (a && b && a.score === b.score) rt.say({ type: "tie" }, true, 4000);
+    if (this.info.lesson || this.info.coop) {
+      if (a) rt.say({ type: "lessonDone", name: this.ranking.map((p) => p.name).join(" e ") }, true, 3500);
+    } else if (a && b && score(a) === score(b)) rt.say({ type: "tie" }, true, 4000);
     else if (a && b) {
       rt.say({ type: "win", name: a.name, other: b.name }, true, 4200);
-      rt.perf(a, this.spec.mode, "win");
+      rt.perf(a, this.info.spec.mode, "win");
     } else if (a) rt.say({ type: "solo", name: a.name }, true, 4000);
     for (const p of rt.activePlayers) rt.view(p, this.viewFor(p));
     void rt.learner.sync().then(() => rt.learner.pushSnapshot());
   }
 
+  scoreOf(p: RuntimePlayer): number {
+    if (this.info.lesson) return this.info.lesson.summaries.find((s) => s.playerId === p.playerId)?.xp ?? 0;
+    return this.info.points?.get(p.playerId) ?? p.score;
+  }
+
   tick() {}
 
+  private choose(i: number) {
+    const o = this.info.options[i];
+    if (!o) return;
+    sfx.select();
+    o.go();
+  }
+
   onNav(dir: NavDir) {
-    if (dir === "ok") {
-      sfx.select();
-      this.rt.run(new LobbyActivity(this.next));
-    } else if (dir === "back") this.rt.run(new TitleActivity());
+    const n = this.info.options.length;
+    if (dir === "up" || dir === "down") {
+      this.focus = (this.focus + (dir === "up" ? -1 : 1) + n) % n;
+      sfx.nav();
+      this.rt.bump();
+    } else if (dir === "ok") this.choose(this.focus);
+    else if (dir === "back") this.rt.run(new TitleActivity());
   }
 
-  /** After a lesson, "OK" moves on to the next lesson; otherwise it replays the mode. */
-  get next(): ModeSpec {
-    if (this.spec.mode !== "lesson") return this.spec;
-    const i = LESSONS.findIndex((l) => l.id === this.spec.lessonId);
-    return { mode: "lesson", lessonId: LESSONS[(i + 1) % LESSONS.length]!.id };
-  }
-
-  get nextLabel(): string {
-    return this.spec.mode === "lesson" ? `Próxima aula: ${specTitle(this.next)}` : "Mais uma!";
+  onInput(_p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
+    if (value.mode !== "pick" || promptId !== this.promptId) return;
+    this.choose(this.info.options.findIndex((o) => o.id === value.id));
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
     const rank = this.ranking.indexOf(p) + 1;
+    const lesson = this.info.lesson?.summaries.find((s) => s.playerId === p.playerId);
+    const title = lesson
+      ? `${"⭐".repeat(lesson.stars)} +${lesson.xp} XP`
+      : this.info.coop
+        ? `Equipa: ${this.info.coop.score} ${this.info.coop.isRecord ? "🏆 RECORDE!" : ""}`
+        : rank === 1 && this.ranking.length > 1
+          ? "🏆 Ganhaste!"
+          : `${rank}.º lugar`;
+    const subtitle = lesson ? `${lesson.correct}/${lesson.graded} certas · melhor sequência ${lesson.bestStreak}` : this.info.coop ? `Recorde: ${this.info.coop.record}` : `${this.scoreOf(p)} pontos`;
     return {
-      mode: "results",
-      title: rank === 1 ? "🏆 Ganhaste!" : `${rank}.º lugar`,
-      lines: [`${p.score} pontos`, `OK = ${this.nextLabel}`],
-      review: p.missed.slice(0, 8).map((m) => ({ pt: m.answer, why: m.why })),
+      mode: "pick",
+      roundId: "results",
+      promptId: this.promptId,
+      title,
+      subtitle,
+      options: this.info.options.map((o) => ({ id: o.id, label: o.label, sub: o.sub })),
     };
   }
 }
@@ -349,34 +426,109 @@ export class ResultsActivity implements Activity {
 /* Mode runner                                                                 */
 /* -------------------------------------------------------------------------- */
 
+function lessonsFor(spec: ModeSpec): Lesson[] {
+  const l = spec.lessonId ? getLesson(spec.lessonId) : undefined;
+  return l ? [l] : playableLessons();
+}
+
+function cardsFor(spec: ModeSpec): LearnCard[] {
+  return gameCards(lessonsFor(spec));
+}
+
 export function startMode(rt: TvRuntime, spec: ModeSpec) {
-  const results = (race?: RaceResult) => rt.run(new ResultsActivity(spec, specTitle(spec), race));
   rt.onRestart = () => {
     rt.resetSession();
     startMode(rt, spec);
   };
   rt.onQuit = () => rt.run(new TitleActivity());
+  const go = (s: ModeSpec) => () => {
+    rt.resetSession();
+    startMode(rt, s);
+  };
+  const menu = { id: "menu", label: "🏠 Menu", go: () => rt.run(new TitleActivity()) };
+  const two = rt.activePlayers.length >= 2;
+  const lessonId = spec.lessonId;
+  const games = (except: Mode): ResultOption[] => {
+    const out: ResultOption[] = [];
+    if (two && except !== "dizme") out.push({ id: "dizme", label: "🗣️ Diz-me!", sub: "Juntos: um diz, o outro adivinha", go: go({ mode: "dizme", lessonId }) });
+    if (except !== "snap") out.push({ id: "snap", label: "⚡ Apanha!", sub: "Um contra o outro: ouve e bate", go: go({ mode: "snap", lessonId }) });
+    return out;
+  };
+  const itemIds = lessonsFor(spec).flatMap((l) => l.itemIds);
+
   switch (spec.mode) {
-    case "micro":
-      rt.run(new MicroRush(() => results(), { total: 10 }));
-      return;
-    case "race":
-      rt.run(new TurboRace((r) => results(r), getLesson(nextLessonId())?.itemIds ?? []));
-      return;
     case "lesson": {
-      // Teach (Mini Aula) → Recognise/Produce (a short rush focused on the lesson) → results.
       const lesson = getLesson(spec.lessonId ?? "") ?? LESSONS[0]!;
-      rt.run(new MiniAula(() => rt.run(new MicroRush(() => results(), { total: 6, lessonItemIds: lesson.itemIds, lessonShare: 0.85 })), lesson.id));
-      return;
-    }
-    case "party": {
-      // Intro → Micro Loucura (warm-up) → Mini Aula (teach the next lesson) → Turbo Race (use it) → Results.
-      const lesson = getLesson(nextLessonId()) ?? LESSONS[0]!;
-      rt.run(
-        new IntroActivity("NOITE DE FESTA", () =>
-          rt.run(new MicroRush(() => rt.run(new MiniAula(() => rt.run(new TurboRace((r) => results(r), lesson.itemIds)), lesson.id)), { total: 8 })),
+      const next = LESSONS[(LESSONS.indexOf(lesson) + 1) % LESSONS.length]!;
+      const act = new LearnActivity(lesson, (summaries) =>
+        rt.run(
+          new ResultsActivity({
+            spec,
+            title: "Lição completa!",
+            lesson: { summaries, words: act.words },
+            options: [
+              ...games("lesson").map((o) => ({ ...o, label: `${o.label} com estas palavras` })),
+              { id: "next", label: `➡️ Próxima lição`, sub: next.title, go: go({ mode: "lesson", lessonId: next.id }) },
+              { id: "again", label: "↺ Repetir esta lição", go: go(spec) },
+              menu,
+            ],
+          }),
         ),
       );
+      rt.run(act);
+      return;
+    }
+    case "dizme": {
+      const act: DizMe = new DizMe(cardsFor(spec), (score) =>
+        rt.run(
+          new ResultsActivity({
+            spec,
+            title: act.newRecord ? "NOVO RECORDE!" : "Diz-me!",
+            coop: { score, record: act.record, isRecord: act.newRecord },
+            options: [{ id: "again", label: "↺ Jogar outra vez", go: go(spec) }, ...games("dizme"), menu],
+          }),
+        ),
+      );
+      rt.run(act);
+      return;
+    }
+    case "snap": {
+      const act: Apanha = new Apanha(cardsFor(spec), () =>
+        rt.run(
+          new ResultsActivity({
+            spec,
+            title: "Apanha!",
+            points: act.scores,
+            options: [{ id: "again", label: "↺ Jogar outra vez", go: go(spec) }, ...games("snap"), menu],
+          }),
+        ),
+      );
+      rt.run(act);
+      return;
+    }
+    case "micro":
+      rt.run(
+        new MicroRush(() => rt.run(new ResultsActivity({ spec, title: "Micro Loucura", options: [{ id: "again", label: "↺ Jogar outra vez", go: go(spec) }, ...games("micro"), menu] })), {
+          total: 8,
+          lessonItemIds: itemIds,
+          lessonShare: 0.7,
+        }),
+      );
+      return;
+    case "race":
+      rt.run(
+        new TurboRace((r) => rt.run(new ResultsActivity({ spec, title: "Turbo Corrida", race: r, options: [{ id: "again", label: "↺ Jogar outra vez", go: go(spec) }, ...games("race"), menu] })), itemIds),
+      );
+      return;
+    case "party": {
+      // Intro → Micro Loucura → Apanha! → Diz-me! (co-op) → Turbo Corrida → results.
+      const cards = cardsFor(spec);
+      const results = (r?: RaceResult) =>
+        rt.run(new ResultsActivity({ spec, title: "Noite de Festa", race: r, options: [{ id: "again", label: "↺ Outra noite!", go: go(spec) }, menu] }));
+      const race = () => rt.run(new TurboRace((r) => results(r), itemIds));
+      const dizme = () => (rt.activePlayers.length >= 2 ? rt.run(new DizMe(cards, () => race())) : race());
+      const snap = () => rt.run(new Apanha(cards, () => dizme(), 5));
+      rt.run(new IntroActivity("NOITE DE FESTA", () => rt.run(new MicroRush(() => snap(), { total: 6, lessonItemIds: itemIds, lessonShare: 0.7 }))));
       return;
     }
   }

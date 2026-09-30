@@ -5,15 +5,19 @@ import { useEffect, useRef, useState } from "react";
 import { audio, unlockAudio, setVolumes } from "../audio/sfx.ts";
 import { loadAudioManifest } from "../audio/tts.ts";
 import { stopMusic } from "../audio/music.ts";
-import { MiniAula } from "../games/aula/aula.ts";
+import { DizMe } from "../games/dizme/dizme.ts";
+import { LearnActivity } from "../games/learn/learn.ts";
 import { MicroRush } from "../games/micro/rush.ts";
 import { TurboRace } from "../games/race/race.ts";
+import { Apanha } from "../games/snap/snap.ts";
 import { publicBaseUrl } from "../net/socket.ts";
 import type { NavDir } from "../shared/protocol.ts";
 import { Avatar } from "../ui/Avatar.tsx";
 import { IntroActivity, LobbyActivity, ResultsActivity, TitleActivity } from "./activities.ts";
 import { getRuntime, SPEED_LABEL, useRuntime, type RuntimePlayer } from "./runtime.ts";
-import { AulaScreen } from "./screens/AulaScreen.tsx";
+import { DizMeScreen } from "./screens/DizMeScreen.tsx";
+import { LearnScreen } from "./screens/LearnScreen.tsx";
+import { SnapScreen } from "./screens/SnapScreen.tsx";
 import { MicroScreen } from "./screens/MicroScreen.tsx";
 import { RaceHud } from "./screens/RaceHud.tsx";
 import { blipLayout, Stage } from "./three/Stage.tsx";
@@ -74,12 +78,15 @@ export function TvApp() {
       {a instanceof IntroActivity && <IntroScreen a={a} />}
       {a instanceof MicroRush && <MicroScreen a={a} />}
       {a instanceof TurboRace && <RaceHud a={a} />}
-      {a instanceof MiniAula && <AulaScreen a={a} />}
+      {a instanceof LearnActivity && <LearnScreen a={a} />}
+      {a instanceof DizMe && <DizMeScreen a={a} />}
+      {a instanceof Apanha && <SnapScreen a={a} />}
       {a instanceof ResultsActivity && <ResultsScreen a={a} />}
       <BlipBubble />
       {rt.paused && <PauseScreen />}
       {!(a instanceof TitleActivity || a instanceof LobbyActivity) && rt.code && <JoinBadge code={rt.code} />}
       {rt.socket !== "open" && <div className="conn-warn">A ligar ao servidor…</div>}
+      {rt.tvVoiceMissing && <div className="voice-warn">🔇 Esta TV não tem voz portuguesa · o telemóvel lê em voz alta</div>}
       {showGate && (
         <div className="start-gate" onClick={() => setGate(false)}>
           <div>
@@ -142,10 +149,10 @@ function TitleScreen({ a }: { a: TitleActivity }) {
           </div>
           <div className="tagline">Jogos de festa · Português europeu A1 · TV + telemóveis</div>
         </div>
-        {a.menu !== "main" && <div className="menu-crumb">{{ aulas: "AULAS", arcade: "ARCADE", settings: "DEFINIÇÕES" }[a.menu]}</div>}
-        <div className={`menu ${a.menu === "aulas" ? "compact" : ""}`}>
-          {windowed(a.items, a.focus, a.menu === "aulas" ? 5 : 6).map(({ it, i }) => (
-            <div key={it.id} className={`menu-item ${i === a.focus ? "focus" : ""} ${it.disabled ? "disabled" : ""} ${it.badge?.startsWith("✓") ? "done" : ""}`}>
+        {a.menu !== "main" && <div className="menu-crumb">{{ aprender: "APRENDER", jogos: "JOGOS", settings: "DEFINIÇÕES" }[a.menu]}</div>}
+        <div className={`menu ${a.menu === "aprender" ? "compact" : ""}`}>
+          {windowed(a.items, a.focus, a.menu === "aprender" ? 5 : 6).map(({ it, i }) => (
+            <div key={it.id} className={`menu-item ${i === a.focus ? "focus" : ""} ${it.disabled ? "disabled" : ""} ${it.badge === "✓" ? "done" : ""} ${it.badge === "PRÓXIMA" ? "next" : ""}`}>
               <div>
                 <div className="mi-label">{it.label}</div>
                 {it.sub && <div className="mi-sub">{it.sub}</div>}
@@ -189,6 +196,7 @@ function LobbyScreen({ a }: { a: LobbyActivity }) {
           ))}
           <span className="lbl">◀ ▶</span>
         </div>
+        <div className="lobby-hint">{a.hint}</div>
         <div className="steps">
           1. Aponta a câmara ao <b>código QR</b>
           <br />
@@ -233,36 +241,76 @@ function IntroScreen({ a }: { a: IntroActivity }) {
 }
 
 function ResultsScreen({ a }: { a: ResultsActivity }) {
+  const info = a.info;
+  const lesson = info.lesson;
+  const heading = lesson ? "LIÇÃO COMPLETA!" : info.coop ? (info.coop.isRecord ? "NOVO RECORDE!" : "BOA EQUIPA!") : a.ranking.length > 1 ? `${a.ranking[0]!.name} GANHA!` : "FIM!";
   return (
     <div className="tv-overlay results-screen">
-      <h1>{a.ranking.length > 1 ? `${a.ranking[0]!.name} GANHA!` : "FIM!"}</h1>
+      <h1>{heading}</h1>
+      {info.coop && (
+        <div className="coop-score">
+          <span className="n">{info.coop.score}</span> palavras juntos · recorde {info.coop.record}
+        </div>
+      )}
       <div className="results-cols">
-        {a.ranking.map((p, i) => (
-          <div key={p.playerId} className="panel result-card" data-color={p.color} style={{ animationDelay: `${i * 0.2}s` }}>
-            <h2>
-              <Avatar kind={p.avatar} color={p.color} size={56} mood={i === 0 ? "happy" : "sad"} />
-              {i + 1}.º {p.name}
-            </h2>
-            <div className="pts">{p.score} pts</div>
-            {p.missed.length > 0 ? (
-              <>
-                <div className="review-tag">PARA REVER</div>
-                <ul>
-                  {p.missed.slice(0, 5).map((m) => (
-                    <li key={m.answer}>
-                      {m.answer} {m.why && <span>— {m.why}</span>}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <div className="review-tag">SEM ERROS! 🤯</div>
-            )}
+        {a.ranking.map((p, i) => {
+          const sum = lesson?.summaries.find((s) => s.playerId === p.playerId);
+          return (
+            <div key={p.playerId} className="panel result-card" data-color={p.color} style={{ animationDelay: `${i * 0.2}s` }}>
+              <h2>
+                <Avatar kind={p.avatar} color={p.color} size={56} mood={lesson || info.coop || i === 0 ? "happy" : "sad"} />
+                {lesson || info.coop ? p.name : `${i + 1}.º ${p.name}`}
+              </h2>
+              {sum ? (
+                <>
+                  <div className="pts">{"⭐".repeat(sum.stars)} {sum.xp} XP</div>
+                  <div className="review-tag">
+                    {sum.correct}/{sum.graded} certas · 🔥 {sum.bestStreak}
+                  </div>
+                </>
+              ) : (
+                !info.coop && <div className="pts">{a.scoreOf(p)} pts</div>
+              )}
+              {p.missed.length > 0 ? (
+                <>
+                  <div className="review-tag">PARA REVER</div>
+                  <ul>
+                    {p.missed.slice(0, 4).map((m) => (
+                      <li key={m.answer}>
+                        {m.answer} {m.why && <span>— {m.why}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <div className="review-tag">SEM ERROS! 🤯</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {lesson && lesson.words.length > 0 && (
+        <div className="word-wall static">
+          <div className="review-tag">APRENDERAM</div>
+          <div className="chips-row">
+            {lesson.words.map((w) => (
+              <span key={w.itemId} className="word-chip">
+                {w.emoji && w.emoji !== w.en && <b>{w.emoji}</b>}
+                {w.pt} <i>= {w.en}</i>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="next-menu">
+        {info.options.map((o, i) => (
+          <div key={o.id} className={`menu-item ${i === a.focus ? "focus" : ""}`}>
+            <div>
+              <div className="mi-label">{o.label}</div>
+              {o.sub && <div className="mi-sub">{o.sub}</div>}
+            </div>
           </div>
         ))}
-      </div>
-      <div className="hint-bar" style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
-        OK = {a.nextLabel} · Voltar = Menu
       </div>
     </div>
   );

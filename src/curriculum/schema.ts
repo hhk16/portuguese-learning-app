@@ -99,6 +99,8 @@ export const ErrorItem = z.object({
   tokens: z.array(z.string()).min(2).max(10),
   wrongIndex: z.number().int().nonnegative(),
   fix: z.string(),
+  /** English meaning of the corrected sentence. */
+  en: z.string().optional(),
 });
 
 /** Gap sentence: "Nós ___ portugueses." */

@@ -35,7 +35,23 @@ if (typeof speechSynthesis !== "undefined") speechSynthesis.onvoiceschanged = ()
 
 let currentAudio: HTMLAudioElement | null = null;
 
+/** Whether this device can speak Portuguese (null = voices not loaded yet). */
+export function hasPortugueseVoice(): boolean | null {
+  if (manifest && Object.keys(manifest).length > 0) return true;
+  if (typeof speechSynthesis === "undefined") return false;
+  const voices = speechSynthesis.getVoices();
+  if (voices.length === 0) return null;
+  return voices.some((v) => v.lang.toLowerCase().startsWith("pt"));
+}
+
+/** Name of the Portuguese voice in use (for the settings screen). */
+export function voiceName(): string | null {
+  return pickVoice()?.name ?? null;
+}
+
 export interface SpeakOpts {
+  /** Learner mode: slower, clearer. */
+  slow?: boolean;
   rate?: number;
   pitch?: number;
   /** MC voice: always device TTS, higher pitch. */
@@ -60,7 +76,7 @@ export function speak(text: string, opts: SpeakOpts = {}): Promise<void> {
     u.lang = "pt-PT";
     const v = pickVoice();
     if (v) u.voice = v;
-    u.rate = opts.rate ?? (opts.character ? 1.1 : 0.92);
+    u.rate = opts.rate ?? (opts.character ? 1.1 : opts.slow ? 0.62 : 0.9);
     u.pitch = opts.pitch ?? (opts.character ? 1.6 : 1);
     u.onend = () => resolve();
     u.onerror = () => resolve();
@@ -68,6 +84,16 @@ export function speak(text: string, opts: SpeakOpts = {}): Promise<void> {
     speechSynthesis.speak(u);
     setTimeout(resolve, 6000); // never hang the game on a broken TTS engine
   });
+}
+
+/** iOS only lets speech start inside a user gesture the first time: call from a tap handler. */
+let primed = false;
+export function primeSpeech() {
+  if (primed || typeof speechSynthesis === "undefined") return;
+  primed = true;
+  const u = new SpeechSynthesisUtterance(" ");
+  u.volume = 0;
+  speechSynthesis.speak(u);
 }
 
 export function stopSpeech() {

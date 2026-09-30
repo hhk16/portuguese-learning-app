@@ -22,6 +22,8 @@ interface PromptBase {
   sub?: string;
   /** Text spoken by TTS after the answer (always the correct PT). */
   audio?: string;
+  /** Text spoken when the question appears (never gives the answer away). */
+  ask?: string;
   /** Correct answer as displayed in feedback. */
   answerText: string;
   why?: string;
@@ -87,6 +89,7 @@ export function choiceFromItem(item: KnowledgeItem, rng: Rng, pool?: readonly Kn
         tier: 1,
         headline: `${item.flag} + ${GENDER_EMOJI[slot]}`,
         sub: slot === "ms" ? "Ele é…" : slot === "fs" ? "Ela é…" : slot === "mp" ? "Eles são…" : "Elas são…",
+        ask: slot === "ms" ? "Ele é…" : slot === "fs" ? "Ela é…" : slot === "mp" ? "Eles são…" : "Elas são…",
         answerText: correct,
         audio: `${slot === "ms" ? "Ele é" : slot === "fs" ? "Ela é" : slot === "mp" ? "Eles são" : "Elas são"} ${correct}.`,
         why: item.why,
@@ -104,6 +107,7 @@ export function choiceFromItem(item: KnowledgeItem, rng: Rng, pool?: readonly Kn
         tier: 1,
         headline: `${item.emoji} ${fem ? "👩" : "👨"}`,
         sub: fem ? "Ela é…" : "Ele é…",
+        ask: fem ? "Ela é…" : "Ele é…",
         answerText: correct,
         audio: `${fem ? "Ela" : "Ele"} é ${correct}.`,
         why: item.why,
@@ -116,7 +120,7 @@ export function choiceFromItem(item: KnowledgeItem, rng: Rng, pool?: readonly Kn
         itemIds: [item.id, ...(item.targets ?? [])],
         tier: 1,
         headline: item.text,
-        sub: item.en,
+        ask: askGap(item.text),
         answerText: item.answer,
         audio: item.text.replace("___", item.answer),
         why: item.why ?? whyOfTargets(item),
@@ -131,6 +135,7 @@ export function choiceFromItem(item: KnowledgeItem, rng: Rng, pool?: readonly Kn
         itemIds: [item.id],
         tier: 1,
         headline: `Sou ___ ${item.place}.`,
+        ask: `Sou… ${item.place}.`,
         visual: item.emoji,
         answerText: item.form,
         audio: `Sou ${item.form}.`,
@@ -145,6 +150,7 @@ export function choiceFromItem(item: KnowledgeItem, rng: Rng, pool?: readonly Kn
         itemIds: [item.id],
         tier: 1,
         headline: `${PERSON_SHORT[item.person]} · ${item.verb}`,
+        ask: `${PERSON_SHORT[item.person]}… verbo ${item.verb.replace(" (de)", "")}`,
         answerText: `${PERSON_SHORT[item.person]} ${item.form}`,
         audio: `${PERSON_SHORT[item.person]} ${item.form}`,
         why: item.why,
@@ -198,6 +204,11 @@ function choice(
   return { ...rest, format: "choice", options, correctId: options.find((o) => o.label === p.correct)!.id };
 }
 
+/** Read a gap sentence aloud with a pause where the gap is. */
+function askGap(text: string): string {
+  return text.replace("___", "…").replace(" ?", "?");
+}
+
 function whyOfTargets(f: ItemOf<"frame">): string | undefined {
   return f.targets?.length ? undefined : undefined;
 }
@@ -213,16 +224,19 @@ export function tilesFromItem(item: KnowledgeItem, rng: Rng): TilesPrompt | null
   let answer: string;
   let headline: string;
   let audio: string;
+  let ask: string | undefined;
   let ids = [item.id];
   if (item.kind === "frame" && item.answer.length <= 8 && !item.answer.includes(" ")) {
     answer = item.answer;
     headline = item.text;
     audio = item.text.replace("___", item.answer);
+    ask = askGap(item.text);
     ids = [item.id, ...(item.targets ?? [])];
   } else if (item.kind === "conjugation" && item.form.length <= 8 && !item.form.includes("-")) {
     answer = item.form;
     headline = `${PERSON_SHORT[item.person]} · ${item.verb}`;
     audio = `${PERSON_SHORT[item.person]} ${item.form}`;
+    ask = `${PERSON_SHORT[item.person]}… verbo ${item.verb.replace(" (de)", "")}`;
   } else return null;
 
   const letters = [...answer];
@@ -239,6 +253,7 @@ export function tilesFromItem(item: KnowledgeItem, rng: Rng): TilesPrompt | null
     headline,
     answerText: answer,
     audio,
+    ask,
     why: item.why,
     tiles: rng.shuffle(all),
     correctSeq: letters.map((_, i) => `t${i}`),
@@ -263,6 +278,7 @@ export function errorTapFromItem(item: KnowledgeItem): ErrorTapPrompt | null {
     itemIds: [item.id],
     tier: 1,
     headline: item.tokens.join(" "),
+    ask: item.tokens.join(" "),
     answerText: fixed,
     audio: fixed,
     why: item.why,
@@ -297,6 +313,7 @@ export function mergeFromItem(item: KnowledgeItem): MergePrompt | null {
     itemIds: [item.id, ...(item.targets ?? [])],
     tier: 2,
     headline: item.text,
+    ask: askGap(item.text),
     answerText: item.answer,
     audio: item.text.replace("___", item.answer),
     why: c.art === "none" ? "Sem artigo (ex.: cidades): fica só a preposição." : `${c.prep} + ${c.art} = ${item.answer}`,
@@ -382,6 +399,7 @@ export function sayFromItem(item: KnowledgeItem): SayPrompt | null {
       tier: 2,
       headline: item.target,
       sub: `(não é "${item.contrast}")`,
+      ask: item.target,
       answerText: item.target,
       audio: item.target,
       why: item.hint,

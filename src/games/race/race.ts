@@ -20,6 +20,7 @@ import { selectItem } from "../../learner/selector.ts";
 import { randomId } from "../../shared/ids.ts";
 import type { ControllerView, InputValue, NavDir } from "../../shared/protocol.ts";
 import { sfx } from "../../audio/sfx.ts";
+import { subWithEnglish } from "../micro/rush.ts";
 import { playMusic } from "../../audio/music.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 
@@ -245,6 +246,7 @@ export class TurboRace implements Activity {
     this.question = { roundId: randomId(6), promptId: randomId(6), prompt, startAt: now, endAt: now + qms, answers: new Map() };
     this.setPhase("question", now, qms);
     sfx.blip();
+    if (prompt.ask) this.rt.speakPt(prompt.ask, { slow: this.rt.settings.speed === "calma" });
     for (const p of this.rt.activePlayers) this.rt.conn.sendView(p.playerId, this.questionView(p));
   }
 
@@ -259,7 +261,7 @@ export class TurboRace implements Activity {
       promptId: q.promptId,
       deadline: q.endAt,
       title: "TURBO!",
-      card: { visual: q.prompt.visual, headline: q.prompt.headline, sub: q.prompt.sub },
+      card: { visual: q.prompt.visual, headline: q.prompt.headline, sub: subWithEnglish(q.prompt, p) },
       options: q.prompt.options,
       ink: k?.ink ?? 0,
       hud: this.hud(p),
@@ -337,7 +339,8 @@ export class TurboRace implements Activity {
 
   repeat() {
     const q = this.question;
-    if (q) this.rt.speakPt(q.prompt.audio ?? q.prompt.answerText);
+    if (q && this.phase === "question") this.rt.speakPt(q.prompt.ask, { slow: true });
+    else if (q) this.rt.speakPt(q.prompt.audio ?? q.prompt.answerText);
   }
 
   private closeQuestion(now: number) {

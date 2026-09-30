@@ -1,7 +1,7 @@
 /** Micro Loucura overlay: verb slam → prompt + fuse → (judge) → reveal stamps. */
 import { gameNow } from "../clock.ts";
 import { useEffect, useState } from "react";
-import { MICRO_DEFS, type MicroRush } from "../../games/micro/rush.ts";
+import { MICRO_DEFS, tvEnglish, type MicroRush } from "../../games/micro/rush.ts";
 import { isCorrectOutcome } from "../../learner/events.ts";
 import { Avatar } from "../../ui/Avatar.tsx";
 import { getRuntime } from "../runtime.ts";
@@ -80,6 +80,8 @@ export function MicroScreen({ a }: { a: MicroRush }) {
   const reveal = a.phase === "reveal";
   const reviewName = r.reviewFor ? players.find((p) => p.profile.profileId === r.reviewFor)?.name : undefined;
 
+  const en = tvEnglish(q, players);
+  const enLine = en ? <div className="prompt-en">🇬🇧 {en}</div> : null;
   let body: React.ReactNode;
   switch (q.format) {
     case "choice":
@@ -90,6 +92,7 @@ export function MicroScreen({ a }: { a: MicroRush }) {
             <Headline text={q.headline} fill={reveal ? q.answerText.split(" ")[0] : undefined} />
           </div>
           {q.sub && <div className="prompt-sub">{q.sub}</div>}
+          {enLine}
           <div className="options">
             {q.options.map((o) => (
               <div key={o.id} className={`option ${reveal ? (o.id === q.correctId ? "right" : "dim") : ""}`}>
@@ -106,6 +109,7 @@ export function MicroScreen({ a }: { a: MicroRush }) {
           <div className="prompt-headline">
             <Headline text={q.headline.includes("___") ? q.headline : `${q.headline} → ___`} fill={reveal ? q.answerText : undefined} />
           </div>
+          {enLine}
           <div className="options">
             {q.tiles.map((t) => (
               <div key={t.id} className="option" style={{ minWidth: "5rem" }}>
@@ -128,6 +132,7 @@ export function MicroScreen({ a }: { a: MicroRush }) {
             ))}
           </div>
           {reveal && <div className="reveal-answer" style={{ marginTop: "1.6rem" }}>{q.answerText}</div>}
+          {reveal && enLine}
         </>
       );
       break;
@@ -137,6 +142,7 @@ export function MicroScreen({ a }: { a: MicroRush }) {
           <div className="prompt-headline">
             <Headline text={q.headline} fill={reveal ? q.answerText : undefined} />
           </div>
+          {enLine}
           <div className="merge-row" style={{ fontSize: "4.4rem", marginTop: "1.4rem" }}>
             {reveal ? (
               <>

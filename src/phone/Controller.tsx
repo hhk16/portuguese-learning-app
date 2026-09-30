@@ -6,19 +6,41 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { PhoneConnection } from "../net/phone.ts";
 import { SPEEDS, type ControllerView, type InputValue, type PromptCard, type Speed } from "../shared/protocol.ts";
 import { unlockAudio } from "../audio/sfx.ts";
+import { primeSpeech } from "../audio/tts.ts";
+import { getRecognizer, type SR } from "./speech.ts";
+import { Learn, sayHere } from "./Learn.tsx";
 
 type ViewOf<M extends ControllerView["mode"]> = Extract<ControllerView, { mode: M }>;
+const NO_TITLE = new Set<ControllerView["mode"]>(["wait", "results", "paused", "pick"]);
 type Send = (value: InputValue) => void;
 
 export function Controller({ view, conn }: { view: ControllerView; conn: PhoneConnection }) {
   const send: Send = (value) => {
     if ("roundId" in view && "promptId" in view) conn.input(view.roundId, view.promptId, value);
   };
-  // Remount per prompt so local state (selected tiles etc.) resets.
-  const key = "promptId" in view ? `${view.mode}:${view.promptId}` : view.mode + ("title" in view ? view.title : "");
+  // Remount per prompt so local state (selected tiles etc.) resets. (Diz-me! re-sends the same
+  // prompt with fewer options after a wrong guess: that must reset the picked state too.)
+  const key = "promptId" in view ? `${view.mode}:${view.promptId}:${"options" in view ? view.options.length : ""}` : view.mode + ("title" in view ? view.title : "");
+  const canRepeat = "card" in view && view.mode !== "describe" && !view.card?.quiet;
   return (
-    <div key={key} style={{ display: "contents" }} onPointerDown={unlockAudio}>
-      {"title" in view && view.mode !== "wait" && view.mode !== "results" && view.mode !== "paused" && view.title && <h1 className="p-title">{view.title}</h1>}
+    <div
+      key={key}
+      style={{ display: "contents" }}
+      onPointerDown={() => {
+        unlockAudio();
+        primeSpeech();
+      }}
+    >
+      {"title" in view && !NO_TITLE.has(view.mode) && view.title && (
+        <h1 className="p-title">
+          {view.title}
+          {canRepeat && (
+            <button className="repeat-btn" onClick={() => conn.menu("repeat")} aria-label="Ouvir outra vez">
+              🔊
+            </button>
+          )}
+        </h1>
+      )}
       {"deadline" in view && <Timer conn={conn} deadline={view.deadline} />}
       <Body view={view} conn={conn} send={send} />
     </div>
@@ -33,6 +55,14 @@ function Body({ view, conn, send }: { view: ControllerView; conn: PhoneConnectio
       return <Lobby v={view} conn={conn} />;
     case "paused":
       return <Paused v={view} conn={conn} />;
+    case "learn":
+      return <Learn v={view} conn={conn} />;
+    case "describe":
+      return <Describe v={view} conn={conn} send={send} />;
+    case "buzzer":
+      return <Buzzer v={view} conn={conn} send={send} />;
+    case "pick":
+      return <Pick v={view} send={send} />;
     case "remote":
       return <Remote conn={conn} hint={view.hint} />;
     case "choices":
@@ -272,7 +302,7 @@ function Choices({ v, send }: { v: ViewOf<"choices">; send: Send }) {
     <>
       {v.hud && <div className="p-sub pixel" style={{ fontSize: 11 }}>{v.hud}</div>}
       <Card card={v.card} fallback={v.question} />
-      <div className="choice-stack">
+      <div className={`choice-stack ${v.layout === "grid" ? "grid" : ""}`}>
         {v.options.map((o) => (
           <button
             key={o.id}
@@ -509,25 +539,6 @@ function useStreamWord(stream: ViewOf<"tapStream">["stream"], conn: PhoneConnect
 
 /* ----------------------------------- mic ---------------------------------- */
 
-type SR = {
-  lang: string;
-  interimResults: boolean;
-  maxAlternatives: number;
-  continuous: boolean;
-  start(): void;
-  stop(): void;
-  abort(): void;
-  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> }) => void) | null;
-  onerror: ((e: { error: string }) => void) | null;
-  onend: (() => void) | null;
-};
-
-function getRecognizer(): SR | null {
-  const w = window as unknown as { SpeechRecognition?: new () => SR; webkitSpeechRecognition?: new () => SR };
-  const C = w.SpeechRecognition ?? w.webkitSpeechRecognition;
-  return C ? new C() : null;
-}
-
 function Mic({ v, send }: { v: ViewOf<"mic">; send: Send }) {
   const [state, setState] = useState<"idle" | "listening" | "sent">("idle");
   const [heard, setHeard] = useState("");
@@ -678,6 +689,89 @@ function LessonStep({ v, conn, send }: { v: ViewOf<"lesson">; conn: PhoneConnect
       <button className="bbtn" disabled={!v.canContinue} onClick={() => send({ mode: "lesson", ok: true })} style={{ minHeight: 96 }}>
         {v.canContinue ? "👍 Percebi!" : "✅ À espera do teu par…"}
       </button>
+    </>
+  );
+}
+
+/* ------------------------------- Diz-me! ------------------------------- */
+
+function Describe({ v, conn, send }: { v: ViewOf<"describe">; conn: PhoneConnection; send: Send }) {
+  return (
+    <>
+      <div className="p-sub">
+        Diz em voz alta para <b>{v.partner}</b> — sem inglês! 🤫
+      </div>
+      <div className="p-card describe-card">
+        {v.card.emoji && v.card.emoji !== v.card.en && <div className="pc-visual">{v.card.emoji}</div>}
+        <div className="pc-head">{v.card.pt}</div>
+        <div className="pc-sub">{v.card.en}</div>
+      </div>
+      <button className="bbtn ghost" onClick={() => sayHere(conn, v.card.say, true)}>
+        🔊 Como se diz? (baixinho)
+      </button>
+      <div style={{ flex: 1 }} />
+      <div className="p-question">{v.score} ✓</div>
+      <button className="bbtn alt" onClick={() => send({ mode: "describe", action: "skip" })}>
+        ⏭ Passar
+      </button>
+    </>
+  );
+}
+
+/* ------------------------------- Apanha! ------------------------------- */
+
+function Buzzer({ v, conn, send }: { v: ViewOf<"buzzer">; conn: PhoneConnection; send: Send }) {
+  const live = v.state === "go";
+  const text = { listen: "OUVE…", go: "BATE!", stunned: "🥶 CONGELADO", won: "🎉 APANHASTE!", lost: "😅" }[v.state];
+  return (
+    <>
+      {v.label && <div className="p-question">{v.label}</div>}
+      <button
+        className={`buzzer ${v.state}`}
+        disabled={!live}
+        onPointerDown={() => {
+          if (!live) return;
+          navigator.vibrate?.(35);
+          send({ mode: "buzz", tapHostTime: conn.hostNow() ?? 0 });
+        }}
+      >
+        {text}
+      </button>
+      <div className="p-sub">
+        {v.score} pontos · {live ? "bate quando a imagem certa aparecer na TV!" : "olha para a TV"}
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------ menu pick ------------------------------ */
+
+function Pick({ v, send }: { v: ViewOf<"pick">; send: Send }) {
+  const [sent, setSent] = useState(false);
+  return (
+    <>
+      <h1 className="p-title">{v.title}</h1>
+      {v.subtitle && <div className="p-sub">{v.subtitle}</div>}
+      <div style={{ flex: 1 }} />
+      <div className="choice-stack">
+        {v.options.map((o, i) => (
+          <button
+            key={o.id}
+            className={`bbtn ${i === 0 ? "" : "ghost"}`}
+            disabled={sent}
+            onClick={() => {
+              setSent(true);
+              navigator.vibrate?.(15);
+              send({ mode: "pick", id: o.id });
+            }}
+          >
+            <span>
+              {o.label}
+              {o.sub && <small className="opt-sub">{o.sub}</small>}
+            </span>
+          </button>
+        ))}
+      </div>
     </>
   );
 }

@@ -46,6 +46,7 @@ export class PhoneConnection {
   private readonly profile: JoinProfile;
   onView: (v: ControllerView) => void = () => {};
   onFx: (fx: "buzz" | "success" | "fail" | "boost") => void = () => {};
+  onSpeak: (text: string) => void = () => {};
   onState: (s: PhoneState) => void = () => {};
   onSocket: (s: SocketStatus) => void = () => {};
 
@@ -126,6 +127,7 @@ export class PhoneConnection {
         } else if (body.k === "ack") {
           for (const id of body.messageIds) this.pending.delete(id);
         } else if (body.k === "fx") this.onFx(body.fx);
+        else if (body.k === "speak") this.onSpeak(body.text);
         else if (body.k === "resync") {
           this.clock.reset();
           this.startPings(true);
