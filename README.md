@@ -47,6 +47,11 @@ E2E_MODE=race npm run e2e       # micro | race | aula
 - **Clock:** phones keep an NTP-style offset to the TV's monotonic `performance.now()`. Buzzers are resolved by synced timestamp.
 - **Persistence:** the TV holds the learner model locally and syncs events and snapshots to Postgres (`DATABASE_URL`), authenticated with a household secret. The server stores only its hash. Phones never get household credentials.
 
+### Hosting
+
+- **Railway** (primary): the full server (static build + WebSocket relay + API) and Postgres.
+- **Vercel** (optional, for previews): `vercel.json` builds only the static client. It connects to the Railway relay (`VITE_WS_URL`) and proxies `/api` to Railway, because Vercel can't host a persistent WebSocket server.
+
 ### Environment
 
 | Var | Purpose |
