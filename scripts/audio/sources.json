@@ -1,0 +1,2802 @@
+{
+ "a ana tem um gato.": {
+  "file": "76cb6fa52b.mp3",
+  "lengthScale": 1.12,
+  "say": "A Ana tem um gato.",
+  "source": "piper",
+  "text": "A Ana tem um gato.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a ana é de braga.": {
+  "file": "cf80de07ff.mp3",
+  "lengthScale": 1.12,
+  "say": "A Ana é de Braga.",
+  "source": "piper",
+  "text": "A Ana é de Braga.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a ana é de lisboa.": {
+  "file": "7037a3a102.mp3",
+  "lengthScale": 1.12,
+  "say": "A Ana é de Lisboa.",
+  "source": "piper",
+  "text": "A Ana é de Lisboa.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a banana": {
+  "file": "b8f042550e.mp3",
+  "lengthScale": 1.12,
+  "say": "a banana.",
+  "source": "piper",
+  "text": "a banana",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a batata": {
+  "file": "46d0d39c14.mp3",
+  "lengthScale": 1.12,
+  "say": "a batata.",
+  "source": "piper",
+  "text": "a batata",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a bicicleta": {
+  "file": "bdf3137fee.mp3",
+  "lengthScale": 1.12,
+  "say": "a bicicleta.",
+  "source": "piper",
+  "text": "a bicicleta",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a bola": {
+  "file": "70a0351c95.mp3",
+  "lengthScale": 1.12,
+  "say": "a bola.",
+  "source": "piper",
+  "text": "a bola",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a cabeça": {
+  "file": "882812bb53.mp3",
+  "lengthScale": 1.12,
+  "say": "a cabeça.",
+  "source": "piper",
+  "text": "a cabeça",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a cadeira": {
+  "file": "23f3f8964b.mp3",
+  "lengthScale": 1.12,
+  "say": "a cadeira.",
+  "source": "piper",
+  "text": "a cadeira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a cama": {
+  "file": "3b7f5e9c90.mp3",
+  "lengthScale": 1.12,
+  "say": "a cama.",
+  "source": "piper",
+  "text": "a cama",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a camisola": {
+  "file": "7b1cfbf3ec.mp3",
+  "lengthScale": 1.12,
+  "say": "a camisola.",
+  "source": "piper",
+  "text": "a camisola",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a casa": {
+  "file": "effd0bfc79.mp3",
+  "lengthScale": 1.12,
+  "say": "a casa.",
+  "source": "piper",
+  "text": "a casa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a cenoura": {
+  "file": "27bc7ec685.mp3",
+  "lengthScale": 1.12,
+  "say": "a cenoura.",
+  "source": "piper",
+  "text": "a cenoura",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a cerveja": {
+  "file": "d16846e1a7.mp3",
+  "lengthScale": 1.12,
+  "say": "a cerveja.",
+  "source": "piper",
+  "text": "a cerveja",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a chave": {
+  "file": "a891933836.mp3",
+  "lengthScale": 1.12,
+  "say": "a chave.",
+  "source": "piper",
+  "text": "a chave",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a christine é alemã.": {
+  "file": "860b037188.mp3",
+  "lengthScale": 1.12,
+  "say": "A Christine é alemã.",
+  "source": "piper",
+  "text": "A Christine é alemã.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a christine é da alemanha.": {
+  "file": "6f88e20894.mp3",
+  "lengthScale": 1.12,
+  "say": "A Christine é da Alemanha.",
+  "source": "piper",
+  "text": "A Christine é da Alemanha.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a christine é jornalista.": {
+  "file": "ca4664af99.mp3",
+  "lengthScale": 1.12,
+  "say": "A Christine é jornalista.",
+  "source": "piper",
+  "text": "A Christine é jornalista.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a chuva": {
+  "file": "a92c36333c.mp3",
+  "lengthScale": 1.12,
+  "say": "a chuva.",
+  "source": "piper",
+  "text": "a chuva",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a emily é dos estados unidos.": {
+  "file": "67d651e2b6.mp3",
+  "lengthScale": 1.12,
+  "say": "A Emily é dos Estados Unidos.",
+  "source": "piper",
+  "text": "A Emily é dos Estados Unidos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a escola": {
+  "file": "2f98e17987.mp3",
+  "lengthScale": 1.12,
+  "say": "a escola.",
+  "source": "piper",
+  "text": "a escola",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a faca": {
+  "file": "02d2167ae0.mp3",
+  "lengthScale": 1.12,
+  "say": "a faca.",
+  "source": "piper",
+  "text": "a faca",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a flor": {
+  "file": "16f66c4620.mp3",
+  "lengthScale": 1.12,
+  "say": "a flor.",
+  "source": "piper",
+  "text": "a flor",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a frigideira": {
+  "file": "9bc3062aaa.mp3",
+  "lengthScale": 1.12,
+  "say": "a frigideira.",
+  "source": "piper",
+  "text": "a frigideira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a guitarra": {
+  "file": "a94573c544.mp3",
+  "lengthScale": 1.12,
+  "say": "a guitarra.",
+  "source": "piper",
+  "text": "a guitarra",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a laranja": {
+  "file": "2ce61be951.mp3",
+  "lengthScale": 1.12,
+  "say": "a laranja.",
+  "source": "piper",
+  "text": "a laranja",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a lua": {
+  "file": "549fb3624a.mp3",
+  "lengthScale": 1.12,
+  "say": "a lua.",
+  "source": "piper",
+  "text": "a lua",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a mara é do brasil.": {
+  "file": "5821f107fb.mp3",
+  "lengthScale": 1.12,
+  "say": "A Mara é do Brasil.",
+  "source": "piper",
+  "text": "A Mara é do Brasil.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a maçã": {
+  "file": "78fb0ce4d3.mp3",
+  "lengthScale": 1.12,
+  "say": "a maçã.",
+  "source": "piper",
+  "text": "a maçã",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a mochila": {
+  "file": "051687a589.mp3",
+  "lengthScale": 1.12,
+  "say": "a mochila.",
+  "source": "piper",
+  "text": "a mochila",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a montanha": {
+  "file": "d7ebaf92fc.mp3",
+  "lengthScale": 1.12,
+  "say": "a montanha.",
+  "source": "piper",
+  "text": "a montanha",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a mão": {
+  "file": "340edb9b21.mp3",
+  "lengthScale": 1.12,
+  "say": "a mão.",
+  "source": "piper",
+  "text": "a mão",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a natalie mora no porto.": {
+  "file": "b1d93834ed.mp3",
+  "lengthScale": 1.12,
+  "say": "A Natalie mora no Porto.",
+  "source": "piper",
+  "text": "A Natalie mora no Porto.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a neve": {
+  "file": "1be7583edb.mp3",
+  "lengthScale": 1.12,
+  "say": "a neve.",
+  "source": "piper",
+  "text": "a neve",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a orelha": {
+  "file": "7d232d9873.mp3",
+  "lengthScale": 1.12,
+  "say": "a orelha.",
+  "source": "piper",
+  "text": "a orelha",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a pizza": {
+  "file": "43a1d73a74.mp3",
+  "lengthScale": 1.12,
+  "say": "a pizza.",
+  "source": "piper",
+  "text": "a pizza",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a praia": {
+  "file": "698f7c5801.mp3",
+  "lengthScale": 1.12,
+  "say": "a praia.",
+  "source": "piper",
+  "text": "a praia",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a salada": {
+  "file": "c6d2b19d03.mp3",
+  "lengthScale": 1.12,
+  "say": "a salada.",
+  "source": "piper",
+  "text": "a salada",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a sapatilha": {
+  "file": "13f2a9999e.mp3",
+  "lengthScale": 1.12,
+  "say": "a sapatilha.",
+  "source": "piper",
+  "text": "a sapatilha",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a sopa": {
+  "file": "b9ecef7774.mp3",
+  "lengthScale": 1.12,
+  "say": "a sopa.",
+  "source": "piper",
+  "text": "a sopa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a televisão": {
+  "file": "7dc94e58e2.mp3",
+  "lengthScale": 1.12,
+  "say": "a televisão.",
+  "source": "piper",
+  "text": "a televisão",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a uva": {
+  "file": "381b1caaa7.mp3",
+  "lengthScale": 1.12,
+  "say": "a uva.",
+  "source": "piper",
+  "text": "a uva",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a yuki é japonesa.": {
+  "file": "5d84b13533.mp3",
+  "lengthScale": 1.12,
+  "say": "A Yuki é japonesa.",
+  "source": "piper",
+  "text": "A Yuki é japonesa.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a água": {
+  "file": "840c18fec4.mp3",
+  "lengthScale": 1.12,
+  "say": "a água.",
+  "source": "piper",
+  "text": "a água",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a árvore": {
+  "file": "d819fdea6d.mp3",
+  "lengthScale": 1.12,
+  "say": "a árvore.",
+  "source": "piper",
+  "text": "a árvore",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "adeus!": {
+  "file": "a33a4c9962.mp3",
+  "lengthScale": 1.12,
+  "say": "Adeus!",
+  "source": "piper",
+  "text": "Adeus!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "advogada": {
+  "file": "33fda44416.mp3",
+  "lengthScale": 1.12,
+  "say": "advogada.",
+  "source": "piper",
+  "text": "advogada",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "advogado": {
+  "file": "2de6961e10.mp3",
+  "lengthScale": 1.12,
+  "say": "advogado.",
+  "source": "piper",
+  "text": "advogado",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "advogado, advogada": {
+  "file": "8088762ddb.mp3",
+  "lengthScale": 1.12,
+  "say": "advogado, advogada.",
+  "source": "piper",
+  "text": "advogado, advogada",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "alemã": {
+  "file": "56c71de0dc.mp3",
+  "lengthScale": 1.12,
+  "say": "alemã.",
+  "source": "piper",
+  "text": "alemã",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "alemão": {
+  "file": "49a30688da.mp3",
+  "lengthScale": 1.12,
+  "say": "alemão.",
+  "source": "piper",
+  "text": "alemão",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "alemão, alemã": {
+  "file": "764a86a685.mp3",
+  "lengthScale": 1.12,
+  "say": "alemão, alemã.",
+  "source": "piper",
+  "text": "alemão, alemã",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "angolana": {
+  "file": "f5056883cb.mp3",
+  "lengthScale": 1.12,
+  "say": "angolana.",
+  "source": "piper",
+  "text": "angolana",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "angolano": {
+  "file": "f8f1c925f4.mp3",
+  "lengthScale": 1.12,
+  "say": "angolano.",
+  "source": "piper",
+  "text": "angolano",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "angolano, angolana": {
+  "file": "bec37d37f0.mp3",
+  "lengthScale": 1.12,
+  "say": "angolano, angolana.",
+  "source": "piper",
+  "text": "angolano, angolana",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "arquiteta": {
+  "file": "ff705d9bc0.mp3",
+  "lengthScale": 1.12,
+  "say": "arquiteta.",
+  "source": "piper",
+  "text": "arquiteta",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "arquiteto": {
+  "file": "1542fc5aed.mp3",
+  "lengthScale": 1.12,
+  "say": "arquiteto.",
+  "source": "piper",
+  "text": "arquiteto",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "arquiteto, arquiteta": {
+  "file": "c32094c00c.mp3",
+  "lengthScale": 1.12,
+  "say": "arquiteto, arquiteta.",
+  "source": "piper",
+  "text": "arquiteto, arquiteta",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "até amanhã!": {
+  "file": "73e9657901.mp3",
+  "lengthScale": 1.12,
+  "say": "Até amanhã!",
+  "source": "piper",
+  "text": "Até amanhã!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "até logo!": {
+  "file": "9909501c16.mp3",
+  "lengthScale": 1.12,
+  "say": "Até logo!",
+  "source": "piper",
+  "text": "Até logo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "barato, barata": {
+  "file": "9a67ac392a.mp3",
+  "lengthScale": 1.12,
+  "say": "barato, barata.",
+  "source": "piper",
+  "text": "barato, barata",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "barulhento, barulhenta": {
+  "file": "0ed709e719.mp3",
+  "lengthScale": 1.12,
+  "say": "barulhento, barulhenta.",
+  "source": "piper",
+  "text": "barulhento, barulhenta",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "belga": {
+  "file": "cc7bd7084f.mp3",
+  "lengthScale": 1.12,
+  "say": "belga.",
+  "source": "piper",
+  "text": "belga",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "boa noite!": {
+  "file": "cd00fc0757.mp3",
+  "lengthScale": 1.12,
+  "say": "Boa noite!",
+  "source": "piper",
+  "text": "Boa noite!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "boa tarde!": {
+  "file": "ec28049c3d.mp3",
+  "lengthScale": 1.12,
+  "say": "Boa tarde!",
+  "source": "piper",
+  "text": "Boa tarde!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bom dia!": {
+  "file": "26dec598f4.mp3",
+  "lengthScale": 1.12,
+  "say": "Bom dia!",
+  "source": "piper",
+  "text": "Bom dia!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bom, boa": {
+  "file": "4735d579e7.mp3",
+  "lengthScale": 1.12,
+  "say": "bom, boa.",
+  "source": "piper",
+  "text": "bom, boa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bonito, bonita": {
+  "file": "39b4565e4c.mp3",
+  "lengthScale": 1.12,
+  "say": "bonito, bonita.",
+  "source": "piper",
+  "text": "bonito, bonita",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "brasileira": {
+  "file": "4edbff01a0.mp3",
+  "lengthScale": 1.12,
+  "say": "brasileira.",
+  "source": "piper",
+  "text": "brasileira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "brasileiro": {
+  "file": "bd5e064dd5.mp3",
+  "lengthScale": 1.12,
+  "say": "brasileiro.",
+  "source": "piper",
+  "text": "brasileiro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "brasileiro, brasileira": {
+  "file": "7b5632e933.mp3",
+  "lengthScale": 1.12,
+  "say": "brasileiro, brasileira.",
+  "source": "piper",
+  "text": "brasileiro, brasileira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "cabeleireira": {
+  "file": "b612f7b792.mp3",
+  "lengthScale": 1.12,
+  "say": "cabeleireira.",
+  "source": "piper",
+  "text": "cabeleireira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "cabeleireiro": {
+  "file": "6c6a79d8ea.mp3",
+  "lengthScale": 1.12,
+  "say": "cabeleireiro.",
+  "source": "piper",
+  "text": "cabeleireiro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "cabeleireiro, cabeleireira": {
+  "file": "4da7fa77ff.mp3",
+  "lengthScale": 1.12,
+  "say": "cabeleireiro, cabeleireira.",
+  "source": "piper",
+  "text": "cabeleireiro, cabeleireira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "calmo, calma": {
+  "file": "7a210b8944.mp3",
+  "lengthScale": 1.12,
+  "say": "calmo, calma.",
+  "source": "piper",
+  "text": "calmo, calma",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "canadiana": {
+  "file": "c6f5abee2f.mp3",
+  "lengthScale": 1.12,
+  "say": "canadiana.",
+  "source": "piper",
+  "text": "canadiana",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "canadiano": {
+  "file": "a71c1cdd65.mp3",
+  "lengthScale": 1.12,
+  "say": "canadiano.",
+  "source": "piper",
+  "text": "canadiano",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "canadiano, canadiana": {
+  "file": "4a468ef561.mp3",
+  "lengthScale": 1.12,
+  "say": "canadiano, canadiana.",
+  "source": "piper",
+  "text": "canadiano, canadiana",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "caro, cara": {
+  "file": "359a91ea66.mp3",
+  "lengthScale": 1.12,
+  "say": "caro, cara.",
+  "source": "piper",
+  "text": "caro, cara",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "catorze": {
+  "file": "e6fd6f6f16.mp3",
+  "lengthScale": 1.12,
+  "say": "catorze.",
+  "source": "piper",
+  "text": "catorze",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "chinesa": {
+  "file": "dfe436e0ed.mp3",
+  "lengthScale": 1.12,
+  "say": "chinesa.",
+  "source": "piper",
+  "text": "chinesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "chinês": {
+  "file": "e1c21cce5a.mp3",
+  "lengthScale": 1.12,
+  "say": "chinês.",
+  "source": "piper",
+  "text": "chinês",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "chinês, chinesa": {
+  "file": "9affe526ba.mp3",
+  "lengthScale": 1.12,
+  "say": "chinês, chinesa.",
+  "source": "piper",
+  "text": "chinês, chinesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "cinco": {
+  "file": "cc9aa81f8c.mp3",
+  "lengthScale": 1.12,
+  "say": "cinco.",
+  "source": "piper",
+  "text": "cinco",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "como se diz em português?": {
+  "file": "ef64e50b6e.mp3",
+  "lengthScale": 1.12,
+  "say": "Como se diz em português?",
+  "source": "piper",
+  "text": "Como se diz  em português?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "cozinheira": {
+  "file": "d7cde03ea4.mp3",
+  "lengthScale": 1.12,
+  "say": "cozinheira.",
+  "source": "piper",
+  "text": "cozinheira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "cozinheiro": {
+  "file": "69007456b9.mp3",
+  "lengthScale": 1.12,
+  "say": "cozinheiro.",
+  "source": "piper",
+  "text": "cozinheiro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "cozinheiro, cozinheira": {
+  "file": "2d0ba8d7ec.mp3",
+  "lengthScale": 1.12,
+  "say": "cozinheiro, cozinheira.",
+  "source": "piper",
+  "text": "cozinheiro, cozinheira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "da": {
+  "file": "215842f1d0.mp3",
+  "lengthScale": 1.12,
+  "say": "da.",
+  "source": "piper",
+  "text": "da",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "das": {
+  "file": "279e444b2f.mp3",
+  "lengthScale": 1.12,
+  "say": "das.",
+  "source": "piper",
+  "text": "das",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "de nada.": {
+  "file": "d873c51903.mp3",
+  "lengthScale": 1.12,
+  "say": "De nada.",
+  "source": "piper",
+  "text": "De nada.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dentista": {
+  "file": "569206808d.mp3",
+  "lengthScale": 1.12,
+  "say": "dentista.",
+  "source": "piper",
+  "text": "dentista",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "desculpe.": {
+  "file": "0de2a439a5.mp3",
+  "lengthScale": 1.12,
+  "say": "Desculpe.",
+  "source": "piper",
+  "text": "Desculpe.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dez": {
+  "file": "2865f8f666.mp3",
+  "lengthScale": 1.12,
+  "say": "dez.",
+  "source": "piper",
+  "text": "dez",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dezanove": {
+  "file": "cc9e589a0a.mp3",
+  "lengthScale": 1.12,
+  "say": "dezanove.",
+  "source": "piper",
+  "text": "dezanove",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dezasseis": {
+  "file": "c1b2bd4a36.mp3",
+  "lengthScale": 1.12,
+  "say": "dezasseis.",
+  "source": "piper",
+  "text": "dezasseis",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dezassete": {
+  "file": "4cdcf5170b.mp3",
+  "lengthScale": 1.12,
+  "say": "dezassete.",
+  "source": "piper",
+  "text": "dezassete",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dezoito": {
+  "file": "73c5669af8.mp3",
+  "lengthScale": 1.12,
+  "say": "dezoito.",
+  "source": "piper",
+  "text": "dezoito",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "difícil": {
+  "file": "9470875e5a.mp3",
+  "lengthScale": 1.12,
+  "say": "difícil.",
+  "source": "piper",
+  "text": "difícil",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "do": {
+  "file": "849e5b33d3.mp3",
+  "lengthScale": 1.12,
+  "say": "do.",
+  "source": "piper",
+  "text": "do",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dois": {
+  "file": "71ecb7f2a8.mp3",
+  "lengthScale": 1.12,
+  "say": "dois.",
+  "source": "piper",
+  "text": "dois",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dos": {
+  "file": "c4d54e2dc7.mp3",
+  "lengthScale": 1.12,
+  "say": "dos.",
+  "source": "piper",
+  "text": "dos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "doze": {
+  "file": "36d23ab58b.mp3",
+  "lengthScale": 1.12,
+  "say": "doze.",
+  "source": "piper",
+  "text": "doze",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "economista": {
+  "file": "9076be2d5e.mp3",
+  "lengthScale": 1.12,
+  "say": "economista.",
+  "source": "piper",
+  "text": "economista",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "egípcia": {
+  "file": "a7bc30a4b4.mp3",
+  "lengthScale": 1.12,
+  "say": "egípcia.",
+  "source": "piper",
+  "text": "egípcia",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "egípcio": {
+  "file": "3097542af9.mp3",
+  "lengthScale": 1.12,
+  "say": "egípcio.",
+  "source": "piper",
+  "text": "egípcio",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "egípcio, egípcia": {
+  "file": "82eb8ec251.mp3",
+  "lengthScale": 1.12,
+  "say": "egípcio, egípcia.",
+  "source": "piper",
+  "text": "egípcio, egípcia",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela chama-se": {
+  "file": "27adf4bc23.mp3",
+  "lengthScale": 1.12,
+  "say": "ela chama-se.",
+  "source": "piper",
+  "text": "ela chama-se",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela estuda": {
+  "file": "d903239111.mp3",
+  "lengthScale": 1.12,
+  "say": "ela estuda.",
+  "source": "piper",
+  "text": "ela estuda",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela estuda na universidade.": {
+  "file": "ebb90f2c7e.mp3",
+  "lengthScale": 1.12,
+  "say": "Ela estuda na universidade.",
+  "source": "piper",
+  "text": "Ela estuda na universidade.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela fala": {
+  "file": "c30572383d.mp3",
+  "lengthScale": 1.12,
+  "say": "ela fala.",
+  "source": "piper",
+  "text": "ela fala",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela gosta": {
+  "file": "e4fe530134.mp3",
+  "lengthScale": 1.12,
+  "say": "ela gosta.",
+  "source": "piper",
+  "text": "ela gosta",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela mora": {
+  "file": "7148afab71.mp3",
+  "lengthScale": 1.12,
+  "say": "ela mora.",
+  "source": "piper",
+  "text": "ela mora",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela tem": {
+  "file": "9967e1f182.mp3",
+  "lengthScale": 1.12,
+  "say": "ela tem.",
+  "source": "piper",
+  "text": "ela tem",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela tem dois filhos.": {
+  "file": "b786e056e5.mp3",
+  "lengthScale": 1.12,
+  "say": "Ela tem dois filhos.",
+  "source": "piper",
+  "text": "Ela tem dois filhos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela trabalha": {
+  "file": "046924b442.mp3",
+  "lengthScale": 1.12,
+  "say": "ela trabalha.",
+  "source": "piper",
+  "text": "ela trabalha",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela trabalha na alemanha.": {
+  "file": "1c81fa25b3.mp3",
+  "lengthScale": 1.12,
+  "say": "Ela trabalha na Alemanha.",
+  "source": "piper",
+  "text": "Ela trabalha na Alemanha.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela trabalha num hospital.": {
+  "file": "f41ee283b7.mp3",
+  "lengthScale": 1.12,
+  "say": "Ela trabalha num hospital.",
+  "source": "piper",
+  "text": "Ela trabalha num hospital.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ela é": {
+  "file": "14d226d1fa.mp3",
+  "lengthScale": 1.12,
+  "say": "ela é.",
+  "source": "piper",
+  "text": "ela é",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "elas são das maldivas.": {
+  "file": "0f12558643.mp3",
+  "lengthScale": 1.12,
+  "say": "Elas são das Maldivas.",
+  "source": "piper",
+  "text": "Elas são das Maldivas.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "elas trabalham nos estados unidos.": {
+  "file": "0e05b20a59.mp3",
+  "lengthScale": 1.12,
+  "say": "Elas trabalham nos Estados Unidos.",
+  "source": "piper",
+  "text": "Elas trabalham nos Estados Unidos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ele chama-se tomás.": {
+  "file": "2fab62aad2.mp3",
+  "lengthScale": 1.12,
+  "say": "Ele chama-se Tomás.",
+  "source": "piper",
+  "text": "Ele chama-se Tomás.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ele estuda na suécia.": {
+  "file": "7dd6034e54.mp3",
+  "lengthScale": 1.12,
+  "say": "Ele estuda na Suécia.",
+  "source": "piper",
+  "text": "Ele estuda na Suécia.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles chamam-se": {
+  "file": "b1976acc4e.mp3",
+  "lengthScale": 1.12,
+  "say": "eles chamam-se.",
+  "source": "piper",
+  "text": "eles chamam-se",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles estudam": {
+  "file": "cf4348d930.mp3",
+  "lengthScale": 1.12,
+  "say": "eles estudam.",
+  "source": "piper",
+  "text": "eles estudam",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles estudam na universidade.": {
+  "file": "6450f18ec9.mp3",
+  "lengthScale": 1.12,
+  "say": "Eles estudam na universidade.",
+  "source": "piper",
+  "text": "Eles estudam na universidade.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles falam": {
+  "file": "d763cbee63.mp3",
+  "lengthScale": 1.12,
+  "say": "eles falam.",
+  "source": "piper",
+  "text": "eles falam",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles gostam": {
+  "file": "074b3df127.mp3",
+  "lengthScale": 1.12,
+  "say": "eles gostam.",
+  "source": "piper",
+  "text": "eles gostam",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles moram": {
+  "file": "27a6526f99.mp3",
+  "lengthScale": 1.12,
+  "say": "eles moram.",
+  "source": "piper",
+  "text": "eles moram",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles moram em coimbra.": {
+  "file": "7286375945.mp3",
+  "lengthScale": 1.12,
+  "say": "Eles moram em Coimbra.",
+  "source": "piper",
+  "text": "Eles moram em Coimbra.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles moram nos açores.": {
+  "file": "51d913ac01.mp3",
+  "lengthScale": 1.12,
+  "say": "Eles moram nos Açores.",
+  "source": "piper",
+  "text": "Eles moram nos Açores.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles são": {
+  "file": "7dc5295acb.mp3",
+  "lengthScale": 1.12,
+  "say": "eles são.",
+  "source": "piper",
+  "text": "eles são",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles são espanhóis.": {
+  "file": "fb88407317.mp3",
+  "lengthScale": 1.12,
+  "say": "Eles são espanhóis.",
+  "source": "piper",
+  "text": "Eles são espanhóis.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles trabalham": {
+  "file": "3296779bf1.mp3",
+  "lengthScale": 1.12,
+  "say": "eles trabalham.",
+  "source": "piper",
+  "text": "eles trabalham",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles trabalham no hospital.": {
+  "file": "329f4f1cc2.mp3",
+  "lengthScale": 1.12,
+  "say": "Eles trabalham no hospital.",
+  "source": "piper",
+  "text": "Eles trabalham no hospital.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles têm": {
+  "file": "febff826b7.mp3",
+  "lengthScale": 1.12,
+  "say": "eles têm.",
+  "source": "piper",
+  "text": "eles têm",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles têm dois filhos.": {
+  "file": "0bb3adc04e.mp3",
+  "lengthScale": 1.12,
+  "say": "Eles têm dois filhos.",
+  "source": "piper",
+  "text": "Eles têm dois filhos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eles têm muitos amigos.": {
+  "file": "f1979a0007.mp3",
+  "lengthScale": 1.12,
+  "say": "Eles têm muitos amigos.",
+  "source": "piper",
+  "text": "Eles têm muitos amigos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "empregada de mesa": {
+  "file": "b72bb8b7b8.mp3",
+  "lengthScale": 1.12,
+  "say": "empregada de mesa.",
+  "source": "piper",
+  "text": "empregada de mesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "empregado de mesa": {
+  "file": "3ac2ec5f78.mp3",
+  "lengthScale": 1.12,
+  "say": "empregado de mesa.",
+  "source": "piper",
+  "text": "empregado de mesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "empregado de mesa, empregada de mesa": {
+  "file": "1391c62435.mp3",
+  "lengthScale": 1.12,
+  "say": "empregado de mesa, empregada de mesa.",
+  "source": "piper",
+  "text": "empregado de mesa, empregada de mesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "enfermeira": {
+  "file": "185817bc7f.mp3",
+  "lengthScale": 1.12,
+  "say": "enfermeira.",
+  "source": "piper",
+  "text": "enfermeira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "enfermeiro": {
+  "file": "1d098065ee.mp3",
+  "lengthScale": 1.12,
+  "say": "enfermeiro.",
+  "source": "piper",
+  "text": "enfermeiro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "enfermeiro, enfermeira": {
+  "file": "c46d361da7.mp3",
+  "lengthScale": 1.12,
+  "say": "enfermeiro, enfermeira.",
+  "source": "piper",
+  "text": "enfermeiro, enfermeira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "engenheira": {
+  "file": "400b936e3c.mp3",
+  "lengthScale": 1.12,
+  "say": "engenheira.",
+  "source": "piper",
+  "text": "engenheira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "engenheiro": {
+  "file": "7f3300ea68.mp3",
+  "lengthScale": 1.12,
+  "say": "engenheiro.",
+  "source": "piper",
+  "text": "engenheiro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "engenheiro, engenheira": {
+  "file": "c9d2345b16.mp3",
+  "lengthScale": 1.12,
+  "say": "engenheiro, engenheira.",
+  "source": "piper",
+  "text": "engenheiro, engenheira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "escritor": {
+  "file": "9dfe2a3aba.mp3",
+  "lengthScale": 1.12,
+  "say": "escritor.",
+  "source": "piper",
+  "text": "escritor",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "escritor, escritora": {
+  "file": "f0b4decd35.mp3",
+  "lengthScale": 1.12,
+  "say": "escritor, escritora.",
+  "source": "piper",
+  "text": "escritor, escritora",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "escritora": {
+  "file": "9920a40872.mp3",
+  "lengthScale": 1.12,
+  "say": "escritora.",
+  "source": "piper",
+  "text": "escritora",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "espanhol": {
+  "file": "d6b273fd90.mp3",
+  "lengthScale": 1.12,
+  "say": "espanhol.",
+  "source": "piper",
+  "text": "espanhol",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "espanhol, espanhola": {
+  "file": "4c5e31964c.mp3",
+  "lengthScale": 1.12,
+  "say": "espanhol, espanhola.",
+  "source": "piper",
+  "text": "espanhol, espanhola",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "espanhola": {
+  "file": "f1882657e2.mp3",
+  "lengthScale": 1.12,
+  "say": "espanhola.",
+  "source": "piper",
+  "text": "espanhola",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "estudante": {
+  "file": "2b8f0e56bc.mp3",
+  "lengthScale": 1.12,
+  "say": "estudante.",
+  "source": "piper",
+  "text": "estudante",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu chamo-me": {
+  "file": "33b5d79385.mp3",
+  "lengthScale": 1.12,
+  "say": "eu chamo-me.",
+  "source": "piper",
+  "text": "eu chamo-me",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu chamo-me rui.": {
+  "file": "1b762a628d.mp3",
+  "lengthScale": 1.12,
+  "say": "Eu chamo-me Rui.",
+  "source": "piper",
+  "text": "Eu chamo-me Rui.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu chamo-me sofia.": {
+  "file": "906fd29231.mp3",
+  "lengthScale": 1.12,
+  "say": "Eu chamo-me Sofia.",
+  "source": "piper",
+  "text": "Eu chamo-me Sofia.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu estudo": {
+  "file": "16f0970934.mp3",
+  "lengthScale": 1.12,
+  "say": "eu estudo.",
+  "source": "piper",
+  "text": "eu estudo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu falo": {
+  "file": "3c7e48e32b.mp3",
+  "lengthScale": 1.12,
+  "say": "eu falo.",
+  "source": "piper",
+  "text": "eu falo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu falo inglês e português.": {
+  "file": "6550c71a09.mp3",
+  "lengthScale": 1.12,
+  "say": "Eu falo inglês e português.",
+  "source": "piper",
+  "text": "Eu falo inglês e português.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu gosto": {
+  "file": "e333f2743b.mp3",
+  "lengthScale": 1.12,
+  "say": "eu gosto.",
+  "source": "piper",
+  "text": "eu gosto",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu moro": {
+  "file": "06f4bc8304.mp3",
+  "lengthScale": 1.12,
+  "say": "eu moro.",
+  "source": "piper",
+  "text": "eu moro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu moro em lisboa.": {
+  "file": "0d2a517681.mp3",
+  "lengthScale": 1.12,
+  "say": "Eu moro em Lisboa.",
+  "source": "piper",
+  "text": "Eu moro em Lisboa.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu não me chamo paulo.": {
+  "file": "c9423d69c8.mp3",
+  "lengthScale": 1.12,
+  "say": "Eu não me chamo Paulo.",
+  "source": "piper",
+  "text": "Eu não me chamo Paulo.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu sou": {
+  "file": "380a174b3f.mp3",
+  "lengthScale": 1.12,
+  "say": "eu sou.",
+  "source": "piper",
+  "text": "eu sou",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu sou engenheiro.": {
+  "file": "d647a8b7d6.mp3",
+  "lengthScale": 1.12,
+  "say": "Eu sou engenheiro.",
+  "source": "piper",
+  "text": "Eu sou engenheiro.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu tenho": {
+  "file": "0b24088dd9.mp3",
+  "lengthScale": 1.12,
+  "say": "eu tenho.",
+  "source": "piper",
+  "text": "eu tenho",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu tenho 25 anos.": {
+  "file": "a9a79ff383.mp3",
+  "lengthScale": 1.12,
+  "say": "Eu tenho 25 anos.",
+  "source": "piper",
+  "text": "Eu tenho 25 anos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu tenho trinta anos.": {
+  "file": "a9bc616e49.mp3",
+  "lengthScale": 1.12,
+  "say": "Eu tenho trinta anos.",
+  "source": "piper",
+  "text": "Eu tenho trinta anos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "eu trabalho": {
+  "file": "d79c924b71.mp3",
+  "lengthScale": 1.12,
+  "say": "eu trabalho.",
+  "source": "piper",
+  "text": "eu trabalho",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "feio, feia": {
+  "file": "82f31a9e04.mp3",
+  "lengthScale": 1.12,
+  "say": "feio, feia.",
+  "source": "piper",
+  "text": "feio, feia",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "feliz": {
+  "file": "1baaa77e56.mp3",
+  "lengthScale": 1.12,
+  "say": "feliz.",
+  "source": "piper",
+  "text": "feliz",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "florista": {
+  "file": "91889d984a.mp3",
+  "lengthScale": 1.12,
+  "say": "florista.",
+  "source": "piper",
+  "text": "florista",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "francesa": {
+  "file": "379ea3fe2f.mp3",
+  "lengthScale": 1.12,
+  "say": "francesa.",
+  "source": "piper",
+  "text": "francesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "francês": {
+  "file": "16b91bf5f0.mp3",
+  "lengthScale": 1.12,
+  "say": "francês.",
+  "source": "piper",
+  "text": "francês",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "francês, francesa": {
+  "file": "fa2a839929.mp3",
+  "lengthScale": 1.12,
+  "say": "francês, francesa.",
+  "source": "piper",
+  "text": "francês, francesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "frio, fria": {
+  "file": "76a7c92551.mp3",
+  "lengthScale": 1.12,
+  "say": "frio, fria.",
+  "source": "piper",
+  "text": "frio, fria",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "fácil": {
+  "file": "93f36fa1a3.mp3",
+  "lengthScale": 1.12,
+  "say": "fácil.",
+  "source": "piper",
+  "text": "fácil",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "gestor": {
+  "file": "495e84193d.mp3",
+  "lengthScale": 1.12,
+  "say": "gestor.",
+  "source": "piper",
+  "text": "gestor",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "gestor, gestora": {
+  "file": "50157542ab.mp3",
+  "lengthScale": 1.12,
+  "say": "gestor, gestora.",
+  "source": "piper",
+  "text": "gestor, gestora",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "gestora": {
+  "file": "c6675d9f0d.mp3",
+  "lengthScale": 1.12,
+  "say": "gestora.",
+  "source": "piper",
+  "text": "gestora",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "grande": {
+  "file": "db07e0fc9e.mp3",
+  "lengthScale": 1.12,
+  "say": "grande.",
+  "source": "piper",
+  "text": "grande",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "guineense": {
+  "file": "bdca2b1e44.mp3",
+  "lengthScale": 1.12,
+  "say": "guineense.",
+  "source": "piper",
+  "text": "guineense",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "inglesa": {
+  "file": "ed290a9c39.mp3",
+  "lengthScale": 1.12,
+  "say": "inglesa.",
+  "source": "piper",
+  "text": "inglesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "inglês": {
+  "file": "3835ad73da.mp3",
+  "lengthScale": 1.12,
+  "say": "inglês.",
+  "source": "piper",
+  "text": "inglês",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "inglês, inglesa": {
+  "file": "6febecb91f.mp3",
+  "lengthScale": 1.12,
+  "say": "inglês, inglesa.",
+  "source": "piper",
+  "text": "inglês, inglesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "italiana": {
+  "file": "53a0d4e722.mp3",
+  "lengthScale": 1.12,
+  "say": "italiana.",
+  "source": "piper",
+  "text": "italiana",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "italiano": {
+  "file": "ec217b972d.mp3",
+  "lengthScale": 1.12,
+  "say": "italiano.",
+  "source": "piper",
+  "text": "italiano",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "italiano, italiana": {
+  "file": "95340b9e65.mp3",
+  "lengthScale": 1.12,
+  "say": "italiano, italiana.",
+  "source": "piper",
+  "text": "italiano, italiana",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "japonesa": {
+  "file": "ca1de740bd.mp3",
+  "lengthScale": 1.12,
+  "say": "japonesa.",
+  "source": "piper",
+  "text": "japonesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "japonês": {
+  "file": "d7a4dcaf8d.mp3",
+  "lengthScale": 1.12,
+  "say": "japonês.",
+  "source": "piper",
+  "text": "japonês",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "japonês, japonesa": {
+  "file": "0a1b5bccd5.mp3",
+  "lengthScale": 1.12,
+  "say": "japonês, japonesa.",
+  "source": "piper",
+  "text": "japonês, japonesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "jardineira": {
+  "file": "02e6d8cacf.mp3",
+  "lengthScale": 1.12,
+  "say": "jardineira.",
+  "source": "piper",
+  "text": "jardineira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "jardineiro": {
+  "file": "6c208187bb.mp3",
+  "lengthScale": 1.12,
+  "say": "jardineiro.",
+  "source": "piper",
+  "text": "jardineiro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "jardineiro, jardineira": {
+  "file": "66ed4567af.mp3",
+  "lengthScale": 1.12,
+  "say": "jardineiro, jardineira.",
+  "source": "piper",
+  "text": "jardineiro, jardineira",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "jornalista": {
+  "file": "d2237c7930.mp3",
+  "lengthScale": 1.12,
+  "say": "jornalista.",
+  "source": "piper",
+  "text": "jornalista",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "lento, lenta": {
+  "file": "93d71ee732.mp3",
+  "lengthScale": 1.12,
+  "say": "lento, lenta.",
+  "source": "piper",
+  "text": "lento, lenta",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "leve": {
+  "file": "876bdac0ef.mp3",
+  "lengthScale": 1.12,
+  "say": "leve.",
+  "source": "piper",
+  "text": "leve",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "limpo, limpa": {
+  "file": "7d496591fd.mp3",
+  "lengthScale": 1.12,
+  "say": "limpo, limpa.",
+  "source": "piper",
+  "text": "limpo, limpa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mais devagar, por favor.": {
+  "file": "110324a546.mp3",
+  "lengthScale": 1.12,
+  "say": "Mais devagar, por favor.",
+  "source": "piper",
+  "text": "Mais devagar, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mau, má": {
+  "file": "7376c21446.mp3",
+  "lengthScale": 1.12,
+  "say": "mau, má.",
+  "source": "piper",
+  "text": "mau, má",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "moro em faro.": {
+  "file": "11d9f55cdf.mp3",
+  "lengthScale": 1.12,
+  "say": "Moro em Faro.",
+  "source": "piper",
+  "text": "Moro em Faro.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "moro no porto.": {
+  "file": "5932a40e4a.mp3",
+  "lengthScale": 1.12,
+  "say": "Moro no Porto.",
+  "source": "piper",
+  "text": "Moro no Porto.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "motorista": {
+  "file": "cbe5dda5e3.mp3",
+  "lengthScale": 1.12,
+  "say": "motorista.",
+  "source": "piper",
+  "text": "motorista",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "médica": {
+  "file": "c0ba47a0bb.mp3",
+  "lengthScale": 1.12,
+  "say": "médica.",
+  "source": "piper",
+  "text": "médica",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "médico": {
+  "file": "09aaddbd84.mp3",
+  "lengthScale": 1.12,
+  "say": "médico.",
+  "source": "piper",
+  "text": "médico",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "médico, médica": {
+  "file": "f2c5af59fb.mp3",
+  "lengthScale": 1.12,
+  "say": "médico, médica.",
+  "source": "piper",
+  "text": "médico, médica",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "na": {
+  "file": "6a8f6aefef.mp3",
+  "lengthScale": 1.12,
+  "say": "na.",
+  "source": "piper",
+  "text": "na",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nas": {
+  "file": "8e7691ce45.mp3",
+  "lengthScale": 1.12,
+  "say": "nas.",
+  "source": "piper",
+  "text": "nas",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "no": {
+  "file": "03b46ec0a3.mp3",
+  "lengthScale": 1.12,
+  "say": "no.",
+  "source": "piper",
+  "text": "no",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "norte-americana": {
+  "file": "73ac67a2df.mp3",
+  "lengthScale": 1.12,
+  "say": "norte-americana.",
+  "source": "piper",
+  "text": "norte-americana",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "norte-americano": {
+  "file": "bd0a82b89f.mp3",
+  "lengthScale": 1.12,
+  "say": "norte-americano.",
+  "source": "piper",
+  "text": "norte-americano",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "norte-americano, norte-americana": {
+  "file": "4c81a06bbe.mp3",
+  "lengthScale": 1.12,
+  "say": "norte-americano, norte-americana.",
+  "source": "piper",
+  "text": "norte-americano, norte-americana",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "norueguesa": {
+  "file": "569d5d8ce0.mp3",
+  "lengthScale": 1.12,
+  "say": "norueguesa.",
+  "source": "piper",
+  "text": "norueguesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "norueguês": {
+  "file": "5d30982c3e.mp3",
+  "lengthScale": 1.12,
+  "say": "norueguês.",
+  "source": "piper",
+  "text": "norueguês",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "norueguês, norueguesa": {
+  "file": "901f279a67.mp3",
+  "lengthScale": 1.12,
+  "say": "norueguês, norueguesa.",
+  "source": "piper",
+  "text": "norueguês, norueguesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nos": {
+  "file": "f9228b1073.mp3",
+  "lengthScale": 1.12,
+  "say": "nos.",
+  "source": "piper",
+  "text": "nos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nove": {
+  "file": "2efa8302f8.mp3",
+  "lengthScale": 1.12,
+  "say": "nove.",
+  "source": "piper",
+  "text": "nove",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "novo, nova": {
+  "file": "bea6fc7a8c.mp3",
+  "lengthScale": 1.12,
+  "say": "novo, nova.",
+  "source": "piper",
+  "text": "novo, nova",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "não percebo.": {
+  "file": "db121d3ad0.mp3",
+  "lengthScale": 1.12,
+  "say": "Não percebo.",
+  "source": "piper",
+  "text": "Não percebo.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós chamamo-nos": {
+  "file": "4f06536bab.mp3",
+  "lengthScale": 1.12,
+  "say": "nós chamamo-nos.",
+  "source": "piper",
+  "text": "nós chamamo-nos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós estudamos": {
+  "file": "bd509a3ab7.mp3",
+  "lengthScale": 1.12,
+  "say": "nós estudamos.",
+  "source": "piper",
+  "text": "nós estudamos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós falamos": {
+  "file": "b73b1b3de5.mp3",
+  "lengthScale": 1.12,
+  "say": "nós falamos.",
+  "source": "piper",
+  "text": "nós falamos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós gostamos": {
+  "file": "1e7dd6db00.mp3",
+  "lengthScale": 1.12,
+  "say": "nós gostamos.",
+  "source": "piper",
+  "text": "nós gostamos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós moramos": {
+  "file": "020803720d.mp3",
+  "lengthScale": 1.12,
+  "say": "nós moramos.",
+  "source": "piper",
+  "text": "nós moramos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós moramos na alemanha.": {
+  "file": "aabffb80de.mp3",
+  "lengthScale": 1.12,
+  "say": "Nós moramos na Alemanha.",
+  "source": "piper",
+  "text": "Nós moramos na Alemanha.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós moramos no porto.": {
+  "file": "a8aa5898e6.mp3",
+  "lengthScale": 1.12,
+  "say": "Nós moramos no Porto.",
+  "source": "piper",
+  "text": "Nós moramos no Porto.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós somos": {
+  "file": "48c2874fac.mp3",
+  "lengthScale": 1.12,
+  "say": "nós somos.",
+  "source": "piper",
+  "text": "nós somos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós somos estudantes.": {
+  "file": "f8fa691118.mp3",
+  "lengthScale": 1.12,
+  "say": "Nós somos estudantes.",
+  "source": "piper",
+  "text": "Nós somos estudantes.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós somos portugueses.": {
+  "file": "6496503353.mp3",
+  "lengthScale": 1.12,
+  "say": "Nós somos portugueses.",
+  "source": "piper",
+  "text": "Nós somos portugueses.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós temos": {
+  "file": "3dfb7835b5.mp3",
+  "lengthScale": 1.12,
+  "say": "nós temos.",
+  "source": "piper",
+  "text": "nós temos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós temos um gato.": {
+  "file": "438a027bb3.mp3",
+  "lengthScale": 1.12,
+  "say": "Nós temos um gato.",
+  "source": "piper",
+  "text": "Nós temos um gato.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nós trabalhamos": {
+  "file": "38445ca543.mp3",
+  "lengthScale": 1.12,
+  "say": "nós trabalhamos.",
+  "source": "piper",
+  "text": "nós trabalhamos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o autocarro": {
+  "file": "0c348ca92d.mp3",
+  "lengthScale": 1.12,
+  "say": "o autocarro.",
+  "source": "piper",
+  "text": "o autocarro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o avião": {
+  "file": "c03ee34888.mp3",
+  "lengthScale": 1.12,
+  "say": "o avião.",
+  "source": "piper",
+  "text": "o avião",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o bolo": {
+  "file": "644049550f.mp3",
+  "lengthScale": 1.12,
+  "say": "o bolo.",
+  "source": "piper",
+  "text": "o bolo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o café": {
+  "file": "226c3272e6.mp3",
+  "lengthScale": 1.12,
+  "say": "o café.",
+  "source": "piper",
+  "text": "o café",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o carro": {
+  "file": "c092f71216.mp3",
+  "lengthScale": 1.12,
+  "say": "o carro.",
+  "source": "piper",
+  "text": "o carro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o chocolate": {
+  "file": "02a684a537.mp3",
+  "lengthScale": 1.12,
+  "say": "o chocolate.",
+  "source": "piper",
+  "text": "o chocolate",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o comboio": {
+  "file": "59d661848c.mp3",
+  "lengthScale": 1.12,
+  "say": "o comboio.",
+  "source": "piper",
+  "text": "o comboio",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o computador": {
+  "file": "22a8bed28c.mp3",
+  "lengthScale": 1.12,
+  "say": "o computador.",
+  "source": "piper",
+  "text": "o computador",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o croissant": {
+  "file": "e28d61475a.mp3",
+  "lengthScale": 1.12,
+  "say": "o croissant.",
+  "source": "piper",
+  "text": "o croissant",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o cão": {
+  "file": "ac0195dc31.mp3",
+  "lengthScale": 1.12,
+  "say": "o cão.",
+  "source": "piper",
+  "text": "o cão",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o dinheiro": {
+  "file": "cfea48788d.mp3",
+  "lengthScale": 1.12,
+  "say": "o dinheiro.",
+  "source": "piper",
+  "text": "o dinheiro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o elefante": {
+  "file": "358c948dea.mp3",
+  "lengthScale": 1.12,
+  "say": "o elefante.",
+  "source": "piper",
+  "text": "o elefante",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o fogo": {
+  "file": "099f1dd12a.mp3",
+  "lengthScale": 1.12,
+  "say": "o fogo.",
+  "source": "piper",
+  "text": "o fogo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o gato": {
+  "file": "63dded7447.mp3",
+  "lengthScale": 1.12,
+  "say": "o gato.",
+  "source": "piper",
+  "text": "o gato",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o gelado": {
+  "file": "32073adc63.mp3",
+  "lengthScale": 1.12,
+  "say": "o gelado.",
+  "source": "piper",
+  "text": "o gelado",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o gelo": {
+  "file": "78eebe4af4.mp3",
+  "lengthScale": 1.12,
+  "say": "o gelo.",
+  "source": "piper",
+  "text": "o gelo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o hospital": {
+  "file": "3c82c99a56.mp3",
+  "lengthScale": 1.12,
+  "say": "o hospital.",
+  "source": "piper",
+  "text": "o hospital",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o leite": {
+  "file": "d3dfce8b58.mp3",
+  "lengthScale": 1.12,
+  "say": "o leite.",
+  "source": "piper",
+  "text": "o leite",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o li é da china.": {
+  "file": "326227106a.mp3",
+  "lengthScale": 1.12,
+  "say": "O Li é da China.",
+  "source": "piper",
+  "text": "O Li é da China.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o livro": {
+  "file": "99718de054.mp3",
+  "lengthScale": 1.12,
+  "say": "o livro.",
+  "source": "piper",
+  "text": "o livro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o lápis": {
+  "file": "277a1861dc.mp3",
+  "lengthScale": 1.12,
+  "say": "o lápis.",
+  "source": "piper",
+  "text": "o lápis",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o morango": {
+  "file": "7eb46899ad.mp3",
+  "lengthScale": 1.12,
+  "say": "o morango.",
+  "source": "piper",
+  "text": "o morango",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o nori é do japão.": {
+  "file": "781846f19a.mp3",
+  "lengthScale": 1.12,
+  "say": "O Nori é do Japão.",
+  "source": "piper",
+  "text": "O Nori é do Japão.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o olho": {
+  "file": "6790215ea9.mp3",
+  "lengthScale": 1.12,
+  "say": "o olho.",
+  "source": "piper",
+  "text": "o olho",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o ovo": {
+  "file": "085dc74bb7.mp3",
+  "lengthScale": 1.12,
+  "say": "o ovo.",
+  "source": "piper",
+  "text": "o ovo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o pedro mora no brasil.": {
+  "file": "3901975db6.mp3",
+  "lengthScale": 1.12,
+  "say": "O Pedro mora no Brasil.",
+  "source": "piper",
+  "text": "O Pedro mora no Brasil.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o pedro é do brasil.": {
+  "file": "1f87340639.mp3",
+  "lengthScale": 1.12,
+  "say": "O Pedro é do Brasil.",
+  "source": "piper",
+  "text": "O Pedro é do Brasil.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o peixe": {
+  "file": "aeaa54accf.mp3",
+  "lengthScale": 1.12,
+  "say": "o peixe.",
+  "source": "piper",
+  "text": "o peixe",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o presente": {
+  "file": "b5b1eecf1c.mp3",
+  "lengthScale": 1.12,
+  "say": "o presente.",
+  "source": "piper",
+  "text": "o presente",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o pássaro": {
+  "file": "8d37aaf9c7.mp3",
+  "lengthScale": 1.12,
+  "say": "o pássaro.",
+  "source": "piper",
+  "text": "o pássaro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o pão": {
+  "file": "735f99fc1a.mp3",
+  "lengthScale": 1.12,
+  "say": "o pão.",
+  "source": "piper",
+  "text": "o pão",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o pé": {
+  "file": "4e52b735a5.mp3",
+  "lengthScale": 1.12,
+  "say": "o pé.",
+  "source": "piper",
+  "text": "o pé",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o que significa ?": {
+  "file": "752f05d695.mp3",
+  "lengthScale": 1.12,
+  "say": "O que significa?",
+  "source": "piper",
+  "text": "O que significa ?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o queijo": {
+  "file": "cf07c33dd6.mp3",
+  "lengthScale": 1.12,
+  "say": "o queijo.",
+  "source": "piper",
+  "text": "o queijo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o rato": {
+  "file": "a5e4462f84.mp3",
+  "lengthScale": 1.12,
+  "say": "o rato.",
+  "source": "piper",
+  "text": "o rato",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o relógio": {
+  "file": "1045a8149e.mp3",
+  "lengthScale": 1.12,
+  "say": "o relógio.",
+  "source": "piper",
+  "text": "o relógio",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o rui é do porto.": {
+  "file": "eed47425a3.mp3",
+  "lengthScale": 1.12,
+  "say": "O Rui é do Porto.",
+  "source": "piper",
+  "text": "O Rui é do Porto.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o sol": {
+  "file": "eec34accd3.mp3",
+  "lengthScale": 1.12,
+  "say": "o sol.",
+  "source": "piper",
+  "text": "o sol",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o supermercado": {
+  "file": "a79b5ea005.mp3",
+  "lengthScale": 1.12,
+  "say": "o supermercado.",
+  "source": "piper",
+  "text": "o supermercado",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o telemóvel": {
+  "file": "311538181f.mp3",
+  "lengthScale": 1.12,
+  "say": "o telemóvel.",
+  "source": "piper",
+  "text": "o telemóvel",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o tomate": {
+  "file": "abcb78978d.mp3",
+  "lengthScale": 1.12,
+  "say": "o tomate.",
+  "source": "piper",
+  "text": "o tomate",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o vinho": {
+  "file": "a05be4558c.mp3",
+  "lengthScale": 1.12,
+  "say": "o vinho.",
+  "source": "piper",
+  "text": "o vinho",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "obrigado.": {
+  "file": "4e17a53183.mp3",
+  "lengthScale": 1.12,
+  "say": "Obrigado.",
+  "source": "piper",
+  "text": "Obrigado.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "oito": {
+  "file": "c47f374461.mp3",
+  "lengthScale": 1.12,
+  "say": "oito.",
+  "source": "piper",
+  "text": "oito",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "olá!": {
+  "file": "b1843fea00.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá!",
+  "source": "piper",
+  "text": "Olá!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "olá! como estás?": {
+  "file": "5c1dabc13b.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá! Como estás?",
+  "source": "piper",
+  "text": "Olá! Como estás?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "onze": {
+  "file": "43d90abf34.mp3",
+  "lengthScale": 1.12,
+  "say": "onze.",
+  "source": "piper",
+  "text": "onze",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "pequeno, pequena": {
+  "file": "04011749ce.mp3",
+  "lengthScale": 1.12,
+  "say": "pequeno, pequena.",
+  "source": "piper",
+  "text": "pequeno, pequena",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "pesado, pesada": {
+  "file": "383f699864.mp3",
+  "lengthScale": 1.12,
+  "say": "pesado, pesada.",
+  "source": "piper",
+  "text": "pesado, pesada",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "pianista": {
+  "file": "9310eed564.mp3",
+  "lengthScale": 1.12,
+  "say": "pianista.",
+  "source": "piper",
+  "text": "pianista",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "piloto": {
+  "file": "a952bee23b.mp3",
+  "lengthScale": 1.12,
+  "say": "piloto.",
+  "source": "piper",
+  "text": "piloto",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "pode repetir, por favor?": {
+  "file": "2b5b4e4014.mp3",
+  "lengthScale": 1.12,
+  "say": "Pode repetir, por favor?",
+  "source": "piper",
+  "text": "Pode repetir, por favor?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "por favor.": {
+  "file": "df99b0601c.mp3",
+  "lengthScale": 1.12,
+  "say": "Por favor.",
+  "source": "piper",
+  "text": "Por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "portuguesa": {
+  "file": "d36ae505f6.mp3",
+  "lengthScale": 1.12,
+  "say": "portuguesa.",
+  "source": "piper",
+  "text": "portuguesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "português": {
+  "file": "595125e070.mp3",
+  "lengthScale": 1.12,
+  "say": "português.",
+  "source": "piper",
+  "text": "português",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "português, portuguesa": {
+  "file": "b1106b5ec4.mp3",
+  "lengthScale": 1.12,
+  "say": "português, portuguesa.",
+  "source": "piper",
+  "text": "português, portuguesa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "professor": {
+  "file": "27304fea9e.mp3",
+  "lengthScale": 1.12,
+  "say": "professor.",
+  "source": "piper",
+  "text": "professor",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "professor, professora": {
+  "file": "b4418836ba.mp3",
+  "lengthScale": 1.12,
+  "say": "professor, professora.",
+  "source": "piper",
+  "text": "professor, professora",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "professora": {
+  "file": "297d45fe43.mp3",
+  "lengthScale": 1.12,
+  "say": "professora.",
+  "source": "piper",
+  "text": "professora",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "quantos anos tens?": {
+  "file": "4cb733f723.mp3",
+  "lengthScale": 1.12,
+  "say": "Quantos anos tens?",
+  "source": "piper",
+  "text": "Quantos anos tens?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "quatro": {
+  "file": "dca1419a54.mp3",
+  "lengthScale": 1.12,
+  "say": "quatro.",
+  "source": "piper",
+  "text": "quatro",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "quente": {
+  "file": "3fc301dee8.mp3",
+  "lengthScale": 1.12,
+  "say": "quente.",
+  "source": "piper",
+  "text": "quente",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "quinze": {
+  "file": "84e7bf7ba8.mp3",
+  "lengthScale": 1.12,
+  "say": "quinze.",
+  "source": "piper",
+  "text": "quinze",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "russa": {
+  "file": "9810009318.mp3",
+  "lengthScale": 1.12,
+  "say": "russa.",
+  "source": "piper",
+  "text": "russa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "russo": {
+  "file": "976f7d037d.mp3",
+  "lengthScale": 1.12,
+  "say": "russo.",
+  "source": "piper",
+  "text": "russo",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "russo, russa": {
+  "file": "f7ce5d8835.mp3",
+  "lengthScale": 1.12,
+  "say": "russo, russa.",
+  "source": "piper",
+  "text": "russo, russa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "rápido, rápida": {
+  "file": "c176eb06bb.mp3",
+  "lengthScale": 1.12,
+  "say": "rápido, rápida.",
+  "source": "piper",
+  "text": "rápido, rápida",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "secretária": {
+  "file": "2e2f4655a1.mp3",
+  "lengthScale": 1.12,
+  "say": "secretária.",
+  "source": "piper",
+  "text": "secretária",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "secretário": {
+  "file": "6756c44957.mp3",
+  "lengthScale": 1.12,
+  "say": "secretário.",
+  "source": "piper",
+  "text": "secretário",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "secretário, secretária": {
+  "file": "ff55574960.mp3",
+  "lengthScale": 1.12,
+  "say": "secretário, secretária.",
+  "source": "piper",
+  "text": "secretário, secretária",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "seis": {
+  "file": "a2726bbebf.mp3",
+  "lengthScale": 1.12,
+  "say": "seis.",
+  "source": "piper",
+  "text": "seis",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sete": {
+  "file": "e9d630f532.mp3",
+  "lengthScale": 1.12,
+  "say": "sete.",
+  "source": "piper",
+  "text": "sete",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou da alemanha.": {
+  "file": "24a405cb23.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou da Alemanha.",
+  "source": "piper",
+  "text": "Sou da Alemanha.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou da china.": {
+  "file": "09f863d382.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou da China.",
+  "source": "piper",
+  "text": "Sou da China.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou da suécia.": {
+  "file": "726b205dab.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou da Suécia.",
+  "source": "piper",
+  "text": "Sou da Suécia.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou das maldivas.": {
+  "file": "da91747657.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou das Maldivas.",
+  "source": "piper",
+  "text": "Sou das Maldivas.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou de angola.": {
+  "file": "fe292ae901.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou de Angola.",
+  "source": "piper",
+  "text": "Sou de Angola.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou de braga.": {
+  "file": "109a3d8752.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou de Braga.",
+  "source": "piper",
+  "text": "Sou de Braga.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou de coimbra.": {
+  "file": "af899555e8.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou de Coimbra.",
+  "source": "piper",
+  "text": "Sou de Coimbra.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou de faro.": {
+  "file": "026c14f6a8.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou de Faro.",
+  "source": "piper",
+  "text": "Sou de Faro.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou de lisboa.": {
+  "file": "6a5a09c542.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou de Lisboa.",
+  "source": "piper",
+  "text": "Sou de Lisboa.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou de madrid.": {
+  "file": "7d3eda50c9.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou de Madrid.",
+  "source": "piper",
+  "text": "Sou de Madrid.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou de moçambique.": {
+  "file": "2f718aad97.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou de Moçambique.",
+  "source": "piper",
+  "text": "Sou de Moçambique.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou de paris.": {
+  "file": "387c7f3df1.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou de Paris.",
+  "source": "piper",
+  "text": "Sou de Paris.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou de portugal.": {
+  "file": "62943a2231.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou de Portugal.",
+  "source": "piper",
+  "text": "Sou de Portugal.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou do brasil.": {
+  "file": "f1f663c217.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou do Brasil.",
+  "source": "piper",
+  "text": "Sou do Brasil.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou do japão.": {
+  "file": "5b92469989.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou do Japão.",
+  "source": "piper",
+  "text": "Sou do Japão.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou do porto.": {
+  "file": "b2706a6b15.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou do Porto.",
+  "source": "piper",
+  "text": "Sou do Porto.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou do rio de janeiro.": {
+  "file": "d9f32e9642.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou do Rio de Janeiro.",
+  "source": "piper",
+  "text": "Sou do Rio de Janeiro.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sou dos estados unidos.": {
+  "file": "cc584204ca.mp3",
+  "lengthScale": 1.12,
+  "say": "Sou dos Estados Unidos.",
+  "source": "piper",
+  "text": "Sou dos Estados Unidos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sueca": {
+  "file": "6fb1085806.mp3",
+  "lengthScale": 1.12,
+  "say": "sueca.",
+  "source": "piper",
+  "text": "sueca",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sueco": {
+  "file": "c865bef567.mp3",
+  "lengthScale": 1.12,
+  "say": "sueco.",
+  "source": "piper",
+  "text": "sueco",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sueco, sueca": {
+  "file": "da304b93d1.mp3",
+  "lengthScale": 1.12,
+  "say": "sueco, sueca.",
+  "source": "piper",
+  "text": "sueco, sueca",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sujo, suja": {
+  "file": "42f3870cd7.mp3",
+  "lengthScale": 1.12,
+  "say": "sujo, suja.",
+  "source": "piper",
+  "text": "sujo, suja",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "são-tomense": {
+  "file": "871178d0dd.mp3",
+  "lengthScale": 1.12,
+  "say": "são-tomense.",
+  "source": "piper",
+  "text": "são-tomense",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "taxista": {
+  "file": "82d1bfc120.mp3",
+  "lengthScale": 1.12,
+  "say": "taxista.",
+  "source": "piper",
+  "text": "taxista",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "timorense": {
+  "file": "8fab6655ba.mp3",
+  "lengthScale": 1.12,
+  "say": "timorense.",
+  "source": "piper",
+  "text": "timorense",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "trabalho nas maldivas.": {
+  "file": "e1b9ef734e.mp3",
+  "lengthScale": 1.12,
+  "say": "Trabalho nas Maldivas.",
+  "source": "piper",
+  "text": "Trabalho nas Maldivas.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "treze": {
+  "file": "ce854fad7c.mp3",
+  "lengthScale": 1.12,
+  "say": "treze.",
+  "source": "piper",
+  "text": "treze",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "triste": {
+  "file": "f0f5dead4d.mp3",
+  "lengthScale": 1.12,
+  "say": "triste.",
+  "source": "piper",
+  "text": "triste",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "três": {
+  "file": "c78915c9f8.mp3",
+  "lengthScale": 1.12,
+  "say": "três.",
+  "source": "piper",
+  "text": "três",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu chamas-te": {
+  "file": "55bac3e29d.mp3",
+  "lengthScale": 1.12,
+  "say": "tu chamas-te.",
+  "source": "piper",
+  "text": "tu chamas-te",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu estudas": {
+  "file": "ac75807417.mp3",
+  "lengthScale": 1.12,
+  "say": "tu estudas.",
+  "source": "piper",
+  "text": "tu estudas",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu falas": {
+  "file": "10159d2001.mp3",
+  "lengthScale": 1.12,
+  "say": "tu falas.",
+  "source": "piper",
+  "text": "tu falas",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu falas inglês?": {
+  "file": "624d1f6ae8.mp3",
+  "lengthScale": 1.12,
+  "say": "Tu falas inglês?",
+  "source": "piper",
+  "text": "Tu falas inglês?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu gostas": {
+  "file": "59a92cdc26.mp3",
+  "lengthScale": 1.12,
+  "say": "tu gostas.",
+  "source": "piper",
+  "text": "tu gostas",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu gostas de viajar?": {
+  "file": "c45e7bbf33.mp3",
+  "lengthScale": 1.12,
+  "say": "Tu gostas de viajar?",
+  "source": "piper",
+  "text": "Tu gostas de viajar?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu moras": {
+  "file": "5ec484fe01.mp3",
+  "lengthScale": 1.12,
+  "say": "tu moras.",
+  "source": "piper",
+  "text": "tu moras",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu tens": {
+  "file": "533e99d76c.mp3",
+  "lengthScale": 1.12,
+  "say": "tu tens.",
+  "source": "piper",
+  "text": "tu tens",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu trabalhas": {
+  "file": "a257d2d489.mp3",
+  "lengthScale": 1.12,
+  "say": "tu trabalhas.",
+  "source": "piper",
+  "text": "tu trabalhas",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu és": {
+  "file": "b997953b13.mp3",
+  "lengthScale": 1.12,
+  "say": "tu és.",
+  "source": "piper",
+  "text": "tu és",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu és de coimbra?": {
+  "file": "3660ed51cf.mp3",
+  "lengthScale": 1.12,
+  "say": "Tu és de Coimbra?",
+  "source": "piper",
+  "text": "Tu és de Coimbra?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tu és de lisboa?": {
+  "file": "2fb85e7bd4.mp3",
+  "lengthScale": 1.12,
+  "say": "Tu és de Lisboa?",
+  "source": "piper",
+  "text": "Tu és de Lisboa?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um": {
+  "file": "eb1bbae6ec.mp3",
+  "lengthScale": 1.12,
+  "say": "um.",
+  "source": "piper",
+  "text": "um",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "velho, velha": {
+  "file": "62f758931a.mp3",
+  "lengthScale": 1.12,
+  "say": "velho, velha.",
+  "source": "piper",
+  "text": "velho, velha",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "vinte": {
+  "file": "10ee162901.mp3",
+  "lengthScale": 1.12,
+  "say": "vinte.",
+  "source": "piper",
+  "text": "vinte",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "zero": {
+  "file": "7e47456d59.mp3",
+  "lengthScale": 1.12,
+  "say": "zero.",
+  "source": "piper",
+  "text": "zero",
+  "voice": "pt_PT-tugão-medium"
+ }
+}
