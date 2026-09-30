@@ -454,7 +454,7 @@ async function checkPause() {
 
 const seen = bots.map(() => new Set<string>());
 const start = Date.now();
-const LIMIT = 260_000 * (NIGHT ? 5 : MODES.length);
+const LIMIT = 260_000 * (NIGHT ? 5 : MODES.length) * (VIDEO ? 2 : 1);
 let inResults = false;
 /** Results screens so far (a game night has several lobbies in one run). */
 let resultsSeen = 0;
