@@ -6,6 +6,9 @@ import { LearnActivity } from "../games/learn/learn.ts";
 import { ParesSecretos } from "../games/secret/secret.ts";
 import { EmSintonia } from "../games/sync/sync.ts";
 import { NaMesmaOnda } from "../games/wave/wave.ts";
+import { Desenha } from "../games/draw/draw.ts";
+import { Stop } from "../games/stop/stop.ts";
+import { Cozinha } from "../games/kitchen/kitchen.ts";
 import type { NavDir } from "../shared/protocol.ts";
 import { LobbyActivity, ResultsActivity, TitleActivity } from "./activities.ts";
 import { useRuntime } from "./runtime.ts";
@@ -14,6 +17,9 @@ import { LobbyScreen, PauseScreen, ResultsScreen, TitleScreen } from "./screens/
 import { SecretScreen } from "./screens/SecretScreen.tsx";
 import { SyncScreen } from "./screens/SyncScreen.tsx";
 import { WaveScreen } from "./screens/WaveScreen.tsx";
+import { DrawScreen } from "./screens/DrawScreen.tsx";
+import { StopScreen } from "./screens/StopScreen.tsx";
+import { KitchenScreen } from "./screens/KitchenScreen.tsx";
 import { Stage } from "./three/Stage.tsx";
 
 const KEYMAP: Record<string, NavDir> = {
@@ -69,6 +75,9 @@ export function TvApp() {
       {a instanceof ParesSecretos && <SecretScreen a={a} />}
       {a instanceof NaMesmaOnda && <WaveScreen a={a} />}
       {a instanceof EmSintonia && <SyncScreen a={a} />}
+      {a instanceof Desenha && <DrawScreen a={a} />}
+      {a instanceof Stop && <StopScreen a={a} />}
+      {a instanceof Cozinha && <KitchenScreen a={a} />}
       {rt.paused && <PauseScreen />}
       {rt.socket !== "open" && <div className="conn-warn">A ligar ao servidor…</div>}
       {showGate && (

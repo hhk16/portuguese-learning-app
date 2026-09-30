@@ -862,3 +862,246 @@ body,
 .bank-word.sel {
   border-color: var(--pc);
 }
+
+/* ---------------------------------------------------------------- shared timer */
+
+.p-timer {
+  height: 10px;
+  border-radius: 999px;
+  background: #e9e2d3;
+  overflow: hidden;
+  flex: none;
+}
+.p-timer div {
+  height: 100%;
+  background: var(--mint);
+  transition: width 0.25s linear;
+}
+.p-timer div.low {
+  background: var(--coral);
+}
+
+/* ---------------------------------------------------------------- Desenha! */
+
+.draw-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.draw-options .lopt {
+  justify-content: center;
+  text-align: center;
+  min-height: 64px;
+}
+.lopt.tried {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+.lopt i {
+  font-style: normal;
+  color: var(--coral);
+}
+.draw-pad {
+  gap: 10px;
+}
+.draw-word {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+.draw-word span {
+  display: flex;
+  flex-direction: column;
+}
+.draw-word b {
+  font-size: 24px;
+}
+.draw-word i {
+  font-style: normal;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.pad-canvas {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 18px;
+  background: #fff;
+  border: 3px solid var(--line);
+  touch-action: none;
+  box-shadow: 0 4px 0 rgba(31, 42, 68, 0.06);
+}
+.palette {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.ink {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid var(--white);
+  box-shadow: 0 0 0 2px var(--line);
+  font-size: 18px;
+}
+.ink.sel {
+  box-shadow: 0 0 0 3px var(--navy);
+  transform: scale(1.1);
+}
+
+/* ---------------------------------------------------------------- Stop! */
+
+.stop-pad {
+  gap: 10px;
+}
+.stop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.stop-tile {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+  background: var(--coral);
+  color: var(--white);
+  box-shadow: 0 4px 0 var(--coral-d);
+}
+.stop-time {
+  font-size: 26px;
+  color: var(--ink-2);
+}
+.stop-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--white);
+  border: 3px solid transparent;
+  box-shadow: 0 3px 0 rgba(31, 42, 68, 0.06);
+}
+.stop-field .cat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.stop-field input {
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 20px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--navy);
+  padding: 2px 0;
+  width: 100%;
+}
+.stop-field.ok {
+  border-color: var(--mint);
+}
+.stop-field.bad {
+  border-color: var(--coral);
+}
+.vote-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+}
+.vote-row span {
+  display: flex;
+  flex-direction: column;
+}
+.vote-row small {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.vote-row b {
+  font-size: 20px;
+}
+.vote-btns {
+  display: flex;
+  gap: 8px;
+}
+.vbtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  border: 0;
+  background: var(--cream);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--ink-3);
+}
+.vbtn.sel.yes {
+  background: var(--mint);
+  color: var(--white);
+}
+.vbtn.sel.no {
+  background: var(--coral);
+  color: var(--white);
+}
+
+/* ---------------------------------------------------------------- Cozinha Caótica */
+
+.kitchen-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+}
+.pantry {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pantry.swapped {
+  animation: pop-in 0.4s ease-out both;
+}
+.pantry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px;
+  border: 0;
+  min-height: 120px;
+  justify-content: center;
+}
+.pantry-item b {
+  font-size: 20px;
+}
+.pantry-item:active {
+  background: color-mix(in srgb, var(--pc) 14%, white);
+}
+.tray {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tray-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 30px;
+  align-items: center;
+}
+.tray-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  background: var(--cream);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 15px;
+}

@@ -11,6 +11,9 @@ import { Dial } from "./Dial.tsx";
 import { Learn } from "./Learn.tsx";
 import { Secret } from "./Secret.tsx";
 import { Sync } from "./Sync.tsx";
+import { Draw } from "./Draw.tsx";
+import { StopPad } from "./Stop.tsx";
+import { Kitchen } from "./Kitchen.tsx";
 
 export type ViewOf<M extends ControllerView["mode"]> = Extract<ControllerView, { mode: M }>;
 export type Send = (value: InputValue) => void;
@@ -48,6 +51,12 @@ function Body({ view, conn, send }: { view: ControllerView; conn: PhoneConnectio
       return <Dial v={view} send={send} />;
     case "sync":
       return <Sync v={view} send={send} />;
+    case "draw":
+      return <Draw v={view} send={send} />;
+    case "stop":
+      return <StopPad v={view} send={send} />;
+    case "kitchen":
+      return <Kitchen v={view} send={send} />;
   }
 }
 

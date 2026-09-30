@@ -12,13 +12,16 @@ import { LearnActivity, type LearnSummary } from "../games/learn/learn.ts";
 import { ParesSecretos, type SecretResult } from "../games/secret/secret.ts";
 import { EmSintonia, type SyncResult } from "../games/sync/sync.ts";
 import { NaMesmaOnda, type WaveResult } from "../games/wave/wave.ts";
+import { Desenha, type DrawResult } from "../games/draw/draw.ts";
+import { Stop, type StopResult } from "../games/stop/stop.ts";
+import { Cozinha, type KitchenResult } from "../games/kitchen/kitchen.ts";
 import { randomId } from "../shared/ids.ts";
 import type { ControllerView, InputValue, NavDir } from "../shared/protocol.ts";
 import { play } from "../audio/sfx.ts";
 import { lessonsDone, lessonStars, nextLessonId, playableLessons } from "./progress.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "./runtime.ts";
 
-export type Mode = "lesson" | "secret" | "wave" | "sync";
+export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen";
 
 export interface ModeSpec {
   mode: Mode;
@@ -39,13 +42,12 @@ export const GAMES: GameInfo[] = [
   { mode: "secret", name: "Pares Secretos", pic: "🕵️", kind: "Juntos · pistas", how: "Dá pistas em português; o teu par encontra as imagens." },
   { mode: "wave", name: "Na Mesma Onda", pic: "🔮", kind: "Juntos · adivinhar", how: "Uma palavra, um mostrador: frio ou quente?" },
   { mode: "sync", name: "Em Sintonia", pic: "🤝", kind: "Juntos · telepatia", how: "Escrevam a mesma palavra ao mesmo tempo." },
+  { mode: "draw", name: "Desenha!", pic: "🎨", kind: "Juntos · desenhar", how: "Um desenha no telemóvel, o outro adivinha a palavra." },
+  { mode: "stop", name: "Stop!", pic: "⏱️", kind: "Um contra o outro · escrever", how: "Uma letra, quatro categorias. Quem acaba grita STOP!" },
+  { mode: "kitchen", name: "Cozinha Caótica", pic: "🍳", kind: "Juntos · correria", how: "Os clientes pedem em português. Sirvam depressa!" },
 ];
 
-export const SOON = [
-  { name: "Desenha!", pic: "🎨" },
-  { name: "Stop!", pic: "⏱️" },
-  { name: "Cozinha Caótica", pic: "🍳" },
-];
+export const SOON: { name: string; pic: string }[] = [];
 
 /* -------------------------------------------------------------------------- */
 /* Title                                                                       */
@@ -145,6 +147,9 @@ export class TitleActivity implements Activity {
       case "secret":
       case "wave":
       case "sync":
+      case "draw":
+      case "stop":
+      case "kitchen":
         return this.rt.run(new LobbyActivity({ mode: item.id }));
       case "learn":
         this.menu = "learn";
@@ -212,6 +217,9 @@ export const HOW_TO: Record<Mode, string[]> = {
   secret: ["Cada telemóvel mostra 3 imagens secretas para o teu par encontrar.", "Dá uma pista em português, em voz alta, e escolhe um número.", "O teu par toca nas imagens. Cuidado com as bombas! 💣"],
   wave: ["Um mostrador entre dois opostos: frio ↔ quente.", "Quem vê o alvo diz UMA palavra em português.", "O outro roda o mostrador. Quanto mais perto, mais pontos!"],
   sync: ["Aparecem duas palavras.", "Cada um escreve uma palavra que as ligue.", "3, 2, 1… A mesma palavra? Estão em sintonia!"],
+  draw: ["Um vê a palavra secreta e desenha no telemóvel. Sem falar!", "O desenho aparece na TV.", "O outro escolhe a palavra certa. Quanto mais rápido, mais pontos!"],
+  stop: ["Aparece uma letra e quatro categorias.", "Escreve uma palavra para cada uma, com essa letra.", "Acabaste? Carrega STOP! Palavras iguais valem menos."],
+  kitchen: ["Os clientes pedem em português (ouve a TV!).", "Metade da comida está em cada telemóvel: falem um com o outro.", "Ponham tudo no tabuleiro e carreguem Servir. Cuidado com a Troca!"],
 };
 
 export class LobbyActivity implements Activity {
@@ -384,8 +392,14 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
   const again: ResultOption = { id: "again", label: "Jogar outra vez", pic: "🔁", go: go(spec) };
   const two = rt.activePlayers.length >= 2;
   const lessonId = spec.lessonId;
+  // Suggest three other games, a different three each time.
   const games = (except?: Mode): ResultOption[] =>
-    two ? GAMES.filter((g) => g.mode !== except).map((g) => ({ id: g.mode, label: g.name, sub: g.kind, pic: g.pic, go: go({ mode: g.mode, lessonId }) })) : [];
+    two
+      ? rt.rng
+          .shuffle(GAMES.filter((g) => g.mode !== except))
+          .slice(0, 3)
+          .map((g) => ({ id: g.mode, label: g.name, sub: g.kind, pic: g.pic, go: go({ mode: g.mode, lessonId }) }))
+      : [];
 
   switch (spec.mode) {
     case "lesson": {
@@ -457,6 +471,56 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
               sub: r.matches.length ? `Palavras: ${r.matches.map((m) => m.word).join(", ")}` : "Continuem a tentar!",
               win: r.matches.length >= 2,
               options: [again, ...games("sync"), menu],
+            }),
+          ),
+        ),
+      );
+      return;
+    case "draw":
+      rt.run(
+        new Desenha(lessonsFor(spec), (r: DrawResult) =>
+          rt.run(
+            new ResultsActivity({
+              spec,
+              title: "Desenha!",
+              headline: `${r.score} pontos · ${r.guessed.length} de 6 adivinhadas`,
+              sub: r.guessed.length ? `Palavras: ${r.guessed.map((g) => g.pt).join(", ")}` : "Os artistas incompreendidos!",
+              win: r.guessed.length >= 3,
+              options: [again, ...games("draw"), menu],
+            }),
+          ),
+        ),
+      );
+      return;
+    case "stop":
+      rt.run(
+        new Stop((r: StopResult) => {
+          const [a, b] = [...r.scores].sort((x, y) => y.points - x.points);
+          const tie = !!b && a!.points === b.points;
+          rt.run(
+            new ResultsActivity({
+              spec,
+              title: "Stop!",
+              headline: tie ? `Empate! ${a!.points} pontos` : `${a?.name ?? ""} ganha! 🏆`,
+              sub: r.scores.map((s) => `${s.name}: ${s.points}`).join(" · "),
+              win: true,
+              options: [again, ...games("stop"), menu],
+            }),
+          );
+        }),
+      );
+      return;
+    case "kitchen":
+      rt.run(
+        new Cozinha((r: KitchenResult) =>
+          rt.run(
+            new ResultsActivity({
+              spec,
+              title: `Cozinha Caótica · ${r.menu}`,
+              headline: `${r.served} pedidos servidos`,
+              sub: `${r.rating}${r.missed ? ` · ${r.missed} clientes foram-se embora` : ""}`,
+              win: r.served >= 4,
+              options: [again, ...games("kitchen"), menu],
             }),
           ),
         ),

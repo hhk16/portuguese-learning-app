@@ -1003,3 +1003,381 @@ html.tv-root #root {
   font-size: 0.7em;
   z-index: 25;
 }
+
+/* ---------------------------------------------------------------- Desenha! */
+
+.draw-stage {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  min-height: 0;
+}
+.draw-board {
+  position: relative;
+  height: min(70vh, 64vw);
+  aspect-ratio: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.draw-canvas {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border-radius: 1rem;
+  background: #fff;
+  border: 0.15rem solid var(--line);
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+.draw-timer {
+  height: 0.7rem;
+  border-radius: 999px;
+  background: #eee8dc;
+  overflow: hidden;
+}
+.draw-timer div,
+.kitchen-clock div {
+  height: 100%;
+  background: var(--mint);
+  border-radius: 999px;
+  transition: width 0.25s linear;
+}
+.draw-timer div.low {
+  background: var(--coral);
+}
+.draw-reveal {
+  position: absolute;
+  inset: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  animation: pop-in 0.4s ease-out both;
+}
+.draw-reveal b {
+  font-size: 2.4em;
+}
+.draw-reveal i {
+  font-style: normal;
+  color: var(--ink-3);
+}
+.draw-reveal .pts {
+  margin-top: 0.4em;
+  font-size: 1.4em;
+  color: var(--coral);
+}
+.draw-reveal.ok .pts {
+  color: var(--mint-d);
+}
+.draw-tried {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.word-chip.tried b {
+  text-decoration: line-through;
+  color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------------- Stop! */
+
+.stop-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+.stop-letter {
+  position: relative;
+  width: 17rem;
+  height: 17rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.stop-letter > .display {
+  font-size: 7em;
+  color: var(--coral);
+  line-height: 1;
+}
+.stop-letter .secs {
+  position: absolute;
+  bottom: 1.6rem;
+  font-size: 0.9em;
+  color: var(--ink-3);
+}
+.stop-ring {
+  position: absolute;
+  inset: -0.6rem;
+  border-radius: 50%;
+  background: conic-gradient(var(--mint) calc(var(--p) * 1%), rgba(255, 255, 255, 0.5) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 0.7rem), #000 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 0.7rem), #000 0);
+}
+.stop-letter.hurry {
+  animation: pulse-soft 0.6s ease-in-out infinite;
+}
+.stop-letter.hurry .stop-ring {
+  background: conic-gradient(var(--coral) calc(var(--p) * 1%), rgba(255, 255, 255, 0.5) 0);
+}
+.stop-cats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem 1.4rem;
+  width: min(66vw, 80rem);
+}
+.stop-cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.3em;
+  font-size: 0.85em;
+}
+.stop-shout {
+  order: -1;
+  transform: rotate(-3deg);
+  font-size: 1.8em;
+  color: var(--white);
+  background: var(--coral);
+  padding: 0.2em 0.8em;
+  border-radius: 0.6em;
+  box-shadow: 0 0.12em 0 var(--coral-d), 0 0.4em 1em rgba(31, 42, 68, 0.3);
+  animation: pop-in 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  white-space: nowrap;
+}
+.stop-table {
+  width: min(66vw, 80rem);
+  padding: 1.4rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  animation: pop-in 0.4s ease-out both;
+}
+.stop-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  grid-template-areas: "cat a b" "hint hint hint";
+  align-items: center;
+  gap: 0.2rem 1rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 1rem;
+  background: var(--cream);
+  font-size: 0.85em;
+}
+.stop-row.head {
+  background: none;
+  padding-top: 0;
+}
+.letter-mini {
+  font-size: 2em;
+  color: var(--coral);
+}
+.stop-row .cat {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: var(--ink-2);
+}
+.stop-row .cell {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+.stop-row .cell b {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.15em;
+}
+.stop-row .cell i {
+  font-style: normal;
+  font-weight: 900;
+}
+.cell.known i,
+.cell.voted-yes i {
+  color: var(--mint-d);
+}
+.cell.voted-no,
+.cell.letter,
+.cell.empty {
+  opacity: 0.55;
+}
+.cell.voted-no b,
+.cell.letter b {
+  text-decoration: line-through;
+}
+.cell.pending i {
+  color: var(--sun-d);
+}
+.stop-row .cell em {
+  font-style: normal;
+  color: var(--coral);
+  margin-left: auto;
+}
+.stop-row .hint {
+  grid-area: hint;
+  font-size: 0.8em;
+  color: var(--ink-3);
+}
+.stop-vote-note {
+  text-align: center;
+  font-size: 0.8em;
+  color: var(--ink-2);
+}
+
+/* ---------------------------------------------------------------- Cozinha Caótica */
+
+.pill.clock.low {
+  background: var(--coral);
+  color: var(--white);
+  animation: pulse-soft 0.8s ease-in-out infinite;
+}
+.kitchen-tickets {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  width: min(68vw, 84rem);
+  min-height: 19rem;
+  align-items: stretch;
+}
+.ticket {
+  position: relative;
+  flex: 0 0 calc((100% - 2.4rem) / 3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.1rem 1.2rem 1rem;
+  border-top: 0.5rem solid var(--sun);
+  animation: ticket-in 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+@keyframes ticket-in {
+  from { transform: translateY(-2rem) rotate(-3deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.ticket.first {
+  border-top-color: var(--coral);
+}
+.ticket-no {
+  font-size: 0.8em;
+  color: var(--ink-3);
+}
+.ticket-text {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.05em;
+  line-height: 1.25;
+  flex: 1;
+}
+.ticket-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.ticket-item,
+.tray-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  font-family: var(--display);
+}
+.patience {
+  height: 0.6rem;
+  border-radius: 999px;
+  background: #eee8dc;
+  overflow: hidden;
+}
+.patience div {
+  height: 100%;
+  background: var(--mint);
+  transition: width 0.2s linear;
+}
+.patience div.mid {
+  background: var(--sun);
+}
+.patience div.low {
+  background: var(--coral);
+}
+.ticket.served,
+.ticket.left {
+  animation: ticket-out 1.4s ease-in both;
+}
+@keyframes ticket-out {
+  0%, 60% { transform: none; opacity: 1; }
+  100% { transform: translateY(-1.5rem) scale(0.9); opacity: 0; }
+}
+.ticket-stamp {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 1.4rem;
+  font-size: 1.6em;
+  transform: rotate(-6deg);
+}
+.ticket-stamp.ok {
+  color: var(--mint-d);
+  background: rgba(220, 248, 236, 0.85);
+}
+.ticket-stamp.bad {
+  color: var(--coral-d);
+  background: rgba(255, 227, 227, 0.85);
+}
+.kitchen-tray {
+  margin-top: 1.4rem;
+  padding: 0.9rem 1.6rem;
+  min-width: 30rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+}
+.kitchen-tray.wrong {
+  animation: shake 0.18s 3;
+  background: var(--bad-bg);
+}
+.kitchen-tray.served {
+  animation: pop-in 0.4s ease-out both;
+}
+.tray-items {
+  display: flex;
+  gap: 1rem;
+  min-height: 3rem;
+  align-items: center;
+}
+.tray-items .muted {
+  font-size: 0.75em;
+}
+.kitchen-clock {
+  width: min(40vw, 40rem);
+  height: 0.6rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+  margin-top: 1rem;
+}
+.kitchen-swap {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3.4em;
+  padding: 0.2em 0.9em;
+  border-radius: 0.6em;
+  background: var(--sky-p);
+  color: var(--white);
+  box-shadow: 0 0.12em 0 var(--sky-p-d), 0 0.4em 1em rgba(31, 42, 68, 0.3);
+  animation: verdict-in 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  z-index: 5;
+}
+.kitchen-swap.bad {
+  background: var(--coral);
+  box-shadow: 0 0.12em 0 var(--coral-d), 0 0.4em 1em rgba(31, 42, 68, 0.3);
+}

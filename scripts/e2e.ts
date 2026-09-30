@@ -17,7 +17,8 @@ const PORT = 8799;
 const REMOTE = process.env.E2E_BASE;
 const BASE = REMOTE ?? `http://localhost:${PORT}`;
 const OUT = "e2e-output";
-const MODES = (process.env.E2E_MODES ?? "lesson,secret,wave,sync").split(",") as ("lesson" | "secret" | "wave" | "sync")[];
+type M = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen";
+const MODES = (process.env.E2E_MODES ?? "lesson,secret,wave,sync,draw,stop,kitchen").split(",") as M[];
 const LESSON_INDEX = Number(process.env.E2E_LESSON ?? 0);
 const EXE = process.env.CHROME_PATH ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 
@@ -88,7 +89,7 @@ if (first === "lesson") {
   await press("ArrowDown");
   await press("Enter");
   await tv.waitForTimeout(400);
-  await press("ArrowRight", { secret: 0, wave: 1, sync: 2 }[first]);
+  await press("ArrowRight", { secret: 0, wave: 1, sync: 2, draw: 3, stop: 4, kitchen: 5 }[first]);
   await tv.screenshot({ path: `${OUT}/04-tv-play-menu.png` });
 }
 await press("Enter");
@@ -119,6 +120,7 @@ async function shoot(key: string, b?: Bot) {
 }
 
 let modeIndex = 0;
+let viaMenu: M | null = null;
 let allowPick = false;
 
 async function learnStep(b: Bot, v: View, seen: Set<string>) {
@@ -180,6 +182,8 @@ async function botStep(b: Bot, seen: Set<string>) {
       await pg.waitForTimeout(1200);
       const opts = v.options as { id: string; label: string }[];
       const want = opts.find((o) => o.id === MODES[modeIndex]) ?? opts.find((o) => o.id === "menu")!;
+      // Results suggest only three games: otherwise go back to the menu and open it from there.
+      if (want.id === "menu") viaMenu = MODES[modeIndex] ?? null;
       console.log("picked next:", want.id);
       await click(pg, ".pick-item", want.label);
       return;
@@ -238,6 +242,12 @@ async function botStep(b: Bot, seen: Set<string>) {
       }
       return;
     }
+    case "draw":
+      return drawStep(b, v, seen);
+    case "stop":
+      return stopStep(b, v, seen);
+    case "kitchen":
+      return kitchenStep(b, v);
     case "sync": {
       const key = `sync:${v.promptId}`;
       if (v.submitted || seen.has(key)) return;
@@ -251,6 +261,95 @@ async function botStep(b: Bot, seen: Set<string>) {
       return click(pg, ".sync-form .btn");
     }
   }
+}
+
+const cooldown = new Map<string, number>();
+
+async function drawStep(b: Bot, v: View, seen: Set<string>) {
+  const pg = b.page;
+  if (v.role === "draw") {
+    const key = `draw:${v.promptId}:d`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    // A few strokes: a wobbly circle and a line, sent through the real protocol in pieces.
+    const s0 = Math.floor(Math.random() * 1000);
+    for (let s = 0; s < 3; s++) {
+      const pts: number[] = [];
+      for (let i = 0; i <= 24; i++) {
+        const t = (i / 24) * Math.PI * 2;
+        const r = 180 + s * 90 + Math.sin(t * 5) * 20;
+        pts.push(Math.round(500 + Math.cos(t) * r), Math.round(500 + Math.sin(t) * r * 0.8));
+      }
+      for (let seg = 0; seg < 3; seg++) {
+        await input(b, v, { mode: "draw", action: { a: "stroke", s: s0 + s, seg, c: s % 5, w: 2, pts: pts.slice(seg * 16, seg * 16 + 20) } });
+        await pg.waitForTimeout(90);
+      }
+    }
+    await shoot("draw-drawer", b);
+    return;
+  }
+  const tried = (v.tried as string[] | undefined) ?? [];
+  const key = `draw:${v.promptId}:g:${tried.length}`;
+  if (seen.has(key)) return;
+  seen.add(key);
+  await pg.waitForTimeout(2500 + Math.random() * 2500);
+  await shoot("draw-guesser", b);
+  const opts = v.options as { id: string; label: string }[];
+  const d = v.debugAnswer as { id: string };
+  const right = tried.length > 0 || Math.random() < b.skill;
+  const o = right ? opts.find((x) => x.id === d.id) : opts.find((x) => x.id !== d.id && !tried.includes(x.id));
+  if (o) await click(pg, ".draw-options .lopt", o.label);
+}
+
+async function stopStep(b: Bot, v: View, seen: Set<string>) {
+  const pg = b.page;
+  if (v.phase === "vote") {
+    const key = `stop:${v.promptId}:vote`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    await pg.waitForTimeout(1500);
+    await shoot("stop-vote", b);
+    const rows = await pg.locator(".vote-row").count();
+    if (rows > 1) await pg.locator(".vote-row .vbtn").nth(1).click().catch(() => {});
+    return click(pg, ".btn", "Confirmar");
+  }
+  const key = `stop:${v.promptId}:write`;
+  if (seen.has(key)) return;
+  seen.add(key);
+  const d = (v.debugAnswer ?? {}) as Record<string, string>;
+  const cats = v.categories as { id: string }[];
+  await pg.waitForTimeout(b.name === "Hadi" ? 1500 : 4000);
+  for (let i = 0; i < cats.length; i++) {
+    const known = d[cats[i]!.id] ?? "";
+    // Sometimes a word the dictionary doesn't know (partner votes), sometimes a blank.
+    const r = Math.random();
+    const word = r < 0.12 ? "" : r < 0.3 ? `${String(v.letter).toLowerCase()}arabalho` : known;
+    await pg.locator(".stop-field input").nth(i).fill(word).catch(() => {});
+    await pg.waitForTimeout(700 + Math.random() * 900);
+  }
+  await shoot("stop-write", b);
+  if (b.name === "Hadi") {
+    for (let i = 0; i < cats.length; i++) {
+      const el = pg.locator(".stop-field input").nth(i);
+      if (!(await el.inputValue().catch(() => "x"))) await el.fill(`${String(v.letter).toLowerCase()}ola`).catch(() => {});
+    }
+    await pg.waitForTimeout(600);
+    await click(pg, ".btn", "STOP!");
+  }
+}
+
+async function kitchenStep(b: Bot, v: View) {
+  const pg = b.page;
+  const now = Date.now();
+  if ((cooldown.get(b.name) ?? 0) > now) return;
+  cooldown.set(b.name, now + 700 + Math.random() * 600);
+  await shoot(`kitchen-${b.name}`, b);
+  const d = v.debugAnswer as { add: string[]; wrongTray: boolean; serve: boolean };
+  const pantry = v.pantry as { id: string; pt: string }[];
+  if (d.serve) return click(pg, ".btn", "Servir");
+  if (d.wrongTray) return click(pg, ".btn", "Deitar fora");
+  const want = Math.random() < 0.08 ? pantry.find((x) => !d.add.includes(x.id)) : pantry.find((x) => d.add.includes(x.id));
+  if (want) await click(pg, ".pantry-item", new RegExp(`^.?${want.pt}$`));
 }
 
 async function checkPause() {
@@ -269,7 +368,7 @@ async function checkPause() {
 
 const seen = bots.map(() => new Set<string>());
 const start = Date.now();
-const LIMIT = 150_000 * MODES.length;
+const LIMIT = 200_000 * MODES.length;
 let inResults = false;
 let finished = false;
 let pauseChecked = false;
@@ -297,6 +396,19 @@ while (Date.now() - start < LIMIT) {
     allowPick = true;
   }
   if (screen !== "results") inResults = false;
+  if (viaMenu && (await tv.$(".title-screen"))) {
+    const m = viaMenu;
+    viaMenu = null;
+    await tv.waitForTimeout(600);
+    if (m === "lesson") await press("Enter");
+    else {
+      await press("ArrowDown");
+      await press("Enter");
+      await tv.waitForTimeout(300);
+      await press("ArrowRight", { secret: 0, wave: 1, sync: 2, draw: 3, stop: 4, kitchen: 5 }[m]);
+    }
+    await press("Enter");
+  }
   if (Date.now() - start > periodic * 6000) {
     await tv.screenshot({ path: `${OUT}/t${String(periodic).padStart(3, "0")}.png` });
     periodic++;

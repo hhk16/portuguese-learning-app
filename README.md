@@ -1,23 +1,23 @@
 # Party Português 🎮🇵🇹
 
 A couch party game for learning **A1 European Portuguese** together, built around *Português a Valer 1* (Livro do Aluno + Caderno de Exercícios).
-The **TV** is the stage (three.js). **Phones are the controllers**: scan the QR code, pick a creature, play.
+The **TV** is the stage (three.js): a sunny toy world where your cartoon characters stand, cheer and wobble with the game. **Phones are the controllers**: scan the QR code, pick your character, play. Only the TV speaks (pre-recorded European Portuguese), so two phones side by side never talk over each other.
 
-- **Aprender**: Duolingo-style lessons, played side by side. Each of you plays at your own pace on your own phone, with no timers, while the TV shows both progress lanes, hearts, streaks and the new words. There are 11 lessons covering Units 0–1 in book order: greetings, survival phrases, ser, ter, -ar verbs, chamar-se, nationalities, professions, de/do/da, em/no/na, and numbers 0–20.
-  - **A lesson runs:** tip → new words (picture + Portuguese + English + audio) → exercises that ramp up: listen and tap, what does it mean?, how do you say it?, match the pairs, complete the sentence, build the sentence, say it out loud.
-  - **Feedback:** select → VERIFICAR → a green or red sheet with the answer, its English and a tip.
-  - **Mistakes** come back once at the end.
-  - **English is adaptive:** shown while a word is new, then one tap away.
-- **After a lesson, play with its words:**
-  - **Diz-me!** (co-op): one of you sees a word and must *say* it in Portuguese; the other taps the matching picture. Beat your record.
-  - **Apanha!** (versus): the TV says a word, then pictures flip one by one, and the first to slam their phone on the right one takes it. A false slam freezes you. Warm-up rounds show the word written; later rounds are ear-only and worth ×2.
-- **Noite de Festa**: a continuous game show with no menus between segments: Micro Loucura → Apanha! → Diz-me! → Turbo Race → results, using the words from the lessons you've done.
-- **Micro Loucura** and **Turbo Race**: the fast arcade games. Every question is also read aloud, with 🔊 to hear it again, and the English meaning is shown while a word is new.
-- **Audio:** everything Portuguese is spoken aloud (European Portuguese voice when the device has one; 🐢 for slow). If the TV has no Portuguese voice, a phone reads instead.
-- **The phone is a second screen.** Every prompt is mirrored on the phone, so nobody has to look back and forth.
-- **Pause and speed.** Back on the TV remote (or ⏸ on any phone) pauses the game clock: Continuar · Velocidade · Recomeçar · Sair para o menu. Speed is **Calma 🐢** (the default, ≈1.7× time), **Normal** or **Turbo ⚡**.
-- **Installable controller.** `/play` is a PWA: "Adicionar ao ecrã principal" on Android or iPhone gives a full-screen app icon, and the screen stays awake while you play.
-- **Blip**, the MC, reacts to everything (in PT-PT, with optional English subtitles).
+- **Aprender juntos** — 16 lessons in book order (Units 0–1 plus everyday A1 words). You both answer the same exercise privately on your phones; the TV then reveals both answers together. Both right = a team star ⭐. For speaking exercises, your partner decides if you said it well.
+  - **A lesson runs:** tip → new words (picture + Portuguese + English + audio) → exercises that ramp up: listen and tap, what does it mean?, how do you say it?, match the pairs, complete the sentence, build the sentence, say it out loud. Mistakes come back once; English is shown while a word is new, then one tap away.
+- **Jogar** — six games for two, using the words you've learned:
+
+  | Game | Style | What you do |
+  |---|---|---|
+  | **Pares Secretos** 🕵️ | co-op, Codenames Duet | Give Portuguese clues out loud; your partner finds your secret pictures. Avoid the bombs. |
+  | **Na Mesma Onda** 🔮 | co-op, Wavelength | Frio ↔ quente: one sees the target on a dial and says one word; the other turns the dial. |
+  | **Em Sintonia** 🤝 | co-op | Two words appear; both write one word that links them. Same word = in sync. |
+  | **Desenha!** 🎨 | co-op, Pictionary | One draws the secret word on their phone (live on the TV); the other picks it from six Portuguese words. |
+  | **Stop!** ⏱️ | versus | A letter, four categories, a word each. Finish first and shout STOP. Your partner votes on words the dictionary doesn't know. |
+  | **Cozinha Caótica** 🍳 | co-op rush | Customers order out loud ("Queria dois cafés e um pão, por favor"). Half the food is on each phone — talk, fill the tray, serve. Watch out for *Troca!* |
+
+- **Pause.** Back on the TV remote (or ⏸ on any phone) pauses the game clock: Continuar · Recomeçar · Sair para o menu.
+- **Installable controller.** `/play` is a PWA and keeps the screen awake while you play.
 
 The learning engine underneath is built from atomic knowledge items. Each has provenance back to the book, and is generated at four tiers (recognise → recall → transform → use). A tier goes up only after correct answers in **two different games**. Language evidence is stored separately from game performance, so winning races doesn't count as knowing Portuguese.
 
@@ -37,8 +37,8 @@ Set `VITE_PUBLIC_URL` at build time to force the URL the QR code encodes.
 
 ```bash
 npm run typecheck && npm run lint && npm test && npm run content:check
-npm run build && npm run e2e    # Playwright: TV + 2 bot phones play a full Party Night; screenshots in e2e-output/
-E2E_MODE=lesson E2E_NEXT=dizme npm run e2e   # lesson → Diz-me! (modes: party | lesson | dizme | snap | micro | race)
+npm run build && npm run e2e    # Playwright: TV + 2 bot phones play a lesson and all six games; screenshots in e2e-output/
+E2E_MODES=draw,kitchen npm run e2e   # just some (lesson | secret | wave | sync | draw | stop | kitchen)
 ```
 
 ## Architecture
@@ -49,12 +49,13 @@ E2E_MODE=lesson E2E_NEXT=dizme npm run e2e   # lesson → Diz-me! (modes: party 
 | `src/shared/` | zod protocol (validated on every hop), clock sync, SRS, answer checking, RNG. |
 | `src/curriculum/` | Knowledge items with provenance, tier generators, lessons, can-dos, PT-PT lint, book source map. |
 | `src/learner/` | Evidence vs performance events, mastery model (≥2 contexts to promote), item selector. |
-| `src/games/` | Pure game logic: `micro/rush.ts`, `race/race.ts`, `aula/aula.ts`. |
+| `src/games/` | One folder per activity: `learn/`, `secret/`, `wave/`, `sync/`, `draw/`, `stop/`, `kitchen/`. |
 | `src/tv/` | TV runtime (authoritative host), activities, 3D stage (`three/`), DOM screens. |
 | `src/phone/` | The controller: one component per controller mode. |
 
 - **Realtime:** the TV is authoritative. The relay owns rooms, codes, **epochs** and tokens. Every message carries `protocolVersion, roomId, roomEpoch, messageId, sequence`. Inputs are de-duplicated by `messageId`, and phones retry until the TV acks them. A host reconnect bumps the epoch, and stale-epoch traffic is dropped.
-- **Clock:** phones keep an NTP-style offset to the TV's monotonic `performance.now()`. Buzzers are resolved by synced timestamp.
+- **Clock:** the TV runs a pausable game clock; phones keep an NTP-style offset to it and count down locally from each view.
+- **Audio:** `scripts/audio/` pre-renders every line the TV can say (lesson words, café orders, Stop! letters) into `public/audio/` — see `scripts/audio/README.md`.
 - **Persistence:** the TV holds the learner model locally and syncs events and snapshots to Postgres (`DATABASE_URL`), authenticated with a household secret. The server stores only its hash. Phones never get household credentials.
 
 ### Hosting

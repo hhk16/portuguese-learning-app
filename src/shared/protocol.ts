@@ -137,6 +137,49 @@ export const ControllerView = z.discriminatedUnion("mode", [
     bank: z.array(Word).max(16),
     submitted: z.boolean(),
   }),
+  /** Desenha! — one draws the secret word, the other picks it from Portuguese words. */
+  z.object({
+    mode: z.literal("draw"),
+    ...round,
+    role: z.enum(["draw", "guess"]),
+    partner: shortText,
+    round: z.number().int().nonnegative(),
+    rounds: z.number().int().positive(),
+    /** Milliseconds left in this turn when the view was sent. */
+    msLeft: z.number().nonnegative(),
+    /** The secret word (drawer only). */
+    word: Word.optional(),
+    /** Guesser's choices (Portuguese only) and the ones already tried. */
+    options: z.array(z.object({ id, label: shortText })).max(8).optional(),
+    tried: z.array(id).max(8).optional(),
+    canPass: z.boolean().optional(),
+  }),
+  /** Stop! — a letter, four categories, a word for each. */
+  z.object({
+    mode: z.literal("stop"),
+    ...round,
+    letter: z.string().length(1),
+    categories: z.array(z.object({ id, label: shortText, pic: emojiField })).min(2).max(6),
+    phase: z.enum(["write", "hurry", "vote"]),
+    msLeft: z.number().nonnegative(),
+    /** Who shouted STOP (during "hurry"). */
+    stoppedBy: shortText.optional(),
+    /** Your partner's words the dictionary doesn't know — you decide. */
+    votes: z.array(z.object({ id, category: shortText, word: shortText })).max(6).optional(),
+    voted: z.boolean().optional(),
+  }),
+  /** Cozinha Caótica — your half of the pantry; the orders are on the TV. */
+  z.object({
+    mode: z.literal("kitchen"),
+    ...round,
+    pantry: z.array(z.object({ id, pt: shortText, pic: emojiField })).max(8),
+    /** What's on the shared tray right now. */
+    tray: z.array(z.object({ pt: shortText, pic: emojiField, n: z.number().int().positive() })).max(12),
+    msLeft: z.number().nonnegative(),
+    served: z.number().int().nonnegative(),
+    /** Set when the pantries just swapped ("Troca!"). */
+    swapped: z.boolean().optional(),
+  }),
 ]);
 export type ControllerView = z.infer<typeof ControllerView>;
 export type ControllerMode = ControllerView["mode"];
@@ -176,6 +219,28 @@ export const InputValue = z.discriminatedUnion("mode", [
     ]),
   }),
   z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40) }),
+  z.object({
+    mode: z.literal("draw"),
+    action: z.discriminatedUnion("a", [
+      /** A piece of a stroke: points as x,y pairs on a 0..1000 square, in order (seg = piece index). */
+      z.object({ a: z.literal("stroke"), s: z.number().int().nonnegative(), seg: z.number().int().nonnegative(), c: z.number().int().min(0).max(5), w: z.number().int().min(1).max(4), pts: z.array(z.number().int().min(0).max(1000)).max(400) }),
+      z.object({ a: z.literal("clear") }),
+      z.object({ a: z.literal("guess"), id }),
+      z.object({ a: z.literal("pass") }),
+    ]),
+  }),
+  z.object({
+    mode: z.literal("stop"),
+    action: z.discriminatedUnion("a", [
+      /** Your words so far (sent as you type); stop = "I'm done, STOP!" */
+      z.object({ a: z.literal("save"), answers: z.record(z.string().max(32), z.string().max(40)), stop: z.boolean() }),
+      z.object({ a: z.literal("vote"), ok: z.record(z.string().max(64), z.boolean()) }),
+    ]),
+  }),
+  z.object({
+    mode: z.literal("kitchen"),
+    action: z.discriminatedUnion("a", [z.object({ a: z.literal("add"), id }), z.object({ a: z.literal("serve") }), z.object({ a: z.literal("trash") })]),
+  }),
 ]);
 export type InputValue = z.infer<typeof InputValue>;
 

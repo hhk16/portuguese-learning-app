@@ -5,7 +5,7 @@ Pre-rendered European Portuguese (pt-PT) speech in `public/audio/`, built by
 script instead of editing it by hand.
 
 - **0** clips are native recordings from Lingua Libre (Wikimedia Commons).
-- **350** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
+- **573** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
 
 All clips were trimmed (leading/trailing silence), loudness-normalised and re-encoded as mono
 MP3. For the Lingua Libre recordings these are modifications of the original works; under the

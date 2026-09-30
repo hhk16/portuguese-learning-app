@@ -807,6 +807,70 @@
   "text": "dois",
   "voice": "pt_PT-tugão-medium"
  },
+ "dois cafés e dois ovos, se faz favor.": {
+  "file": "6345460087.mp3",
+  "lengthScale": 1.12,
+  "say": "Dois cafés e dois ovos, se faz favor.",
+  "source": "piper",
+  "text": "Dois cafés e dois ovos, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dois cafés e uma maçã, se faz favor.": {
+  "file": "4c8eb0a0dd.mp3",
+  "lengthScale": 1.12,
+  "say": "Dois cafés e uma maçã, se faz favor.",
+  "source": "piper",
+  "text": "Dois cafés e uma maçã, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dois cafés, se faz favor.": {
+  "file": "9181a6765c.mp3",
+  "lengthScale": 1.12,
+  "say": "Dois cafés, se faz favor.",
+  "source": "piper",
+  "text": "Dois cafés, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dois chocolates, se faz favor.": {
+  "file": "ae1a1bb239.mp3",
+  "lengthScale": 1.12,
+  "say": "Dois chocolates, se faz favor.",
+  "source": "piper",
+  "text": "Dois chocolates, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dois gelados e uma água, se faz favor.": {
+  "file": "6a3573bb83.mp3",
+  "lengthScale": 1.12,
+  "say": "Dois gelados e uma água, se faz favor.",
+  "source": "piper",
+  "text": "Dois gelados e uma água, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dois queijos e uma banana, se faz favor.": {
+  "file": "781b0125fd.mp3",
+  "lengthScale": 1.12,
+  "say": "Dois queijos e uma banana, se faz favor.",
+  "source": "piper",
+  "text": "Dois queijos e uma banana, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dois queijos, se faz favor.": {
+  "file": "dfc0734c00.mp3",
+  "lengthScale": 1.12,
+  "say": "Dois queijos, se faz favor.",
+  "source": "piper",
+  "text": "Dois queijos, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "dois vinhos, uma salada e uma sopa, se faz favor.": {
+  "file": "b4388887e3.mp3",
+  "lengthScale": 1.12,
+  "say": "Dois vinhos, uma salada e uma sopa, se faz favor.",
+  "source": "piper",
+  "text": "Dois vinhos, uma salada e uma sopa, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "dos": {
   "file": "c4d54e2dc7.mp3",
   "lengthScale": 1.12,
@@ -821,6 +885,54 @@
   "say": "doze.",
   "source": "piper",
   "text": "doze",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "duas laranjas, se faz favor.": {
+  "file": "2049cffb8b.mp3",
+  "lengthScale": 1.12,
+  "say": "Duas laranjas, se faz favor.",
+  "source": "piper",
+  "text": "Duas laranjas, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "duas pizzas, se faz favor.": {
+  "file": "1bf3ab70ef.mp3",
+  "lengthScale": 1.12,
+  "say": "Duas pizzas, se faz favor.",
+  "source": "piper",
+  "text": "Duas pizzas, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "duas saladas e duas águas, se faz favor.": {
+  "file": "260047cfbd.mp3",
+  "lengthScale": 1.12,
+  "say": "Duas saladas e duas águas, se faz favor.",
+  "source": "piper",
+  "text": "Duas saladas e duas águas, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "duas águas e um pão, se faz favor.": {
+  "file": "8e97581525.mp3",
+  "lengthScale": 1.12,
+  "say": "Duas águas e um pão, se faz favor.",
+  "source": "piper",
+  "text": "Duas águas e um pão, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "duas águas, se faz favor.": {
+  "file": "f4812d9ff7.mp3",
+  "lengthScale": 1.12,
+  "say": "Duas águas, se faz favor.",
+  "source": "piper",
+  "text": "Duas águas, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "duas águas, um gelado e um café, se faz favor.": {
+  "file": "2b023d680e.mp3",
+  "lengthScale": 1.12,
+  "say": "Duas águas, um gelado e um café, se faz favor.",
+  "source": "piper",
+  "text": "Duas águas, um gelado e um café, se faz favor.",
   "voice": "pt_PT-tugão-medium"
  },
  "economista": {
@@ -1575,6 +1687,166 @@
   "text": "lento, lenta",
   "voice": "pt_PT-tugão-medium"
  },
+ "letra a!": {
+  "file": "a902300799.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra A!",
+  "source": "piper",
+  "text": "Letra A!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra b!": {
+  "file": "e46a0fb853.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra B!",
+  "source": "piper",
+  "text": "Letra B!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra c!": {
+  "file": "475fc60f39.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra C!",
+  "source": "piper",
+  "text": "Letra C!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra d!": {
+  "file": "1412805b4b.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra D!",
+  "source": "piper",
+  "text": "Letra D!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra e!": {
+  "file": "a7b6b27833.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra E!",
+  "source": "piper",
+  "text": "Letra E!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra f!": {
+  "file": "0e850c2391.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra F!",
+  "source": "piper",
+  "text": "Letra F!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra g!": {
+  "file": "ecddb4a5c9.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra G!",
+  "source": "piper",
+  "text": "Letra G!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra h!": {
+  "file": "0e182053b1.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra H!",
+  "source": "piper",
+  "text": "Letra H!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra i!": {
+  "file": "b387c56bb3.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra I!",
+  "source": "piper",
+  "text": "Letra I!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra j!": {
+  "file": "5c0ddea856.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra J!",
+  "source": "piper",
+  "text": "Letra J!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra l!": {
+  "file": "9810079a49.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra L!",
+  "source": "piper",
+  "text": "Letra L!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra m!": {
+  "file": "3d99174aed.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra M!",
+  "source": "piper",
+  "text": "Letra M!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra n!": {
+  "file": "d82b537fa7.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra N!",
+  "source": "piper",
+  "text": "Letra N!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra o!": {
+  "file": "98716d8c3c.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra O!",
+  "source": "piper",
+  "text": "Letra O!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra p!": {
+  "file": "f38208f27d.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra P!",
+  "source": "piper",
+  "text": "Letra P!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra r!": {
+  "file": "75b94269d4.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra R!",
+  "source": "piper",
+  "text": "Letra R!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra s!": {
+  "file": "12747d36da.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra S!",
+  "source": "piper",
+  "text": "Letra S!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra t!": {
+  "file": "873e4be377.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra T!",
+  "source": "piper",
+  "text": "Letra T!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra u!": {
+  "file": "7c842e9f23.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra U!",
+  "source": "piper",
+  "text": "Letra U!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "letra v!": {
+  "file": "0c9dcde740.mp3",
+  "lengthScale": 1.12,
+  "say": "Letra V!",
+  "source": "piper",
+  "text": "Letra V!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "leve": {
   "file": "876bdac0ef.mp3",
   "lengthScale": 1.12,
@@ -1757,6 +2029,14 @@
   "say": "Não percebo.",
   "source": "piper",
   "text": "Não percebo.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "não é isso!": {
+  "file": "397503120e.mp3",
+  "lengthScale": 1.12,
+  "say": "Não é isso!",
+  "source": "piper",
+  "text": "Não é isso!",
   "voice": "pt_PT-tugão-medium"
  },
  "nós chamamo-nos": {
@@ -2239,6 +2519,534 @@
   "text": "onze",
   "voice": "pt_PT-tugão-medium"
  },
+ "para mim, dois bolos e um morango.": {
+  "file": "acee339be6.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, dois bolos e um morango.",
+  "source": "piper",
+  "text": "Para mim, dois bolos e um morango.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, dois bolos.": {
+  "file": "04369ea9a2.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, dois bolos.",
+  "source": "piper",
+  "text": "Para mim, dois bolos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, dois cafés e três bolos.": {
+  "file": "15fcb1c47e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, dois cafés e três bolos.",
+  "source": "piper",
+  "text": "Para mim, dois cafés e três bolos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, dois cafés.": {
+  "file": "d648d89cd8.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, dois cafés.",
+  "source": "piper",
+  "text": "Para mim, dois cafés.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, dois ovos.": {
+  "file": "9c537b959f.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, dois ovos.",
+  "source": "piper",
+  "text": "Para mim, dois ovos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, dois pães.": {
+  "file": "7524deaef4.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, dois pães.",
+  "source": "piper",
+  "text": "Para mim, dois pães.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, dois vinhos, uma salada e uma água.": {
+  "file": "8e61f14e14.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, dois vinhos, uma salada e uma água.",
+  "source": "piper",
+  "text": "Para mim, dois vinhos, uma salada e uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, dois vinhos.": {
+  "file": "7d8c11c5d6.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, dois vinhos.",
+  "source": "piper",
+  "text": "Para mim, dois vinhos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, duas bananas.": {
+  "file": "43c52ea10e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, duas bananas.",
+  "source": "piper",
+  "text": "Para mim, duas bananas.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, duas laranjas e um croissant.": {
+  "file": "fa82a7ef9c.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, duas laranjas e um croissant.",
+  "source": "piper",
+  "text": "Para mim, duas laranjas e um croissant.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, duas maçãs.": {
+  "file": "43ae4c5f74.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, duas maçãs.",
+  "source": "piper",
+  "text": "Para mim, duas maçãs.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, duas pizzas, dois tomates e dois pães.": {
+  "file": "bc2003940c.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, duas pizzas, dois tomates e dois pães.",
+  "source": "piper",
+  "text": "Para mim, duas pizzas, dois tomates e dois pães.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, duas pizzas, uma água e três pães.": {
+  "file": "25d0e9c6f3.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, duas pizzas, uma água e três pães.",
+  "source": "piper",
+  "text": "Para mim, duas pizzas, uma água e três pães.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, duas sopas.": {
+  "file": "a6404019bd.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, duas sopas.",
+  "source": "piper",
+  "text": "Para mim, duas sopas.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, duas águas.": {
+  "file": "268e6dd07a.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, duas águas.",
+  "source": "piper",
+  "text": "Para mim, duas águas.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, três bananas e um leite.": {
+  "file": "cba8c4134e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, três bananas e um leite.",
+  "source": "piper",
+  "text": "Para mim, três bananas e um leite.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, três bananas, três queijos e três ovos.": {
+  "file": "94a9255910.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, três bananas, três queijos e três ovos.",
+  "source": "piper",
+  "text": "Para mim, três bananas, três queijos e três ovos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, três bolos e um leite.": {
+  "file": "41358c8bf5.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, três bolos e um leite.",
+  "source": "piper",
+  "text": "Para mim, três bolos e um leite.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, três bolos, duas águas e um chocolate.": {
+  "file": "12f1082e9d.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, três bolos, duas águas e um chocolate.",
+  "source": "piper",
+  "text": "Para mim, três bolos, duas águas e um chocolate.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, três bolos, um chocolate e um morango.": {
+  "file": "3dcdab1921.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, três bolos, um chocolate e um morango.",
+  "source": "piper",
+  "text": "Para mim, três bolos, um chocolate e um morango.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, três cervejas, dois tomates e dois vinhos.": {
+  "file": "08bc40ee39.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, três cervejas, dois tomates e dois vinhos.",
+  "source": "piper",
+  "text": "Para mim, três cervejas, dois tomates e dois vinhos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, três laranjas e um queijo.": {
+  "file": "0498327443.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, três laranjas e um queijo.",
+  "source": "piper",
+  "text": "Para mim, três laranjas e um queijo.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, três pães e uma laranja.": {
+  "file": "b99d4c50bd.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, três pães e uma laranja.",
+  "source": "piper",
+  "text": "Para mim, três pães e uma laranja.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, três vinhos e duas águas.": {
+  "file": "d3cd4abd53.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, três vinhos e duas águas.",
+  "source": "piper",
+  "text": "Para mim, três vinhos e duas águas.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um bolo e uma maçã.": {
+  "file": "233e2dd32e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um bolo e uma maçã.",
+  "source": "piper",
+  "text": "Para mim, um bolo e uma maçã.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um bolo e uma água.": {
+  "file": "bb1c0cf698.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um bolo e uma água.",
+  "source": "piper",
+  "text": "Para mim, um bolo e uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um café e três chocolates.": {
+  "file": "ab6a7eaf31.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um café e três chocolates.",
+  "source": "piper",
+  "text": "Para mim, um café e três chocolates.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um café e um leite.": {
+  "file": "d3cd27032e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um café e um leite.",
+  "source": "piper",
+  "text": "Para mim, um café e um leite.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um café e um queijo.": {
+  "file": "2b131aba23.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um café e um queijo.",
+  "source": "piper",
+  "text": "Para mim, um café e um queijo.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um café e uma laranja.": {
+  "file": "e681596d63.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um café e uma laranja.",
+  "source": "piper",
+  "text": "Para mim, um café e uma laranja.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um café.": {
+  "file": "cc45deff37.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um café.",
+  "source": "piper",
+  "text": "Para mim, um café.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um chocolate e um leite.": {
+  "file": "3bc1d8c694.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um chocolate e um leite.",
+  "source": "piper",
+  "text": "Para mim, um chocolate e um leite.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um chocolate e um morango.": {
+  "file": "021fb07da1.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um chocolate e um morango.",
+  "source": "piper",
+  "text": "Para mim, um chocolate e um morango.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um chocolate.": {
+  "file": "400c04d82e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um chocolate.",
+  "source": "piper",
+  "text": "Para mim, um chocolate.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um croissant e uma banana.": {
+  "file": "9151b0129e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um croissant e uma banana.",
+  "source": "piper",
+  "text": "Para mim, um croissant e uma banana.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um croissant.": {
+  "file": "823f1c9b78.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um croissant.",
+  "source": "piper",
+  "text": "Para mim, um croissant.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um gelado e uma maçã.": {
+  "file": "1f087adb90.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um gelado e uma maçã.",
+  "source": "piper",
+  "text": "Para mim, um gelado e uma maçã.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um gelado e uma água.": {
+  "file": "3901a42f8a.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um gelado e uma água.",
+  "source": "piper",
+  "text": "Para mim, um gelado e uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um leite e um queijo.": {
+  "file": "d7a4dbeff4.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um leite e um queijo.",
+  "source": "piper",
+  "text": "Para mim, um leite e um queijo.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um leite e uma banana.": {
+  "file": "12ebd089c2.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um leite e uma banana.",
+  "source": "piper",
+  "text": "Para mim, um leite e uma banana.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um leite e uma laranja.": {
+  "file": "c286bebeeb.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um leite e uma laranja.",
+  "source": "piper",
+  "text": "Para mim, um leite e uma laranja.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um morango e uma água.": {
+  "file": "9aee0789be.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um morango e uma água.",
+  "source": "piper",
+  "text": "Para mim, um morango e uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um ovo e uma laranja.": {
+  "file": "654f9b62f5.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um ovo e uma laranja.",
+  "source": "piper",
+  "text": "Para mim, um ovo e uma laranja.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um pão e um ovo.": {
+  "file": "ab71d8dd8d.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um pão e um ovo.",
+  "source": "piper",
+  "text": "Para mim, um pão e um ovo.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um pão e uma banana.": {
+  "file": "d867ea74c7.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um pão e uma banana.",
+  "source": "piper",
+  "text": "Para mim, um pão e uma banana.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um pão e uma cerveja.": {
+  "file": "e20d8f086e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um pão e uma cerveja.",
+  "source": "piper",
+  "text": "Para mim, um pão e uma cerveja.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um pão e uma água.": {
+  "file": "d5b40af90c.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um pão e uma água.",
+  "source": "piper",
+  "text": "Para mim, um pão e uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um pão, um croissant e dois ovos.": {
+  "file": "d2a15033bc.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um pão, um croissant e dois ovos.",
+  "source": "piper",
+  "text": "Para mim, um pão, um croissant e dois ovos.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um pão.": {
+  "file": "ab5e71cc86.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um pão.",
+  "source": "piper",
+  "text": "Para mim, um pão.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um queijo e uma laranja.": {
+  "file": "582ba7ac73.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um queijo e uma laranja.",
+  "source": "piper",
+  "text": "Para mim, um queijo e uma laranja.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um queijo, uma banana e duas laranjas.": {
+  "file": "d845a4d926.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um queijo, uma banana e duas laranjas.",
+  "source": "piper",
+  "text": "Para mim, um queijo, uma banana e duas laranjas.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um tomate e três pizzas.": {
+  "file": "8692da4c0e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um tomate e três pizzas.",
+  "source": "piper",
+  "text": "Para mim, um tomate e três pizzas.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, um tomate e uma água.": {
+  "file": "bb9a636241.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, um tomate e uma água.",
+  "source": "piper",
+  "text": "Para mim, um tomate e uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma maçã e um leite.": {
+  "file": "8e01dbebe8.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma maçã e um leite.",
+  "source": "piper",
+  "text": "Para mim, uma maçã e um leite.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma maçã e uma água.": {
+  "file": "0a07cbc5ef.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma maçã e uma água.",
+  "source": "piper",
+  "text": "Para mim, uma maçã e uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma pizza e um pão.": {
+  "file": "8581cee6f7.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma pizza e um pão.",
+  "source": "piper",
+  "text": "Para mim, uma pizza e um pão.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma pizza e um vinho.": {
+  "file": "9409bec684.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma pizza e um vinho.",
+  "source": "piper",
+  "text": "Para mim, uma pizza e um vinho.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma pizza.": {
+  "file": "3c9fd16749.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma pizza.",
+  "source": "piper",
+  "text": "Para mim, uma pizza.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma salada e uma pizza.": {
+  "file": "3961dd90e9.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma salada e uma pizza.",
+  "source": "piper",
+  "text": "Para mim, uma salada e uma pizza.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma salada e uma água.": {
+  "file": "957b8dfcdf.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma salada e uma água.",
+  "source": "piper",
+  "text": "Para mim, uma salada e uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma sopa e uma pizza.": {
+  "file": "0f34100ddb.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma sopa e uma pizza.",
+  "source": "piper",
+  "text": "Para mim, uma sopa e uma pizza.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma sopa e uma água.": {
+  "file": "5370386867.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma sopa e uma água.",
+  "source": "piper",
+  "text": "Para mim, uma sopa e uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma água e um tomate.": {
+  "file": "75d3040ce1.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma água e um tomate.",
+  "source": "piper",
+  "text": "Para mim, uma água e um tomate.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma água e um vinho.": {
+  "file": "4fc7311f89.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma água e um vinho.",
+  "source": "piper",
+  "text": "Para mim, uma água e um vinho.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma água, um leite e dois cafés.": {
+  "file": "3aba34217a.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma água, um leite e dois cafés.",
+  "source": "piper",
+  "text": "Para mim, uma água, um leite e dois cafés.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "para mim, uma água.": {
+  "file": "be8b3f254e.mp3",
+  "lengthScale": 1.12,
+  "say": "Para mim, uma água.",
+  "source": "piper",
+  "text": "Para mim, uma água.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "pequeno, pequena": {
   "file": "04011749ce.mp3",
   "lengthScale": 1.12,
@@ -2357,6 +3165,558 @@
   "say": "quente.",
   "source": "piper",
   "text": "quente",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois bolos, um gelado e um chocolate, por favor.": {
+  "file": "69025cbd88.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois bolos, um gelado e um chocolate, por favor.",
+  "source": "piper",
+  "text": "Queria dois bolos, um gelado e um chocolate, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois cafés, um gelado e dois morangos, por favor.": {
+  "file": "9d0a375c20.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois cafés, um gelado e dois morangos, por favor.",
+  "source": "piper",
+  "text": "Queria dois cafés, um gelado e dois morangos, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois croissants, por favor.": {
+  "file": "ab9b202f69.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois croissants, por favor.",
+  "source": "piper",
+  "text": "Queria dois croissants, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois gelados, por favor.": {
+  "file": "41145afdb4.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois gelados, por favor.",
+  "source": "piper",
+  "text": "Queria dois gelados, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois morangos, por favor.": {
+  "file": "e8168f1157.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois morangos, por favor.",
+  "source": "piper",
+  "text": "Queria dois morangos, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois morangos, três bolos e uma água, por favor.": {
+  "file": "91c4596d3f.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois morangos, três bolos e uma água, por favor.",
+  "source": "piper",
+  "text": "Queria dois morangos, três bolos e uma água, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois ovos, três queijos e um croissant, por favor.": {
+  "file": "496e3e841f.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois ovos, três queijos e um croissant, por favor.",
+  "source": "piper",
+  "text": "Queria dois ovos, três queijos e um croissant, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois pães e dois ovos, por favor.": {
+  "file": "ba53e5e8ee.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois pães e dois ovos, por favor.",
+  "source": "piper",
+  "text": "Queria dois pães e dois ovos, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois pães, por favor.": {
+  "file": "2ab9a0cd30.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois pães, por favor.",
+  "source": "piper",
+  "text": "Queria dois pães, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois tomates e duas cervejas, por favor.": {
+  "file": "e3ec0f51fb.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois tomates e duas cervejas, por favor.",
+  "source": "piper",
+  "text": "Queria dois tomates e duas cervejas, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois tomates, dois pães e três sopas, por favor.": {
+  "file": "e48026a2bf.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois tomates, dois pães e três sopas, por favor.",
+  "source": "piper",
+  "text": "Queria dois tomates, dois pães e três sopas, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria dois tomates, por favor.": {
+  "file": "98456bc2eb.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria dois tomates, por favor.",
+  "source": "piper",
+  "text": "Queria dois tomates, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria duas cervejas, por favor.": {
+  "file": "e2c1640bca.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria duas cervejas, por favor.",
+  "source": "piper",
+  "text": "Queria duas cervejas, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria duas laranjas, três cafés e dois croissants, por favor.": {
+  "file": "f4f6aaea99.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria duas laranjas, três cafés e dois croissants, por favor.",
+  "source": "piper",
+  "text": "Queria duas laranjas, três cafés e dois croissants, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria duas laranjas, um leite e um croissant, por favor.": {
+  "file": "4b43ba4cc5.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria duas laranjas, um leite e um croissant, por favor.",
+  "source": "piper",
+  "text": "Queria duas laranjas, um leite e um croissant, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria duas laranjas, um queijo e um café, por favor.": {
+  "file": "f992d9ec02.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria duas laranjas, um queijo e um café, por favor.",
+  "source": "piper",
+  "text": "Queria duas laranjas, um queijo e um café, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria duas saladas, por favor.": {
+  "file": "31a9495c95.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria duas saladas, por favor.",
+  "source": "piper",
+  "text": "Queria duas saladas, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria duas sopas e um pão, por favor.": {
+  "file": "e36b7d081a.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria duas sopas e um pão, por favor.",
+  "source": "piper",
+  "text": "Queria duas sopas e um pão, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria três bolos e um morango, por favor.": {
+  "file": "beb712f264.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria três bolos e um morango, por favor.",
+  "source": "piper",
+  "text": "Queria três bolos e um morango, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria três chocolates e um leite, por favor.": {
+  "file": "c0ee9554d8.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria três chocolates e um leite, por favor.",
+  "source": "piper",
+  "text": "Queria três chocolates e um leite, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria três pães, três ovos e um leite, por favor.": {
+  "file": "bad05c5289.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria três pães, três ovos e um leite, por favor.",
+  "source": "piper",
+  "text": "Queria três pães, três ovos e um leite, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria três sopas e duas cervejas, por favor.": {
+  "file": "3517868538.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria três sopas e duas cervejas, por favor.",
+  "source": "piper",
+  "text": "Queria três sopas e duas cervejas, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria três tomates, duas águas e três vinhos, por favor.": {
+  "file": "87462b4b32.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria três tomates, duas águas e três vinhos, por favor.",
+  "source": "piper",
+  "text": "Queria três tomates, duas águas e três vinhos, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria três águas e dois cafés, por favor.": {
+  "file": "7cae49277a.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria três águas e dois cafés, por favor.",
+  "source": "piper",
+  "text": "Queria três águas e dois cafés, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um bolo e um gelado, por favor.": {
+  "file": "6424c372dc.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um bolo e um gelado, por favor.",
+  "source": "piper",
+  "text": "Queria um bolo e um gelado, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um bolo e um leite, por favor.": {
+  "file": "9474f5956e.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um bolo e um leite, por favor.",
+  "source": "piper",
+  "text": "Queria um bolo e um leite, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um bolo e um morango, por favor.": {
+  "file": "748e9278ab.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um bolo e um morango, por favor.",
+  "source": "piper",
+  "text": "Queria um bolo e um morango, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um bolo, por favor.": {
+  "file": "313e23611c.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um bolo, por favor.",
+  "source": "piper",
+  "text": "Queria um bolo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um bolo, um morango e um leite, por favor.": {
+  "file": "e7aaba9eb3.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um bolo, um morango e um leite, por favor.",
+  "source": "piper",
+  "text": "Queria um bolo, um morango e um leite, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um café e um leite, por favor.": {
+  "file": "171ec1a108.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um café e um leite, por favor.",
+  "source": "piper",
+  "text": "Queria um café e um leite, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um café e um ovo, por favor.": {
+  "file": "12a06f9c1b.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um café e um ovo, por favor.",
+  "source": "piper",
+  "text": "Queria um café e um ovo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um café e uma banana, por favor.": {
+  "file": "1ed08870d7.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um café e uma banana, por favor.",
+  "source": "piper",
+  "text": "Queria um café e uma banana, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um café, por favor.": {
+  "file": "a4a751e49d.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um café, por favor.",
+  "source": "piper",
+  "text": "Queria um café, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um chocolate e um café, por favor.": {
+  "file": "8791010b85.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um chocolate e um café, por favor.",
+  "source": "piper",
+  "text": "Queria um chocolate e um café, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um gelado e um leite, por favor.": {
+  "file": "6f3e0855cd.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um gelado e um leite, por favor.",
+  "source": "piper",
+  "text": "Queria um gelado e um leite, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um gelado e um morango, por favor.": {
+  "file": "39af6973c3.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um gelado e um morango, por favor.",
+  "source": "piper",
+  "text": "Queria um gelado e um morango, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um gelado, um morango e uma maçã, por favor.": {
+  "file": "2eef7bd9a2.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um gelado, um morango e uma maçã, por favor.",
+  "source": "piper",
+  "text": "Queria um gelado, um morango e uma maçã, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um leite e três cafés, por favor.": {
+  "file": "49e2a1883f.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um leite e três cafés, por favor.",
+  "source": "piper",
+  "text": "Queria um leite e três cafés, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um leite e um ovo, por favor.": {
+  "file": "c6f1e887e9.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um leite e um ovo, por favor.",
+  "source": "piper",
+  "text": "Queria um leite e um ovo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um leite e uma banana, por favor.": {
+  "file": "e38b00a6d8.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um leite e uma banana, por favor.",
+  "source": "piper",
+  "text": "Queria um leite e uma banana, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um morango e um leite, por favor.": {
+  "file": "5a964c5ec5.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um morango e um leite, por favor.",
+  "source": "piper",
+  "text": "Queria um morango e um leite, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um ovo e uma banana, por favor.": {
+  "file": "9e0a39a8aa.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um ovo e uma banana, por favor.",
+  "source": "piper",
+  "text": "Queria um ovo e uma banana, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um pão e um croissant, por favor.": {
+  "file": "ed96bbc34e.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um pão e um croissant, por favor.",
+  "source": "piper",
+  "text": "Queria um pão e um croissant, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um pão e um vinho, por favor.": {
+  "file": "511f4917b6.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um pão e um vinho, por favor.",
+  "source": "piper",
+  "text": "Queria um pão e um vinho, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um pão, por favor.": {
+  "file": "0df7dbe89b.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um pão, por favor.",
+  "source": "piper",
+  "text": "Queria um pão, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um queijo e um ovo, por favor.": {
+  "file": "dd6da7aff4.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um queijo e um ovo, por favor.",
+  "source": "piper",
+  "text": "Queria um queijo e um ovo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um queijo e uma banana, por favor.": {
+  "file": "c5277d3749.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um queijo e uma banana, por favor.",
+  "source": "piper",
+  "text": "Queria um queijo e uma banana, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um queijo, por favor.": {
+  "file": "f85f9df6f8.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um queijo, por favor.",
+  "source": "piper",
+  "text": "Queria um queijo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um tomate e um vinho, por favor.": {
+  "file": "09481d0a4e.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um tomate e um vinho, por favor.",
+  "source": "piper",
+  "text": "Queria um tomate e um vinho, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria um vinho, por favor.": {
+  "file": "2d19283a1f.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria um vinho, por favor.",
+  "source": "piper",
+  "text": "Queria um vinho, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma laranja e uma banana, por favor.": {
+  "file": "b8ef87d712.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma laranja e uma banana, por favor.",
+  "source": "piper",
+  "text": "Queria uma laranja e uma banana, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma laranja, por favor.": {
+  "file": "938ae645d4.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma laranja, por favor.",
+  "source": "piper",
+  "text": "Queria uma laranja, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma laranja, três cafés e um queijo, por favor.": {
+  "file": "0bfce410d8.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma laranja, três cafés e um queijo, por favor.",
+  "source": "piper",
+  "text": "Queria uma laranja, três cafés e um queijo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma maçã e um leite, por favor.": {
+  "file": "4238d53bb6.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma maçã e um leite, por favor.",
+  "source": "piper",
+  "text": "Queria uma maçã e um leite, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma maçã e um morango, por favor.": {
+  "file": "45bd93d9fa.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma maçã e um morango, por favor.",
+  "source": "piper",
+  "text": "Queria uma maçã e um morango, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma maçã, por favor.": {
+  "file": "a5ca9fc93f.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma maçã, por favor.",
+  "source": "piper",
+  "text": "Queria uma maçã, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma pizza e um tomate, por favor.": {
+  "file": "1c4e41b2a8.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma pizza e um tomate, por favor.",
+  "source": "piper",
+  "text": "Queria uma pizza e um tomate, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma pizza e uma cerveja, por favor.": {
+  "file": "65ec051665.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma pizza e uma cerveja, por favor.",
+  "source": "piper",
+  "text": "Queria uma pizza e uma cerveja, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma salada e um pão, por favor.": {
+  "file": "3660d97d3a.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma salada e um pão, por favor.",
+  "source": "piper",
+  "text": "Queria uma salada e um pão, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma salada e um vinho, por favor.": {
+  "file": "3d5b6a36b0.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma salada e um vinho, por favor.",
+  "source": "piper",
+  "text": "Queria uma salada e um vinho, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma salada, três cervejas e dois pães, por favor.": {
+  "file": "a2b82782d9.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma salada, três cervejas e dois pães, por favor.",
+  "source": "piper",
+  "text": "Queria uma salada, três cervejas e dois pães, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma sopa e três cervejas, por favor.": {
+  "file": "758a5aebaf.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma sopa e três cervejas, por favor.",
+  "source": "piper",
+  "text": "Queria uma sopa e três cervejas, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma sopa e um pão, por favor.": {
+  "file": "10fd8d7d5f.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma sopa e um pão, por favor.",
+  "source": "piper",
+  "text": "Queria uma sopa e um pão, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma sopa e um vinho, por favor.": {
+  "file": "61361f0093.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma sopa e um vinho, por favor.",
+  "source": "piper",
+  "text": "Queria uma sopa e um vinho, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma sopa e uma água, por favor.": {
+  "file": "be1b6ee9e1.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma sopa e uma água, por favor.",
+  "source": "piper",
+  "text": "Queria uma sopa e uma água, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma sopa, por favor.": {
+  "file": "3dd4a5b6d1.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma sopa, por favor.",
+  "source": "piper",
+  "text": "Queria uma sopa, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água e um leite, por favor.": {
+  "file": "2c329a4faa.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água e um leite, por favor.",
+  "source": "piper",
+  "text": "Queria uma água e um leite, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água e uma cerveja, por favor.": {
+  "file": "9c594d5883.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água e uma cerveja, por favor.",
+  "source": "piper",
+  "text": "Queria uma água e uma cerveja, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água, por favor.": {
+  "file": "99259667c0.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água, por favor.",
+  "source": "piper",
+  "text": "Queria uma água, por favor.",
   "voice": "pt_PT-tugão-medium"
  },
  "quinze": {
@@ -2663,12 +4023,36 @@
   "text": "triste",
   "voice": "pt_PT-tugão-medium"
  },
+ "troca!": {
+  "file": "6d1db7f884.mp3",
+  "lengthScale": 1.12,
+  "say": "Troca!",
+  "source": "piper",
+  "text": "Troca!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "três": {
   "file": "c78915c9f8.mp3",
   "lengthScale": 1.12,
   "say": "três.",
   "source": "piper",
   "text": "três",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "três morangos, dois cafés e três águas, se faz favor.": {
+  "file": "835c771ccc.mp3",
+  "lengthScale": 1.12,
+  "say": "Três morangos, dois cafés e três águas, se faz favor.",
+  "source": "piper",
+  "text": "Três morangos, dois cafés e três águas, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "três águas, uma cerveja e duas sopas, se faz favor.": {
+  "file": "6aa01845f3.mp3",
+  "lengthScale": 1.12,
+  "say": "Três águas, uma cerveja e duas sopas, se faz favor.",
+  "source": "piper",
+  "text": "Três águas, uma cerveja e duas sopas, se faz favor.",
   "voice": "pt_PT-tugão-medium"
  },
  "tu chamas-te": {
@@ -2773,6 +4157,406 @@
   "say": "um.",
   "source": "piper",
   "text": "um",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um bolo e um café, se faz favor.": {
+  "file": "067d44e4c3.mp3",
+  "lengthScale": 1.12,
+  "say": "Um bolo e um café, se faz favor.",
+  "source": "piper",
+  "text": "Um bolo e um café, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um bolo e um chocolate, se faz favor.": {
+  "file": "32291442f0.mp3",
+  "lengthScale": 1.12,
+  "say": "Um bolo e um chocolate, se faz favor.",
+  "source": "piper",
+  "text": "Um bolo e um chocolate, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um café e um croissant, se faz favor.": {
+  "file": "d70b8ebdab.mp3",
+  "lengthScale": 1.12,
+  "say": "Um café e um croissant, se faz favor.",
+  "source": "piper",
+  "text": "Um café e um croissant, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um café e um pão, se faz favor.": {
+  "file": "3f7d1b94d4.mp3",
+  "lengthScale": 1.12,
+  "say": "Um café e um pão, se faz favor.",
+  "source": "piper",
+  "text": "Um café e um pão, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um café e uma água, se faz favor.": {
+  "file": "433a792891.mp3",
+  "lengthScale": 1.12,
+  "say": "Um café e uma água, se faz favor.",
+  "source": "piper",
+  "text": "Um café e uma água, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um chocolate e três cafés, se faz favor.": {
+  "file": "2ce0608c8f.mp3",
+  "lengthScale": 1.12,
+  "say": "Um chocolate e três cafés, se faz favor.",
+  "source": "piper",
+  "text": "Um chocolate e três cafés, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um chocolate e uma maçã, se faz favor.": {
+  "file": "741f1c2e9e.mp3",
+  "lengthScale": 1.12,
+  "say": "Um chocolate e uma maçã, se faz favor.",
+  "source": "piper",
+  "text": "Um chocolate e uma maçã, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um chocolate e uma água, se faz favor.": {
+  "file": "317f400454.mp3",
+  "lengthScale": 1.12,
+  "say": "Um chocolate e uma água, se faz favor.",
+  "source": "piper",
+  "text": "Um chocolate e uma água, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um croissant e uma laranja, se faz favor.": {
+  "file": "12bf43a6fa.mp3",
+  "lengthScale": 1.12,
+  "say": "Um croissant e uma laranja, se faz favor.",
+  "source": "piper",
+  "text": "Um croissant e uma laranja, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um croissant, dois queijos e um pão, se faz favor.": {
+  "file": "e3c1955f5a.mp3",
+  "lengthScale": 1.12,
+  "say": "Um croissant, dois queijos e um pão, se faz favor.",
+  "source": "piper",
+  "text": "Um croissant, dois queijos e um pão, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um gelado e um café, se faz favor.": {
+  "file": "bf20ba7efe.mp3",
+  "lengthScale": 1.12,
+  "say": "Um gelado e um café, se faz favor.",
+  "source": "piper",
+  "text": "Um gelado e um café, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um gelado e um chocolate, se faz favor.": {
+  "file": "bd228a7597.mp3",
+  "lengthScale": 1.12,
+  "say": "Um gelado e um chocolate, se faz favor.",
+  "source": "piper",
+  "text": "Um gelado e um chocolate, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um gelado, dois chocolates e duas maçãs, se faz favor.": {
+  "file": "136ffc26b8.mp3",
+  "lengthScale": 1.12,
+  "say": "Um gelado, dois chocolates e duas maçãs, se faz favor.",
+  "source": "piper",
+  "text": "Um gelado, dois chocolates e duas maçãs, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um gelado, se faz favor.": {
+  "file": "8502bacf5c.mp3",
+  "lengthScale": 1.12,
+  "say": "Um gelado, se faz favor.",
+  "source": "piper",
+  "text": "Um gelado, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite e três croissants, se faz favor.": {
+  "file": "8253f40fa3.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite e três croissants, se faz favor.",
+  "source": "piper",
+  "text": "Um leite e três croissants, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite e um croissant, se faz favor.": {
+  "file": "67345b8f48.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite e um croissant, se faz favor.",
+  "source": "piper",
+  "text": "Um leite e um croissant, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite e um pão, se faz favor.": {
+  "file": "d737fbca8f.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite e um pão, se faz favor.",
+  "source": "piper",
+  "text": "Um leite e um pão, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite, se faz favor.": {
+  "file": "77a5c04d1c.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite, se faz favor.",
+  "source": "piper",
+  "text": "Um leite, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite, três morangos e duas águas, se faz favor.": {
+  "file": "052067860b.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite, três morangos e duas águas, se faz favor.",
+  "source": "piper",
+  "text": "Um leite, três morangos e duas águas, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um morango e um café, se faz favor.": {
+  "file": "b098ef8d5e.mp3",
+  "lengthScale": 1.12,
+  "say": "Um morango e um café, se faz favor.",
+  "source": "piper",
+  "text": "Um morango e um café, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um morango e uma água, se faz favor.": {
+  "file": "0419b2e9e6.mp3",
+  "lengthScale": 1.12,
+  "say": "Um morango e uma água, se faz favor.",
+  "source": "piper",
+  "text": "Um morango e uma água, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um morango, se faz favor.": {
+  "file": "e2eb19b659.mp3",
+  "lengthScale": 1.12,
+  "say": "Um morango, se faz favor.",
+  "source": "piper",
+  "text": "Um morango, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um ovo e um croissant, se faz favor.": {
+  "file": "420b056916.mp3",
+  "lengthScale": 1.12,
+  "say": "Um ovo e um croissant, se faz favor.",
+  "source": "piper",
+  "text": "Um ovo e um croissant, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um ovo, se faz favor.": {
+  "file": "f44c84952b.mp3",
+  "lengthScale": 1.12,
+  "say": "Um ovo, se faz favor.",
+  "source": "piper",
+  "text": "Um ovo, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um pão e um ovo, se faz favor.": {
+  "file": "491e17b88f.mp3",
+  "lengthScale": 1.12,
+  "say": "Um pão e um ovo, se faz favor.",
+  "source": "piper",
+  "text": "Um pão e um ovo, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um pão e um queijo, se faz favor.": {
+  "file": "8e4aad6fd8.mp3",
+  "lengthScale": 1.12,
+  "say": "Um pão e um queijo, se faz favor.",
+  "source": "piper",
+  "text": "Um pão e um queijo, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um pão e um tomate, se faz favor.": {
+  "file": "ac46a6d923.mp3",
+  "lengthScale": 1.12,
+  "say": "Um pão e um tomate, se faz favor.",
+  "source": "piper",
+  "text": "Um pão e um tomate, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um pão e uma cerveja, se faz favor.": {
+  "file": "3b6bff7238.mp3",
+  "lengthScale": 1.12,
+  "say": "Um pão e uma cerveja, se faz favor.",
+  "source": "piper",
+  "text": "Um pão e uma cerveja, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um pão e uma laranja, se faz favor.": {
+  "file": "d8b6eb9fd9.mp3",
+  "lengthScale": 1.12,
+  "say": "Um pão e uma laranja, se faz favor.",
+  "source": "piper",
+  "text": "Um pão e uma laranja, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um queijo e três cafés, se faz favor.": {
+  "file": "25400a6a3c.mp3",
+  "lengthScale": 1.12,
+  "say": "Um queijo e três cafés, se faz favor.",
+  "source": "piper",
+  "text": "Um queijo e três cafés, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um queijo e um croissant, se faz favor.": {
+  "file": "a86fd3fede.mp3",
+  "lengthScale": 1.12,
+  "say": "Um queijo e um croissant, se faz favor.",
+  "source": "piper",
+  "text": "Um queijo e um croissant, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um tomate e uma cerveja, se faz favor.": {
+  "file": "e526ddef19.mp3",
+  "lengthScale": 1.12,
+  "say": "Um tomate e uma cerveja, se faz favor.",
+  "source": "piper",
+  "text": "Um tomate e uma cerveja, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um tomate, se faz favor.": {
+  "file": "36478218ee.mp3",
+  "lengthScale": 1.12,
+  "say": "Um tomate, se faz favor.",
+  "source": "piper",
+  "text": "Um tomate, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um vinho e duas saladas, se faz favor.": {
+  "file": "9a62d508cd.mp3",
+  "lengthScale": 1.12,
+  "say": "Um vinho e duas saladas, se faz favor.",
+  "source": "piper",
+  "text": "Um vinho e duas saladas, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um vinho e uma cerveja, se faz favor.": {
+  "file": "f4e5dd7439.mp3",
+  "lengthScale": 1.12,
+  "say": "Um vinho e uma cerveja, se faz favor.",
+  "source": "piper",
+  "text": "Um vinho e uma cerveja, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma banana, se faz favor.": {
+  "file": "d80390c69b.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma banana, se faz favor.",
+  "source": "piper",
+  "text": "Uma banana, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma banana, um leite e três ovos, se faz favor.": {
+  "file": "4b03b7a444.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma banana, um leite e três ovos, se faz favor.",
+  "source": "piper",
+  "text": "Uma banana, um leite e três ovos, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma cerveja e um vinho, se faz favor.": {
+  "file": "787604d29c.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma cerveja e um vinho, se faz favor.",
+  "source": "piper",
+  "text": "Uma cerveja e um vinho, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma cerveja, se faz favor.": {
+  "file": "129a381706.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma cerveja, se faz favor.",
+  "source": "piper",
+  "text": "Uma cerveja, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma laranja e um pão, se faz favor.": {
+  "file": "973ca79143.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma laranja e um pão, se faz favor.",
+  "source": "piper",
+  "text": "Uma laranja e um pão, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma maçã e um café, se faz favor.": {
+  "file": "ec6fcdaaeb.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma maçã e um café, se faz favor.",
+  "source": "piper",
+  "text": "Uma maçã e um café, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma pizza e uma água, se faz favor.": {
+  "file": "f7a15bf859.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma pizza e uma água, se faz favor.",
+  "source": "piper",
+  "text": "Uma pizza e uma água, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma salada e um tomate, se faz favor.": {
+  "file": "b1e68b9715.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma salada e um tomate, se faz favor.",
+  "source": "piper",
+  "text": "Uma salada e um tomate, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma salada e uma cerveja, se faz favor.": {
+  "file": "23d81f609d.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma salada e uma cerveja, se faz favor.",
+  "source": "piper",
+  "text": "Uma salada e uma cerveja, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma salada, se faz favor.": {
+  "file": "e05b69f8b7.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma salada, se faz favor.",
+  "source": "piper",
+  "text": "Uma salada, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma sopa e um tomate, se faz favor.": {
+  "file": "6f683fe9f5.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma sopa e um tomate, se faz favor.",
+  "source": "piper",
+  "text": "Uma sopa e um tomate, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma sopa e uma cerveja, se faz favor.": {
+  "file": "e7fd7ed282.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma sopa e uma cerveja, se faz favor.",
+  "source": "piper",
+  "text": "Uma sopa e uma cerveja, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma sopa e uma salada, se faz favor.": {
+  "file": "85fb11ebfc.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma sopa e uma salada, se faz favor.",
+  "source": "piper",
+  "text": "Uma sopa e uma salada, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma sopa, um tomate e uma cerveja, se faz favor.": {
+  "file": "97eea60e42.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma sopa, um tomate e uma cerveja, se faz favor.",
+  "source": "piper",
+  "text": "Uma sopa, um tomate e uma cerveja, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "uma sopa, uma salada e uma pizza, se faz favor.": {
+  "file": "fae2dc7bef.mp3",
+  "lengthScale": 1.12,
+  "say": "Uma sopa, uma salada e uma pizza, se faz favor.",
+  "source": "piper",
+  "text": "Uma sopa, uma salada e uma pizza, se faz favor.",
   "voice": "pt_PT-tugão-medium"
  },
  "velho, velha": {
