@@ -1,6 +1,6 @@
 # Art, 3D and sound credits
 
-Third-party and generated media shipped in `public/art/` and `public/sfx/`. The scripts in `scripts/art/` rebuild all of it. Nothing in these folders is under a non-commercial or share-alike licence.
+Third-party and generated media shipped in `public/art/` and `public/sfx/`. The scripts in `scripts/art/` rebuild the pictures and characters; sound sources are listed in `credits-sfx.md`. Nothing in these folders is under a non-commercial or share-alike licence.
 
 | What | Where | Pack / source | Licence |
 |---|---|---|---|
@@ -8,16 +8,12 @@ Third-party and generated media shipped in `public/art/` and `public/sfx/`. The 
 | Country flags (circular SVG) | `public/art/flags/*.svg` | [HatScripts circle-flags](https://github.com/HatScripts/circle-flags) (https://hatscripts.github.io/circle-flags/) | MIT (notice below) |
 | Player characters (5 poses each + face portrait, WebP) | `public/art/characters/*.webp` | Generated for this private game with OpenAI gpt-image (image edits API). Hadi and Ana are drawn from photos Hadi supplied; the four guests are invented. Processed by `scripts/art/characters.py` | Project art (private use) |
 | Stage backdrop | `public/art/backdrop.webp` | Generated with OpenAI gpt-image | Project art (private use) |
-| UI sound effects | `public/sfx/*.mp3` | [Kenney: Interface Sounds](https://kenney.nl/assets/interface-sounds) 1.0 and [Kenney: UI Audio](https://kenney.nl/assets/ui-audio) | CC0 1.0 |
-| Jingles | `public/sfx/success-jingle.mp3`, `fail-jingle.mp3` | [Kenney: Music Jingles](https://kenney.nl/assets/music-jingles) | CC0 1.0 |
-| Whoosh | `public/sfx/whoosh.mp3` | Synthesised by `scripts/art/build-sfx.ts` (filtered noise) | Project code |
+| Sound effects and stingers | `public/sfx/*.mp3` | Mixkit and Freesound (CC0), per file in [credits-sfx.md](credits-sfx.md) | Mixkit SFX Free License / CC0 1.0 |
+| Music | `public/music/*.mp3` | Generated for this game with Google Lyria | Project audio (private use) |
 
 We changed the originals as follows:
 - **Pictures:** re-encoded PNG → WebP (quality 82, alpha kept). The PNGs were already 256 px.
 - **Characters:** trimmed to the figure, scaled to 720 px tall, WebP; faces cropped to 256 px.
-- **Sounds:** trimmed levels (normalised and limited), then re-encoded OGG → MP3 at 96 kbps.
-
-Kenney assets are public domain (CC0: https://creativecommons.org/publicdomain/zero/1.0/). Credit isn't required, but we give it gladly: **Kenney (www.kenney.nl)**.
 
 ---
 
@@ -78,6 +74,5 @@ SOFTWARE.
 ```sh
 # caches go to $ART_CACHE (default: $TMPDIR/party-portugues-art-cache), never the repo
 PYTHONPATH=<dir with Pillow> node scripts/art/fetch-pictures.ts   # pictures + flags + src/art/pictures.generated.json
-FFMPEG=<path to ffmpeg> node scripts/art/build-sfx.ts             # e.g. from pip imageio-ffmpeg
 PYTHONPATH=<dir with Pillow> python3 scripts/art/characters.py <dir with the generated PNGs>   # characters + backdrop
 ```

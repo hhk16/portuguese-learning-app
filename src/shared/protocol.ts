@@ -80,7 +80,13 @@ export type SecretCard = z.infer<typeof SecretCard>;
 
 export const ControllerView = z.discriminatedUnion("mode", [
   z.object({ mode: z.literal("wait"), title: shortText, subtitle: shortText.optional(), pic: emojiField }),
-  z.object({ mode: z.literal("lobby"), ready: z.boolean(), hint: shortText.optional() }),
+  z.object({
+    mode: z.literal("lobby"),
+    ready: z.boolean(),
+    hint: shortText.optional(),
+    /** Games: difficulty 1–3 (either phone can change it with ◀ ▶). */
+    level: z.number().int().min(1).max(3).optional(),
+  }),
   z.object({ mode: z.literal("paused"), title: shortText }),
   z.object({ mode: z.literal("remote"), title: shortText, hint: shortText.optional() }),
   z.object({ mode: z.literal("pick"), ...round, title: shortText, subtitle: shortText.optional(), options: z.array(Option).min(1).max(8) }),
@@ -105,10 +111,15 @@ export const ControllerView = z.discriminatedUnion("mode", [
     ...round,
     role: z.enum(["clue", "guess", "watch"]),
     partner: shortText,
-    cards: z.array(SecretCard).min(4).max(20),
-    clue: z.object({ count: z.number().int().min(1).max(9) }).optional(),
+    cards: z.array(SecretCard).min(4).max(24),
+    clue: z.object({ count: z.number().int().min(1).max(9), word: Word.optional() }).optional(),
+    /** Clue words the giver can choose from (never a word on the board). */
+    clueWords: z.array(Word).max(40).optional(),
     guessesLeft: z.number().int().nonnegative().optional(),
-    turnsLeft: z.number().int().nonnegative(),
+    turnsUsed: z.number().int().nonnegative(),
+    turns: z.number().int().positive(),
+    lives: z.number().int().nonnegative(),
+    msLeft: z.number().nonnegative().optional(),
     found: z.number().int().nonnegative(),
     goal: z.number().int().positive(),
   }),
@@ -123,9 +134,19 @@ export const ControllerView = z.discriminatedUnion("mode", [
     /** 0..100 — only on the psychic's phone (and everyone's after the reveal). */
     target: z.number().min(0).max(100).optional(),
     value: z.number().min(0).max(100),
-    /** Clue ideas for the psychic: words they know, with pictures. */
-    ideas: z.array(Word).max(12).optional(),
+    /** Clue options for the psychic: intensifiers ("muito frio") and things, with pictures. */
+    clues: z.array(Word).max(16).optional(),
+    /** The clue given (the TV says it). */
+    clue: Word.optional(),
     phase: z.enum(["clue", "guess", "reveal"]),
+    /** Scoring band half-widths for this difficulty. */
+    bands: z.tuple([z.number(), z.number(), z.number()]).optional(),
+    /** Locked in, drumroll before the reveal. */
+    locked: z.boolean().optional(),
+    final: z.boolean().optional(),
+    /** Whether the guesser bet "Tenho a certeza!" (shown at the reveal). */
+    sure: z.boolean().optional(),
+    msLeft: z.number().nonnegative().optional(),
     points: z.number().int().optional(),
   }),
   /** Em Sintonia (Medium style). */
@@ -136,6 +157,12 @@ export const ControllerView = z.discriminatedUnion("mode", [
     attempt: z.number().int().positive(),
     bank: z.array(Word).max(16),
     submitted: z.boolean(),
+    final: z.boolean().optional(),
+    msLeft: z.number().nonnegative().optional(),
+    /** What each of you chose last try (same pair again). */
+    previous: z.array(z.object({ name: shortText, word: shortText })).max(4).optional(),
+    /** Same word but not an obvious link: "Faz sentido?" vote. */
+    sense: z.object({ word: shortText, voted: z.boolean() }).optional(),
   }),
   /** Desenha! — one draws the secret word, the other picks it from Portuguese words. */
   z.object({
@@ -149,8 +176,13 @@ export const ControllerView = z.discriminatedUnion("mode", [
     msLeft: z.number().nonnegative(),
     /** The secret word (drawer only). */
     word: Word.optional(),
-    /** Guesser's choices (Portuguese only) and the ones already tried. */
+    final: z.boolean().optional(),
+    /** Guesser's tap choices (Portuguese only; they appear after a while on easier levels) and the ones already tried. */
     options: z.array(z.object({ id, label: shortText })).max(8).optional(),
+    /** When the options will appear. */
+    optionsInMs: z.number().nonnegative().optional(),
+    /** Letter hint, e.g. "g _ _ _". */
+    hint: shortText.optional(),
     tried: z.array(id).max(8).optional(),
     canPass: z.boolean().optional(),
   }),
@@ -159,9 +191,13 @@ export const ControllerView = z.discriminatedUnion("mode", [
     mode: z.literal("stop"),
     ...round,
     letter: z.string().length(1),
-    categories: z.array(z.object({ id, label: shortText, pic: emojiField })).min(2).max(6),
+    categories: z.array(z.object({ id, label: shortText, en: shortText.optional(), pic: emojiField })).min(2).max(6),
     phase: z.enum(["write", "hurry", "vote"]),
     msLeft: z.number().nonnegative(),
+    /** Final letter / sudden death: points ×2. */
+    double: z.boolean().optional(),
+    /** 💡 hints you asked for: category id → the start of a word. */
+    help: z.record(z.string().max(32), shortText).optional(),
     /** Who shouted STOP (during "hurry"). */
     stoppedBy: shortText.optional(),
     /** Your partner's words the dictionary doesn't know — you decide. */
@@ -177,6 +213,9 @@ export const ControllerView = z.discriminatedUnion("mode", [
     tray: z.array(z.object({ pt: shortText, pic: emojiField, n: z.number().int().positive() })).max(12),
     msLeft: z.number().nonnegative(),
     served: z.number().int().nonnegative(),
+    score: z.number().int().nonnegative(),
+    hearts: z.number().int().min(0).max(5),
+    rush: z.boolean().optional(),
     /** Set when the pantries just swapped ("Troca!"). */
     swapped: z.boolean().optional(),
   }),
@@ -204,7 +243,7 @@ export const InputValue = z.discriminatedUnion("mode", [
   z.object({
     mode: z.literal("secret"),
     action: z.discriminatedUnion("a", [
-      z.object({ a: z.literal("clue"), count: z.number().int().min(1).max(9) }),
+      z.object({ a: z.literal("clue"), count: z.number().int().min(1).max(9), word: shortText.optional() }),
       z.object({ a: z.literal("tap"), cardId: id }),
       z.object({ a: z.literal("stop") }),
     ]),
@@ -213,12 +252,12 @@ export const InputValue = z.discriminatedUnion("mode", [
     mode: z.literal("dial"),
     action: z.discriminatedUnion("a", [
       z.object({ a: z.literal("move"), value: z.number().min(0).max(100) }),
-      z.object({ a: z.literal("clued") }),
-      z.object({ a: z.literal("lock") }),
+      z.object({ a: z.literal("clue"), text: shortText }),
+      z.object({ a: z.literal("lock"), sure: z.boolean().optional() }),
       z.object({ a: z.literal("next") }),
     ]),
   }),
-  z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40) }),
+  z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40).optional(), sense: z.boolean().optional() }),
   z.object({
     mode: z.literal("draw"),
     action: z.discriminatedUnion("a", [
@@ -226,6 +265,9 @@ export const InputValue = z.discriminatedUnion("mode", [
       z.object({ a: z.literal("stroke"), s: z.number().int().nonnegative(), seg: z.number().int().nonnegative(), c: z.number().int().min(0).max(5), w: z.number().int().min(1).max(4), pts: z.array(z.number().int().min(0).max(1000)).max(400) }),
       z.object({ a: z.literal("clear") }),
       z.object({ a: z.literal("guess"), id }),
+      /** Typed guess, or what speech recognition heard (alternatives). */
+      z.object({ a: z.literal("type"), text: z.string().max(40) }),
+      z.object({ a: z.literal("say"), heard: z.array(z.string().max(80)).max(8) }),
       z.object({ a: z.literal("pass") }),
     ]),
   }),
@@ -235,6 +277,7 @@ export const InputValue = z.discriminatedUnion("mode", [
       /** Your words so far (sent as you type); stop = "I'm done, STOP!" */
       z.object({ a: z.literal("save"), answers: z.record(z.string().max(32), z.string().max(40)), stop: z.boolean() }),
       z.object({ a: z.literal("vote"), ok: z.record(z.string().max(64), z.boolean()) }),
+      z.object({ a: z.literal("help"), cat: z.string().max(32) }),
     ]),
   }),
   z.object({
@@ -264,7 +307,11 @@ export const PlayerBody = z.discriminatedUnion("k", [
   z.object({ k: z.literal("nav"), dir: NavDir }),
   z.object({ k: z.literal("ready"), ready: z.boolean() }),
   z.object({ k: z.literal("menu"), action: z.enum(["pause", "resume", "restart", "quit", "repeat"]) }),
+  /** A quick emoji reaction that flies across the TV (Jackbox-style), from any screen. */
+  z.object({ k: z.literal("react"), emoji: z.enum(["😂", "😱", "👏", "❤️", "🤔", "🔥"]) }),
 ]);
+export const REACTIONS = ["😂", "😱", "👏", "❤️", "🤔", "🔥"] as const;
+export type Reaction = (typeof REACTIONS)[number];
 export type PlayerBody = z.infer<typeof PlayerBody>;
 
 export const HostBody = z.discriminatedUnion("k", [

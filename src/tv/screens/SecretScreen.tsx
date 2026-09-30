@@ -21,27 +21,38 @@ export function SecretScreen({ a }: { a: ParesSecretos }) {
     <div className="tv-overlay game-screen">
       <GameTop title="Pares Secretos" pic="🕵️">
         <span className="pill">
-          {a.found}/{a.goal} encontrados
+          {a.found}/{a.goal} encontrados · found
         </span>
-        <span className="pill">{a.turnsLeft} jogadas</span>
-        <span className="pill">{"💣".repeat(Math.max(0, a.lives))}</span>
+        <span className="pill">
+          Turno {Math.min(a.turnsUsed + 1, a.rules.turns)}/{a.rules.turns}
+        </span>
+        <span className="pill">{"❤️".repeat(Math.max(0, a.lives))}</span>
+        {a.phase === "clue" && <span className={`pill clock ${a.msLeft < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
       </GameTop>
       <div className="turn-banner card">
         {giver && <PlayerChip p={giver} size="2em" />}
-        <span>{a.phase === "clue" ? "está a pensar numa pista…" : a.phase === "guess" ? `deu uma pista para ${a.clueCount}` : "Fim!"}</span>
-        {a.phase === "guess" && guesser && (
+        {a.phase === "clue" && (
+          <span className="bi-line">
+            está a escolher uma pista…<i>is choosing a clue</i>
+          </span>
+        )}
+        {a.phase === "guess" && a.clueWord && (
           <>
+            <span className="clue-big display">
+              <Picture glyph={a.clueWord.pic} size="1.6em" /> {a.clueWord.pt} · {a.clueCount}
+            </span>
             <span className="arrow">→</span>
-            <PlayerChip p={guesser} size="2em" />
-            <span>
-              escolhe ({a.guessesLeft} {a.guessesLeft === 1 ? "toque" : "toques"})
+            {guesser && <PlayerChip p={guesser} size="2em" />}
+            <span className="bi-line">
+              escolhe ({a.guessesLeft})<i>taps the pictures</i>
             </span>
           </>
         )}
+        {a.phase === "end" && <span>Fim!</span>}
       </div>
-      <div className="secret-board">
+      <div className={`secret-board n${a.cards.length}`}>
         {a.cards.map((c) => (
-          <div key={c.id} className={`sb-card card s-${c.state} ${a.flash?.id === c.id ? "flash" : ""}`}>
+          <div key={c.id} className={`sb-card card s-${c.state} ${a.flash?.id === c.id ? "flash" : ""} ${a.flash?.id === c.id && c.state === "boom" ? "shake-screen" : ""}`}>
             <Picture glyph={c.card.emoji} size="4.2em" />
             <span className="w display">{c.card.pt}</span>
             {c.state === "found" && <span className="tag good">✓</span>}

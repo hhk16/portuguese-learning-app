@@ -1,4 +1,4 @@
-/** Desenha! on the phone: a sketch pad with the secret word, or the six words to guess from. */
+/** Desenha! on the phone: a sketch pad with the secret word, or a box to type/say your guess. */
 import { useEffect, useRef, useState } from "react";
 import type { ControllerView } from "../shared/protocol.ts";
 import { INK } from "../games/draw/ink.ts";
@@ -6,6 +6,7 @@ import { play } from "../audio/sfx.ts";
 import { Picture } from "../ui/Picture.tsx";
 import type { Send } from "./Controller.tsx";
 import { useCountdown } from "./useCountdown.ts";
+import { recognizeOnce } from "./speech.ts";
 
 type V = Extract<ControllerView, { mode: "draw" }>;
 const TURN_MS = 60_000;
@@ -17,35 +18,7 @@ export function Draw({ v, send }: { v: V; send: Send }) {
       <div style={{ width: `${(left / TURN_MS) * 100}%` }} className={left < 10_000 ? "low" : ""} />
     </div>
   );
-  if (v.role === "guess") {
-    const tried = new Set(v.tried ?? []);
-    return (
-      <div className="p-col">
-        {timer}
-        <div className="p-callout">
-          <b className="display">O que é que {v.partner} está a desenhar?</b>
-          <span>Olha para a TV e toca na palavra certa.</span>
-        </div>
-        <div className="draw-options">
-          {(v.options ?? []).map((o) => (
-            <button
-              key={o.id}
-              className={`lopt card ${tried.has(o.id) ? "tried" : ""}`}
-              disabled={tried.has(o.id)}
-              onClick={() => {
-                play("lock");
-                navigator.vibrate?.(15);
-                send({ mode: "draw", action: { a: "guess", id: o.id } });
-              }}
-            >
-              <span>{o.label}</span>
-              {tried.has(o.id) && <i>✗</i>}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  if (v.role === "guess") return <Guess v={v} send={send} timer={timer} />;
   return <Pad v={v} send={send} timer={timer} />;
 }
 
@@ -105,7 +78,7 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
       <div className="draw-word card">
         <Picture glyph={v.word?.pic} size="48px" />
         <span>
-          <small className="kicker">Desenha (sem falar!)</small>
+          <small className="kicker">Desenha (sem falar!) · Draw it, no talking!</small>
           <b className="display">{v.word?.pt}</b>
           {v.word?.en && <i>{v.word.en}</i>}
         </span>
@@ -156,12 +129,98 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
             send({ mode: "draw", action: { a: "clear" } });
           }}
         >
-          Apagar tudo
+          <span className="bi">
+            Apagar tudo<small>Clear</small>
+          </span>
         </button>
         <button className="btn sun" disabled={!v.canPass} onClick={() => send({ mode: "draw", action: { a: "pass" } })}>
-          Outra palavra
+          <span className="bi">
+            Outra palavra<small>Skip word (1×)</small>
+          </span>
         </button>
       </div>
+    </div>
+  );
+}
+
+function Guess({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
+  const [text, setText] = useState("");
+  const [listening, setListening] = useState(false);
+  const [heard, setHeard] = useState("");
+  const optionsIn = useCountdown(v.optionsInMs ?? 0);
+  const tried = new Set(v.tried ?? []);
+  const submit = () => {
+    if (!text.trim()) return;
+    play("lock");
+    navigator.vibrate?.(15);
+    send({ mode: "draw", action: { a: "type", text: text.trim() } });
+    setText("");
+  };
+  const listen = () => {
+    if (listening) return;
+    setListening(true);
+    setHeard("");
+    const r = recognizeOnce("pt-PT", setHeard);
+    void r.done.then((alts) => {
+      setListening(false);
+      if (alts === null) setHeard("🎤 ✗ — escreve · type it instead");
+      else if (alts.length) send({ mode: "draw", action: { a: "say", heard: alts.slice(0, 8) } });
+    });
+  };
+  return (
+    <div className="p-col">
+      {timer}
+      <div className="p-callout">
+        <b className="display">O que é que {v.partner} está a desenhar?</b>
+        <span>What is {v.partner} drawing? Type or say it in Portuguese.</span>
+      </div>
+      {v.hint && <div className="draw-hint display">{v.hint}</div>}
+      <form
+        className="sync-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit();
+        }}
+      >
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="É um… · Type your guess" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} />
+        <button className="btn player" type="submit" disabled={!text.trim()}>
+          OK
+        </button>
+      </form>
+      <button className={`btn block white ${listening ? "rec" : ""}`} onClick={listen}>
+        <span className="bi">
+          🎤 {listening ? "A ouvir…" : "Dizer"}
+          <small>{listening ? heard || "Listening…" : heard || "Say it"}</small>
+        </span>
+      </button>
+      {v.options ? (
+        <>
+          <div className="kicker">Ou toca · Or tap (1 ponto)</div>
+          <div className="draw-options">
+            {v.options.map((o) => (
+              <button
+                key={o.id}
+                className={`lopt card ${tried.has(o.id) ? "tried" : ""}`}
+                disabled={tried.has(o.id)}
+                onClick={() => {
+                  play("lock");
+                  navigator.vibrate?.(15);
+                  send({ mode: "draw", action: { a: "guess", id: o.id } });
+                }}
+              >
+                <span>{o.label}</span>
+                {tried.has(o.id) && <i>✗</i>}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        v.optionsInMs !== undefined && (
+          <div className="p-sub center">
+            Opções em {Math.ceil(optionsIn / 1000)}s · Word options in {Math.ceil(optionsIn / 1000)}s
+          </div>
+        )
+      )}
     </div>
   );
 }

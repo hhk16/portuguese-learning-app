@@ -13,13 +13,19 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
   return (
     <div className="p-col kitchen-pad">
       <div className="kitchen-head">
-        <span className="pill">🍽️ {v.served}</span>
+        <span className="pill">⭐ {v.score}</span>
+        <span className="pill hearts-mini">{"♥".repeat(v.hearts)}</span>
         <span className="pill">
           ⏱ {Math.floor(left / 60000)}:{String(Math.floor((left % 60000) / 1000)).padStart(2, "0")}
         </span>
       </div>
-      {v.swapped && <div className="p-warn">Troca! 🔄 Tens comida nova.</div>}
-      <div className="kicker">A tua despensa · ouve os pedidos na TV</div>
+      {v.swapped && <div className="p-warn">Troca! 🔄 Tens comida nova. · Swap! You have new food.</div>}
+      {v.rush && <div className="p-warn rush">🔥 Hora de ponta! ×2 · Rush hour!</div>}
+      <div className="p-callout soft">
+        <b className="display">Ouve os pedidos na TV</b>
+        <span>Listen to the orders on the TV. Tap your food; ask your partner for the rest!</span>
+      </div>
+      <div className="kicker">A tua despensa · Your pantry</div>
       <div className={`pantry ${v.swapped ? "swapped" : ""}`}>
         {v.pantry.map((d) => (
           <button
@@ -38,9 +44,9 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
         ))}
       </div>
       <div className="tray card">
-        <span className="kicker">Tabuleiro</span>
+        <span className="kicker">Tabuleiro · Tray</span>
         <div className="tray-row">
-          {v.tray.length === 0 && <span className="muted">vazio</span>}
+          {v.tray.length === 0 && <span className="muted">vazio · empty</span>}
           {v.tray.map((t) => (
             <span key={t.pt} className="tray-chip">
               <Picture glyph={t.pic} size="22px" />
@@ -52,7 +58,9 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
       <div className="p-grow" />
       <div className="row2">
         <button className="btn white" disabled={v.tray.length === 0} onClick={() => act({ a: "trash" })}>
-          🗑️ Deitar fora
+          <span className="bi">
+            🗑️ Deitar fora<small>Throw away</small>
+          </span>
         </button>
         <button
           className="btn player"
@@ -62,7 +70,9 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
             act({ a: "serve" });
           }}
         >
-          Servir 🍽️
+          <span className="bi">
+            Servir 🍽️<small>Serve</small>
+          </span>
         </button>
       </div>
     </div>

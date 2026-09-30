@@ -1,46 +1,60 @@
 /**
  * Stop! — the classic "Stop" / Adedonha, for two.
  *
- * A letter and four categories. Each phone writes one word per category starting with that
- * letter; whoever fills them all first shouts STOP and the other gets a few seconds more.
- * Words the dictionary knows count straight away; anything else, your partner votes on (so the
- * Portuguese you know from outside the book counts too). Different valid word: 10 points; the
- * same word as your partner: 5. After each round the TV shows words you could have written.
+ * A letter and four categories (five on hard). Each phone writes one word per category starting
+ * with that letter; whoever fills them all first shouts STOP (+5) and the other gets a few seconds.
+ * Dictionary words count straight away (a small spelling slip counts too, with the correction
+ * shown); anything else the partner must vote YES on — silence means no. Unique word 10, the same
+ * word as your partner 5, a voted-in word 7, a word written with 💡 help counts half. The last
+ * letter is worth double; a tie brings a sudden-death letter.
  */
 import { randomId } from "../../shared/ids.ts";
 import type { ControllerView, InputValue } from "../../shared/protocol.ts";
 import { play } from "../../audio/sfx.ts";
+import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
-import { CATEGORIES, examples, fairLetters, lookup, normStop, startsWith, type DictWord, type StopCategory } from "./dictionary.ts";
+import type { GameOutcome } from "../../tv/activities.ts";
+import { SAY } from "../../tv/host-lines.ts";
+import type { Level } from "../../tv/progress.ts";
+import { CATEGORIES, examples, fairLetters, lookup, nearMiss, normStop, startsWith, type DictWord, type StopCategory } from "./dictionary.ts";
 
 export const ROUNDS = 3;
-export const WRITE_MS = 90_000;
 export const HURRY_MS = 8_000;
 const LOCK_MS = 900;
 const VOTE_MS = 25_000;
 const SCORE_MS = 9_000;
-const PER_ROUND = 4;
+export const STOP_BONUS = 5;
+/** Difficulty: categories per letter and seconds to write. */
+export const LEVEL_RULES: Record<Level, { cats: number; writeMs: number }> = {
+  1: { cats: 4, writeMs: 90_000 },
+  2: { cats: 4, writeMs: 70_000 },
+  3: { cats: 5, writeMs: 60_000 },
+};
 
-export type CellStatus = "empty" | "letter" | "known" | "voted-yes" | "voted-no" | "pending";
+const CAT_EN: Record<string, string> = { comida: "Food or drink", animal: "Animal", coisa: "Thing", profissao: "Job", pais: "Country or nationality", lugar: "Place or nature" };
+
+export type CellStatus = "empty" | "letter" | "known" | "spelling" | "voted-yes" | "voted-no" | "pending";
 
 export interface Cell {
   word: string;
   status: CellStatus;
   dict?: DictWord;
+  /** Written after asking for 💡 help (counts half). */
+  helped?: boolean;
   points: number;
 }
 
-export interface StopResult {
-  scores: { playerId: string; name: string; points: number }[];
-  words: string[];
-}
+const VALID: CellStatus[] = ["known", "spelling", "voted-yes"];
 
+/** Points for one cell, before the final-round double. */
 export function cellPoints(mine: Cell, theirs: Cell | undefined): number {
-  const valid = (c: Cell | undefined) => !!c && (c.status === "known" || c.status === "voted-yes");
+  const valid = (c: Cell | undefined) => !!c && VALID.includes(c.status);
   if (!valid(mine)) return 0;
-  if (valid(theirs) && normStop(theirs!.word) === normStop(mine.word)) return 5;
-  return 10;
+  const key = (c: Cell) => (c.dict ? c.dict.itemId : normStop(c.word));
+  let pts = valid(theirs) && key(theirs!) === key(mine) ? 5 : mine.status === "known" ? 10 : 7;
+  if (mine.helped) pts = Math.ceil(pts / 2);
+  return pts;
 }
 
 export class Stop implements Activity {
@@ -59,13 +73,19 @@ export class Stop implements Activity {
   cells = new Map<string, Record<string, Cell>>();
   voted = new Set<string>();
   totals = new Map<string, number>();
+  /** Points each player got this round (after doubles and bonuses). */
+  roundTotals = new Map<string, number>();
+  /** playerId → category ids they asked 💡 help for → the hint shown. */
+  help = new Map<string, Record<string, string>>();
+  level: Level = 1;
+  suddenDeath = false;
   promptId = randomId(6);
   private readonly roundId = randomId(6);
   private letters: string[] = [];
-  private words = new Set<string>();
-  private readonly onDone: (r: StopResult) => void;
+  private words = new Map<string, { pt: string; pic?: string }>();
+  private readonly onDone: (r: GameOutcome) => void;
 
-  constructor(onDone: (r: StopResult) => void) {
+  constructor(onDone: (r: GameOutcome) => void) {
     this.onDone = onDone;
   }
 
@@ -75,6 +95,13 @@ export class Stop implements Activity {
   get msLeft() {
     return Math.max(0, this.phaseEnd - gameNow());
   }
+  get rules() {
+    return LEVEL_RULES[this.level];
+  }
+  /** The last regular letter (and sudden death) count double. */
+  get double() {
+    return this.round === ROUNDS - 1 || this.suddenDeath;
+  }
 
   start(rt: TvRuntime) {
     this.rt = rt;
@@ -82,31 +109,35 @@ export class Stop implements Activity {
       CATEGORIES.map((c) => c.id),
       4,
     );
-    this.letters = rt.rng.sample(fair, ROUNDS);
+    this.letters = rt.rng.sample(fair, ROUNDS + 1);
     for (const p of this.players) this.totals.set(p.playerId, 0);
     this.newRound();
   }
 
   private newRound() {
     this.letter = this.letters[this.round % this.letters.length] ?? "P";
-    // Four categories, preferring ones where this letter has known words.
+    // Categories, preferring ones where this letter has known words.
     const cover = CATEGORIES.filter((c) => examples(c.id, this.letter).length > 0);
     const rest = CATEGORIES.filter((c) => !cover.includes(c));
-    this.categories = [...this.rt.rng.shuffle(cover), ...rest].slice(0, PER_ROUND);
+    this.categories = [...this.rt.rng.shuffle(cover), ...rest].slice(0, this.rules.cats);
     this.answers.clear();
     this.cells.clear();
     this.voted.clear();
+    this.help.clear();
+    this.roundTotals.clear();
     this.stoppedBy = null;
     this.phase = "write";
-    this.phaseEnd = gameNow() + WRITE_MS;
+    this.phaseEnd = gameNow() + this.rules.writeMs;
     this.promptId = randomId(6);
     play("whoosh");
+    if (this.double && !this.suddenDeath) this.rt.say(SAY.finalRound);
     this.rt.speakPt(`Letra ${this.letter}!`);
     this.rt.refreshViews();
     this.rt.bump();
   }
 
   tick(now: number) {
+    setHurry(this.phase === "hurry" || (this.phase === "write" && this.phaseEnd - now < 15_000));
     if ((this.phase === "write" || this.phase === "hurry") && now >= this.phaseEnd) {
       // Short grace so the last keystrokes arrive.
       this.phase = "lock";
@@ -117,7 +148,17 @@ export class Stop implements Activity {
     else if (this.phase === "vote" && now >= this.phaseEnd) this.score();
     else if (this.phase === "score" && now >= this.phaseEnd) {
       this.round++;
-      if (this.round >= ROUNDS) return this.finish();
+      if (this.round >= ROUNDS) {
+        const [a, b] = this.players.map((p) => this.totals.get(p.playerId) ?? 0);
+        // Tie after the last letter: one sudden-death letter (once).
+        if (a === b && !this.suddenDeath && a! > 0) {
+          this.suddenDeath = true;
+          this.rt.say(SAY.tie, { interrupt: true });
+          play("heartbeat");
+          return this.newRound();
+        }
+        return this.finish();
+      }
       this.newRound();
     }
   }
@@ -142,7 +183,8 @@ export class Stop implements Activity {
         this.stoppedBy = p;
         this.phase = "hurry";
         this.phaseEnd = gameNow() + HURRY_MS;
-        play("countdown-go");
+        play("buzzer");
+        this.rt.say(SAY.stop, { interrupt: true });
         this.rt.emote(p.playerId, "cheer", 2000);
         for (const o of this.players) if (o !== p) this.rt.emote(o.playerId, "sad", 1500);
         this.rt.refreshViews();
@@ -150,11 +192,26 @@ export class Stop implements Activity {
       this.rt.bump();
       return;
     }
+    if (act.a === "help" && (this.phase === "write" || this.phase === "hurry")) {
+      const cat = this.categories.find((c) => c.id === act.cat);
+      const mine = this.help.get(p.playerId) ?? {};
+      if (!cat || mine[cat.id]) return;
+      // The start of a real word: enough to jog the memory, not the whole answer.
+      const ex = this.rt.rng.pick(examples(cat.id, this.letter).length ? examples(cat.id, this.letter) : [{ pt: this.letter.toLowerCase() } as DictWord]);
+      const w = ex.pt;
+      mine[cat.id] = w.length <= 3 ? `${w.slice(0, 1)}…` : `${w.slice(0, Math.ceil(w.length / 2))}…`;
+      this.help.set(p.playerId, mine);
+      play("sparkle");
+      this.rt.refreshViews();
+      this.rt.bump();
+      return;
+    }
     if (act.a === "vote" && this.phase === "vote" && !this.voted.has(p.playerId)) {
       const partner = this.rt.partnerOf(p);
       if (partner) {
         const cells = this.cells.get(partner.playerId) ?? {};
-        for (const [cat, cell] of Object.entries(cells)) if (cell.status === "pending") cell.status = act.ok[`${partner.playerId}:${cat}`] === false ? "voted-no" : "voted-yes";
+        // Only an explicit YES lets an unknown word in.
+        for (const [cat, cell] of Object.entries(cells)) if (cell.status === "pending") cell.status = act.ok[`${partner.playerId}:${cat}`] === true ? "voted-yes" : "voted-no";
       }
       this.voted.add(p.playerId);
       play("lock");
@@ -170,12 +227,14 @@ export class Stop implements Activity {
       const row: Record<string, Cell> = {};
       for (const c of this.categories) {
         const word = a[c.id] ?? "";
-        const dict = word ? lookup(c.id, word) : undefined;
-        const status: CellStatus = !word ? "empty" : !startsWith(word, this.letter) ? "letter" : dict ? "known" : "pending";
-        row[c.id] = { word, status, dict, points: 0 };
-        if (dict) {
-          this.rt.evidence(p, dict.itemId, "stop.produce", "correct", 2);
-          this.words.add(dict.pt);
+        const exact = word ? lookup(c.id, word) : undefined;
+        const near = word && !exact ? nearMiss(c.id, word) : undefined;
+        const dict = exact ?? near;
+        const status: CellStatus = !word ? "empty" : !startsWith(word, this.letter) ? "letter" : exact ? "known" : near ? "spelling" : "pending";
+        row[c.id] = { word, status, dict, helped: !!this.help.get(p.playerId)?.[c.id], points: 0 };
+        if (dict && status !== "letter") {
+          this.rt.evidence(p, dict.itemId, "stop.produce", exact ? "correct" : "accent-slip", 2);
+          this.words.set(dict.itemId, { pt: dict.pt, pic: dict.pic });
         }
       }
       this.cells.set(p.playerId, row);
@@ -196,8 +255,8 @@ export class Stop implements Activity {
   }
 
   private score() {
-    // Unanswered votes count as accepted: be generous with each other.
-    for (const row of this.cells.values()) for (const c of Object.values(row)) if (c.status === "pending") c.status = "voted-yes";
+    // Nobody said yes: an unknown word doesn't count.
+    for (const row of this.cells.values()) for (const c of Object.values(row)) if (c.status === "pending") c.status = "voted-no";
     const [a, b] = this.players;
     for (const p of this.players) {
       const other = p === a ? b : a;
@@ -206,35 +265,53 @@ export class Stop implements Activity {
       for (const c of this.categories) {
         const cell = row[c.id];
         if (!cell) continue;
-        cell.points = cellPoints(cell, other ? this.cells.get(other.playerId)?.[c.id] : undefined);
+        cell.points = cellPoints(cell, other ? this.cells.get(other.playerId)?.[c.id] : undefined) * (this.double ? 2 : 1);
         sum += cell.points;
-        if (cell.status === "voted-yes") this.words.add(cell.word);
+        if (cell.status === "voted-yes") this.words.set(normStop(cell.word), { pt: cell.word });
       }
+      // Shouting STOP pays — if at least half your words hold up.
+      const good = this.categories.filter((c) => (row[c.id]?.points ?? 0) > 0).length;
+      if (this.stoppedBy === p && good * 2 >= this.categories.length) sum += STOP_BONUS;
+      this.roundTotals.set(p.playerId, sum);
       this.totals.set(p.playerId, (this.totals.get(p.playerId) ?? 0) + sum);
       this.rt.addScore(p, sum * 10, "stop");
     }
-    const sums = this.players.map((p) => Object.values(this.cells.get(p.playerId) ?? {}).reduce((s, c) => s + c.points, 0));
+    const sums = this.players.map((p) => this.roundTotals.get(p.playerId) ?? 0);
     const best = Math.max(...sums);
     this.players.forEach((p, i) => this.rt.emote(p.playerId, sums[i] === best && best > 0 ? "cheer" : "think", 3000));
     this.phase = "score";
     this.phaseEnd = gameNow() + SCORE_MS;
-    play("star");
+    play(best > 0 ? "crowd-cheer" : "sad-trombone", 0.7);
     this.rt.refreshViews();
     this.rt.bump();
   }
 
   private finish() {
     this.phase = "end";
-    const scores = this.players.map((p) => ({ playerId: p.playerId, name: p.name, points: this.totals.get(p.playerId) ?? 0 }));
-    play("success-jingle");
+    setHurry(false);
+    const scores = this.players.map((p) => ({ name: p.name, points: this.totals.get(p.playerId) ?? 0 })).sort((x, y) => y.points - x.points);
+    const [a, b] = scores;
+    const tie = !!b && a!.points === b.points;
+    play("fanfare");
     this.rt.celebrate();
     this.rt.bump();
-    this.onDone({ scores, words: [...this.words] });
+    // Records and stars count the couple's total; the headline is the rivalry.
+    const total = scores.reduce((s, x) => s + x.points, 0);
+    const perfect = 2 * this.rules.cats * 10 * (ROUNDS + 1);
+    this.onDone({
+      score: total,
+      max: Math.round(perfect * 0.75),
+      headline: tie ? `Empate! ${a!.points}–${b!.points}` : `${a!.name} ganha! ${a!.points}–${b?.points ?? 0}`,
+      headlineEn: tie ? "It's a tie!" : `${a!.name} wins!`,
+      sub: `Os dois juntos: ${total} pontos`,
+      subEn: `Together: ${total} points`,
+      words: [...this.words.values()],
+    });
   }
 
-  /** Round score so far for a player (TV table). */
+  /** Round score for a player (TV table). */
   roundPoints(p: RuntimePlayer): number {
-    return Object.values(this.cells.get(p.playerId) ?? {}).reduce((s, c) => s + c.points, 0);
+    return this.roundTotals.get(p.playerId) ?? 0;
   }
 
   /** Known words for a category, for the "podiam ter escrito" hints. */
@@ -256,8 +333,9 @@ export class Stop implements Activity {
       roundId: this.roundId,
       promptId: this.promptId,
       letter: this.letter,
-      categories: this.categories.map((c) => ({ id: c.id, label: c.label, pic: c.pic })),
+      categories: this.categories.map((c) => ({ id: c.id, label: c.label, en: CAT_EN[c.id], pic: c.pic })),
       msLeft: this.msLeft,
+      double: this.double || undefined,
     };
     if (this.phase === "vote") {
       const partner = this.rt.partnerOf(p);
@@ -274,6 +352,7 @@ export class Stop implements Activity {
       ...base,
       phase: this.phase === "lock" ? "hurry" : this.phase,
       stoppedBy: this.stoppedBy ? this.stoppedBy.name : undefined,
+      help: this.help.get(p.playerId),
       msLeft: this.phase === "lock" ? 0 : this.msLeft,
       debugAnswer: debug,
     };

@@ -1,5 +1,5 @@
 /**
- * Sound effects: soft, toy-like recorded sounds (Kenney UI packs, CC0) in /sfx/<name>.mp3, played
+ * Sound effects and game-show stingers (Mixkit / CC0 Freesound, see docs/credits-sfx.md) in /sfx/<name>.mp3, played
  * through Web Audio for instant, overlapping playback. Until a file has loaded (or if it's
  * missing), a gentle synthesised fallback plays instead so nothing is ever silent.
  */
@@ -19,9 +19,29 @@ export type SfxName =
   | "success-jingle"
   | "fail-jingle"
   | "match"
-  | "lock";
+  | "lock"
+  | "card-flip"
+  | "dial"
+  | "marker"
+  | "cash"
+  | "drumroll"
+  | "cymbal"
+  | "fanfare"
+  | "sad-trombone"
+  | "crowd-ooh"
+  | "crowd-cheer"
+  | "boom"
+  | "whistle"
+  | "ding"
+  | "sparkle"
+  | "heartbeat"
+  | "buzzer"
+  | "clock-tick-fast";
 
-const NAMES: SfxName[] = ["tap", "select", "back", "correct", "wrong", "pop", "whoosh", "reveal", "star", "tick", "countdown-go", "success-jingle", "fail-jingle", "match", "lock"];
+const NAMES: SfxName[] = [
+  "tap", "select", "back", "correct", "wrong", "pop", "whoosh", "reveal", "star", "tick", "countdown-go", "success-jingle", "fail-jingle", "match", "lock",
+  "card-flip", "dial", "marker", "cash", "drumroll", "cymbal", "fanfare", "sad-trombone", "crowd-ooh", "crowd-cheer", "boom", "whistle", "ding", "sparkle", "heartbeat", "buzzer", "clock-tick-fast",
+];
 
 let ctx: AudioContext | null = null;
 let out: GainNode | null = null;
@@ -66,8 +86,16 @@ export function setVolume(v: number) {
   if (a) a.out.gain.value = v;
 }
 
-export function play(name: SfxName, volume = 1) {
-  logSound(`/sfx/${name}.mp3`, volume);
+/** Sounds that stay exactly in tune (jingles, stingers); everything else gets a little random pitch. */
+const FIXED: SfxName[] = ["success-jingle", "fail-jingle", "fanfare", "sad-trombone", "drumroll", "cymbal", "crowd-cheer", "crowd-ooh", "clock-tick-fast"];
+
+/**
+ * Play a sound. `pitch` shifts it (1 = as recorded; streaks can climb 1, 1.06, 1.12…); short UI
+ * sounds get ±4% random variation so repeats don't sound mechanical.
+ */
+export function play(name: SfxName, volume = 1, pitch = 1) {
+  const rate = FIXED.includes(name) ? pitch : pitch * (0.96 + Math.random() * 0.08);
+  logSound(`/sfx/${name}.mp3`, volume, rate);
   const a = audio();
   if (!a || a.ctx.state !== "running") return;
   const buf = buffers.get(name);
@@ -75,6 +103,7 @@ export function play(name: SfxName, volume = 1) {
     const src = a.ctx.createBufferSource();
     const g = a.ctx.createGain();
     g.gain.value = volume;
+    src.playbackRate.value = rate;
     src.buffer = buf;
     src.connect(g).connect(a.out);
     src.start();
@@ -99,7 +128,7 @@ function note(c: AudioContext, dest: AudioNode, freq: number, at: number, dur = 
 }
 
 function fallback(name: SfxName, c: AudioContext, dest: AudioNode) {
-  const seq: Record<SfxName, [number, number][]> = {
+  const seq: Partial<Record<SfxName, [number, number][]>> = {
     tap: [[660, 0]],
     select: [[784, 0]],
     back: [[523, 0]],
@@ -116,5 +145,5 @@ function fallback(name: SfxName, c: AudioContext, dest: AudioNode) {
     "success-jingle": [[523, 0], [659, 0.1], [784, 0.2], [1046, 0.3]],
     "fail-jingle": [[392, 0], [330, 0.14], [262, 0.28]],
   };
-  for (const [f, at] of seq[name]) note(c, dest, f, at);
+  for (const [f, at] of seq[name] ?? [[660, 0]]) note(c, dest, f, at);
 }

@@ -271,6 +271,26 @@ html.tv-root #root {
   display: flex;
   gap: 0.75em;
   align-items: flex-start;
+  padding: 0.35em 0.6em;
+  border-radius: 0.8em;
+  transition: background 0.25s, transform 0.25s;
+}
+.how li.speaking {
+  background: var(--sky);
+  transform: translateX(0.3em);
+}
+.how .rule {
+  display: flex;
+  flex-direction: column;
+}
+.how .rule b {
+  color: var(--navy);
+  font-weight: 800;
+}
+.how .rule i {
+  font-style: normal;
+  font-size: 0.8em;
+  color: var(--ink-3);
 }
 .how .n {
   flex: none;
@@ -306,6 +326,45 @@ html.tv-root #root {
 .lobby-foot {
   font-size: 0.7em;
   color: var(--ink-3);
+  display: flex;
+  flex-direction: column;
+}
+.lobby-foot i {
+  font-style: normal;
+  font-size: 0.85em;
+}
+
+/* The host's subtitle bubble (bottom centre, above the stage). */
+.host-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 2.2rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.6em 1.4em 0.6em 0.8em;
+  border-radius: 999px;
+  max-width: 60vw;
+  z-index: 15;
+  animation: bubble-in 0.35s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+.host-bubble b {
+  display: block;
+  font-size: 1.05em;
+}
+.host-bubble i {
+  display: block;
+  font-style: normal;
+  font-size: 0.7em;
+  color: var(--ink-3);
+}
+.host-mic {
+  font-size: 1.4em;
+}
+@keyframes bubble-in {
+  from { transform: translate(-50%, 1.5rem) scale(0.9); opacity: 0; }
+  to { transform: translate(-50%, 0) scale(1); opacity: 1; }
 }
 .lobby-side {
   flex: 1;
@@ -320,6 +379,7 @@ html.tv-root #root {
   place-items: center;
   pointer-events: none;
   z-index: 5;
+  background: radial-gradient(circle, rgba(31, 42, 68, 0.35) 0, rgba(31, 42, 68, 0.15) 40%, transparent 70%);
 }
 .countdown span {
   font-size: 9em;
@@ -1380,4 +1440,324 @@ html.tv-root #root {
 .kitchen-swap.bad {
   background: var(--coral);
   box-shadow: 0 0.12em 0 var(--coral-d), 0 0.4em 1em rgba(31, 42, 68, 0.3);
+}
+
+.pill.hearts span {
+  color: #d8d3c7;
+  font-size: 1.1em;
+}
+.pill.hearts span.on {
+  color: var(--coral);
+}
+.ticket-pts {
+  margin-left: 0.5em;
+  color: var(--mint-d);
+  animation: pop-in 0.4s ease-out both;
+}
+.ticket-text.listen {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 1.6em;
+}
+.ticket-text.listen span {
+  font-size: 0.6em;
+}
+.ticket-text.listen i {
+  font-style: normal;
+  font-size: 0.45em;
+  color: var(--ink-3);
+}
+.rush-banner {
+  position: absolute;
+  top: 7.2rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  font-size: 1.4em;
+  padding: 0.25em 1em;
+  border-radius: 0.6em;
+  background: var(--coral);
+  color: var(--white);
+  box-shadow: 0 0.12em 0 var(--coral-d);
+  animation: pulse-soft 0.8s ease-in-out infinite;
+  z-index: 4;
+}
+.rush-banner i {
+  font-style: normal;
+  font-size: 0.55em;
+  opacity: 0.85;
+  margin-left: 0.4em;
+}
+.double-pill {
+  background: var(--coral);
+  color: var(--white);
+  box-shadow: 0 0.18em 0 var(--coral-d);
+}
+.stop-cat i,
+.stop-shout i,
+.stop-vote-note i {
+  display: block;
+  font-style: normal;
+  font-size: 0.6em;
+  opacity: 0.75;
+}
+.stop-row .cell .fix {
+  font-size: 0.75em;
+  color: var(--mint-d);
+  font-weight: 800;
+}
+.stop-round-sum {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.4rem;
+  font-size: 0.85em;
+}
+.sync-help {
+  text-align: center;
+  font-size: 0.85em;
+  color: var(--navy);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.3em 1em;
+  border-radius: 999px;
+}
+.sync-help i,
+.sync-verdict i {
+  display: block;
+  font-style: normal;
+  font-size: 0.65em;
+  color: var(--ink-3);
+}
+.sync-verdict.match i {
+  color: var(--white);
+  opacity: 0.85;
+}
+.sync-prev-tv {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+.bi-line {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.bi-line i {
+  font-style: normal;
+  font-size: 0.7em;
+  color: var(--ink-3);
+}
+.clue-big {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 1.35em;
+  padding: 0.1em 0.6em;
+  border-radius: 0.6em;
+  background: var(--sun);
+}
+.secret-board.n16 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+}
+.secret-board.n20 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+}
+.secret-board.n16 .sb-card .w,
+.secret-board.n20 .sb-card .w {
+  font-size: 0.8em;
+}
+
+/* ---------------------------------------------------------------- R1 juice */
+
+.draw-hint-tv {
+  position: absolute;
+  top: 1.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.2em 0.8em;
+  border-radius: 999px;
+  background: var(--sun);
+  font-size: 1.8em;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  box-shadow: 0 0.2rem 0 rgba(0, 0, 0, 0.12);
+}
+.guess-bubbles {
+  position: absolute;
+  right: -1rem;
+  bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+.guess-bubble {
+  padding: 0.3em 0.8em;
+  border-radius: 1em 1em 0.2em 1em;
+  background: #fff;
+  border: 0.15rem solid var(--line);
+  color: var(--coral);
+  font-weight: 800;
+  font-size: 1.3em;
+  animation: pop-in 0.35s ease-out both;
+}
+.draw-reveal small {
+  color: var(--ink-3);
+  font-size: 1em;
+}
+.shake-screen {
+  animation: shake 0.5s ease-in-out;
+}
+.game-screen.suspense .wave-stage {
+  animation: suspense-pulse 0.45s ease-in-out infinite;
+}
+@keyframes suspense-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.game-screen.suspense::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 55%, transparent 35%, rgba(20, 24, 40, 0.45));
+  animation: fade-in 0.4s ease-out both;
+}
+
+.level-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.level-pills {
+  display: flex;
+  gap: 0.5rem;
+}
+.level-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.3em 0.9em;
+  border-radius: 1em;
+  border: 0.15rem solid var(--line);
+  background: #fff;
+  opacity: 0.55;
+  line-height: 1.15;
+}
+.level-pill i {
+  font-style: normal;
+  font-size: 0.75em;
+  color: var(--ink-3);
+}
+.level-pill.on {
+  opacity: 1;
+  background: var(--sun);
+  transform: scale(1.06);
+  box-shadow: 0 0.2rem 0 rgba(0, 0, 0, 0.12);
+}
+.result-stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.4em;
+  font-size: 4.2em;
+  line-height: 1;
+}
+.rstar {
+  color: #e6dfd0;
+  animation: star-land 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.rstar.on {
+  color: var(--sun);
+  text-shadow: 0 0.06em 0 #d99a00;
+}
+@keyframes star-land {
+  0% { transform: scale(2.2) rotate(-30deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.record-banner {
+  align-self: center;
+  padding: 0.25em 1em;
+  border-radius: 999px;
+  background: var(--coral);
+  color: #fff;
+  font-size: 1.4em;
+  animation: pop-in 0.5s 1.8s ease-out both;
+}
+.record-banner i {
+  font-family: var(--font-body, inherit);
+  font-style: normal;
+  font-size: 0.6em;
+  opacity: 0.9;
+}
+.en-line {
+  margin: -0.3em 0 0;
+  color: var(--ink-3);
+  font-size: 1.2em;
+}
+.next-star {
+  font-size: 0.95em;
+}
+
+/* ---------------------------------------------------------------- reactions */
+
+.reactions {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  overflow: hidden;
+}
+.reaction {
+  position: absolute;
+  bottom: -3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 4.2rem;
+  line-height: 1;
+  animation: react-float 2.9s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+  filter: drop-shadow(0 0.2rem 0.3rem rgba(0, 0, 0, 0.2));
+}
+.reaction small {
+  margin-top: 0.2rem;
+  padding: 0.1em 0.6em;
+  border-radius: 999px;
+  background: var(--pc, #fff);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+}
+@keyframes react-float {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  12% { transform: translateY(-12vh) scale(1.15); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(-62vh) scale(1) rotate(8deg); opacity: 0; }
+}
+.tonight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+.tonight-row {
+  display: flex;
+  gap: 1.2rem;
+}
+.menu-card .mc-en {
+  margin-top: 0.15em;
+  font-size: 0.55em;
+  font-style: italic;
+  color: var(--ink-3);
+}
+.review-pill {
+  background: var(--sky-p);
+  color: #fff;
 }

@@ -12,6 +12,7 @@ import {
   type InputValue,
   type NavDir,
   type PlayerBody,
+  type Reaction,
   type PlayerColor,
 } from "../shared/protocol.ts";
 import { ReconnectingSocket, type SocketStatus } from "./socket.ts";
@@ -202,6 +203,10 @@ export class PhoneConnection {
 
   ready(ready: boolean) {
     this.sendBody({ k: "ready", ready });
+  }
+
+  react(emoji: Reaction) {
+    this.sendBody({ k: "react", emoji });
   }
 
   leave() {

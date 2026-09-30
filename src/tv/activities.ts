@@ -9,15 +9,17 @@ import type { LearnCard } from "../curriculum/learn.ts";
 import { getLesson, LESSONS } from "../curriculum/lessons.ts";
 import type { Lesson } from "../curriculum/schema.ts";
 import { LearnActivity, type LearnSummary } from "../games/learn/learn.ts";
-import { ParesSecretos, type SecretResult } from "../games/secret/secret.ts";
-import { EmSintonia, type SyncResult } from "../games/sync/sync.ts";
-import { NaMesmaOnda, type WaveResult } from "../games/wave/wave.ts";
-import { Desenha, type DrawResult } from "../games/draw/draw.ts";
-import { Stop, type StopResult } from "../games/stop/stop.ts";
-import { Cozinha, type KitchenResult } from "../games/kitchen/kitchen.ts";
+import { ParesSecretos } from "../games/secret/secret.ts";
+import { EmSintonia } from "../games/sync/sync.ts";
+import { NaMesmaOnda } from "../games/wave/wave.ts";
+import { Desenha } from "../games/draw/draw.ts";
+import { Stop } from "../games/stop/stop.ts";
+import { Cozinha } from "../games/kitchen/kitchen.ts";
 import { randomId } from "../shared/ids.ts";
 import type { ControllerView, InputValue, NavDir } from "../shared/protocol.ts";
 import { play } from "../audio/sfx.ts";
+import { RULES, SAY } from "./host-lines.ts";
+import { bestScore, lastLevel, LEVELS, recordScore, rememberLevel, type Level } from "./progress.ts";
 import { lessonsDone, lessonStars, nextLessonId, playableLessons } from "./progress.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "./runtime.ts";
 
@@ -25,6 +27,8 @@ export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "ki
 
 export interface ModeSpec {
   mode: Mode;
+  /** Games: 1 Fácil · 2 Médio · 3 Difícil. */
+  level?: Level;
   /** Lesson to learn ("lesson") or whose words to play with (games). Default: everything learned. */
   lessonId?: string;
 }
@@ -35,16 +39,23 @@ export interface GameInfo {
   pic: string;
   kind: string;
   how: string;
+  howEn: string;
   soon?: boolean;
 }
 
+/** "Recorde 42" on a game card: the best score at the last-played difficulty. */
+function bestBadge(mode: GameInfo["mode"]): string | undefined {
+  const b = bestScore(mode, lastLevel(mode));
+  return b !== null ? `🏆 ${b}` : undefined;
+}
+
 export const GAMES: GameInfo[] = [
-  { mode: "secret", name: "Pares Secretos", pic: "🕵️", kind: "Juntos · pistas", how: "Dá pistas em português; o teu par encontra as imagens." },
-  { mode: "wave", name: "Na Mesma Onda", pic: "🔮", kind: "Juntos · adivinhar", how: "Uma palavra, um mostrador: frio ou quente?" },
-  { mode: "sync", name: "Em Sintonia", pic: "🤝", kind: "Juntos · telepatia", how: "Escrevam a mesma palavra ao mesmo tempo." },
-  { mode: "draw", name: "Desenha!", pic: "🎨", kind: "Juntos · desenhar", how: "Um desenha no telemóvel, o outro adivinha a palavra." },
-  { mode: "stop", name: "Stop!", pic: "⏱️", kind: "Um contra o outro · escrever", how: "Uma letra, quatro categorias. Quem acaba grita STOP!" },
-  { mode: "kitchen", name: "Cozinha Caótica", pic: "🍳", kind: "Juntos · correria", how: "Os clientes pedem em português. Sirvam depressa!" },
+  { mode: "secret", name: "Pares Secretos", pic: "🕵️", kind: "Juntos · pistas", how: "Dá pistas em português; o teu par encontra as imagens.", howEn: "Give clues in Portuguese; your partner finds the pictures." },
+  { mode: "wave", name: "Na Mesma Onda", pic: "🔮", kind: "Juntos · adivinhar", how: "Uma pista, um mostrador: frio ou quente?", howEn: "One clue, one dial: cold or hot?" },
+  { mode: "sync", name: "Em Sintonia", pic: "🤝", kind: "Juntos · telepatia", how: "Escrevam a mesma palavra ao mesmo tempo.", howEn: "Write the same word at the same time." },
+  { mode: "draw", name: "Desenha!", pic: "🎨", kind: "Juntos · desenhar", how: "Um desenha no telemóvel, o outro adivinha a palavra.", howEn: "One draws on the phone, the other guesses the word." },
+  { mode: "stop", name: "Stop!", pic: "⏱️", kind: "Um contra o outro · escrever", how: "Uma letra, quatro categorias. Quem acaba grita STOP!", howEn: "One letter, four categories. First to finish shouts STOP!" },
+  { mode: "kitchen", name: "Cozinha Caótica", pic: "🍳", kind: "Juntos · correria", how: "Os clientes pedem em português. Sirvam depressa!", howEn: "Customers order in Portuguese. Serve fast!" },
 ];
 
 export const SOON: { name: string; pic: string }[] = [];
@@ -57,6 +68,7 @@ export interface MenuItem {
   id: string;
   label: string;
   sub?: string;
+  subEn?: string;
   pic?: string;
   disabled?: boolean;
   badge?: string;
@@ -94,21 +106,21 @@ export class TitleActivity implements Activity {
     }
     if (this.menu === "play")
       return [
-        ...GAMES.map((g) => ({ id: g.mode, label: g.name, sub: g.how, pic: g.pic })),
+        ...GAMES.map((g) => ({ id: g.mode, label: g.name, sub: g.how, subEn: g.howEn, pic: g.pic, badge: bestBadge(g.mode) })),
         ...SOON.map((g) => ({ id: `soon:${g.name}`, label: g.name, sub: "Em breve", pic: g.pic, disabled: true })),
       ];
     if (this.menu === "settings") {
       const s = this.rt.settings;
       return [
-        { id: "sound", label: `Voz e sons: ${s.sound ? "ligados" : "desligados"}`, pic: s.sound ? "🔊" : "🔇" },
-        { id: "lowFx", label: `Efeitos 3D: ${s.lowFx ? "leves" : "completos"}`, sub: "Leves = mais fluido em TVs antigas", pic: "✨" },
+        { id: "sound", label: `Voz e sons: ${s.sound ? "ligados" : "desligados"}`, subEn: `Voice, music and sounds: ${s.sound ? "on" : "off"}`, pic: s.sound ? "🔊" : "🔇" },
+        { id: "lowFx", label: `Efeitos 3D: ${s.lowFx ? "leves" : "completos"}`, sub: "Leves = mais fluido em TVs antigas", subEn: "Light = smoother on older TVs", pic: "✨" },
       ];
     }
     const done = lessonsDone().size;
     return [
-      { id: "learn", label: "Aprender juntos", sub: `Lições do livro · ${done}/${LESSONS.length} feitas`, pic: "📖" },
-      { id: "play", label: "Jogar", sub: "Jogos a dois com as palavras que aprenderam", pic: "🎲" },
-      { id: "settings", label: "Definições", pic: "⚙️" },
+      { id: "learn", label: "Aprender juntos", sub: `Lições do livro · ${done}/${LESSONS.length} feitas`, subEn: "Learn together: lessons from the book", pic: "📖" },
+      { id: "play", label: "Jogar", sub: "Jogos a dois com as palavras que aprenderam", subEn: "Play: party games with your new words", pic: "🎲" },
+      { id: "settings", label: "Definições", subEn: "Settings", pic: "⚙️" },
     ];
   }
 
@@ -171,7 +183,7 @@ export class TitleActivity implements Activity {
   }
 
   viewFor(): ControllerView {
-    return { mode: "remote", title: "Comando", hint: "Usa as setas para escolher na TV" };
+    return { mode: "remote", title: "Comando", hint: "Usa as setas para escolher na TV · Use the arrows to choose on the TV" };
   }
 }
 
@@ -212,21 +224,13 @@ export function specPic(spec: ModeSpec): string {
   return GAMES.find((g) => g.mode === spec.mode)?.pic ?? "🎲";
 }
 
-export const HOW_TO: Record<Mode, string[]> = {
-  lesson: ["A TV mostra e diz cada exercício.", "Cada um responde em segredo no telemóvel.", "As respostas aparecem juntas. Acertam os dois? Estrela!"],
-  secret: ["Cada telemóvel mostra 3 imagens secretas para o teu par encontrar.", "Dá uma pista em português, em voz alta, e escolhe um número.", "O teu par toca nas imagens. Cuidado com as bombas! 💣"],
-  wave: ["Um mostrador entre dois opostos: frio ↔ quente.", "Quem vê o alvo diz UMA palavra em português.", "O outro roda o mostrador. Quanto mais perto, mais pontos!"],
-  sync: ["Aparecem duas palavras.", "Cada um escreve uma palavra que as ligue.", "3, 2, 1… A mesma palavra? Estão em sintonia!"],
-  draw: ["Um vê a palavra secreta e desenha no telemóvel. Sem falar!", "O desenho aparece na TV.", "O outro escolhe a palavra certa. Quanto mais rápido, mais pontos!"],
-  stop: ["Aparece uma letra e quatro categorias.", "Escreve uma palavra para cada uma, com essa letra.", "Acabaste? Carrega STOP! Palavras iguais valem menos."],
-  kitchen: ["Os clientes pedem em português (ouve a TV!).", "Metade da comida está em cada telemóvel: falem um com o outro.", "Ponham tudo no tabuleiro e carreguem Servir. Cuidado com a Troca!"],
-};
+export const HOW_TO = RULES;
 
 export class LobbyActivity implements Activity {
   readonly id = "lobby";
   rt!: TvRuntime;
   countdownAt: number | null = null;
-  readonly spec: ModeSpec;
+  spec: ModeSpec;
 
   constructor(spec: ModeSpec) {
     this.spec = spec;
@@ -242,7 +246,12 @@ export class LobbyActivity implements Activity {
 
   start(rt: TvRuntime) {
     this.rt = rt;
+    if (this.spec.mode !== "lesson" && !this.spec.level) this.spec = { ...this.spec, level: lastLevel(this.spec.mode) };
     for (const p of rt.players.values()) p.ready = false;
+    // The host reads the rules (PT, with English on screen) — no reading needed at A1.
+    setTimeout(() => {
+      if (rt.activity === this) rt.say(RULES[this.spec.mode]);
+    }, 700);
   }
 
   tick(now: number) {
@@ -274,7 +283,27 @@ export class LobbyActivity implements Activity {
     this.rt.refreshViews();
   }
 
+  get level(): Level {
+    return this.spec.level ?? 1;
+  }
+
+  /** Previous best at the chosen difficulty (for the lobby). */
+  get best(): number | null {
+    return this.spec.mode === "lesson" ? null : bestScore(this.spec.mode, this.level);
+  }
+
   onNav(dir: NavDir, from: RuntimePlayer | "tv") {
+    if ((dir === "left" || dir === "right") && this.spec.mode !== "lesson") {
+      const next = Math.max(1, Math.min(3, this.level + (dir === "left" ? -1 : 1))) as Level;
+      if (next !== this.level) {
+        this.spec = { ...this.spec, level: next };
+        rememberLevel(this.spec.mode, next);
+        play("select");
+        this.rt.refreshViews();
+        this.rt.bump();
+      }
+      return;
+    }
     if (dir === "back") this.rt.run(new TitleActivity(this.spec.mode === "lesson" ? "learn" : "play"));
     if (dir === "ok" && from === "tv") {
       // TV remote "OK" = everyone connected is ready.
@@ -284,7 +313,7 @@ export class LobbyActivity implements Activity {
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
-    return { mode: "lobby", ready: p.ready, hint: this.title };
+    return { mode: "lobby", ready: p.ready, hint: this.title, level: this.spec.mode === "lesson" ? undefined : this.level };
   }
 }
 
@@ -300,12 +329,42 @@ export interface ResultOption {
   go: () => void;
 }
 
+/** What every game reports at the end (the results screen, stars and records are built from it). */
+export interface GameOutcome {
+  score: number;
+  max: number;
+  headline: string;
+  headlineEn: string;
+  sub?: string;
+  subEn?: string;
+  /** Words you used or met in the game, for the recap (the TV says them). */
+  words?: { pt: string; en?: string; pic?: string }[];
+}
+
+/** Stars from a score: 35% / 60% / 85% of the maximum. */
+export function starsFor(score: number, max: number): 0 | 1 | 2 | 3 {
+  const f = max > 0 ? score / max : 0;
+  return f >= 0.85 ? 3 : f >= 0.6 ? 2 : f >= 0.35 ? 1 : 0;
+}
+
+/** Points still missing for the next star. */
+export function toNextStar(score: number, max: number): number | null {
+  for (const f of [0.35, 0.6, 0.85]) if (score < Math.ceil(f * max)) return Math.ceil(f * max) - score;
+  return null;
+}
+
 export interface ResultsInfo {
   spec: ModeSpec;
   title: string;
   /** Big team result line, e.g. "9 ⭐ de 12". */
   headline: string;
+  headlineEn?: string;
   sub?: string;
+  subEn?: string;
+  score?: number;
+  max?: number;
+  stars?: 0 | 1 | 2 | 3;
+  practiced?: { pt: string; en?: string; pic?: string }[];
   win: boolean;
   lesson?: LearnSummary;
   words?: LearnCard[];
@@ -318,6 +377,8 @@ export class ResultsActivity implements Activity {
   readonly info: ResultsInfo;
   focus = 0;
   startAt = 0;
+  /** Personal best before this game (null = first time) and whether this game beat it. */
+  record: { previous: number | null; isNew: boolean } | null = null;
   private readonly promptId = randomId(6);
 
   constructor(info: ResultsInfo) {
@@ -327,7 +388,20 @@ export class ResultsActivity implements Activity {
   start(rt: TvRuntime) {
     this.rt = rt;
     this.startAt = gameNow();
+    const { spec, score } = this.info;
+    if (spec.mode !== "lesson" && score !== undefined) this.record = recordScore(spec.mode, spec.level ?? 1, score);
+    const stars = this.info.stars;
+    rt.say(this.record?.isNew && this.record.previous !== null ? SAY.record : stars === undefined || stars >= 2 ? SAY.youDidIt : SAY.nextTime);
+    // Recap: the TV says the words you met, so the round ends on listening.
+    const words = (this.info.practiced ?? []).slice(0, 4);
+    if (words.length) setTimeout(() => rt.activity === this && words.forEach((w, i) => setTimeout(() => rt.activity === this && rt.speakPt(w.pt), i * 1600)), 2600);
     play(this.info.win ? "success-jingle" : "reveal");
+    // Stars land one by one, each a note higher; three stars get the crowd, a record the fanfare.
+    const n = stars ?? 0;
+    for (let i = 0; i < n; i++) setTimeout(() => rt.activity === this && play("star", 1, 1 + i * 0.12), 900 + i * 450);
+    if (this.record?.isNew && this.record.previous !== null) setTimeout(() => rt.activity === this && play("fanfare"), 900 + n * 450);
+    else if (n === 3) setTimeout(() => rt.activity === this && play("crowd-cheer"), 900 + n * 450);
+    else if (stars === 0) setTimeout(() => rt.activity === this && play("sad-trombone", 0.7), 900);
     if (this.info.win) rt.celebrate();
     for (const p of rt.activePlayers) rt.emote(p.playerId, this.info.win ? "cheer" : "wave", 3000);
     void rt.learner.sync().then(() => rt.learner.pushSnapshot());
@@ -401,6 +475,29 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
           .map((g) => ({ id: g.mode, label: g.name, sub: g.kind, pic: g.pic, go: go({ mode: g.mode, lessonId }) }))
       : [];
 
+  const level: Level = spec.level ?? 1;
+  const gameDone = (title: string, o: GameOutcome) => {
+    const stars = starsFor(o.score, o.max);
+    const up: ResultOption[] =
+      stars === 3 && level < 3 ? [{ id: "levelup", label: `Tentar ${LEVELS[level]!.pt} ${LEVELS[level]!.stars}`, sub: `Try ${LEVELS[level]!.en}`, pic: "🚀", go: go({ ...spec, level: (level + 1) as Level }) }] : [];
+    rt.run(
+      new ResultsActivity({
+        spec,
+        title: `${title} · ${LEVELS[level - 1]!.pt}`,
+        headline: o.headline,
+        headlineEn: o.headlineEn,
+        sub: o.sub,
+        subEn: o.subEn,
+        win: stars > 0,
+        score: o.score,
+        max: o.max,
+        stars,
+        practiced: o.words,
+        options: [...up, { ...again, label: "Outra vez!", sub: "Play again" }, ...games(spec.mode), menu],
+      }),
+    );
+  };
+
   switch (spec.mode) {
     case "lesson": {
       const lesson = getLesson(spec.lessonId ?? "") ?? LESSONS[0]!;
@@ -428,103 +525,41 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
       );
       return;
     }
-    case "secret":
-      rt.run(
-        new ParesSecretos(lessonsFor(spec), (r: SecretResult) =>
-          rt.run(
-            new ResultsActivity({
-              spec,
-              title: "Pares Secretos",
-              headline: r.won ? "Conseguiram! 🎉" : `${r.found} de ${r.goal} pares`,
-              sub: r.won ? `Em ${r.turnsUsed} jogadas.` : "Para a próxima!",
-              win: r.won,
-              options: [again, ...games("secret"), menu],
-            }),
-          ),
-        ),
-      );
+    case "secret": {
+      const g = new ParesSecretos(lessonsFor(spec), (o) => gameDone("Pares Secretos", o));
+      g.level = level;
+      rt.run(g);
       return;
-    case "wave":
-      rt.run(
-        new NaMesmaOnda((r: WaveResult) =>
-          rt.run(
-            new ResultsActivity({
-              spec,
-              title: "Na Mesma Onda",
-              headline: `${r.score} pontos · ${r.rating}`,
-              sub: `Máximo: ${r.max}`,
-              win: r.score >= 8,
-              options: [again, ...games("wave"), menu],
-            }),
-          ),
-        ),
-      );
+    }
+    case "wave": {
+      const g = new NaMesmaOnda((o) => gameDone("Na Mesma Onda", o));
+      g.level = level;
+      rt.run(g);
       return;
-    case "sync":
-      rt.run(
-        new EmSintonia(lessonsFor(spec), (r: SyncResult) =>
-          rt.run(
-            new ResultsActivity({
-              spec,
-              title: "Em Sintonia",
-              headline: `${r.matches.length} de 5 em sintonia`,
-              sub: r.matches.length ? `Palavras: ${r.matches.map((m) => m.word).join(", ")}` : "Continuem a tentar!",
-              win: r.matches.length >= 2,
-              options: [again, ...games("sync"), menu],
-            }),
-          ),
-        ),
-      );
+    }
+    case "sync": {
+      const g = new EmSintonia(lessonsFor(spec), (o) => gameDone("Em Sintonia", o));
+      g.level = level;
+      rt.run(g);
       return;
-    case "draw":
-      rt.run(
-        new Desenha(lessonsFor(spec), (r: DrawResult) =>
-          rt.run(
-            new ResultsActivity({
-              spec,
-              title: "Desenha!",
-              headline: `${r.score} pontos · ${r.guessed.length} de 6 adivinhadas`,
-              sub: r.guessed.length ? `Palavras: ${r.guessed.map((g) => g.pt).join(", ")}` : "Os artistas incompreendidos!",
-              win: r.guessed.length >= 3,
-              options: [again, ...games("draw"), menu],
-            }),
-          ),
-        ),
-      );
+    }
+    case "draw": {
+      const g = new Desenha(lessonsFor(spec), (o) => gameDone("Desenha!", o));
+      g.level = level;
+      rt.run(g);
       return;
-    case "stop":
-      rt.run(
-        new Stop((r: StopResult) => {
-          const [a, b] = [...r.scores].sort((x, y) => y.points - x.points);
-          const tie = !!b && a!.points === b.points;
-          rt.run(
-            new ResultsActivity({
-              spec,
-              title: "Stop!",
-              headline: tie ? `Empate! ${a!.points} pontos` : `${a?.name ?? ""} ganha! 🏆`,
-              sub: r.scores.map((s) => `${s.name}: ${s.points}`).join(" · "),
-              win: true,
-              options: [again, ...games("stop"), menu],
-            }),
-          );
-        }),
-      );
+    }
+    case "stop": {
+      const g = new Stop((o) => gameDone("Stop!", o));
+      g.level = level;
+      rt.run(g);
       return;
-    case "kitchen":
-      rt.run(
-        new Cozinha((r: KitchenResult) =>
-          rt.run(
-            new ResultsActivity({
-              spec,
-              title: `Cozinha Caótica · ${r.menu}`,
-              headline: `${r.served} pedidos servidos`,
-              sub: `${r.rating}${r.missed ? ` · ${r.missed} clientes foram-se embora` : ""}`,
-              win: r.served >= 4,
-              options: [again, ...games("kitchen"), menu],
-            }),
-          ),
-        ),
-      );
+    }
+    case "kitchen": {
+      const g = new Cozinha((o) => gameDone("Cozinha Caótica", o));
+      g.level = level;
+      rt.run(g);
       return;
+    }
   }
 }

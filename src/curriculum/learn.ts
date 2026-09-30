@@ -219,11 +219,9 @@ export function listenEx(rng: Rng, c: LearnCard, lesson: readonly LearnCard[]): 
   return { kind: "listen", itemId: c.itemId, say: c.say, ...o, answer: c.pt, en: c.en };
 }
 
-/** Pictures on answer buttons only where they don't give the answer away. */
-const optEmoji = (c: LearnCard) => (c.kind === "phrase" || c.kind === "profession" || c.kind === "nationality" || c.kind === "noun" ? c.emoji : undefined);
-
+/** Read Portuguese → tap the meaning. Options are English only: a picture next to them would give the answer away. */
 export function readEx(rng: Rng, c: LearnCard, lesson: readonly LearnCard[]): LearnEx {
-  const o = options(rng, { id: "c", label: c.en, emoji: optEmoji(c) }, distractors(rng, c, lesson, 2).map((d) => ({ id: d.itemId, label: d.en, emoji: optEmoji(d) })));
+  const o = options(rng, { id: "c", label: c.en }, distractors(rng, c, lesson, 2).map((d) => ({ id: d.itemId, label: d.en })));
   return { kind: "read", itemId: c.itemId, pt: c.pt, say: c.say, ...o, answer: c.en, en: c.en };
 }
 

@@ -49,9 +49,13 @@ function Write({ v, send }: { v: V; send: Send }) {
     <div className="p-col stop-pad">
       <div className="stop-head">
         <span className="stop-tile display">{v.letter}</span>
+        <span className="stop-instr">
+          <b>Palavras com {v.letter}</b>
+          <small>Words starting with {v.letter}{v.double ? " · ×2 points!" : ""}</small>
+        </span>
         <span className="stop-time display">{Math.ceil(left / 1000)}s</span>
       </div>
-      {hurry && v.stoppedBy && !stopped && <div className="p-warn">STOP! {v.stoppedBy} acabou — depressa! ⏱️</div>}
+      {hurry && v.stoppedBy && !stopped && <div className="p-warn">STOP! {v.stoppedBy} acabou — depressa! ⏱️ · Hurry!</div>}
       {v.categories.map((c) => {
         const val = answers[c.id] ?? "";
         const bad = val.trim() !== "" && !bare(val).startsWith(letter);
@@ -60,6 +64,14 @@ function Write({ v, send }: { v: V; send: Send }) {
             <span className="cat">
               <Picture glyph={c.pic} size="26px" />
               {c.label}
+              {c.en && <small> · {c.en}</small>}
+              {v.help?.[c.id] ? (
+                <em className="help-shown">💡 {v.help[c.id]}</em>
+              ) : (
+                <button type="button" className="help-btn" onClick={() => send({ mode: "stop", action: { a: "help", cat: c.id } })} aria-label="Ajuda">
+                  💡<small>½</small>
+                </button>
+              )}
             </span>
             <input value={val} onChange={(e) => change(c.id, e.target.value)} placeholder={`${v.letter}…`} autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} disabled={left <= 0} />
           </label>
@@ -77,13 +89,17 @@ function Write({ v, send }: { v: V; send: Send }) {
           save(answers, true);
         }}
       >
-        {stopped ? "Enviado ✓" : "STOP!"}
+        <span className="bi">
+          {stopped ? "Enviado ✓" : "STOP!"}
+          <small>{stopped ? "Sent" : full ? "Done? Stop the round (+5)" : "Fill every word first"}</small>
+        </span>
       </button>
     </div>
   );
 }
 
 function Vote({ v, send }: { v: V; send: Send }) {
+  // Only an explicit YES lets a word in: everything starts at ✗.
   const [ok, setOk] = useState<Record<string, boolean>>({});
   const [sent, setSent] = useState(!!v.voted);
   const votes = v.votes ?? [];
@@ -91,17 +107,17 @@ function Vote({ v, send }: { v: V; send: Send }) {
     return (
       <div className="p-center">
         <div className="p-big">À espera…</div>
-        <div className="p-sub">O teu par está a ver as tuas palavras.</div>
+        <div className="p-sub">O teu par está a ver as tuas palavras. · Your partner is checking your words.</div>
       </div>
     );
   return (
     <div className="p-col">
       <div className="p-callout">
         <b className="display">Estas palavras contam?</b>
-        <span>O dicionário não as conhece. Tu decides!</span>
+        <span>O dicionário não as conhece. Tu decides! · Do these words count? Tap ✓ only if it's a real word.</span>
       </div>
       {votes.map((w) => {
-        const yes = ok[w.id] !== false;
+        const yes = ok[w.id] === true;
         return (
           <div key={w.id} className="vote-row card">
             <span>
@@ -125,10 +141,12 @@ function Vote({ v, send }: { v: V; send: Send }) {
         onClick={() => {
           setSent(true);
           play("lock");
-          send({ mode: "stop", action: { a: "vote", ok: Object.fromEntries(votes.map((w) => [w.id, ok[w.id] !== false])) } });
+          send({ mode: "stop", action: { a: "vote", ok: Object.fromEntries(votes.map((w) => [w.id, ok[w.id] === true])) } });
         }}
       >
-        Confirmar
+        <span className="bi">
+          Confirmar<small>Confirm</small>
+        </span>
       </button>
     </div>
   );

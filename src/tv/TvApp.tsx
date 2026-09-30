@@ -13,7 +13,7 @@ import type { NavDir } from "../shared/protocol.ts";
 import { LobbyActivity, ResultsActivity, TitleActivity } from "./activities.ts";
 import { useRuntime } from "./runtime.ts";
 import { LearnScreen } from "./screens/LearnScreen.tsx";
-import { LobbyScreen, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
+import { HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
 import { SecretScreen } from "./screens/SecretScreen.tsx";
 import { SyncScreen } from "./screens/SyncScreen.tsx";
 import { WaveScreen } from "./screens/WaveScreen.tsx";
@@ -79,6 +79,8 @@ export function TvApp() {
       {a instanceof Desenha && <DrawScreen a={a} />}
       {a instanceof Stop && <StopScreen a={a} />}
       {a instanceof Cozinha && <KitchenScreen a={a} />}
+      <HostBubble />
+      <Reactions />
       {rt.paused && <PauseScreen />}
       {rt.socket !== "open" && <div className="conn-warn">A ligar ao servidor…</div>}
       {showGate && (

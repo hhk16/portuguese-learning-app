@@ -1,5 +1,5 @@
 /** Cozinha Caótica on the TV: order tickets with patience bars, the shared tray, the clock. */
-import { SHIFT_MS, type Cozinha } from "../../games/kitchen/kitchen.ts";
+import { HEARTS, SHIFT_MS, type Cozinha } from "../../games/kitchen/kitchen.ts";
 import { Picture } from "../../ui/Picture.tsx";
 import { gameNow } from "../clock.ts";
 import { GameTop } from "./Menus.tsx";
@@ -28,7 +28,14 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
         <span className={`pill clock ${left < 20_000 ? "low" : ""}`}>
           ⏱ {mm}:{ss}
         </span>
-        <span className="pill star-pill">{a.served} servidos</span>
+        <span className="pill hearts" aria-label={`${a.hearts} corações`}>
+          {Array.from({ length: HEARTS }, (_, i) => (
+            <span key={i} className={i < a.hearts ? "on" : ""}>
+              ♥
+            </span>
+          ))}
+        </span>
+        <span className="pill star-pill">{a.score} pontos</span>
       </GameTop>
       <div className="kitchen-tickets">
         {a.tickets.map((t, i) => {
@@ -36,16 +43,28 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
           const p = t.done ? 0 : Math.max(0, (t.deadline - now) / total);
           return (
             <div key={t.id} className={`card ticket ${t.done ?? ""} ${i === 0 && !t.done ? "first" : ""}`}>
-              <div className="ticket-no display">#{i + 1}</div>
-              <div className="ticket-text">“{t.order.text}”</div>
-              <div className="ticket-items">
-                {a.lines(t.order).map((l) => (
-                  <span key={l.dish.id} className="ticket-item">
-                    <Picture glyph={l.dish.pic} size="2.4em" />
-                    <b>×{l.n}</b>
-                  </span>
-                ))}
+              <div className="ticket-no display">
+                #{i + 1}
+                {t.done === "served" && t.points ? <b className="ticket-pts">+{t.points}</b> : null}
               </div>
+              {a.ticketShows(t).text ? (
+                <div className="ticket-text">“{t.order.text}”</div>
+              ) : (
+                <div className="ticket-text listen">
+                  🔊 <span>Ouve o pedido!</span>
+                  <i>Listen to the order!</i>
+                </div>
+              )}
+              {a.ticketShows(t).pictures && (
+                <div className="ticket-items">
+                  {a.lines(t.order).map((l) => (
+                    <span key={l.dish.id} className="ticket-item">
+                      <Picture glyph={l.dish.pic} size="2.4em" />
+                      <b>×{l.n}</b>
+                    </span>
+                  ))}
+                </div>
+              )}
               {!t.done && (
                 <div className="patience">
                   <div style={{ width: `${p * 100}%` }} className={p < 0.3 ? "low" : p < 0.6 ? "mid" : ""} />
@@ -58,9 +77,9 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
         })}
       </div>
       <div className={`card kitchen-tray ${flash?.kind === "wrong" ? "wrong" : ""} ${flash?.kind === "served" ? "served" : ""}`} key={flash?.seq ?? 0}>
-        <span className="kicker">Tabuleiro</span>
+        <span className="kicker">Tabuleiro · Tray</span>
         <div className="tray-items">
-          {tray.length === 0 && <span className="muted">vazio — toquem na comida no telemóvel</span>}
+          {tray.length === 0 && <span className="muted">vazio — toquem na comida no telemóvel · empty: tap the food on your phones</span>}
           {tray.map(({ dish, n }) => (
             <span key={dish.id} className="tray-item">
               <Picture glyph={dish.pic} size="2.8em" />
@@ -72,6 +91,7 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
       <div className="kitchen-clock">
         <div style={{ width: `${(left / SHIFT_MS) * 100}%` }} />
       </div>
+      {a.rush && <div className="rush-banner display">🔥 Hora de ponta! ×2 <i>Rush hour!</i></div>}
       {flash?.kind === "swap" && <div className="kitchen-swap display">Troca! 🔄</div>}
       {flash?.kind === "wrong" && <div className="kitchen-swap bad display">Não é isso!</div>}
     </div>

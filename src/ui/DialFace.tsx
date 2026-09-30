@@ -2,7 +2,7 @@
 import { useRef } from "react";
 
 /** Semicircle dial: value 0..100 maps to angle 180°..0°. */
-export function DialFace({ value, target, bands = true, onDrag }: { value: number; target?: number; bands?: boolean; onDrag?: (v: number) => void }) {
+export function DialFace({ value, target, bands = true, widths = [4, 9, 14], onDrag }: { value: number; target?: number; bands?: boolean; widths?: [number, number, number]; onDrag?: (v: number) => void }) {
   const ref = useRef<SVGSVGElement>(null);
   const toXY = (v: number, r: number) => {
     const a = Math.PI * (1 - v / 100);
@@ -43,9 +43,9 @@ export function DialFace({ value, target, bands = true, onDrag }: { value: numbe
       </defs>
       {target !== undefined && bands && (
         <g>
-          <path d={wedge(target - 14, target + 14)} fill="#ffc23d" />
-          <path d={wedge(target - 9, target + 9)} fill="#ff9f43" />
-          <path d={wedge(target - 4, target + 4)} fill="#3ecf95" />
+          <path d={wedge(target - widths[2], target + widths[2])} fill="#ffc23d" />
+          <path d={wedge(target - widths[1], target + widths[1])} fill="#ff9f43" />
+          <path d={wedge(target - widths[0], target + widths[0])} fill="#3ecf95" />
           <text x={toXY(target, 70)[0]} y={toXY(target, 70)[1] + 3} textAnchor="middle" className="dial-pts">
             4
           </text>

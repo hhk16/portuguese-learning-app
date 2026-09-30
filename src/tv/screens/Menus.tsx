@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { publicBaseUrl } from "../../net/socket.ts";
 import { Picture } from "../../ui/Picture.tsx";
 import { PlayerChip } from "../../ui/Face.tsx";
-import { GAMES, HOW_TO, specPic, type LobbyActivity, type ResultsActivity, type TitleActivity } from "../activities.ts";
+import { GAMES, HOW_TO, specPic, toNextStar, type LobbyActivity, type ResultsActivity, type TitleActivity } from "../activities.ts";
 import { gameNow } from "../clock.ts";
 import { useRuntime } from "../runtime.ts";
+import { LEVELS } from "../progress.ts";
 
 export function joinUrl(code: string) {
   return `${publicBaseUrl()}/play?room=${code}`;
@@ -78,7 +79,7 @@ export function TitleScreen({ a }: { a: TitleActivity }) {
         {a.menu !== "main" && (
           <div className="crumb">
             <span className="kicker">{{ learn: "Aprender juntos", play: "Jogar", settings: "Definições", main: "" }[a.menu]}</span>
-            <span className="hint">← Voltar</span>
+            <span className="hint">← Voltar · Back</span>
           </div>
         )}
         <div className={`menu grid-${grid}`}>
@@ -88,13 +89,17 @@ export function TitleScreen({ a }: { a: TitleActivity }) {
               <div className="mc-text">
                 <div className="mc-label display">{it.label}</div>
                 {it.sub && <div className="mc-sub">{it.sub}</div>}
+                {it.subEn && <div className="mc-en">{it.subEn}</div>}
               </div>
               {it.badge && <span className="badge">{it.badge}</span>}
               {it.stars !== undefined && it.stars > 0 && <Stars n={it.stars} />}
             </div>
           ))}
         </div>
-        {a.menu === "learn" && <div className="menu-foot">Aprendam uma lição e depois joguem com as palavras novas.</div>}
+        {a.menu === "learn" && <div className="menu-foot">
+            Aprendam uma lição e depois joguem com as palavras novas.
+            <i> · Learn a lesson, then play with the new words.</i>
+          </div>}
       </div>
       <div className="title-right">
         <JoinCard />
@@ -125,20 +130,42 @@ export function LobbyScreen({ a }: { a: LobbyActivity }) {
           </div>
         </div>
         <ol className="how">
-          {HOW_TO[a.spec.mode].map((s, i) => (
-            <li key={i}>
+          {HOW_TO[a.spec.mode].map((l, i) => (
+            <li key={i} className={rt.hostLine?.pt === l.pt ? "speaking" : ""}>
               <span className="n display">{i + 1}</span>
-              {s}
+              <span className="rule">
+                <b>{l.pt}</b>
+                <i>{l.en}</i>
+              </span>
             </li>
           ))}
         </ol>
+        {a.spec.mode !== "lesson" && (
+          <div className="level-row">
+            <span className="kicker">Dificuldade · Difficulty</span>
+            <div className="level-pills">
+              {([1, 2, 3] as const).map((l) => (
+                <span key={l} className={`level-pill ${a.level === l ? "on" : ""}`}>
+                  <b>{LEVELS[l - 1]!.pt}</b>
+                  <i>
+                    {LEVELS[l - 1]!.en} {LEVELS[l - 1]!.stars}
+                  </i>
+                </span>
+              ))}
+            </div>
+            <span className="muted">{a.best !== null ? `Recorde · Best: ${a.best}` : "◀ ▶ no telemóvel · on your phone"}</span>
+          </div>
+        )}
         <div className="ready-row">
           {players.map((p) => (
             <PlayerChip key={p.playerId} p={p} size="2.4em" extra={<span className={`ready-tag ${p.ready ? "on" : ""}`}>{p.ready ? "Pronto!" : "…"}</span>} />
           ))}
           {players.length === 0 && <span className="muted">Entrem com o telemóvel →</span>}
         </div>
-        <div className="lobby-foot">{need ? "Este jogo precisa de duas pessoas." : "Carreguem em “Estou pronto” no telemóvel."}</div>
+        <div className="lobby-foot">
+          {need ? "Este jogo precisa de duas pessoas." : "Carreguem em “Estou pronto” no telemóvel."}
+          <i>{need ? "This game needs two players." : "Press “Estou pronto” (I'm ready) on your phone."}</i>
+        </div>
       </div>
       <div className="lobby-side">
         <JoinCard />
@@ -160,8 +187,47 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
     <div className="tv-overlay results-screen">
       <div className="card results-card">
         <div className="kicker">{info.title}</div>
+        {info.stars !== undefined && (
+          <div className="result-stars">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className={`rstar ${i < info.stars! ? "on" : ""}`} style={{ animationDelay: `${0.9 + i * 0.45}s` }}>
+                ★
+              </span>
+            ))}
+          </div>
+        )}
+        {a.record?.isNew && a.record.previous !== null && (
+          <div className="record-banner display">
+            Novo recorde! <i>New record! (antes · before: {a.record.previous})</i>
+          </div>
+        )}
         <h1 className="display">{info.headline}</h1>
-        {info.sub && <p className="muted">{info.sub}</p>}
+        {info.headlineEn && <p className="en-line">{info.headlineEn}</p>}
+        {info.sub && (
+          <p className="muted">
+            {info.sub}
+            {info.subEn && <i> · {info.subEn}</i>}
+          </p>
+        )}
+        {info.score !== undefined && info.max !== undefined && info.stars !== undefined && info.stars < 3 && (
+          <p className="muted next-star">
+            Faltam {toNextStar(info.score, info.max)} pontos para a próxima estrela · {toNextStar(info.score, info.max)} points to the next star
+          </p>
+        )}
+        {info.practiced && info.practiced.length > 0 && (
+          <div className="words">
+            <div className="kicker">Palavras do jogo · Words you used</div>
+            <div className="word-chips">
+              {info.practiced.slice(0, 8).map((w, i) => (
+                <span key={`${w.pt}-${i}`} className="word-chip">
+                  {w.pic && <Picture glyph={w.pic} size="1.6em" />}
+                  <b>{w.pt}</b>
+                  {w.en && <i>{w.en}</i>}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
         {per && per.length > 0 && (
           <div className="per-player">
             {per.map((pp) => {
@@ -172,7 +238,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
         )}
         {info.words && info.words.length > 0 && (
           <div className="words">
-            <div className="kicker">Palavras novas</div>
+            <div className="kicker">Palavras novas · New words</div>
             <div className="word-chips">
               {info.words.slice(0, 8).map((w) => (
                 <span key={w.itemId} className="word-chip">
@@ -186,7 +252,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
         )}
         {!info.lesson && rt.activePlayers.some((p) => p.missed.length) && (
           <div className="words">
-            <div className="kicker">Para rever</div>
+            <div className="kicker">Para rever · To review</div>
             <div className="word-chips">
               {[...new Map(rt.activePlayers.flatMap((p) => p.missed).map((m) => [m.itemId, m])).values()].slice(0, 6).map((m) => (
                 <span key={m.itemId} className="word-chip">
@@ -194,6 +260,18 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
                   {m.en && <i>{m.en}</i>}
                 </span>
               ))}
+            </div>
+          </div>
+        )}
+        {rt.activePlayers.length >= 2 && (
+          <div className="tonight">
+            <span className="kicker">Quem manda hoje? · Tonight's points</span>
+            <div className="tonight-row">
+              {[...rt.activePlayers]
+                .sort((x, y) => y.score - x.score)
+                .map((p, i, all) => (
+                  <PlayerChip key={p.playerId} p={p} size="2em" extra={<b className="pp-score">{i === 0 && p.score > (all[1]?.score ?? 0) ? "👑 " : ""}{p.score}</b>} />
+                ))}
             </div>
           </div>
         )}
@@ -226,7 +304,7 @@ export function PauseScreen() {
             </div>
           ))}
         </div>
-        <div className="muted">Também podes usar o telemóvel</div>
+        <div className="muted">Também podes usar o telemóvel · You can use your phone too</div>
       </div>
     </div>
   );
@@ -247,3 +325,40 @@ export function GameTop({ title, pic, children }: { title: string; pic?: string;
 }
 
 export { GAMES };
+
+/** The host's subtitle bubble: what the TV is saying, in Portuguese with English underneath. */
+export function HostBubble() {
+  const rt = useRuntime();
+  const l = rt.hostLine;
+  if (!l || rt.activity?.id === "lobby") return null;
+  return (
+    <div className="host-bubble card" key={l.seq}>
+      <span className="host-mic">🎙️</span>
+      <span>
+        <b className="display">{l.pt}</b>
+        <i>{l.en}</i>
+      </span>
+    </div>
+  );
+}
+
+/** Emoji reactions from the phones, floating up the TV in the sender's colour. */
+export function Reactions() {
+  const rt = useRuntime();
+  const now = performance.now();
+  return (
+    <div className="reactions" aria-hidden>
+      {rt.reactions
+        .filter((r) => now - r.at < 3000)
+        .map((r) => {
+          const p = rt.players.get(r.playerId);
+          return (
+            <span key={r.id} className="reaction" data-color={p?.color} style={{ left: `${r.x}%` }}>
+              {r.emoji}
+              {p && <small>{p.name}</small>}
+            </span>
+          );
+        })}
+    </div>
+  );
+}

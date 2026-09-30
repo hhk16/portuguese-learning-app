@@ -2,16 +2,39 @@ import { describe, expect, it } from "vitest";
 import { gameCards, padCards } from "../src/curriculum/learn.ts";
 import { LESSONS } from "../src/curriculum/lessons.ts";
 import { cardForWord, normWord } from "../src/games/sync/sync.ts";
-import { pointsFor } from "../src/games/wave/wave.ts";
+import { betPoints, LEVEL_RULES as WAVE_LEVELS, pointsFor } from "../src/games/wave/wave.ts";
+import { intensifiers, spectra, waveSpoken } from "../src/games/wave/scale.ts";
 
 describe("Na Mesma Onda scoring", () => {
-  it("scores 4/3/2/0 by distance from the target", () => {
+  it("scores 4/3/2/0 by distance from the target (easy bands ±5/10/15)", () => {
     expect(pointsFor(50, 50)).toBe(4);
-    expect(pointsFor(50, 54)).toBe(4);
+    expect(pointsFor(50, 55)).toBe(4);
     expect(pointsFor(50, 41)).toBe(3);
     expect(pointsFor(50, 64)).toBe(2);
-    expect(pointsFor(50, 65)).toBe(0);
+    expect(pointsFor(50, 66)).toBe(0);
     expect(pointsFor(0, 100)).toBe(0);
+  });
+
+  it("gets stricter on harder levels", () => {
+    expect(pointsFor(50, 55, WAVE_LEVELS[1].bands)).toBe(4);
+    expect(pointsFor(50, 55, WAVE_LEVELS[3].bands)).toBe(3);
+    expect(pointsFor(50, 62, WAVE_LEVELS[3].bands)).toBe(0);
+  });
+
+  it("the sure bet doubles a bullseye and zeroes anything else", () => {
+    expect(betPoints(4, true)).toBe(8);
+    expect(betPoints(3, true)).toBe(0);
+    expect(betPoints(3, false)).toBe(3);
+  });
+
+  it("has seven intensifier clues per spectrum, in order along the dial", () => {
+    const s = spectra()[0]!;
+    const c = intensifiers(s.left, s.right);
+    expect(c).toHaveLength(7);
+    expect(c[0]!.pt).toBe(`muito ${s.left.m}`);
+    expect(c[3]!.pt).toBe(`nem ${s.left.m} nem ${s.right.m}`);
+    expect(c.map((x) => x.at)).toEqual([...c.map((x) => x.at!)].sort((a, b) => a - b));
+    expect(new Set(waveSpoken()).size).toBe(spectra().length * 7);
   });
 });
 
@@ -35,7 +58,7 @@ import { amount, DISHES, MENUS, orderBook } from "../src/games/kitchen/menu.ts";
 import { trayMatches } from "../src/games/kitchen/kitchen.ts";
 import { cellPoints } from "../src/games/stop/stop.ts";
 import { CATEGORIES, fairLetters, lookup, normStop, startsWith } from "../src/games/stop/dictionary.ts";
-import { pointsForTime } from "../src/games/draw/draw.ts";
+import { guessMatches, hintPattern, pointsForTime } from "../src/games/draw/draw.ts";
 import { allSpokenTexts } from "../src/curriculum/spoken.ts";
 import { lintPtPt } from "../src/curriculum/pt-pt-lint.ts";
 
@@ -103,5 +126,21 @@ describe("Desenha!", () => {
     expect(pointsForTime(25_000)).toBe(2);
     expect(pointsForTime(1_000)).toBe(1);
     expect(pointsForTime(0)).toBe(0);
+  });
+
+  it("accepts typed or spoken guesses without article/accents, one typo on long words", () => {
+    expect(guessMatches("gato", "o gato")).toBe("yes");
+    expect(guessMatches("O GATO!", "o gato")).toBe("yes");
+    expect(guessMatches("é um gato", "o gato")).toBe("yes");
+    expect(guessMatches("pao", "o pão")).toBe("yes");
+    expect(guessMatches("bicicleto", "a bicicleta")).toBe("typo");
+    expect(guessMatches("gata", "o gato")).toBe("no");
+    expect(guessMatches("", "o gato")).toBe("no");
+  });
+
+  it("builds letter hints", () => {
+    expect(hintPattern("o gato", "first-letter")).toBe("g _ _ _");
+    expect(hintPattern("a maçã", "length")).toBe("_ _ _ _");
+    expect(hintPattern("o gato", "none")).toBeUndefined();
   });
 });

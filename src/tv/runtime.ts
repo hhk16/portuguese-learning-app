@@ -22,6 +22,8 @@ import type { ControllerView, InputValue, NavDir, PlayerBody, PlayerInfo } from 
 import { clockPaused, gameNow, pauseClock, resumeClock } from "./clock.ts";
 import { play } from "../audio/sfx.ts";
 import { speak, stopSpeech } from "../audio/tts.ts";
+import { playMusic, setHurry, setMusicEnabled, type Track } from "../audio/music.ts";
+import type { Line } from "./host-lines.ts";
 import { LearnerStore } from "./learner-store.ts";
 
 export interface RuntimePlayer extends PlayerInfo {
@@ -61,6 +63,9 @@ export interface Settings {
 
 const SETTINGS_KEY = "pp.tv.settings.v3";
 
+/** Background music per activity (menus, lobby and results share the menu theme). */
+const MUSIC: Record<string, Track> = { lesson: "learn", learn: "learn", secret: "coop", wave: "coop", sync: "coop", draw: "draw", stop: "versus", kitchen: "rush" };
+
 export class TvRuntime {
   readonly conn: HostConnection;
   readonly learner = new LearnerStore();
@@ -76,6 +81,10 @@ export class TvRuntime {
   /** Set by the mode runner: how to restart the current game / leave to the menu. */
   onRestart: (() => void) | null = null;
   onQuit: (() => void) | null = null;
+  /** Emoji reactions flying up the TV (performance.now ms). */
+  reactions: { id: number; playerId: string; emoji: string; at: number; x: number }[] = [];
+  private reactSeq = 0;
+  private readonly lastReact = new Map<string, number>();
   /** Per-player character emotes, with expiry (performance.now ms). */
   readonly emotes = new Map<string, { emote: Emote; until: number }>();
   /** Big celebratory burst counter (the overlay fires confetti when it changes). */
@@ -175,6 +184,16 @@ export class TvRuntime {
       case "menu":
         this.menu(body.action, p);
         return;
+      case "react": {
+        // Rate-limited so a mashing thumb can't flood the screen.
+        const now = performance.now();
+        if (now - (this.lastReact.get(playerId) ?? 0) < 350) return;
+        this.lastReact.set(playerId, now);
+        this.reactions = [...this.reactions.filter((r) => now - r.at < 3000), { id: ++this.reactSeq, playerId, emoji: body.emoji, at: now, x: 8 + Math.random() * 84 }].slice(-24);
+        play("pop", 0.6, 1 + Math.random() * 0.2);
+        this.bump();
+        return;
+      }
       case "ready":
         p.ready = body.ready;
         this.activity?.onReady?.(p, body.ready);
@@ -273,6 +292,9 @@ export class TvRuntime {
     stopSpeech();
     this.activity?.stop?.();
     this.activity = a;
+    this.hostQueue = [];
+    setHurry(false);
+    playMusic(MUSIC[a.id] ?? "menu");
     a.start(this);
     for (const p of this.activePlayers) this.conn.sendView(p.playerId, a.viewFor(p));
     this.bump();
@@ -331,6 +353,48 @@ export class TvRuntime {
   }
 
   /** Speak Portuguese from the TV (pre-recorded audio when available). */
+  /** What the host is saying right now (TV subtitle bubble: Portuguese + English). */
+  hostLine: (Line & { seq: number }) | null = null;
+  private hostQueue: Line[] = [];
+  private hostBusy = false;
+  private hostSeq = 0;
+
+  /**
+   * The host says one or more lines, in order: the TV shows a bubble (PT + EN) and speaks the PT.
+   * `interrupt` drops whatever the host was still going to say.
+   */
+  say(lines: Line | Line[], opts: { interrupt?: boolean } = {}) {
+    const ls = Array.isArray(lines) ? lines : [lines];
+    if (opts.interrupt) this.hostQueue = [];
+    this.hostQueue.push(...ls);
+    if (!this.hostBusy) void this.drainHost();
+  }
+
+  private async drainHost() {
+    this.hostBusy = true;
+    while (this.hostQueue.length) {
+      const l = this.hostQueue.shift()!;
+      const seq = ++this.hostSeq;
+      this.hostLine = { ...l, seq };
+      this.bump();
+      const started = performance.now();
+      if (this.settings.sound) await speak(l.pt);
+      // Keep short lines on screen long enough to read the English.
+      const readMs = 900 + l.en.length * 35;
+      const left = readMs - (performance.now() - started);
+      if (left > 0) await new Promise((r) => setTimeout(r, left));
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    this.hostBusy = false;
+    const last = this.hostSeq;
+    setTimeout(() => {
+      if (!this.hostBusy && this.hostSeq === last) {
+        this.hostLine = null;
+        this.bump();
+      }
+    }, 1200);
+  }
+
   speakPt(text: string | undefined, opts: { slow?: boolean } = {}) {
     if (!text || !this.settings.sound) return;
     void speak(text, opts);
@@ -338,6 +402,7 @@ export class TvRuntime {
 
   setSettings(s: Partial<Settings>) {
     this.settings = { ...this.settings, ...s };
+    setMusicEnabled(this.settings.sound);
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
     } catch {

@@ -38,9 +38,15 @@ def ffmpeg() -> str:
         return exe
 
 
-def decode(ff: str, path: Path, rate: float) -> np.ndarray:
-    """Audio file → mono float32 at RATE (rate < 1 = slowed down, pitch kept)."""
-    af = ["-af", f"atempo={rate}"] if abs(rate - 1) > 1e-3 else []
+def decode(ff: str, path: Path, rate: float, pitch: bool = False) -> np.ndarray:
+    """Audio file → mono float32 at RATE. rate < 1 = slowed down; pitch=True shifts pitch with the
+    speed (Web Audio playbackRate, used for SFX variation), else the pitch is kept (slow speech)."""
+    if abs(rate - 1) <= 1e-3:
+        af = []
+    elif pitch:
+        af = ["-af", f"asetrate={int(RATE * rate)},aresample={RATE}"]
+    else:
+        af = ["-af", f"atempo={rate}"]
     raw = subprocess.run([ff, "-v", "error", "-i", str(path), *af, "-ac", "1", "-ar", str(RATE), "-f", "f32le", "-"], capture_output=True, check=True).stdout
     return np.frombuffer(raw, dtype=np.float32)
 
@@ -56,13 +62,49 @@ def main() -> None:
     # 1. Soundtrack: every logged clip at its moment, mixed.
     track = np.zeros(int(dur * RATE) + RATE, dtype=np.float32)
     cache: dict[tuple[str, float], np.ndarray] = {}
-    for ev in meta["sounds"]:
+    sounds = [e for e in meta["sounds"] if e["src"].startswith(("/sfx/", "/audio/"))]
+    music = [e for e in meta["sounds"] if e["src"].startswith("/music/")]
+
+    # Music: each track loops (without its intro/outro fades) until the next one, 1.2 s crossfades,
+    # ducked while the TV speaks — the same rules as src/audio/music.ts.
+    level = np.zeros(len(track), dtype=np.float32)
+    bed = np.zeros(len(track), dtype=np.float32)
+    fade = int(1.2 * RATE)
+    for j, ev in enumerate(music):
+        start = int((ev["t"] - t0) / 1000 * RATE)
+        stop = int((music[j + 1]["t"] - t0) / 1000 * RATE) if j + 1 < len(music) else len(track)
+        start, stop = max(0, start), min(len(track), stop + fade)
+        if stop <= start:
+            continue
+        src = REPO / "public" / ev["src"].lstrip("/")
+        clip = decode(ff, src, 1.0)
+        ls, le = int(min(2, len(clip) / RATE / 4) * RATE), len(clip) - 4 * RATE
+        body = clip[int(0.5 * RATE) :]
+        loop = clip[ls:le]
+        need = stop - start
+        seg = np.concatenate([body] + [loop] * (need // max(1, len(loop)) + 1))[:need].copy()
+        ramp = np.ones(need, dtype=np.float32)
+        ramp[: min(fade, need)] = np.linspace(0, 1, min(fade, need))
+        if j + 1 < len(music):
+            ramp[-min(fade, need):] = np.linspace(1, 0, min(fade, need))
+        bed[start:stop] += seg * ramp
+    level[:] = 0.30
+    for ev in sounds:
+        if ev["src"].startswith("/audio/"):
+            a = int((ev["t"] - t0) / 1000 * RATE)
+            level[max(0, a) : max(0, a) + int(2.5 * RATE)] = 0.10
+    # Smooth the ducking so it breathes instead of clicking.
+    k = int(0.2 * RATE)
+    level = np.convolve(level, np.ones(k, dtype=np.float32) / k, mode="same")
+    track += bed * level
+
+    for ev in sounds:
         src = REPO / "public" / ev["src"].lstrip("/")
         if not src.exists():
             continue
         key = (str(src), round(ev.get("rate", 1), 2))
         if key not in cache:
-            cache[key] = decode(ff, src, key[1])
+            cache[key] = decode(ff, src, key[1], pitch="/sfx/" in ev["src"])
         clip = cache[key] * float(ev.get("vol", 1)) * (0.55 if "/sfx/" in ev["src"] else 1.0)
         i = int((ev["t"] - t0) / 1000 * RATE)
         if i < 0 or i >= len(track):
@@ -91,7 +133,7 @@ def main() -> None:
          "-movflags", "+faststart", str(out)],
         check=True,
     )
-    print(f"{out}  ({dur:.0f}s, {len(meta['sounds'])} sounds, {out.stat().st_size / 1e6:.1f} MB)")
+    print(f"{out}  ({dur:.0f}s, {len(sounds)} sounds, {len(music)} music cues, {out.stat().st_size / 1e6:.1f} MB)")
 
 
 if __name__ == "__main__":

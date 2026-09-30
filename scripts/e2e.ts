@@ -114,7 +114,8 @@ const click = (pg: Page, sel: string, text?: string | RegExp) =>
     .locator(sel, text ? { hasText: text } : {})
     .first()
     .click({ timeout: 2500 })
-    .catch(() => {});
+    .then(() => true)
+    .catch(() => false);
 
 /** First sighting of each screen gets a screenshot (TV + that phone). */
 const shots = new Set<string>();
@@ -178,6 +179,14 @@ async function botStep(b: Bot, seen: Set<string>) {
       if (!v.ready && !seen.has(`lobby:${modeIndex}`)) {
         seen.add(`lobby:${modeIndex}`);
         await nap(pg, 700);
+        // Hadi sets the difficulty (E2E_LEVEL, default Médio) with ◀ ▶ before getting ready.
+        const want = Number(process.env.E2E_LEVEL ?? 2);
+        if (b.name === "Hadi" && typeof v.level === "number") {
+          for (let l = v.level as number; l !== want; l += want > l ? 1 : -1) {
+            await pg.locator(".level-picker .btn").nth(want > l ? 1 : 0).click({ timeout: 2000 }).catch(() => {});
+            await nap(pg, 500);
+          }
+        }
         await shoot(`lobby-${MODES[modeIndex]}`, b);
         await click(pg, ".btn", "Estou pronto");
       }
@@ -204,9 +213,15 @@ async function botStep(b: Bot, seen: Set<string>) {
       seen.add(key);
       await nap(pg, 600 + Math.random() * 900);
       await shoot(`secret-${v.role}`, b);
-      const d = v.debugAnswer as { cardId?: string; targets?: number } | undefined;
+      const d = v.debugAnswer as { cardId?: string; targets?: number; clueWord?: string } | undefined;
       if (v.role === "clue") {
-        const n = Math.max(1, Math.min(2, d?.targets ?? 1));
+        // Pick the best clue word chip, then how many pictures it covers.
+        const words = (v.clueWords as { pt: string }[] | undefined) ?? [];
+        const wi = Math.max(0, words.findIndex((w) => w.pt === d?.clueWord));
+        await pg.locator(".clue-words .bank-word").nth(wi).click({ timeout: 2500 }).catch(() => {});
+        await nap(pg, 700);
+        await shoot("secret-clue-picked", b);
+        const n = Math.max(1, Math.min(3, d?.targets ?? 1));
         return click(pg, ".row3 .btn", String(n));
       }
       if (v.role === "guess") {
@@ -227,13 +242,21 @@ async function botStep(b: Bot, seen: Set<string>) {
         seen.add(key);
         await nap(pg, 2500);
         await shoot("wave-reveal", b);
-        return click(pg, ".btn", "Próximo");
+        // Retry on the next view if the click missed (e.g. the pause check was up).
+        if (!(await click(pg, ".btn", "Próximo"))) seen.delete(key);
+        return;
       }
       if (v.role === "psychic" && v.phase === "clue") {
         seen.add(key);
-        await nap(pg, 1200);
+        await nap(pg, 1800);
         await shoot("wave-psychic", b);
-        return click(pg, ".btn", "Já disse a pista");
+        // Intensifier chips come first ("muito frio" … "muito quente"); pick the one nearest the target.
+        const target = (v.debugAnswer as { target: number }).target;
+        const clues = (v.clues as { pt: string }[] | undefined) ?? [];
+        const AT = [7, 20, 35, 50, 65, 80, 93];
+        const hasScale = clues.length > 7 && /^muito /.test(clues[0]!.pt);
+        const i = hasScale ? AT.reduce((best, at, k) => (Math.abs(at - target) < Math.abs(AT[best]! - target) ? k : best), 0) : Math.floor(Math.random() * clues.length);
+        return pg.locator(".clue-words .bank-word").nth(i).click({ timeout: 2500 }).catch(() => {});
       }
       if (v.role === "guess" && v.phase === "guess") {
         seen.add(key);
@@ -245,8 +268,11 @@ async function botStep(b: Bot, seen: Set<string>) {
           await input(b, v, { mode: "dial", action: { a: "move", value: Math.round(from + ((aim - from) * s) / 6) } });
           await nap(pg, 250);
         }
+        const sure = Math.random() < b.skill * 0.4;
+        if (sure) await click(pg, ".btn", "Tenho a certeza");
+        await nap(pg, 500);
         await shoot("wave-guess", b);
-        await input(b, v, { mode: "dial", action: { a: "lock" } });
+        await input(b, v, { mode: "dial", action: { a: "lock", sure } });
       }
       return;
     }
@@ -257,6 +283,14 @@ async function botStep(b: Bot, seen: Set<string>) {
     case "kitchen":
       return kitchenStep(b, v);
     case "sync": {
+      if (v.sense) {
+        const key = `sync:${v.promptId}:sense`;
+        if ((v.sense as { voted?: boolean }).voted || seen.has(key)) return;
+        seen.add(key);
+        await nap(pg, 1500);
+        await shoot("sync-sense", b);
+        return click(pg, ".btn", Math.random() < 0.8 ? "Sim" : "Não");
+      }
       const key = `sync:${v.promptId}`;
       if (v.submitted || seen.has(key)) return;
       seen.add(key);
@@ -296,17 +330,27 @@ async function drawStep(b: Bot, v: View, seen: Set<string>) {
     await shoot("draw-drawer", b);
     return;
   }
-  const tried = (v.tried as string[] | undefined) ?? [];
-  const key = `draw:${v.promptId}:g:${tried.length}`;
+  const key = `draw:${v.promptId}:g`;
   if (seen.has(key)) return;
   seen.add(key);
-  await nap(pg, 2500 + Math.random() * 2500);
+  // Type a wrong guess first (it pops up on the TV) unless skilled, then the word (sometimes without the article).
+  const d = v.debugAnswer as { id: string; pt: string };
+  await nap(pg, 3000 + Math.random() * 2500);
   await shoot("draw-guesser", b);
-  const opts = v.options as { id: string; label: string }[];
-  const d = v.debugAnswer as { id: string };
-  const right = tried.length > 0 || Math.random() < b.skill;
-  const o = right ? opts.find((x) => x.id === d.id) : opts.find((x) => x.id !== d.id && !tried.includes(x.id));
-  if (o) await click(pg, ".draw-options .lopt", o.label);
+  const typeIt = async (text: string) => {
+    for (const ch of text) {
+      await pg.locator(".sync-form input").press(ch === " " ? "Space" : ch).catch(() => {});
+      await pg.waitForTimeout(60 * PACE);
+    }
+    await nap(pg, 400);
+    await click(pg, ".sync-form .btn");
+  };
+  if (Math.random() > b.skill) {
+    await typeIt(["bola", "casa", "gato", "sol", "carro"][Math.floor(Math.random() * 5)]!);
+    await nap(pg, 2500);
+  }
+  const word = d.pt.split(" · ")[0]!;
+  await typeIt(Math.random() < 0.5 ? word.replace(/^(o|a) /, "") : word);
 }
 
 async function stopStep(b: Bot, v: View, seen: Set<string>) {
@@ -317,8 +361,12 @@ async function stopStep(b: Bot, v: View, seen: Set<string>) {
     seen.add(key);
     await nap(pg, 1500);
     await shoot("stop-vote", b);
+    // Votes default to ✗ (only an explicit ✓ counts): accept most words, reject the odd one.
     const rows = await pg.locator(".vote-row").count();
-    if (rows > 1) await pg.locator(".vote-row .vbtn").nth(1).click().catch(() => {});
+    for (let r = 0; r < rows; r++) {
+      if (Math.random() < 0.85) await pg.locator(".vote-row").nth(r).locator(".vbtn").first().click({ timeout: 1500 }).catch(() => {});
+      await nap(pg, 250);
+    }
     return click(pg, ".btn", "Confirmar");
   }
   const key = `stop:${v.promptId}:write`;

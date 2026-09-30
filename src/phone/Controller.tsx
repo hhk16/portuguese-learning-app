@@ -4,7 +4,7 @@
  */
 import { useState } from "react";
 import type { PhoneConnection } from "../net/phone.ts";
-import type { ControllerView, InputValue } from "../shared/protocol.ts";
+import { REACTIONS, type ControllerView, type InputValue } from "../shared/protocol.ts";
 import { unlockAudio, play } from "../audio/sfx.ts";
 import { Picture } from "../ui/Picture.tsx";
 import { Dial } from "./Dial.tsx";
@@ -24,9 +24,12 @@ export function Controller({ view, conn }: { view: ControllerView; conn: PhoneCo
   };
   // Remount per prompt so local state (selections etc.) resets.
   const key = "promptId" in view ? `${view.mode}:${view.promptId}` : `${view.mode}:${"title" in view ? view.title : ""}`;
+  // While you wait (or watch your partner), you can throw reactions onto the TV.
+  const idle = view.mode === "wait" || view.mode === "lobby" || ("role" in view && view.role === "watch");
   return (
     <div key={key} className="p-screen" onPointerDown={unlockAudio}>
       <Body view={view} conn={conn} send={send} />
+      {idle && <ReactBar conn={conn} />}
     </div>
   );
 }
@@ -77,9 +80,25 @@ function Wait({ v }: { v: ViewOf<"wait"> }) {
 function Lobby({ v, conn }: { v: ViewOf<"lobby">; conn: PhoneConnection }) {
   return (
     <div className="p-center">
-      <div className="kicker">A seguir</div>
+      <div className="kicker">A seguir · Up next</div>
       <div className="p-big">{v.hint}</div>
-      <div className="p-sub">{v.ready ? "Estás pronto! À espera dos outros…" : "Carrega quando estiveres pronto."}</div>
+      <div className="p-sub">{v.ready ? "Estás pronto! À espera dos outros… · Ready! Waiting for the others…" : "Carrega quando estiveres pronto. · Tap when you're ready."}</div>
+      {v.level !== undefined && (
+        <div className="level-picker">
+          <button className="btn white" disabled={v.level <= 1} onClick={() => conn.nav("left")} aria-label="Mais fácil">
+            ◀
+          </button>
+          <span className="bi">
+            <b>{["Fácil", "Médio", "Difícil"][v.level - 1]}</b>
+            <small>
+              {["Easy", "Medium", "Hard"][v.level - 1]} {"★".repeat(v.level)}
+            </small>
+          </span>
+          <button className="btn white" disabled={v.level >= 3} onClick={() => conn.nav("right")} aria-label="Mais difícil">
+            ▶
+          </button>
+        </div>
+      )}
       <div className="p-grow" />
       <button
         className={`btn block ${v.ready ? "mint" : "player"} p-hero-btn`}
@@ -88,10 +107,15 @@ function Lobby({ v, conn }: { v: ViewOf<"lobby">; conn: PhoneConnection }) {
           navigator.vibrate?.(20);
         }}
       >
-        {v.ready ? "Pronto! ✓" : "Estou pronto"}
+        <span className="bi">
+          {v.ready ? "Pronto! ✓" : "Estou pronto"}
+          <small>{v.ready ? "Ready!" : "I'm ready"}</small>
+        </span>
       </button>
       <button className="btn block white" onClick={() => conn.nav("back")}>
-        Voltar ao menu
+        <span className="bi">
+          Voltar ao menu<small>Back to menu</small>
+        </span>
       </button>
     </div>
   );
@@ -101,15 +125,22 @@ function Paused({ conn }: { conn: PhoneConnection }) {
   return (
     <div className="p-center">
       <div className="p-big">Pausa</div>
+      <div className="p-sub">Paused</div>
       <div className="p-grow" />
       <button className="btn block mint p-hero-btn" onClick={() => conn.menu("resume")}>
-        Continuar
+        <span className="bi">
+          Continuar<small>Resume</small>
+        </span>
       </button>
       <button className="btn block white" onClick={() => conn.menu("restart")}>
-        Recomeçar
+        <span className="bi">
+          Recomeçar<small>Restart</small>
+        </span>
       </button>
       <button className="btn block white" onClick={() => conn.menu("quit")}>
-        Sair para o menu
+        <span className="bi">
+          Sair para o menu<small>Quit to menu</small>
+        </span>
       </button>
     </div>
   );
@@ -144,7 +175,9 @@ function Remote({ v, conn }: { v: ViewOf<"remote">; conn: PhoneConnection }) {
         <span />
       </div>
       <button className="btn block white" onClick={() => conn.nav("back")}>
-        Voltar
+        <span className="bi">
+          Voltar<small>Back</small>
+        </span>
       </button>
     </div>
   );
@@ -177,6 +210,24 @@ function Pick({ v, send }: { v: ViewOf<"pick">; send: Send }) {
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function ReactBar({ conn }: { conn: PhoneConnection }) {
+  return (
+    <div className="react-bar" aria-label="Reações · Reactions">
+      {REACTIONS.map((e) => (
+        <button
+          key={e}
+          onClick={() => {
+            conn.react(e);
+            navigator.vibrate?.(8);
+          }}
+        >
+          {e}
+        </button>
+      ))}
     </div>
   );
 }

@@ -6,6 +6,7 @@
  * Provider-independent: curriculum data only stores text.
  */
 import { logSound } from "./log.ts";
+import { duck } from "./music.ts";
 let manifest: Record<string, string> | null = null;
 let manifestLoad: Promise<void> | null = null;
 
@@ -61,7 +62,23 @@ export interface SpeakOpts {
   character?: boolean;
 }
 
+/** Speak Portuguese; the background music ducks until the line has finished. */
 export function speak(text: string, opts: SpeakOpts = {}): Promise<void> {
+  duck(true);
+  let released = false;
+  const release = () => {
+    if (!released) {
+      released = true;
+      duck(false);
+    }
+  };
+  const p = speakLine(text, opts);
+  void p.then(release);
+  setTimeout(release, 8000); // an interrupted clip never "ends"
+  return p;
+}
+
+function speakLine(text: string, opts: SpeakOpts): Promise<void> {
   const file = !opts.character ? manifest?.[audioKey(text)] : undefined;
   if (file) {
     currentAudio?.pause();

@@ -9,15 +9,28 @@
 import { randomId } from "../../shared/ids.ts";
 import type { ControllerView, InputValue } from "../../shared/protocol.ts";
 import { play } from "../../audio/sfx.ts";
+import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
+import type { GameOutcome } from "../../tv/activities.ts";
+import { SAY } from "../../tv/host-lines.ts";
+import type { Level } from "../../tv/progress.ts";
 import { amount, DISHES, MENUS, orderBook, type Dish, type Menu, type Order } from "./menu.ts";
 
 export const SHIFT_MS = 150_000;
+/** The last stretch: customers come faster and every order is worth double. */
+export const RUSH_MS = 40_000;
+export const HEARTS = 3;
+/** Score for ⭐⭐⭐ (85%); stars are 35 / 60 / 85% of this. */
+export const TARGET = 450;
 const MAX_TICKETS = 3;
-const SWAP_EVERY_MS = 45_000;
-const BASE_PATIENCE = 32_000;
-const PER_ITEM_PATIENCE = 9_000;
+
+/** Difficulty: what the ticket shows, how patient customers are, how often pantries swap. */
+export const LEVEL_RULES: Record<Level, { show: "pictures" | "text" | "audio"; patience: number; perItem: number; swapMs: number; gap: number }> = {
+  1: { show: "pictures", patience: 38_000, perItem: 10_000, swapMs: 55_000, gap: 14_000 },
+  2: { show: "text", patience: 32_000, perItem: 8_000, swapMs: 40_000, gap: 12_000 },
+  3: { show: "audio", patience: 27_000, perItem: 7_000, swapMs: 30_000, gap: 10_000 },
+};
 
 export interface Ticket {
   id: string;
@@ -27,17 +40,15 @@ export interface Ticket {
   /** Shown briefly after serving / leaving. */
   done?: "served" | "left";
   doneAt?: number;
+  points?: number;
+  /** After a wrong serve the tickets give a hint (pictures; on hard, the text too). */
+  hinted?: boolean;
 }
 
-export interface KitchenResult {
-  served: number;
-  missed: number;
-  menu: string;
-  rating: string;
-}
-
-export function ratingFor(served: number): string {
-  return served >= 10 ? "Chef estrela! ⭐⭐⭐" : served >= 7 ? "Cozinha de sucesso! ⭐⭐" : served >= 4 ? "Bom serviço! ⭐" : "Amanhã há mais!";
+/** Points for an order: 10 per item plus a speed bonus (up to 10), doubled in rush hour. */
+export function orderPoints(items: number, patienceLeft: number, rush: boolean): number {
+  const base = items * 10 + Math.round(Math.max(0, Math.min(1, patienceLeft)) * 10);
+  return rush ? base * 2 : base;
 }
 
 /** Tray (dish id → count) equals an order exactly. */
@@ -62,6 +73,10 @@ export class Cozinha implements Activity {
   served = 0;
   missed = 0;
   mistakes = 0;
+  score = 0;
+  hearts = HEARTS;
+  level: Level = 1;
+  rushAnnounced = false;
   /** For TV animations. */
   flash: { kind: "served" | "wrong" | "swap"; seq: number; at: number } | null = null;
   promptId = randomId(6);
@@ -71,9 +86,11 @@ export class Cozinha implements Activity {
   private nextArrival = 0;
   private swapped = false;
   private flashSeq = 0;
-  private readonly onDone: (r: KitchenResult) => void;
+  private words = new Set<string>();
+  private firstServe = true;
+  private readonly onDone: (r: GameOutcome) => void;
 
-  constructor(onDone: (r: KitchenResult) => void) {
+  constructor(onDone: (r: GameOutcome) => void) {
     this.onDone = onDone;
   }
 
@@ -86,6 +103,17 @@ export class Cozinha implements Activity {
   get open() {
     return this.tickets.filter((t) => !t.done);
   }
+  get rules() {
+    return LEVEL_RULES[this.level];
+  }
+  get rush() {
+    return this.phase === "shift" && this.msLeft <= RUSH_MS;
+  }
+  /** What the TV shows on a ticket at this difficulty (hints unlock after a wrong serve). */
+  ticketShows(t: Ticket): { text: boolean; pictures: boolean } {
+    const show = this.rules.show;
+    return { text: show !== "audio" || !!t.hinted, pictures: show === "pictures" || !!t.hinted };
+  }
 
   start(rt: TvRuntime) {
     this.rt = rt;
@@ -93,7 +121,7 @@ export class Cozinha implements Activity {
     this.book = orderBook(this.menu);
     const now = gameNow();
     this.shiftEnd = now + SHIFT_MS;
-    this.nextSwap = now + SWAP_EVERY_MS;
+    this.nextSwap = now + this.rules.swapMs;
     this.nextArrival = now + 1200;
     this.deal();
     this.rt.refreshViews();
@@ -120,23 +148,34 @@ export class Cozinha implements Activity {
     const pool = this.book.filter((o) => o.level === lvl && !openTexts.has(o.text));
     const order = this.rt.rng.pick(pool.length ? pool : this.book);
     const n = Object.values(order.items).reduce((s, x) => s + x, 0);
-    this.tickets.push({ id: randomId(5), order, arrived: now, deadline: now + BASE_PATIENCE + PER_ITEM_PATIENCE * (n - 1) });
-    play("pop");
+    const patience = (this.rules.patience + this.rules.perItem * (n - 1)) * (this.rush ? 0.85 : 1);
+    this.tickets.push({ id: randomId(5), order, arrived: now, deadline: now + patience });
+    play("ding");
     this.rt.speakPt(order.text);
     this.rt.bump();
   }
 
   tick(now: number) {
     if (this.phase !== "shift") return;
+    setHurry(this.shiftEnd - now < 20_000);
     if (now >= this.shiftEnd) return this.finish();
-    // Customers who waited too long leave.
+    if (this.rush && !this.rushAnnounced) {
+      this.rushAnnounced = true;
+      play("whistle");
+      this.rt.say(SAY.rush, { interrupt: true });
+    }
+    // Customers who waited too long leave — and take a heart of your reputation.
     for (const t of this.open)
       if (now >= t.deadline) {
         t.done = "left";
         t.doneAt = now;
         this.missed++;
-        play("fail-jingle", 0.5);
+        this.hearts--;
+        play("sad-trombone", 0.7);
+        this.rt.say(SAY.customerLeft);
         for (const p of this.players) this.rt.emote(p.playerId, "sad", 1500);
+        if (this.hearts <= 0) return this.finish();
+        this.rt.refreshViews();
         this.rt.bump();
       }
     // Clear finished tickets after their little animation.
@@ -146,10 +185,10 @@ export class Cozinha implements Activity {
     // Keep the counter busy: never empty, up to three at once.
     if (this.open.length === 0 || (this.open.length < MAX_TICKETS && now >= this.nextArrival)) {
       this.arrive(now);
-      this.nextArrival = now + (this.levelNow() === 1 ? 14_000 : 11_000);
+      this.nextArrival = now + (this.levelNow() === 1 ? this.rules.gap + 2000 : this.rules.gap) * (this.rush ? 0.6 : 1);
     }
     if (now >= this.nextSwap && this.players.length === 2) {
-      this.nextSwap = now + SWAP_EVERY_MS;
+      this.nextSwap = now + this.rules.swapMs;
       const [a, b] = this.players;
       const pa = this.pantries.get(a!.playerId) ?? [];
       this.pantries.set(a!.playerId, this.pantries.get(b!.playerId) ?? []);
@@ -157,7 +196,7 @@ export class Cozinha implements Activity {
       this.swapped = true;
       this.flash = { kind: "swap", seq: ++this.flashSeq, at: now };
       play("whoosh");
-      this.rt.speakPt("Troca!");
+      this.rt.say(SAY.swap);
       this.rt.refreshViews();
       this.swapped = false;
       this.rt.bump();
@@ -185,7 +224,7 @@ export class Cozinha implements Activity {
       if ([...this.tray.values()].reduce((s, n) => s + n, 0) >= 8) return;
       this.tray.set(act.id, (this.tray.get(act.id) ?? 0) + 1);
       this.trayBy.push({ playerId: p.playerId, dish: act.id });
-      play("tap");
+      play("pop");
     } else if (act.a === "trash") {
       this.clearTray();
       play("back");
@@ -195,8 +234,10 @@ export class Cozinha implements Activity {
       else if (this.tray.size) {
         this.mistakes++;
         this.flash = { kind: "wrong", seq: ++this.flashSeq, at: gameNow() };
-        play("wrong");
-        this.rt.speakPt("Não é isso!");
+        play("buzzer");
+        this.rt.say(SAY.notThat, { interrupt: true });
+        // A hint: the tickets now show more (pictures; on hard, the words too).
+        for (const x of this.open) x.hinted = true;
         for (const x of this.players) this.rt.emote(x.playerId, "sad", 1200);
         // Items nobody ordered were a listening slip.
         const wanted = new Set(this.open.flatMap((x) => Object.keys(x.order.items)));
@@ -216,7 +257,15 @@ export class Cozinha implements Activity {
     t.done = "served";
     t.doneAt = now;
     this.served++;
+    const items = Object.values(t.order.items).reduce((a, b) => a + b, 0);
+    t.points = orderPoints(items, (t.deadline - now) / (t.deadline - t.arrived), this.rush);
+    this.score += t.points;
+    for (const id of Object.keys(t.order.items)) this.words.add(id);
     this.flash = { kind: "served", seq: ++this.flashSeq, at: now };
+    if (this.firstServe) {
+      this.firstServe = false;
+      this.rt.say(SAY.served);
+    }
     for (const b of this.trayBy) {
       const who = this.rt.players.get(b.playerId);
       if (who) this.rt.evidence(who, `vocab.noun.${b.dish}`, "kitchen.listen", "correct");
@@ -225,7 +274,7 @@ export class Cozinha implements Activity {
       this.rt.addScore(p, 100, "kitchen");
       this.rt.emote(p.playerId, "cheer", 1800);
     }
-    play("success-jingle", 0.6);
+    play("cash");
     this.clearTray();
     // A served table frees a spot soon.
     this.nextArrival = Math.min(this.nextArrival, now + 2500);
@@ -237,10 +286,21 @@ export class Cozinha implements Activity {
   }
 
   private finish() {
+    if (this.phase === "end") return;
     this.phase = "end";
-    if (this.served >= 4) this.rt.celebrate();
+    setHurry(false);
+    play("whistle");
+    const closedEarly = this.hearts <= 0;
     this.rt.bump();
-    this.onDone({ served: this.served, missed: this.missed, menu: this.menu.name, rating: ratingFor(this.served) });
+    this.onDone({
+      score: this.score,
+      max: TARGET,
+      headline: `${this.score} pontos · ${this.served} pedidos`,
+      headlineEn: `${this.score} points · ${this.served} orders served`,
+      sub: closedEarly ? `${this.menu.name} · A cozinha fechou: clientes a mais foram-se embora!` : `${this.menu.name} · ${this.missed} clientes foram-se embora`,
+      subEn: closedEarly ? "The kitchen closed: too many customers left!" : `${this.missed} customers left`,
+      words: [...this.words].map((id) => ({ pt: DISHES[id]!.sing, pic: DISHES[id]!.pic })),
+    });
   }
 
   trayList(): { dish: Dish; n: number }[] {
@@ -254,7 +314,7 @@ export class Cozinha implements Activity {
 
   viewFor(p: RuntimePlayer): ControllerView {
     if (this.players.length < 2) return { mode: "wait", title: "Cozinha Caótica precisa de 2", subtitle: "Chama o teu par para jogar!", pic: "🍳" };
-    if (this.phase === "end") return { mode: "wait", title: "Fecharam a cozinha!", subtitle: `${this.served} pedidos servidos`, pic: "🍽️" };
+    if (this.phase === "end") return { mode: "wait", title: "A cozinha fechou!", subtitle: `${this.score} pontos · ${this.served} pedidos`, pic: "🍽️" };
     const target = this.open[0];
     const need = new Map<string, number>();
     if (target) for (const [id, n] of Object.entries(target.order.items)) need.set(id, n - (this.tray.get(id) ?? 0));
@@ -267,6 +327,9 @@ export class Cozinha implements Activity {
       tray: this.trayList().map(({ dish, n }) => ({ pt: amount(dish, n), pic: dish.pic, n })),
       msLeft: this.msLeft,
       served: this.served,
+      score: this.score,
+      hearts: this.hearts,
+      rush: this.rush || undefined,
       swapped: this.swapped || undefined,
       debugAnswer: this.rt.testMode
         ? {

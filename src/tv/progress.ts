@@ -49,3 +49,42 @@ export function playableLessons() {
   const list = LESSONS.filter((l) => done.has(l.id) || l.id === next);
   return list.length ? list : [LESSONS[0]!];
 }
+
+/* ---------------------------------------------------------------- game levels + records */
+
+export type Level = 1 | 2 | 3;
+export const LEVELS: { level: Level; pt: string; en: string; stars: string }[] = [
+  { level: 1, pt: "Fácil", en: "Easy", stars: "★" },
+  { level: 2, pt: "Médio", en: "Medium", stars: "★★" },
+  { level: 3, pt: "Difícil", en: "Hard", stars: "★★★" },
+];
+
+const LEVEL_KEY = "pp.tv.gameLevel";
+const BEST_KEY = "pp.tv.gameBest";
+
+/** Last difficulty played for a game (default: easy). */
+export function lastLevel(mode: string): Level {
+  return (read<Record<string, Level>>(LEVEL_KEY, {})[mode] ?? 1) as Level;
+}
+export function rememberLevel(mode: string, level: Level) {
+  const all = read<Record<string, Level>>(LEVEL_KEY, {});
+  all[mode] = level;
+  write(LEVEL_KEY, all);
+}
+
+export function bestScore(mode: string, level: Level): number | null {
+  return read<Record<string, number>>(BEST_KEY, {})[`${mode}:${level}`] ?? null;
+}
+
+/** Store a score; returns the previous best (null = first time) and whether this beat it. */
+export function recordScore(mode: string, level: Level, score: number): { previous: number | null; isNew: boolean } {
+  const all = read<Record<string, number>>(BEST_KEY, {});
+  const key = `${mode}:${level}`;
+  const previous = all[key] ?? null;
+  const isNew = previous === null ? score > 0 : score > previous;
+  if (isNew) {
+    all[key] = score;
+    write(BEST_KEY, all);
+  }
+  return { previous, isNew };
+}

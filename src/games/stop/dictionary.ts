@@ -106,3 +106,27 @@ export function fairLetters(categories: readonly string[], min = 3): string[] {
 export function stopSpoken(): string[] {
   return "ABCDEFGHIJLMNOPRSTUV".split("").map((l) => `Letra ${l}!`);
 }
+
+/** Edit distance (for "did you mean…?" spelling help). */
+export function editDistance(a: string, b: string): number {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array<number>(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0]![j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++) d[i]![j] = Math.min(d[i - 1]![j]! + 1, d[i]![j - 1]! + 1, d[i - 1]![j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length]![b.length]!;
+}
+
+/** A dictionary word the typed word is one small slip away from (two for long words). */
+export function nearMiss(category: string, typed: string): DictWord | undefined {
+  const n = normStop(typed);
+  if (n.length < 3) return undefined;
+  const limit = n.length >= 7 ? 2 : 1;
+  let best: { w: DictWord; d: number } | undefined;
+  for (const w of DICTIONARY)
+    if (w.category === category)
+      for (const f of w.forms) {
+        const d = editDistance(n, f);
+        if (d > 0 && d <= limit && f[0] === n[0] && (!best || d < best.d)) best = { w, d };
+      }
+  return best?.w;
+}
