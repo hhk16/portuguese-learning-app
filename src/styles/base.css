@@ -97,3 +97,21 @@ button {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* ---------- logo ---------- */
+.logo {
+  font-family: var(--font-display);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  color: var(--yellow);
+  text-shadow:
+    0 0.08em 0 #ff8a3d, 0 0.16em 0 #ff3fa4, 0 0.24em 0 #9b5cff, 0 0.32em 0 #2a0a5e,
+    0 0.4em 0.5em rgba(0, 0, 0, 0.6);
+  animation: pp-wobble 4s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+.logo .l2 {
+  color: var(--cyan);
+  display: block;
+}
+

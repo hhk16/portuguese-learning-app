@@ -16,23 +16,6 @@
   pointer-events: auto;
 }
 
-/* ---------- logo ---------- */
-.logo {
-  font-family: var(--font-display);
-  line-height: 0.92;
-  letter-spacing: 0.02em;
-  color: var(--yellow);
-  text-shadow:
-    0 0.08em 0 #ff8a3d, 0 0.16em 0 #ff3fa4, 0 0.24em 0 #9b5cff, 0 0.32em 0 #2a0a5e,
-    0 0.4em 0.5em rgba(0, 0, 0, 0.6);
-  animation: pp-wobble 4s ease-in-out infinite;
-  transform-origin: 50% 80%;
-}
-.logo .l2 {
-  color: var(--cyan);
-  display: block;
-}
-
 .chip {
   display: inline-flex;
   align-items: center;
@@ -899,3 +882,5 @@
 .race-question .prompt-headline { font-size: 3.4rem; margin: 0.2rem 0; }
 .race-question .options { margin-top: 1rem; }
 .race-question .status-row { margin-top: 0.8rem; }
+
+.lobby-right .steps { background: var(--panel); border: 3px solid var(--panel-edge); border-radius: 1.4rem; padding: 1.2rem 1.8rem; }
