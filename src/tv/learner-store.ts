@@ -125,23 +125,36 @@ export class LearnerStore {
     }
   }
 
+  private pushing = false;
+
+  /** Save the profile snapshot (optimistic versioning; this TV wins on conflict — the evidence log is the source of truth). */
   async pushSnapshot(): Promise<void> {
+    if (this.pushing) return;
+    this.pushing = true;
     try {
       const token = await this.authToken();
       if (!token) return;
-      const r = await fetch("/api/snapshot", {
-        method: "PUT",
-        headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-        body: JSON.stringify({ baseVersion: this.household.snapshotVersion, doc: { profiles: this.profiles } }),
-      });
-      if (r.ok) this.household.snapshotVersion = (await r.json()).version;
-      else if (r.status === 409) {
-        const cur = await (await fetch("/api/snapshot", { headers: { authorization: `Bearer ${token}` } })).json();
-        this.household.snapshotVersion = cur.version; // last-writer-wins on next push; evidence log is the source of truth
+      const headers = { "content-type": "application/json", authorization: `Bearer ${token}` };
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const r = await fetch("/api/snapshot", {
+          method: "PUT",
+          headers,
+          body: JSON.stringify({ baseVersion: this.household.snapshotVersion, doc: { profiles: this.profiles } }),
+        });
+        if (r.ok) {
+          this.household.snapshotVersion = (await r.json()).version;
+          break;
+        }
+        if (r.status !== 409) break;
+        // Someone else saved in between: take their version number and save ours on top.
+        const cur = await (await fetch("/api/snapshot", { headers })).json();
+        this.household.snapshotVersion = cur.version;
       }
       write(HOUSEHOLD_KEY, this.household);
     } catch {
       /* offline */
+    } finally {
+      this.pushing = false;
     }
   }
 }
