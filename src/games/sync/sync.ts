@@ -270,6 +270,7 @@ export class EmSintonia implements Activity {
   }
 
   private reveal(now: number) {
+    this.rt.holdPhones(1800);
     this.phase = "reveal";
     this.phaseEnd = now + REVEAL_MS;
     play("cymbal");

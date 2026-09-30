@@ -9,7 +9,9 @@ type V = Extract<ControllerView, { mode: "kitchen" }>;
 
 export function Kitchen({ v, send }: { v: V; send: Send }) {
   const left = useCountdown(v.msLeft);
-  const act = (a: Extract<Parameters<Send>[0], { mode: "kitchen" }>["action"]) => send({ mode: "kitchen", action: a });
+  const act = (
+    a: Extract<Parameters<Send>[0], { mode: "kitchen" }>["action"],
+  ) => send({ mode: "kitchen", action: a });
   return (
     <div className="p-col kitchen-pad">
       <div className="kitchen-head">
@@ -17,16 +19,28 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
         <span className="pill hearts-mini">{"♥".repeat(v.hearts)}</span>
         {!v.practice && (
           <span className="pill">
-            ⏱ {Math.floor(left / 60000)}:{String(Math.floor((left % 60000) / 1000)).padStart(2, "0")}
+            ⏱ {Math.floor(left / 60000)}:
+            {String(Math.floor((left % 60000) / 1000)).padStart(2, "0")}
           </span>
         )}
       </div>
-      {v.swapped && <div className="p-warn">Troca! 🔄 Tens comida nova. · Swap! You have new food.</div>}
-      {v.rush && <div className="p-warn rush">🔥 Hora de ponta! ×2 · Rush hour!</div>}
-      <div className="p-callout soft">
-        <b className="display">Ouve os pedidos na TV</b>
-        <span>Listen to the orders on the TV. Tap your food; ask your partner for the rest!</span>
-      </div>
+      {v.swapped && (
+        <div className="p-warn">
+          Troca! 🔄 Tens comida nova. · Swap! You have new food.
+        </div>
+      )}
+      {v.rush && (
+        <div className="p-warn rush">🔥 Hora de ponta! ×2 · Rush hour!</div>
+      )}
+      {v.served === 0 && (
+        <div className="p-callout soft">
+          <b className="display">Ouve os pedidos na TV</b>
+          <span>
+            Listen to the orders on the TV. Tap your food; ask your partner for
+            the rest!
+          </span>
+        </div>
+      )}
       <div className="kicker">A tua despensa · Your pantry</div>
       <div className={`pantry ${v.swapped ? "swapped" : ""}`}>
         {v.pantry.map((d) => (
@@ -36,7 +50,10 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
             onClick={(e) => {
               play("tap");
               navigator.vibrate?.(10);
-              (e.currentTarget as HTMLElement).animate([{ transform: "scale(0.9)" }, { transform: "scale(1)" }], { duration: 160 });
+              (e.currentTarget as HTMLElement).animate(
+                [{ transform: "scale(0.9)" }, { transform: "scale(1)" }],
+                { duration: 160 },
+              );
               act({ a: "add", id: d.id });
             }}
           >
@@ -58,57 +75,70 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
         </div>
       </div>
       <div className="p-grow" />
-      {v.replay && v.replay.length > 0 && (
-        <div className="replay-row">
-          <span className="kicker">🔊 Ouvir outra vez · Hear again (−3 s)</span>
-          {v.replay.map((t) => (
-            <button key={t} className="btn white mini" onClick={() => act({ a: "replay", table: t })}>
-              {v.tables ? `Mesa ${t}` : "🔊"}
-            </button>
-          ))}
-        </div>
-      )}
-      <div className="row2">
-        <button className="btn white" disabled={v.tray.length === 0} onClick={() => act({ a: "trash" })}>
-          <span className="bi">
-            🗑️ Deitar fora<small>Throw away</small>
-          </span>
-        </button>
-        {!v.tables && (
+      {/* Always on screen, even in rush hour: the actions are pinned to the bottom. */}
+      <div className="kitchen-actions">
+        {v.replay && v.replay.length > 0 && (
+          <div className="replay-row">
+            <span className="kicker">
+              🔊 Ouvir outra vez · Hear again (−3 s)
+            </span>
+            {v.replay.map((t) => (
+              <button
+                key={t}
+                className="btn white mini"
+                onClick={() => act({ a: "replay", table: t })}
+              >
+                {v.tables ? `Mesa ${t}` : "🔊"}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="row2">
           <button
-            className="btn player"
+            className="btn white"
             disabled={v.tray.length === 0}
-            onClick={() => {
-              navigator.vibrate?.(20);
-              act({ a: "serve" });
-            }}
+            onClick={() => act({ a: "trash" })}
           >
             <span className="bi">
-              Servir 🍽️<small>Serve</small>
+              🗑️ Deitar fora<small>Throw away</small>
             </span>
           </button>
-        )}
-      </div>
-      {v.tables && (
-        <div className="serve-tables">
-          {[1, 2, 3].map((t) => (
+          {!v.tables && (
             <button
-              key={t}
               className="btn player"
-              disabled={v.tray.length === 0 || !v.tables!.includes(t)}
+              disabled={v.tray.length === 0}
               onClick={() => {
                 navigator.vibrate?.(20);
-                act({ a: "serve", table: t });
+                act({ a: "serve" });
               }}
             >
               <span className="bi">
-                Mesa {t}
-                <small>Serve table {t}</small>
+                Servir 🍽️<small>Serve</small>
               </span>
             </button>
-          ))}
+          )}
         </div>
-      )}
+        {v.tables && (
+          <div className="serve-tables">
+            {[1, 2, 3].map((t) => (
+              <button
+                key={t}
+                className="btn player"
+                disabled={v.tray.length === 0 || !v.tables!.includes(t)}
+                onClick={() => {
+                  navigator.vibrate?.(20);
+                  act({ a: "serve", table: t });
+                }}
+              >
+                <span className="bi">
+                  Mesa {t}
+                  <small>Serve table {t}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

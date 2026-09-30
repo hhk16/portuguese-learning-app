@@ -23,9 +23,9 @@ import { LINKS, linksOf, type Link } from "../sync/links.ts";
 
 /** Difficulty: board size, targets per player, bombs, turns, lives, clue timer. */
 export const LEVEL_RULES: Record<Level, { board: number; targets: number; bombs: number; turns: number; lives: number; clueMs: number; bombEnds: boolean }> = {
-  1: { board: 12, targets: 3, bombs: 2, turns: 9, lives: 3, clueMs: 60_000, bombEnds: false },
-  2: { board: 16, targets: 4, bombs: 3, turns: 9, lives: 3, clueMs: 45_000, bombEnds: false },
-  3: { board: 20, targets: 4, bombs: 3, turns: 8, lives: 1, clueMs: 35_000, bombEnds: true },
+  1: { board: 12, targets: 3, bombs: 2, turns: 8, lives: 3, clueMs: 60_000, bombEnds: false },
+  2: { board: 16, targets: 4, bombs: 3, turns: 7, lives: 2, clueMs: 45_000, bombEnds: false },
+  3: { board: 20, targets: 4, bombs: 3, turns: 6, lives: 1, clueMs: 35_000, bombEnds: true },
 };
 
 /** How many clue chips the giver chooses from. */
@@ -112,7 +112,18 @@ export class ParesSecretos implements Activity {
 
   start(rt: TvRuntime) {
     this.rt = rt;
+    this.dealBoard();
+    this.newTurn();
+  }
+
+  /** A fresh board (the practice turn gets one, then the real game gets another). */
+  private dealBoard() {
+    const rt = this.rt;
     this.lives = this.rules.lives;
+    this.turnsUsed = 0;
+    this.giverIndex = 0;
+    this.streak = 0;
+    this.flash = null;
     // Build the board from linked words so there's always a clue that covers two cards.
     const fromLessons = new Set(this.lessons.flatMap((l) => l.itemIds));
     const members = [...new Set(LINKS.flatMap((l) => l.members))].filter((m) => memberCard(m));
@@ -133,7 +144,6 @@ export class ParesSecretos implements Activity {
     order.slice(0, t).forEach((c) => (c.targetOf = a?.playerId ?? null));
     order.slice(t, t * 2).forEach((c) => (c.targetOf = b?.playerId ?? a?.playerId ?? null));
     order.slice(t * 2, t * 2 + this.rules.bombs).forEach((c) => (c.bomb = true));
-    this.newTurn();
   }
 
   /** Cards ordered so consecutive ones share a link (targets come in clue-able pairs). */
@@ -212,6 +222,7 @@ export class ParesSecretos implements Activity {
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
     if (value.mode === "skip" && this.inPractice) {
       this.practice = false;
+      this.dealBoard();
       return this.newTurn();
     }
     if (value.mode !== "secret" || this.phase === "end" || promptId !== this.promptId) return;
@@ -269,8 +280,10 @@ export class ParesSecretos implements Activity {
       c.state = "found";
       this.flash = { id: c.id, kind: "found", seq: ++this.flashSeq };
       this.rt.evidence(p, c.card.itemId, "secret.guess", "correct");
-      this.rt.addScore(p, 50, "secret");
-      this.rt.addScore(giver, 50, "secret");
+      if (!this.inPractice) {
+        this.rt.addScore(p, 50, "secret");
+        this.rt.addScore(giver, 50, "secret");
+      }
       // Each find in a row climbs a note.
       play("correct", 1, 1 + this.streak * 0.06);
       this.streak++;
@@ -318,8 +331,18 @@ export class ParesSecretos implements Activity {
   }
 
   private endTurn() {
-    if (this.practice) this.practice = false;
-    else this.turnsUsed++;
+    if (this.practice) {
+      // Practice is over: nothing from it counts — a new board, all turns and lives.
+      this.practice = false;
+      this.rt.say(SAY.start);
+      setTimeout(() => {
+        if (this.rt.activity !== this || this.phase === "end") return;
+        this.dealBoard();
+        this.newTurn();
+      }, 1400);
+      return;
+    }
+    this.turnsUsed++;
     if (this.found >= this.goal) return this.finish(true);
     if (this.turnsLeft <= 0) return this.rules.bombEnds ? this.finish(false) : this.toSuddenDeath();
     this.giverIndex++;

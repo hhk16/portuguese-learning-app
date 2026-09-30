@@ -1311,3 +1311,21 @@ body,
   font-size: 18px;
   color: var(--ink, #1f2a44);
 }
+.kitchen-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0 max(4px, env(safe-area-inset-bottom));
+  background: linear-gradient(to bottom, transparent, var(--cream, #fff6e5) 18%);
+}
+.kitchen-pad .pantry-item {
+  min-height: 92px;
+  padding: 8px;
+}
+.kitchen-pad .tray-row {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}

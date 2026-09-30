@@ -309,6 +309,7 @@ export class Desenha implements Activity {
   }
 
   private reveal(how: "typed" | "said" | "option" | null) {
+    this.rt.holdPhones(1800);
     const left = this.msLeft;
     if (!this.inPractice && this.strokes.size)
       this.gallery.push({ pt: this.word.pt, en: this.word.en, guessed: how !== null, strokes: [...this.strokes.entries()].sort((a, b) => a[0] - b[0]).map(([, s]) => ({ c: s.c, w: s.w, segs: s.segs.map((x) => [...(x ?? [])]) })) });

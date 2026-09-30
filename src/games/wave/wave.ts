@@ -117,7 +117,7 @@ export class NaMesmaOnda implements Activity {
         const card = it ? cardOf(it) : null;
         return card ? { card, at: t.at } : null;
       })
-      .filter((x): x is { card: LearnCard; at: number } => !!x);
+      .filter((x): x is { card: LearnCard; at: number } => !!x && !this.usedNouns.has(x.card.itemId));
     const n = this.rules.chips;
     // Spread: take from each third in turn, then shuffle so position isn't given away by order.
     const thirds = [0, 1, 2].map((k) => this.rt.rng.shuffle(things.filter((t) => Math.min(2, Math.floor(t.at / 33.4)) === k)));
@@ -128,6 +128,8 @@ export class NaMesmaOnda implements Activity {
     }
     return this.rt.rng.shuffle(out);
   }
+  /** Things already used as a clue this game (never offered again). */
+  private usedNouns = new Set<string>();
 
   start(rt: TvRuntime) {
     this.rt = rt;
@@ -184,6 +186,8 @@ export class NaMesmaOnda implements Activity {
 
   private giveClue(c: Clue) {
     this.clue = c;
+    const used = this.chips.find((t) => t.card.pt === c.pt);
+    if (used) this.usedNouns.add(used.card.itemId);
     this.phase = "guess";
     this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.guessMs);
     this.hurried = false;
@@ -245,6 +249,7 @@ export class NaMesmaOnda implements Activity {
   }
 
   private reveal() {
+    this.rt.holdPhones(1800);
     this.phase = "reveal";
     this.promptId = randomId(6);
     const raw = pointsFor(this.target, this.value, this.rules.bands);
@@ -282,7 +287,8 @@ export class NaMesmaOnda implements Activity {
       setHurry(false);
       this.rt.bump();
       const bulls = this.history.filter((h) => h.points >= BULLSEYE).length;
-      const max = ROUNDS * BULLSEYE + BULLSEYE;
+      // Bets can double a bullseye, so ⭐⭐⭐ needs bullseyes *and* a brave bet or two.
+      const max = 36;
       const headline = this.score >= max * 0.85 ? "Telepatia! 🔮" : this.score >= max * 0.6 ? "Na mesma onda!" : this.score >= max * 0.35 ? "Boa onda!" : "Quase… outra vez?";
       const headlineEn = this.score >= max * 0.85 ? "Telepathy!" : this.score >= max * 0.6 ? "On the same wavelength!" : this.score >= max * 0.35 ? "Good vibes!" : "Almost… again?";
       this.onDone({

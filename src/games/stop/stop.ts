@@ -28,9 +28,9 @@ const SCORE_MS = 9_000;
 export const STOP_BONUS = 5;
 /** Difficulty: categories per letter and seconds to write. */
 export const LEVEL_RULES: Record<Level, { cats: number; writeMs: number }> = {
-  1: { cats: 4, writeMs: 90_000 },
-  2: { cats: 4, writeMs: 70_000 },
-  3: { cats: 5, writeMs: 60_000 },
+  1: { cats: 4, writeMs: 70_000 },
+  2: { cats: 4, writeMs: 55_000 },
+  3: { cats: 5, writeMs: 50_000 },
 };
 
 const CAT_EN: Record<string, string> = { comida: "Food or drink", animal: "Animal", coisa: "Thing", profissao: "Job", pais: "Country or nationality", lugar: "Place or nature" };
@@ -53,7 +53,8 @@ export function cellPoints(mine: Cell, theirs: Cell | undefined): number {
   const valid = (c: Cell | undefined) => !!c && VALID.includes(c.status);
   if (!valid(mine)) return 0;
   const key = (c: Cell) => (c.dict ? c.dict.itemId : normStop(c.word));
-  let pts = valid(theirs) && key(theirs!) === key(mine) ? 5 : mine.status === "known" ? 10 : 7;
+  // Known word 10, word the partner accepted 7, a near-miss spelling 5; the same word as your partner 5.
+  let pts = valid(theirs) && key(theirs!) === key(mine) ? 5 : mine.status === "known" ? 10 : mine.status === "spelling" ? 5 : 7;
   if (mine.helped) pts = Math.ceil(pts / 2);
   return pts;
 }
@@ -259,6 +260,7 @@ export class Stop implements Activity {
   }
 
   private score() {
+    this.rt.holdPhones(2200);
     // Nobody said yes: an unknown word doesn't count.
     for (const row of this.cells.values()) for (const c of Object.values(row)) if (c.status === "pending") c.status = "voted-no";
     const [a, b] = this.players;
@@ -273,9 +275,9 @@ export class Stop implements Activity {
         sum += cell.points;
         if (cell.status === "voted-yes") this.words.set(normStop(cell.word), { pt: cell.word });
       }
-      // Shouting STOP pays — if at least half your words hold up.
+      // Shouting STOP pays — only if every word holds up.
       const good = this.categories.filter((c) => (row[c.id]?.points ?? 0) > 0).length;
-      if (this.stoppedBy === p && good * 2 >= this.categories.length) sum += STOP_BONUS;
+      if (this.stoppedBy === p && good === this.categories.length) sum += STOP_BONUS;
       this.roundTotals.set(p.playerId, sum);
       this.totals.set(p.playerId, (this.totals.get(p.playerId) ?? 0) + sum);
       this.rt.addScore(p, sum * 10, "stop");

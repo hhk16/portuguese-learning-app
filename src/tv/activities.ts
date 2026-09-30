@@ -57,7 +57,7 @@ export const GAMES: GameInfo[] = [
   { mode: "sync", name: "Em Sintonia", pic: "🤝", kind: "Juntos · telepatia", how: "Escrevam a mesma palavra ao mesmo tempo.", howEn: "Write the same word at the same time." },
   { mode: "draw", name: "Desenha!", pic: "🎨", kind: "Juntos · desenhar", how: "Um desenha no telemóvel, o outro adivinha a palavra.", howEn: "One draws on the phone, the other guesses the word." },
   { mode: "stop", name: "Stop!", pic: "⏱️", kind: "Um contra o outro · escrever", how: "Uma letra, quatro categorias. Quem acaba grita STOP!", howEn: "One letter, four categories. First to finish shouts STOP!" },
-  { mode: "kitchen", name: "Cozinha Caótica", pic: "🍳", kind: "Juntos · correria", how: "Os clientes pedem em português. Sirvam depressa!", howEn: "Customers order in Portuguese. Serve fast!" },
+  { mode: "kitchen", name: "Cozinha Caótica", pic: "🧑‍🍳", kind: "Juntos · correria", how: "Os clientes pedem em português. Sirvam depressa!", howEn: "Customers order in Portuguese. Serve fast!" },
 ];
 
 export const SOON: { name: string; pic: string }[] = [];

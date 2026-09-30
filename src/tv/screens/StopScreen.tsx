@@ -86,7 +86,7 @@ export function StopScreen({ a }: { a: Stop }) {
                     <span key={p.playerId} className={`cell ${cell?.status ?? "empty"}`}>
                       <b>{cell?.word || "—"}</b>
                       <i>{cell ? MARK[cell.status] : ""}</i>
-                      {cell?.status === "spelling" && cell.dict && <small className="fix">→ {cell.dict.pt}</small>}
+                      {cell?.status === "spelling" && cell.dict && <small className="fix">Quase! Querias dizer {cell.dict.pt}?</small>}
                       {cell?.helped && <small className="fix">💡</small>}
                       {a.phase === "score" && ok && <em className="display">+{cell.points}</em>}
                     </span>

@@ -287,7 +287,21 @@ export class TvRuntime {
 
   currentView(p: RuntimePlayer): ControllerView {
     if (this.paused) return { mode: "paused", title: "Pausa" };
+    // During a reveal the TV is the show: phones wait a beat before showing the result.
+    if (performance.now() < this.holdUntil) return { mode: "wait", title: "Olha para a TV!", subtitle: "Look at the TV! 👀", pic: "👀" };
     return this.activity ? this.activity.viewFor(p) : { mode: "wait", title: "Olha para a TV!" };
+  }
+
+  private holdUntil = 0;
+  private holdTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Phones show "Olha para a TV!" for `ms` (the reveal plays on the TV first), then their real view. */
+  holdPhones(ms = 1600) {
+    this.holdUntil = performance.now() + ms;
+    if (this.holdTimer) clearTimeout(this.holdTimer);
+    this.holdTimer = setTimeout(() => {
+      this.holdUntil = 0;
+      this.refreshViews();
+    }, ms);
   }
 
   /* ------------------------------ activities ------------------------------ */
@@ -300,10 +314,11 @@ export class TvRuntime {
     this.hostQueue = [];
     this.hostLine = null;
     this.command = null;
+    this.holdUntil = 0;
     setHurry(false);
     playMusic(MUSIC[a.id] ?? "menu");
     a.start(this);
-    for (const p of this.activePlayers) this.conn.sendView(p.playerId, a.viewFor(p));
+    for (const p of this.activePlayers) this.conn.sendView(p.playerId, this.currentView(p));
     this.bump();
   }
 
@@ -391,9 +406,17 @@ export class TvRuntime {
 
   /** Show a big command on the TV for a player ("Ana: Roda o mostrador!"), optionally with a named host line. */
   cue(command: Line, p?: RuntimePlayer, line?: Line) {
-    this.command = { ...command, seq: ++this.commandSeq, playerId: p?.playerId, at: performance.now() };
     if (line) this.say(line, { name: p?.name });
-    this.bump();
+    // One banner at a time: a new one waits for the current one to finish.
+    const busy = this.command ? 2900 - (performance.now() - this.command.at) : 0;
+    const show = () => {
+      this.command = { ...command, seq: ++this.commandSeq, playerId: p?.playerId, at: performance.now() };
+      this.bump();
+    };
+    if (busy > 200) {
+      const a = this.activity;
+      setTimeout(() => this.activity === a && show(), busy);
+    } else show();
   }
 
   private async drainHost() {

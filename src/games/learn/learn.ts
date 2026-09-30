@@ -163,6 +163,7 @@ export class LearnActivity implements Activity {
   }
 
   private reveal() {
+    this.rt.holdPhones(1200);
     const ex = this.ex!;
     this.phase = "reveal";
     const at = Date.now();

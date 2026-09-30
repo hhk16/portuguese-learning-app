@@ -2,6 +2,7 @@
  * Stop! dictionary: which curriculum words count for which category, and which letters make a
  * fair round. Words the dictionary doesn't know aren't wrong — the partner votes on them.
  */
+import { REFERENCE } from "./reference.ts";
 import { ALL_ITEMS } from "../../curriculum/index.ts";
 import { stripAccents } from "../../shared/answer-check.ts";
 
@@ -117,9 +118,14 @@ export function editDistance(a: string, b: string): number {
 }
 
 /** A dictionary word the typed word is one small slip away from (two for long words). */
+/** Every word in the Stop reference lists, normalised (to tell real words from typos). */
+const KNOWN_WORDS = new Set(Object.values(REFERENCE).flat().map((w) => normStop(w)));
+
 export function nearMiss(category: string, typed: string): DictWord | undefined {
   const n = normStop(typed);
   if (n.length < 3) return undefined;
+  // A real Portuguese word ("mola") is not a misspelling of another one ("mala"): the partner votes.
+  if (KNOWN_WORDS.has(n)) return undefined;
   const limit = n.length >= 7 ? 2 : 1;
   let best: { w: DictWord; d: number } | undefined;
   for (const w of DICTIONARY)

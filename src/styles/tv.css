@@ -1969,3 +1969,30 @@ html.tv-root #root {
 .gallery-item.ok figcaption {
   color: var(--mint-d);
 }
+
+/* Results must fit a TV screen: actions in two columns, the word recap capped. */
+.results-card {
+  gap: 0.6rem;
+}
+.results-card .next-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+.results-card .word-chips {
+  max-height: 5.4em;
+  overflow: hidden;
+}
+.results-card .gallery-item canvas {
+  width: 5.2rem;
+  height: 5.2rem;
+}
+.result-stars {
+  font-size: 3.2em;
+}
+/* In the lobby the rules card owns the top: commands (difficulty changes) go to the bottom. */
+.lobby-screen ~ .command,
+.command.at-lobby {
+  top: auto;
+  bottom: 3vh;
+}

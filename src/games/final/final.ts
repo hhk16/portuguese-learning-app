@@ -184,6 +184,7 @@ export class GrandeFinal implements Activity {
   }
 
   private reveal() {
+    this.rt.holdPhones(1400);
     this.phase = "reveal";
     this.phaseEnd = gameNow() + REVEAL_MS;
     this.promptId = randomId(6);
@@ -223,7 +224,6 @@ export class GrandeFinal implements Activity {
     this.rt.celebrate();
     if (top && !tie) this.rt.say(NAMED.mvp, { name: top.name, interrupt: true });
     this.rt.bump();
-    const mine = top ? (this.points.get(top.playerId) ?? 0) : 0;
     const total = [...this.points.values()].reduce((a, b) => a + b, 0);
     setTimeout(
       () =>
@@ -233,7 +233,7 @@ export class GrandeFinal implements Activity {
           headline: tie ? `Empate! ${top!.score}–${second!.score}` : `👑 ${top?.name ?? ""} é a estrela da noite!`,
           headlineEn: tie ? "A tie — you're both champions!" : `${top?.name ?? ""} is tonight's champion!`,
           sub: `Final: ${this.players.map((p) => `${p.name} ${this.points.get(p.playerId) ?? 0}`).join(" · ")}`,
-          subEn: `Grand Final points (champion's final score: ${mine})`,
+          subEn: "Grand Final points",
           words: this.questions.map((q) => ({ pt: q.word.pt, en: q.word.en, pic: q.word.emoji })),
         }),
       2800,

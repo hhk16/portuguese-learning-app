@@ -10,7 +10,7 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
   if (a.players.length < 2)
     return (
       <div className="tv-overlay game-screen centered">
-        <GameTop title="Cozinha Caótica" pic="🍳" />
+        <GameTop title="Cozinha Caótica" pic="🧑‍🍳" />
         <div className="card stage-card center">
           <h2 className="display">Este jogo precisa de duas pessoas</h2>
           <p>This game needs two players.</p>
@@ -25,7 +25,7 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
   const tray = a.trayList();
   return (
     <div className="tv-overlay game-screen centered">
-      <GameTop title={`Cozinha Caótica · ${a.menu.name}`} pic="🍳">
+      <GameTop title={`Cozinha Caótica · ${a.menu.name}`} pic="🧑‍🍳">
         {!a.inPractice && (
           <span className={`pill clock ${left < 20_000 ? "low" : ""}`}>
             ⏱ {mm}:{ss}
@@ -54,8 +54,8 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
                 <div className="ticket-text">“{t.order.text}”</div>
               ) : (
                 <div className="ticket-text listen">
-                  🔊 <span>{a.itemCount(t)} itens</span>
-                  <i>{a.itemCount(t)} items — listen! {a.rules.show === "audio" ? "Replay on your phone to see it (−3 s)" : ""}</i>
+                  🔊 <span>{a.itemCount(t) === 1 ? "1 item" : `${a.itemCount(t)} itens`}</span>
+                  <i>{a.itemCount(t) === 1 ? "1 item" : `${a.itemCount(t)} items`} — listen! {a.rules.show === "audio" ? "Replay on your phone to see it (−3 s)" : ""}</i>
                 </div>
               )}
               {a.ticketShows(t).pictures && (

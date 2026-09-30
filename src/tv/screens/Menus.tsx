@@ -220,7 +220,9 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
         )}
         {info.score !== undefined && info.max !== undefined && info.stars !== undefined && info.stars < 3 && (
           <p className="muted next-star">
-            Faltam {toNextStar(info.score, info.max)} pontos para a próxima estrela · {toNextStar(info.score, info.max)} points to the next star
+            {toNextStar(info.score, info.max) === 1
+              ? "Falta 1 ponto para a próxima estrela · 1 point to the next star"
+              : `Faltam ${toNextStar(info.score, info.max)} pontos para a próxima estrela · ${toNextStar(info.score, info.max)} points to the next star`}
           </p>
         )}
         {info.gallery && info.gallery.length > 0 && (
@@ -408,7 +410,7 @@ export function Command() {
   if (!c || performance.now() - c.at > 2900) return null;
   const p = c.playerId ? rt.players.get(c.playerId) : undefined;
   return (
-    <div className="command" key={c.seq}>
+    <div className={`command at-${rt.activity?.id ?? "none"}`} key={c.seq}>
       {p && <PlayerChip p={p} size="2.2em" />}
       <span className="bi-line">
         <b className="display">{c.pt}</b>

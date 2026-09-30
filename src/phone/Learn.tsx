@@ -88,7 +88,9 @@ function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => 
           <div className="p-grow" />
           {!locked && (
             <button className="btn block player" onClick={() => answer({ t: "next" })}>
-              Percebi
+              <span className="bi">
+                Percebi<small>Got it</small>
+              </span>
             </button>
           )}
         </>
@@ -97,7 +99,7 @@ function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => 
       return (
         <>
           <div className="learn-card card intro">
-            <div className="kicker">Palavra nova</div>
+            <div className="kicker">Palavra nova · New word</div>
             {ex.emoji && <Picture glyph={ex.emoji} size="120px" />}
             <div className="pt display">{ex.pt}</div>
             <div className="learn-en">{ex.en}</div>
@@ -106,7 +108,9 @@ function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => 
           <div className="p-grow" />
           {!locked && (
             <button className="btn block player" onClick={() => answer({ t: "next" })}>
-              Percebi
+              <span className="bi">
+                Percebi<small>Got it</small>
+              </span>
             </button>
           )}
         </>
@@ -238,7 +242,9 @@ function Choose({ options, answer, locked }: { options: { id: string; label: str
       <div className="p-grow" />
       {!locked && (
         <button className="btn block player" disabled={!sel} onClick={() => sel && answer({ t: "choice", id: sel })}>
-          Verificar
+          <span className="bi">
+            Verificar<small>Check</small>
+          </span>
         </button>
       )}
     </>
@@ -279,7 +285,9 @@ function Build({ ex, answer, locked }: { ex: Extract<LearnView["ex"], { kind: "b
       <div className="p-grow" />
       {!locked && (
         <button className="btn block player" disabled={chosen.length === 0} onClick={() => answer({ t: "build", words: chosen.map(text) })}>
-          Verificar
+          <span className="bi">
+            Verificar<small>Check</small>
+          </span>
         </button>
       )}
     </>
