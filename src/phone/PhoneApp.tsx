@@ -60,7 +60,6 @@ export function PhoneApp() {
   // Auto-rejoin after a reload when we already have a name and a code.
   useEffect(() => {
     if (!conn && profile.name && code.length >= 4 && localStorage.getItem("pp.phone.resume")) join();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Test hook for the automated e2e harness.

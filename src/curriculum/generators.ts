@@ -313,8 +313,8 @@ export function streamPrompt(rng: Rng, pool: readonly KnowledgeItem[], length = 
   const variant = rng.pick(["nationality", "profession", "ter"] as const);
   const words: StreamPrompt["words"] = [];
   const targetsWanted = 2 + rng.int(2);
-  let rule = "";
-  let category = "";
+  let rule: string;
+  let category: string;
   const push = (text: string, isTarget: boolean, itemId?: string, visual?: string) => words.push({ text, isTarget, itemId, visual });
   if (variant === "nationality") {
     rule = "Toca só nas NACIONALIDADES!";

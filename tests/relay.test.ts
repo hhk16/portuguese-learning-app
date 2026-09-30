@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Relay } from "../server/relay.ts";
 import { PROTOCOL_VERSION } from "../src/shared/protocol.ts";
 
+/* eslint-disable @typescript-eslint/no-explicit-any -- loose JSON assertions in tests */
 class FakeConn {
   out: any[] = [];
   closed = false;

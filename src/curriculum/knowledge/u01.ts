@@ -263,6 +263,19 @@ const FRAMES: Fr[] = [
   ["em_lisboa", "Eu moro ___ Lisboa.", "em", ["no", "na", "de"], []],
   ["em_suecia", "Ele estuda ___ Suécia.", "na", ["no", "em", "da"], ["grammar.contraction.em_a"]],
   ["em_eua", "Elas trabalham ___ Estados Unidos.", "nos", ["nas", "no", "em"], ["grammar.contraction.em_os"]],
+  ["de_japao", "O Nori é ___ Japão.", "do", ["da", "de", "no"], ["grammar.origin.japao"]],
+  ["de_brasil", "A Mara é ___ Brasil.", "do", ["da", "de", "dos"], ["grammar.origin.brasil"]],
+  ["de_maldivas", "Elas são ___ Maldivas.", "das", ["dos", "da", "de"], ["grammar.origin.maldivas"]],
+  ["de_china", "O Li é ___ China.", "da", ["do", "de", "na"], ["grammar.origin.china"]],
+  ["de_braga", "A Ana é ___ Braga.", "de", ["da", "do", "em"], ["grammar.origin.braga"]],
+  ["de_coimbra", "Tu és ___ Coimbra?", "de", ["da", "do", "na"], ["grammar.origin.coimbra"]],
+  ["em_brasil", "O Pedro mora ___ Brasil.", "no", ["na", "em", "do"], ["grammar.contraction.em_o"]],
+  ["em_alemanha", "Nós moramos ___ Alemanha.", "na", ["no", "em", "da"], ["grammar.contraction.em_a"]],
+  ["em_universidade", "Ela estuda ___ universidade.", "na", ["no", "em", "da"], ["grammar.contraction.em_a"]],
+  ["em_hospital", "Eles trabalham ___ hospital.", "no", ["na", "em", "nos"], ["grammar.contraction.em_o"]],
+  ["em_faro", "Moro ___ Faro.", "em", ["no", "na", "de"], []],
+  ["em_maldivas", "Trabalho ___ Maldivas.", "nas", ["nos", "na", "em"], ["grammar.contraction.em_as"]],
+  ["em_acores", "Eles moram ___ Açores.", "nos", ["nas", "no", "em"], ["grammar.contraction.em_os"]],
 ];
 
 const frames: KnowledgeItem[] = FRAMES.map(([slug, text, answer, distractors, targets, en]) => ({

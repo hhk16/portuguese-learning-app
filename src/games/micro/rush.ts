@@ -137,7 +137,6 @@ export class MicroRush implements Activity {
       }
     }
     if (!prompt) return null;
-    const dur = kind === "naotoques" ? (prompt as StreamPrompt).words.length * STREAM_WORD_MS + 600 : def.baseMs;
     return {
       roundId: randomId(6),
       promptId: randomId(6),
@@ -300,7 +299,7 @@ export class MicroRush implements Activity {
     }
     if (pr.answeredAt !== null) return; // one answer per microgame (idempotent)
 
-    let outcome: Outcome = "wrong";
+    let outcome: Outcome;
     if (q.format === "choice" && value.mode === "choices") {
       outcome = value.choice === q.correctId ? "correct" : "wrong";
       pr.given = q.options.find((o) => o.id === value.choice)?.label;
