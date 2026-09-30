@@ -276,7 +276,8 @@ export class LobbyActivity implements Activity {
     if (this.countdownAt !== null && now >= this.countdownAt) {
       this.countdownAt = null;
       play("countdown-go");
-      this.rt.resetSession();
+      // A game night keeps tonight's points from game to game.
+      if (!this.rt.night) this.rt.resetSession();
       startMode(this.rt, this.spec);
     }
   }
