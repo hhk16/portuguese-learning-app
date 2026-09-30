@@ -118,7 +118,7 @@ export function Blip({ mood, talkingUntil, position = [0, 0, 0], scale = 1, hop 
         </mesh>
       ))}
       {/* teacher hat (Mini Aula) */}
-      <group ref={hat} position={[0, 0.78, 0]} visible={false}>
+      <group ref={hat} position={[0, 0.9, 0]} rotation={[0.15, 0, -0.12]} visible={false}>
         <mesh>
           <boxGeometry args={[0.9, 0.06, 0.9]} />
           <meshStandardMaterial color="#12052e" />

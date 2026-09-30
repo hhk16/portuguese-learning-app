@@ -5,6 +5,7 @@
  */
 export type McEvent =
   | { type: "join"; name: string }
+  | { type: "rejoin"; name: string }
   | { type: "welcome" }
   | { type: "partyStart" }
   | { type: "microStart" }
@@ -40,7 +41,12 @@ export const LINES: Bank = {
   join: [
     { pt: "Olá, {name}! Bem-vindo à festa.", en: "Hi {name}! Welcome to the party.", mood: "happy" },
     { pt: "{name} chegou. Agora sim.", en: "{name} is here. Now we're talking.", mood: "hype" },
+    { pt: "Muito prazer, {name}! Eu sou o Blip.", en: "Nice to meet you, {name}! I'm Blip.", mood: "happy" },
+  ],
+  rejoin: [
     { pt: "Ah, {name}. Tu outra vez.", en: "Ah, {name}. You again.", mood: "smug" },
+    { pt: "Bem-vindo de volta, {name}!", en: "Welcome back, {name}!", mood: "happy" },
+    { pt: "{name} voltou. Cuidado, toda a gente.", en: "{name} is back. Careful, everyone.", mood: "hype" },
   ],
   welcome: [
     { pt: "Eu sou o Blip. Hoje só se fala português.", en: "I'm Blip. Tonight: Portuguese only.", mood: "smug" },

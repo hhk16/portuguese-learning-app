@@ -243,7 +243,7 @@ export class MicroRush implements Activity {
       case "stream":
         return { mode: "tapStream", ...base, rule: q.rule };
       case "say":
-        return { mode: "mic", ...base, target: q.target, lang: "pt-PT", question: q.sub };
+        return { mode: "mic", ...base, target: q.headline, lang: "pt-PT", question: q.sub };
     }
   }
 
@@ -389,7 +389,7 @@ export class MicroRush implements Activity {
         const hits = new Set(pr.taps.filter((x) => x.hit).map((x) => x.wordIndex));
         q.words.forEach((w, i) => {
           if (!w.itemId) return;
-          const single: Prompt = { ...q, itemIds: [w.itemId], answerText: w.text };
+          const single: Prompt = { ...q, itemIds: [w.itemId], answerText: w.text, why: w.isTarget ? `${w.text}: ${q.category}` : `${w.text}: não é ${q.category}` };
           if (w.isTarget) this.rt.evidence(p, single, context, hits.has(i) ? "correct" : "wrong");
           else if (pr.taps.some((x) => x.wordIndex === i)) this.rt.evidence(p, single, context, "wrong");
         });

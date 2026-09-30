@@ -51,6 +51,8 @@ export interface MergePrompt extends PromptBase {
 export interface StreamPrompt extends PromptBase {
   format: "stream";
   rule: string;
+  /** What the targets are, e.g. "uma nacionalidade" (for feedback). */
+  category: string;
   words: { text: string; isTarget: boolean; itemId?: string; visual?: string }[];
 }
 export interface SayPrompt extends PromptBase {
@@ -84,7 +86,6 @@ export function choiceFromItem(item: KnowledgeItem, rng: Rng, pool?: readonly Kn
         itemIds: [item.id],
         tier: 1,
         headline: `${item.flag} + ${GENDER_EMOJI[slot]}`,
-        visual: item.flag,
         sub: slot === "ms" ? "Ele é…" : slot === "fs" ? "Ela é…" : slot === "mp" ? "Eles são…" : "Elas são…",
         answerText: correct,
         audio: `${slot === "ms" ? "Ele é" : slot === "fs" ? "Ela é" : slot === "mp" ? "Eles são" : "Elas são"} ${correct}.`,
@@ -102,7 +103,6 @@ export function choiceFromItem(item: KnowledgeItem, rng: Rng, pool?: readonly Kn
         itemIds: [item.id],
         tier: 1,
         headline: `${item.emoji} ${fem ? "👩" : "👨"}`,
-        visual: item.emoji,
         sub: fem ? "Ela é…" : "Ele é…",
         answerText: correct,
         audio: `${fem ? "Ela" : "Ele"} é ${correct}.`,
@@ -314,19 +314,23 @@ export function streamPrompt(rng: Rng, pool: readonly KnowledgeItem[], length = 
   const words: StreamPrompt["words"] = [];
   const targetsWanted = 2 + rng.int(2);
   let rule = "";
+  let category = "";
   const push = (text: string, isTarget: boolean, itemId?: string, visual?: string) => words.push({ text, isTarget, itemId, visual });
   if (variant === "nationality") {
     rule = "Toca só nas NACIONALIDADES!";
+    category = "uma nacionalidade";
     for (const n of rng.sample(nats, targetsWanted)) push(rng.pick([n.ms, n.fs]), true, n.id);
     for (const p of rng.sample(profs, length - targetsWanted)) push(rng.pick([p.m, p.f]), false, p.id, p.emoji);
     // Trap: country names look like nationalities.
     if (words.length > 3) words[words.length - 1] = { text: rng.pick(nats).country, isTarget: false };
   } else if (variant === "profession") {
     rule = "Toca só nas PROFISSÕES!";
+    category = "uma profissão";
     for (const p of rng.sample(profs, targetsWanted)) push(rng.pick([p.m, p.f]), true, p.id, p.emoji);
     for (const n of rng.sample(nats, length - targetsWanted)) push(rng.pick([n.ms, n.fs]), false, n.id);
   } else {
     rule = "Toca só no verbo TER!";
+    category = "o verbo ter";
     const ter = itemsOf("conjugation", pool).filter((c) => c.verb === "ter");
     const ser = itemsOf("conjugation", pool).filter((c) => c.verb === "ser" || c.verb === "falar");
     for (const c of rng.sample(ter, targetsWanted)) push(c.form, true, c.id);
@@ -341,6 +345,7 @@ export function streamPrompt(rng: Rng, pool: readonly KnowledgeItem[], length = 
     headline: rule,
     answerText: targets.map((t) => t.text).join(", "),
     rule,
+    category,
     words: shuffled,
   };
 }

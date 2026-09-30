@@ -103,7 +103,9 @@ export class TvRuntime {
         this.bump();
       },
     });
-    const loop = () => {
+    // Game logic ticks on a timer, independent of the render frame rate (slow TV GPUs must not
+    // slow the rules down). Rendering reads the state on its own rAF.
+    setInterval(() => {
       const now = performance.now();
       const dt = Math.min(0.1, (now - this.lastTick) / 1000);
       this.lastTick = now;
@@ -112,9 +114,7 @@ export class TvRuntime {
         this.mc = null;
         this.bump();
       }
-      requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
+    }, 20);
   }
 
   /* --------------------------- reactive plumbing --------------------------- */
@@ -148,7 +148,7 @@ export class TvRuntime {
       this.players.set(info.playerId, { ...info, connected: true, profile, ready: false, score: 0, joinedAt: performance.now(), missed: [] });
       if (!rejoin) {
         sfx.join();
-        this.say({ type: "join", name: info.name }, true);
+        this.say({ type: profile.createdAt > Date.now() - 5000 ? "join" : "rejoin", name: info.name }, true);
       }
     }
     const p = this.players.get(info.playerId)!;

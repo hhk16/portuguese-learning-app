@@ -70,11 +70,13 @@ export interface WorldProps {
   pulse?: number;
   pulseColor?: string;
   lowFx?: boolean;
+  /** Push the floating toys far away (race: the camera flies through the middle). */
+  far?: boolean;
 }
 
 const TOY_COLORS = ["#2de2ff", "#ff3fa4", "#ffd23f", "#8dff4a", "#9b5cff", "#ff8a3d"];
 
-export function ArcadeWorld({ speed = 1, pulse = 0, pulseColor = "#ffd23f", lowFx = false }: WorldProps) {
+export function ArcadeWorld({ speed = 1, pulse = 0, pulseColor = "#ffd23f", lowFx = false, far = false }: WorldProps) {
   const skyMat = useMemo(() => new THREE.ShaderMaterial({ vertexShader: skyVert, fragmentShader: skyFrag, uniforms: { uTime: { value: 0 } }, side: THREE.BackSide, depthWrite: false }), []);
   const sunMat = useMemo(() => new THREE.ShaderMaterial({ vertexShader: uvVert, fragmentShader: sunFrag, uniforms: { uTime: { value: 0 } }, transparent: true, depthWrite: false }), []);
   const gridMat = useMemo(
@@ -126,8 +128,9 @@ export function ArcadeWorld({ speed = 1, pulse = 0, pulseColor = "#ffd23f", lowF
       if (!m) return;
       m.rotation.x += toy.spin.x * dt * (1 + burst * 6);
       m.rotation.y += toy.spin.y * dt * (1 + burst * 6);
-      m.position.set(toy.base.x * (1 + burst * 0.15), toy.base.y + Math.sin(t * 0.8 + toy.phase) * 0.8 + burst * 2, toy.base.z);
-      const s = toy.scale * (1 + burst * 0.5);
+      const k = far ? 2.6 : 1;
+      m.position.set(toy.base.x * k * (1 + burst * 0.15), toy.base.y * (far ? 2.2 : 1) + (far ? 8 : 0) + Math.sin(t * 0.8 + toy.phase) * 0.8 + burst * 2, toy.base.z * k);
+      const s = toy.scale * (far ? 2.4 : 1) * (1 + burst * 0.5);
       m.scale.setScalar(s);
       const mat = m.material as THREE.MeshStandardMaterial;
       mat.emissive.set(burst > 0.05 ? pulseColor : toy.color);
