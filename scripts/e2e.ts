@@ -73,7 +73,8 @@ async function makePhone(name: string, avatarIdx: number, colorIdx: number, skil
   return { page, name, skill };
 }
 
-const bots = [await makePhone("Hadi", 0, 1, 0.85), await makePhone("Ana", 1, 0, 0.75)];
+// A1 learners: right most of the time, not always.
+const bots = [await makePhone("Hadi", 0, 1, 0.75), await makePhone("Ana", 1, 0, 0.65)];
 await tv.waitForTimeout(2000);
 await tv.screenshot({ path: `${OUT}/02-tv-title-joined.png` });
 await bots[0]!.page.screenshot({ path: `${OUT}/03-phone-remote.png` });
@@ -297,7 +298,9 @@ async function botStep(b: Bot, seen: Set<string>) {
       await nap(pg, 800 + Math.random() * 1500);
       const bank = v.bank as { pt: string }[];
       const d = v.debugAnswer as { word?: string } | undefined;
-      const word = b.name === "Ana" && Math.random() > b.skill ? (bank[1]?.pt ?? "casa") : (d?.word ?? bank[0]?.pt ?? "casa");
+      // Ana often thinks of something else on the first try (then both see each other's words).
+      const miss = b.name === "Ana" && Math.random() < (v.attempt === 1 ? 0.45 : 1 - b.skill);
+      const word = miss ? (bank.find((w) => w.pt !== d?.word)?.pt ?? "casa") : (d?.word ?? bank[0]?.pt ?? "casa");
       await pg.fill(".sync-form input", word).catch(() => {});
       await shoot("sync-write", b);
       return click(pg, ".sync-form .btn");
@@ -364,7 +367,10 @@ async function stopStep(b: Bot, v: View, seen: Set<string>) {
     // Votes default to ✗ (only an explicit ✓ counts): accept most words, reject the odd one.
     const rows = await pg.locator(".vote-row").count();
     for (let r = 0; r < rows; r++) {
-      if (Math.random() < 0.85) await pg.locator(".vote-row").nth(r).locator(".vbtn").first().click({ timeout: 1500 }).catch(() => {});
+      const row = pg.locator(".vote-row").nth(r);
+      // A real partner rejects the made-up words ("…arabalho"), accepts the rest.
+      const text = (await row.textContent().catch(() => "")) ?? "";
+      if (!/arabalho/i.test(text)) await row.locator(".vbtn").first().click({ timeout: 1500 }).catch(() => {});
       await nap(pg, 250);
     }
     return click(pg, ".btn", "Confirmar");

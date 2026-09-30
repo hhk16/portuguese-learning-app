@@ -81,6 +81,8 @@ export function speak(text: string, opts: SpeakOpts = {}): Promise<void> {
 function speakLine(text: string, opts: SpeakOpts): Promise<void> {
   const file = !opts.character ? manifest?.[audioKey(text)] : undefined;
   if (file) {
+    // A paused <audio> never fires "ended": settle the interrupted clip's promise ourselves.
+    finishCurrent();
     currentAudio?.pause();
     if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
     const a = new Audio(`/audio/${file}`);
@@ -91,9 +93,15 @@ function speakLine(text: string, opts: SpeakOpts): Promise<void> {
     }
     currentAudio = a;
     return new Promise((resolve) => {
-      a.onended = () => resolve();
-      a.onerror = () => resolve();
-      void a.play().catch(() => resolve());
+      const done = () => {
+        if (currentDone === done) currentDone = null;
+        resolve();
+      };
+      currentDone = done;
+      a.onended = done;
+      a.onerror = done;
+      void a.play().catch(done);
+      setTimeout(done, 12_000); // never hang the host on a stuck clip
     });
   }
   if (typeof speechSynthesis === "undefined" || !pickVoice()) return Promise.resolve();
@@ -122,7 +130,16 @@ export function primeSpeech() {
   speechSynthesis.speak(u);
 }
 
+/** Resolves the promise of the clip that's playing (it's being cut off). */
+let currentDone: (() => void) | null = null;
+function finishCurrent() {
+  const d = currentDone;
+  currentDone = null;
+  d?.();
+}
+
 export function stopSpeech() {
+  finishCurrent();
   currentAudio?.pause();
   if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
 }

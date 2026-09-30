@@ -293,6 +293,7 @@ export class TvRuntime {
     this.activity?.stop?.();
     this.activity = a;
     this.hostQueue = [];
+    this.hostLine = null;
     setHurry(false);
     playMusic(MUSIC[a.id] ?? "menu");
     a.start(this);
@@ -382,7 +383,7 @@ export class TvRuntime {
       // Keep short lines on screen long enough to read the English.
       const readMs = 900 + l.en.length * 35;
       const left = readMs - (performance.now() - started);
-      if (left > 0) await new Promise((r) => setTimeout(r, left));
+      if (left > 0 && this.hostLine?.seq === seq) await new Promise((r) => setTimeout(r, left));
       await new Promise((r) => setTimeout(r, 250));
     }
     this.hostBusy = false;
