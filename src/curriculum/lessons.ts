@@ -115,6 +115,53 @@ export const LESSONS: Lesson[] = [
   },
 ];
 
+/* A1 core vocabulary (Camões A1 reference level) for the picture games. */
+const a1 = (concept: string) => ({ sourceId: "camoes-a1" as const, concept });
+const nouns = (...slugs: string[]) => slugs.map((s) => `vocab.noun.${s}`);
+const adjs = (...slugs: string[]) => slugs.map((s) => `vocab.adjective.${s}`);
+LESSONS.push(
+  {
+    id: "a1.comer_beber",
+    unit: "a1",
+    title: "O pão e o café — comer e beber",
+    source: a1("a1-vocabulary-food-drink"),
+    itemIds: nouns("pao", "queijo", "ovo", "maca", "banana", "laranja", "morango", "bolo", "gelado", "sopa", "pizza", "chocolate", "salada", "cafe", "agua", "leite", "vinho", "cerveja"),
+    canDo: ["cd09.order-food"],
+  },
+  {
+    id: "a1.casa_coisas",
+    unit: "a1",
+    title: "A casa e as coisas",
+    source: a1("a1-vocabulary-home-objects"),
+    itemIds: nouns("casa", "cama", "cadeira", "chave", "livro", "lapis", "telemovel", "computador", "televisao", "relogio", "mochila", "bola", "presente", "dinheiro", "camisola"),
+    canDo: ["cd13.home"],
+  },
+  {
+    id: "a1.animais_natureza",
+    unit: "a1",
+    title: "O gato e o sol — animais e natureza",
+    source: a1("a1-vocabulary-animals-nature"),
+    itemIds: nouns("gato", "cao", "peixe", "passaro", "rato", "elefante", "sol", "lua", "chuva", "neve", "arvore", "flor", "fogo", "gelo"),
+    canDo: ["cd14.weather-clothes"],
+  },
+  {
+    id: "a1.cidade",
+    unit: "a1",
+    title: "O autocarro e a praia — na cidade",
+    source: a1("a1-vocabulary-transport-places"),
+    itemIds: nouns("carro", "bicicleta", "aviao", "autocarro", "comboio", "escola", "hospital", "praia", "montanha", "supermercado"),
+    canDo: ["cd12.transport"],
+  },
+  {
+    id: "a1.opostos",
+    unit: "a1",
+    title: "Grande ou pequeno? — os opostos",
+    source: a1("a1-adjectives-opposites"),
+    itemIds: adjs("frio", "quente", "pequeno", "grande", "barato", "caro", "triste", "feliz", "facil", "dificil", "lento", "rapido", "bom", "mau", "velho", "novo"),
+    canDo: ["cd05.family-describe"],
+  },
+);
+
 export function getLesson(id: string): Lesson | undefined {
   return LESSONS.find((l) => l.id === id);
 }

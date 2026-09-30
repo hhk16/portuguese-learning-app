@@ -141,7 +141,31 @@ export const NumberItem = z.object({
   fem: z.string().optional(),
 });
 
+/** Everyday noun with its article (picture games). */
+export const NounItem = z.object({
+  ...common,
+  kind: z.literal("noun"),
+  pt: z.string(),
+  article: z.enum(["o", "a"]),
+  en: z.string(),
+  emoji: z.string(),
+  category: z.enum(["comida", "bebida", "animal", "casa", "objeto", "transporte", "lugar", "natureza", "roupa", "corpo"]),
+});
+
+/** Adjective with its opposite (Na Mesma Onda). */
+export const AdjectiveItem = z.object({
+  ...common,
+  kind: z.literal("adjective"),
+  m: z.string(),
+  f: z.string(),
+  en: z.string(),
+  emoji: z.string().optional(),
+  opposite: ItemId.optional(),
+});
+
 export const KnowledgeItem = z.discriminatedUnion("kind", [
+  NounItem,
+  AdjectiveItem,
   NationalityItem,
   ProfessionItem,
   ConjugationItem,
@@ -159,7 +183,7 @@ export type ItemOf<K extends ItemKind> = Extract<KnowledgeItem, { kind: K }>;
 
 /** A lesson groups items and has a Mini Aula. Stages: teach → recognise → produce → use. */
 export const Lesson = z.object({
-  id: z.string().regex(/^u\d\d\.[a-z0-9_]+$/),
+  id: z.string().regex(/^(u\d\d|a1)\.[a-z0-9_]+$/),
   unit: z.string(),
   title: z.string(),
   source: Source,

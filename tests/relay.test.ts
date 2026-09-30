@@ -28,7 +28,7 @@ function setup() {
   const join = (name: string, resume?: object) => {
     const c = new FakeConn();
     const p = relay.connect(c);
-    p.onMessage(JSON.stringify({ t: "p.join", protocolVersion: PROTOCOL_VERSION, code: created.code, name, color: "cyan", avatar: "blob", resume }));
+    p.onMessage(JSON.stringify({ t: "p.join", protocolVersion: PROTOCOL_VERSION, code: created.code, name, color: "sky", avatar: "a", resume }));
     return { c, p, joined: c.last("s.joined") };
   };
   return { relay, hostConn, host, created, join, tick: (ms: number) => (now += ms) };
@@ -53,7 +53,7 @@ describe("relay", () => {
   it("rejects unknown room codes", () => {
     const { relay } = setup();
     const c = new FakeConn();
-    relay.connect(c).onMessage(JSON.stringify({ t: "p.join", protocolVersion: PROTOCOL_VERSION, code: "ZZZZ", name: "X", color: "cyan", avatar: "blob" }));
+    relay.connect(c).onMessage(JSON.stringify({ t: "p.join", protocolVersion: PROTOCOL_VERSION, code: "ZZZZ", name: "X", color: "sky", avatar: "a" }));
     expect(c.last().t).toBe("s.joinFailed");
   });
 

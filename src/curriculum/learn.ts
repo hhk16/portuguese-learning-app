@@ -84,6 +84,17 @@ export function cardOf(item: KnowledgeItem): LearnCard | null {
     }
     case "number":
       return { ...base, pt: item.pt, say: item.pt, en: String(item.value), emoji: String(item.value), short: true };
+    case "noun":
+      return { ...base, pt: `${item.article} ${item.pt}`, say: `${item.article} ${item.pt}`, en: `the ${item.en}`, emoji: item.emoji, short: true };
+    case "adjective":
+      return {
+        ...base,
+        pt: item.m === item.f ? item.m : `${item.m} · ${item.f}`,
+        say: item.m === item.f ? item.m : `${item.m}, ${item.f}`,
+        en: item.en,
+        emoji: item.emoji,
+        short: true,
+      };
     case "origin": {
       const pt = `Sou ${item.form}.`;
       return { ...base, pt, say: pt, en: `I'm from ${PLACE_EN[item.place] ?? item.place}.`, emoji: item.emoji, short: false };
@@ -114,7 +125,7 @@ export function cardById(id: string): LearnCard | null {
 }
 
 /** Cards that stand on their own as "words to learn" (vs practice sentences). */
-const CORE_KINDS: ItemKind[] = ["phrase", "nationality", "profession", "conjugation", "number", "origin", "contraction"];
+const CORE_KINDS: ItemKind[] = ["phrase", "nationality", "profession", "conjugation", "number", "origin", "contraction", "noun", "adjective"];
 export function isCore(c: LearnCard): boolean {
   return CORE_KINDS.includes(c.kind);
 }
@@ -209,7 +220,7 @@ export function listenEx(rng: Rng, c: LearnCard, lesson: readonly LearnCard[]): 
 }
 
 /** Pictures on answer buttons only where they don't give the answer away. */
-const optEmoji = (c: LearnCard) => (c.kind === "phrase" || c.kind === "profession" || c.kind === "nationality" ? c.emoji : undefined);
+const optEmoji = (c: LearnCard) => (c.kind === "phrase" || c.kind === "profession" || c.kind === "nationality" || c.kind === "noun" ? c.emoji : undefined);
 
 export function readEx(rng: Rng, c: LearnCard, lesson: readonly LearnCard[]): LearnEx {
   const o = options(rng, { id: "c", label: c.en, emoji: optEmoji(c) }, distractors(rng, c, lesson, 2).map((d) => ({ id: d.itemId, label: d.en, emoji: optEmoji(d) })));
@@ -336,6 +347,7 @@ export type LearnAnswer =
   | { t: "build"; words: string[] }
   | { t: "pairs"; missed: string[] }
   | { t: "speak"; transcripts: string[]; self: boolean | null }
+  | { t: "judge"; ok: boolean }
   | { t: "next" };
 
 const norm = (s: string) =>
@@ -399,7 +411,7 @@ export function answerOf(ex: LearnEx): { pt: string; en?: string } {
     case "speak":
       return { pt: ex.pt, en: ex.en };
     case "pairs":
-      return { pt: ex.pairs.map((p) => `${p.pt} = ${p.en}`).join(" · ") };
+      return { pt: "Todos os pares" };
     case "intro":
       return { pt: ex.pt, en: ex.en };
     case "tip":

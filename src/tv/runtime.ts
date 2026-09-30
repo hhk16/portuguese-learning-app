@@ -2,29 +2,26 @@
  * The TV runtime: authoritative host for a couch session.
  *
  * - owns the room connection, players, learner profiles and scores
- * - runs one Activity at a time (title, lobby, micro rush, race, mini aula, results)
- * - routes phone input to the activity and phone navigation to the menus
+ * - runs one Activity at a time (menus, lobby, a game, results)
+ * - routes phone input to the activity and phone/remote navigation to menus
  * - records language evidence (learner model) and game performance separately
- * - drives Blip, the MC
+ * - is the only thing that speaks: in shared games there's one voice, from the TV
  *
  * Activities keep their own mutable state; the 3D scene reads it every frame and the DOM overlay
  * re-renders on `bump()` (coarse-grained change notifications).
  */
 import { useSyncExternalStore } from "react";
-import type { Prompt } from "../curriculum/generators.ts";
 import { getItem } from "../curriculum/index.ts";
-import { fillTemplate, LINES, type Line, type McEvent } from "../engine/mc/lines.ts";
 import type { Outcome } from "../learner/events.ts";
 import { isCorrectOutcome } from "../learner/events.ts";
 import type { LearnerProfile } from "../learner/model.ts";
 import { HostConnection } from "../net/host.ts";
 import type { SocketStatus } from "../net/socket.ts";
 import { Rng } from "../shared/rng.ts";
-import type { ControllerView, InputValue, NavDir, PlayerBody, PlayerInfo, Speed } from "../shared/protocol.ts";
-import { playMusic, stopMusic } from "../audio/music.ts";
+import type { ControllerView, InputValue, NavDir, PlayerBody, PlayerInfo } from "../shared/protocol.ts";
 import { clockPaused, gameNow, pauseClock, resumeClock } from "./clock.ts";
-import { sfx } from "../audio/sfx.ts";
-import { hasPortugueseVoice, speak } from "../audio/tts.ts";
+import { play } from "../audio/sfx.ts";
+import { speak, stopSpeech } from "../audio/tts.ts";
 import { LearnerStore } from "./learner-store.ts";
 
 export interface RuntimePlayer extends PlayerInfo {
@@ -33,9 +30,12 @@ export interface RuntimePlayer extends PlayerInfo {
   /** Session score (game performance — never learner evidence). */
   score: number;
   joinedAt: number;
-  /** Items this player missed this session, for the results "para rever" list. */
-  missed: { itemId: string; answer: string; why?: string }[];
+  /** Words this player missed this session, for the results "para rever" list. */
+  missed: { itemId: string; pt: string; en?: string }[];
 }
+
+/** What a player's 3D character is doing (read by the stage every frame). */
+export type Emote = "idle" | "cheer" | "sad" | "think" | "wave";
 
 export interface Activity {
   readonly id: string;
@@ -48,30 +48,18 @@ export interface Activity {
   /** View a (re)joining phone should see right now. */
   viewFor(p: RuntimePlayer): ControllerView;
   stop?(): void;
-  /** Game segments can be paused (Back on the TV / ⏸ on a phone); menus cannot. */
+  /** Games can be paused (Back on the TV / ⏸ on a phone); menus cannot. */
   readonly pausable?: boolean;
-  /** Re-play the current audio (phone "🔊 ouvir outra vez"); `p` = who asked. */
+  /** Re-play the current audio (phone 🔊); `p` = who asked. */
   repeat?(p?: RuntimePlayer): void;
-  /** Music track to restore after a pause. */
-  readonly music?: "title" | "party" | "race" | "aula";
 }
 
 export interface Settings {
-  speed: Speed;
+  sound: boolean;
   lowFx: boolean;
-  music: boolean;
-  subtitles: boolean;
 }
 
-export interface McBubble {
-  line: Line;
-  text: string;
-  sub: string;
-  until: number;
-  seq: number;
-}
-
-const SETTINGS_KEY = "pp.tv.settings.v2";
+const SETTINGS_KEY = "pp.tv.settings.v3";
 
 export class TvRuntime {
   readonly conn: HostConnection;
@@ -82,21 +70,19 @@ export class TvRuntime {
   code = "";
   socket: SocketStatus = "connecting";
   activity: Activity | null = null;
-  settings: Settings = { speed: "calma", lowFx: false, music: true, subtitles: true, ...readSettings() };
+  settings: Settings = { sound: true, lowFx: false, ...readSettings() };
   paused = false;
   pauseFocus = 0;
-  /** Set by the mode runner: how to restart the current mode / leave to the title screen. */
+  /** Set by the mode runner: how to restart the current game / leave to the menu. */
   onRestart: (() => void) | null = null;
   onQuit: (() => void) | null = null;
-  mc: McBubble | null = null;
-  mcMood: Line["mood"] = "happy";
-  mcTalkUntil = 0;
-  private mcCooldown = 0;
-  private mcSeq = 0;
+  /** Per-player character emotes, with expiry (performance.now ms). */
+  readonly emotes = new Map<string, { emote: Emote; until: number }>();
+  /** Big celebratory burst counter (the overlay fires confetti when it changes). */
+  confetti = 0;
   private version = 0;
   private listeners = new Set<() => void>();
-  private lastTick = performance.now();
-  private activityFactory: Record<string, () => Activity> = {};
+  private lastTick = gameNow();
 
   constructor() {
     this.conn = new HostConnection({
@@ -117,17 +103,12 @@ export class TvRuntime {
         this.bump();
       },
     });
-    // Game logic ticks on a timer, independent of the render frame rate (slow TV GPUs must not
-    // slow the rules down). Rendering reads the state on its own rAF.
+    // Game logic ticks on a timer, independent of the render frame rate.
     setInterval(() => {
       const now = gameNow();
       const dt = Math.min(0.1, Math.max(0, (now - this.lastTick) / 1000));
       this.lastTick = now;
       if (!this.paused) this.activity?.tick(now, dt);
-      if (this.mc && performance.now() > this.mc.until) {
-        this.mc = null;
-        this.bump();
-      }
     }, 20);
   }
 
@@ -153,6 +134,11 @@ export class TvRuntime {
     return [...this.players.values()].sort((a, b) => a.joinedAt - b.joinedAt);
   }
 
+  /** The other player (two-player games). */
+  partnerOf(p: RuntimePlayer): RuntimePlayer | undefined {
+    return this.activePlayers.find((x) => x !== p);
+  }
+
   private upsertPlayer(info: PlayerInfo, rejoin: boolean) {
     const existing = this.players.get(info.playerId);
     if (existing) {
@@ -161,8 +147,8 @@ export class TvRuntime {
       const profile = this.learner.profileFor(info.profileHint, info.name);
       this.players.set(info.playerId, { ...info, connected: true, profile, ready: false, score: 0, joinedAt: performance.now(), missed: [] });
       if (!rejoin) {
-        sfx.join();
-        this.say({ type: profile.createdAt > Date.now() - 5000 ? "join" : "rejoin", name: info.name }, true);
+        play("pop");
+        this.emote(info.playerId, "wave", 2500);
       }
     }
     const p = this.players.get(info.playerId)!;
@@ -177,7 +163,6 @@ export class TvRuntime {
     switch (body.k) {
       case "input": {
         if (this.paused) return;
-        // Latency-sensitive: prefer the phone's host-synced timestamp, bounded by receipt time.
         const now = gameNow();
         const t = body.clientHostTime > 0 && body.clientHostTime <= now + 50 && body.clientHostTime > now - 3000 ? body.clientHostTime : now;
         this.activity?.onInput?.(p, body.promptId, body.roundId, body.value, t);
@@ -188,7 +173,7 @@ export class TvRuntime {
         this.activity?.onNav?.(body.dir, p);
         return;
       case "menu":
-        this.menu(body.action, body.speed, p);
+        this.menu(body.action, p);
         return;
       case "ready":
         p.ready = body.ready;
@@ -204,11 +189,10 @@ export class TvRuntime {
       const items = this.pauseItems;
       if (dir === "up" || dir === "down") {
         this.pauseFocus = (this.pauseFocus + (dir === "up" ? -1 : 1) + items.length) % items.length;
-        sfx.nav();
+        play("tap");
         this.bump();
       } else if (dir === "ok") this.menu(items[this.pauseFocus]!.id);
       else if (dir === "back") this.resume();
-      else if ((dir === "left" || dir === "right") && items[this.pauseFocus]!.id === "speed") this.menu("speed");
       return;
     }
     if (dir === "back" && this.activity?.pausable) return this.pause();
@@ -217,42 +201,29 @@ export class TvRuntime {
 
   /* --------------------------------- pause --------------------------------- */
 
-  get pauseItems(): { id: "resume" | "speed" | "restart" | "quit"; label: string }[] {
+  get pauseItems(): { id: "resume" | "restart" | "quit"; label: string }[] {
     return [
-      { id: "resume", label: "▶ Continuar" },
-      { id: "speed", label: `Velocidade: ${SPEED_LABEL[this.settings.speed]}` },
-      { id: "restart", label: "↺ Recomeçar" },
-      { id: "quit", label: "⏏ Sair para o menu" },
+      { id: "resume", label: "Continuar" },
+      { id: "restart", label: "Recomeçar" },
+      { id: "quit", label: "Sair para o menu" },
     ];
   }
 
-  /** Relative duration multiplier for timers: calma gives more time, turbo less. */
-  get pace(): number {
-    return PACE[this.settings.speed];
-  }
-
-  menu(action: "pause" | "resume" | "restart" | "quit" | "speed" | "repeat", speed?: Speed, from?: RuntimePlayer) {
+  menu(action: "pause" | "resume" | "restart" | "quit" | "repeat", from?: RuntimePlayer) {
     switch (action) {
       case "pause":
         if (this.activity?.pausable) this.pause();
         return;
       case "resume":
         return this.resume();
-      case "speed": {
-        const next = speed ?? SPEED_ORDER[(SPEED_ORDER.indexOf(this.settings.speed) + 1) % SPEED_ORDER.length]!;
-        this.setSettings({ speed: next });
-        sfx.select();
-        for (const p of this.activePlayers) this.conn.sendView(p.playerId, this.currentView(p));
-        return;
-      }
       case "restart":
         this.unpauseQuietly();
-        sfx.select();
+        play("select");
         this.onRestart?.();
         return;
       case "quit":
         this.unpauseQuietly();
-        sfx.select();
+        play("back");
         this.onQuit?.();
         return;
       case "repeat":
@@ -264,10 +235,10 @@ export class TvRuntime {
   pause() {
     if (this.paused || !this.activity?.pausable) return;
     pauseClock();
+    stopSpeech();
     this.paused = true;
     this.pauseFocus = 0;
-    stopMusic();
-    sfx.select();
+    play("select");
     for (const p of this.activePlayers) this.conn.sendView(p.playerId, this.currentView(p));
     this.bump();
   }
@@ -276,14 +247,12 @@ export class TvRuntime {
     if (!this.paused) return;
     resumeClock();
     this.paused = false;
-    // Phones' clock offsets are stale after the host clock stood still: resync, then resend views
-    // (deadlines are unchanged in game time, so they are still correct).
+    // Phones' clock offsets are stale after the host clock stood still: resync, then resend views.
     for (const p of this.activePlayers) {
       this.conn.resync(p.playerId);
       this.conn.sendView(p.playerId, this.currentView(p));
     }
-    if (this.activity?.music && this.settings.music) playMusic(this.activity.music);
-    sfx.select();
+    play("select");
     this.bump();
   }
 
@@ -293,24 +262,15 @@ export class TvRuntime {
   }
 
   currentView(p: RuntimePlayer): ControllerView {
-    if (this.paused) return { mode: "paused", speed: this.settings.speed, title: "Pausa" };
+    if (this.paused) return { mode: "paused", title: "Pausa" };
     return this.activity ? this.activity.viewFor(p) : { mode: "wait", title: "Olha para a TV!" };
   }
 
   /* ------------------------------ activities ------------------------------ */
 
-  register(id: string, factory: () => Activity) {
-    this.activityFactory[id] = factory;
-  }
-
-  go(id: string) {
-    const f = this.activityFactory[id];
-    if (!f) throw new Error(`unknown activity ${id}`);
-    this.run(f());
-  }
-
   run(a: Activity) {
     this.unpauseQuietly();
+    stopSpeech();
     this.activity?.stop?.();
     this.activity = a;
     a.start(this);
@@ -323,30 +283,27 @@ export class TvRuntime {
     for (const t of targets) this.conn.sendView(t.playerId, typeof view === "function" ? view(t) : view);
   }
 
+  /** Send every player the activity's current view. */
+  refreshViews() {
+    for (const p of this.activePlayers) this.conn.sendView(p.playerId, this.currentView(p));
+  }
+
   /* ----------------------- learning evidence & scores ----------------------- */
 
-  /**
-   * Record linguistic evidence for every item a prompt exercised.
-   * `context` identifies the game/format so tier promotion needs ≥2 distinct contexts.
-   */
-  evidence(p: RuntimePlayer, prompt: Prompt, context: string, outcome: Outcome, latencyMs?: number) {
-    const at = Date.now();
-    for (const itemId of prompt.itemIds) {
-      if (!getItem(itemId)) continue;
-      this.learner.record({ profileId: p.profile.profileId, itemId, context, tier: prompt.tier, outcome, latencyMs, at });
-    }
-    if (!isCorrectOutcome(outcome) && !p.missed.some((m) => m.answer === prompt.answerText)) {
-      p.missed.push({ itemId: prompt.itemIds[0] ?? "", answer: prompt.answerText, why: prompt.why });
+  /** Record linguistic evidence for one item. `context` = game/format (tier promotion needs ≥2). */
+  evidence(p: RuntimePlayer, itemId: string, context: string, outcome: Outcome, tier: 1 | 2 = 1) {
+    const it = getItem(itemId);
+    if (!it) return;
+    this.learner.record({ profileId: p.profile.profileId, itemId, context, tier, outcome, at: Date.now() });
+    if (!isCorrectOutcome(outcome) && !p.missed.some((m) => m.itemId === itemId)) {
+      const pt = "pt" in it ? String(it.pt) : "m" in it ? String(it.m) : "form" in it ? String(it.form) : itemId;
+      p.missed.push({ itemId, pt, en: "en" in it && it.en ? String(it.en) : undefined });
     }
   }
 
   addScore(p: RuntimePlayer, points: number, game: string) {
     p.score = Math.max(0, p.score + points);
     this.learner.recordPerformance({ profileId: p.profile.profileId, game, metric: "score", value: points, at: Date.now() });
-  }
-
-  perf(p: RuntimePlayer, game: string, metric: "win" | "turbo" | "combo" | "spinout" | "fastest" | "streak", value = 1) {
-    this.learner.recordPerformance({ profileId: p.profile.profileId, game, metric, value, at: Date.now() });
   }
 
   resetSession() {
@@ -357,44 +314,26 @@ export class TvRuntime {
     }
   }
 
-  /* ----------------------------------- MC ----------------------------------- */
+  /* ------------------------------ presentation ------------------------------ */
 
-  /** Blip reacts. `force` bypasses the cooldown (important moments). */
-  say(e: McEvent, force = false, holdMs = 3200) {
-    const now = performance.now();
-    if (!force && now < this.mcCooldown) return;
-    const bank = LINES[e.type];
-    const line = bank[this.rng.int(bank.length)]!;
-    const text = fillTemplate(line.pt, e);
-    this.mc = { line, text, sub: fillTemplate(line.en, e), until: now + holdMs, seq: ++this.mcSeq };
-    this.mcMood = line.mood;
-    this.mcTalkUntil = now + Math.min(holdMs, 400 + text.length * 55);
-    this.mcCooldown = now + holdMs + 1200;
-    // Without a Portuguese voice the MC stays silent (an English voice reading PT is worse).
-    if (hasPortugueseVoice() !== false) void speak(text, { character: true });
+  emote(playerId: string, emote: Emote, ms = 1800) {
+    this.emotes.set(playerId, { emote, until: performance.now() + ms });
+  }
+
+  emoteOf(playerId: string): Emote {
+    const e = this.emotes.get(playerId);
+    return e && e.until > performance.now() ? e.emote : "idle";
+  }
+
+  celebrate() {
+    this.confetti++;
     this.bump();
   }
 
-  /** Speak curriculum audio (correct PT form after a reveal). */
+  /** Speak Portuguese from the TV (pre-recorded audio when available). */
   speakPt(text: string | undefined, opts: { slow?: boolean } = {}) {
-    if (!text) return;
-    if (hasPortugueseVoice() === false) {
-      // No Portuguese voice on this TV: the first phone reads it out instead.
-      const p = this.activePlayers[0];
-      if (p) this.conn.speakOn(p.playerId, text);
-      return;
-    }
+    if (!text || !this.settings.sound) return;
     void speak(text, opts);
-  }
-
-  /** Speak on one player's phone (personal audio, e.g. self-paced lessons). */
-  speakTo(p: RuntimePlayer, text: string) {
-    this.conn.speakOn(p.playerId, text);
-  }
-
-  /** True when this TV cannot speak Portuguese (phones take over the audio). */
-  get tvVoiceMissing(): boolean {
-    return hasPortugueseVoice() === false;
   }
 
   setSettings(s: Partial<Settings>) {
@@ -407,10 +346,6 @@ export class TvRuntime {
     this.bump();
   }
 }
-
-export const SPEED_LABEL: Record<Speed, string> = { calma: "Calma 🐢", normal: "Normal", turbo: "Turbo ⚡" };
-const SPEED_ORDER: Speed[] = ["calma", "normal", "turbo"];
-const PACE: Record<Speed, number> = { calma: 1.7, normal: 1, turbo: 0.8 };
 
 function readSettings(): Partial<Settings> {
   try {

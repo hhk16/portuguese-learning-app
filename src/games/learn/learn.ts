@@ -1,260 +1,304 @@
 /**
- * Aprender — a Duolingo-style lesson, side by side.
+ * Aprender juntos — a Duolingo-style lesson played in sync.
  *
- * Both players get the same exercises (fair, and they can talk about them) but play at their own
- * pace on their own phone: no timers. The TV is the shared "stadium": both progress lanes, hearts,
- * streaks, the words being learned, and Blip cheering. Audio is personal: each phone speaks its
- * own exercise (the TV takes over only if a phone has no Portuguese voice).
- *
- * Mistakes come back once at the end of the lesson (as in Duolingo). Hearts never block — a
- * couple's evening shouldn't end because one of you ran out of lives.
+ * The TV shows each exercise and says it once (one voice for the room). Everyone answers
+ * privately on their phone; when all have answered, the answers are revealed together on the TV
+ * (faces on the options they picked). A team star for every exercise you all get right.
+ * Speaking is social: one says the phrase out loud, the partner judges on their phone.
+ * No timers, no lives: mistakes come back once at the end.
  */
-import { answerOf, buildSession, exTier, INSTRUCTIONS, isGraded, judge, showEnglishFor, type LearnAnswer, type LearnEx } from "../../curriculum/learn.ts";
-import { cardById, type LearnCard } from "../../curriculum/learn.ts";
+import { answerOf, buildSession, cardById, exTier, INSTRUCTIONS, isGraded, judge, showEnglishFor, type LearnAnswer, type LearnCard, type LearnEx } from "../../curriculum/learn.ts";
 import type { Lesson } from "../../curriculum/schema.ts";
 import { randomId } from "../../shared/ids.ts";
 import type { ControllerView, InputValue, LearnExView } from "../../shared/protocol.ts";
-import { sfx } from "../../audio/sfx.ts";
-import { playMusic } from "../../audio/music.ts";
+import { play } from "../../audio/sfx.ts";
 import { lessonsDone, markLessonDone } from "../../tv/progress.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 
-export const START_HEARTS = 5;
-
 export interface LearnSummary {
-  playerId: string;
-  xp: number;
-  correct: number;
-  graded: number;
-  bestStreak: number;
-  hearts: number;
   stars: number;
+  graded: number;
+  perPlayer: { playerId: string; correct: number; graded: number }[];
+  words: LearnCard[];
 }
 
-interface Session {
-  p: RuntimePlayer;
-  queue: LearnEx[];
-  index: number;
-  /** Queue positions whose exercise was already re-queued after a miss. */
-  retried: Set<number>;
-  result: { ok: boolean; pt: string; en?: string; why?: string; say?: string } | null;
-  hearts: number;
-  streak: number;
-  bestStreak: number;
-  xp: number;
-  correct: number;
-  graded: number;
-  promptId: string;
-  done: boolean;
-  /** Last answer, for the TV lane flash. */
-  flash: { ok: boolean; text: string; seq: number } | null;
+interface Answer {
+  a: LearnAnswer;
+  ok: boolean;
+  perItem: Record<string, boolean>;
 }
 
 export class LearnActivity implements Activity {
   readonly id = "learn";
   readonly pausable = true;
-  readonly music = "aula" as const;
   rt!: TvRuntime;
   readonly lesson: Lesson;
-  readonly sessions = new Map<string, Session>();
-  /** Words introduced in this lesson (TV word wall). */
+  queue: LearnEx[] = [];
+  index = 0;
+  phase: "answer" | "reveal" = "answer";
+  answers = new Map<string, Answer>();
+  acks = new Set<string>();
+  /** Speaking: who says it (the partner judges). */
+  speakerId: string | null = null;
+  stars = 0;
+  graded = 0;
   readonly words: LearnCard[] = [];
-  private template: LearnEx[] = [];
-  private readonly onDone: (s: LearnSummary[]) => void;
+  readonly perPlayer = new Map<string, { correct: number; graded: number }>();
+  promptId = randomId(6);
+  private readonly roundId = randomId(6);
+  private retried = new Set<number>();
+  private speakTurn = 0;
+  private readonly onDone: (s: LearnSummary) => void;
   private finished = false;
-  private flashSeq = 0;
-  private roundId = randomId(6);
 
-  constructor(lesson: Lesson, onDone: (s: LearnSummary[]) => void) {
+  constructor(lesson: Lesson, onDone: (s: LearnSummary) => void) {
     this.lesson = lesson;
     this.onDone = onDone;
   }
 
+  get ex(): LearnEx | undefined {
+    return this.queue[this.index];
+  }
+
+  get players() {
+    return this.rt.activePlayers;
+  }
+
   start(rt: TvRuntime) {
     this.rt = rt;
-    playMusic("aula");
     // One exercise list for everyone. "New" = new to the least experienced player present.
     const profiles = rt.activePlayers.map((p) => p.profile);
     const known = (id: string) => {
       const states = profiles.map((pr) => pr.items[id]);
-      if (states.some((s) => !s)) return undefined;
+      if (!states.length || states.some((s) => !s)) return undefined;
       return states.reduce((a, b) => (a!.weakness > b!.weakness ? a : b));
     };
-    this.template = buildSession(this.lesson, known, rt.rng);
-    for (const ex of this.template) {
+    this.queue = buildSession(this.lesson, known, rt.rng, rt.activePlayers.length > 1 ? "full" : "full");
+    for (const ex of this.queue) {
       if (ex.kind === "intro") {
         const c = cardById(ex.itemId);
         if (c && !this.words.some((w) => w.itemId === c.itemId)) this.words.push(c);
       }
     }
-    for (const p of rt.activePlayers) this.sessionFor(p);
-    rt.say({ type: "aulaStart" }, true, 2600);
+    this.enter();
   }
 
-  private sessionFor(p: RuntimePlayer): Session {
-    let s = this.sessions.get(p.playerId);
-    if (!s) {
-      s = {
-        p,
-        queue: [...this.template],
-        index: 0,
-        retried: new Set(),
-        result: null,
-        hearts: START_HEARTS,
-        streak: 0,
-        bestStreak: 0,
-        xp: 0,
-        correct: 0,
-        graded: 0,
-        promptId: randomId(6),
-        done: false,
-        flash: null,
-      };
-      this.sessions.set(p.playerId, s);
+  /** Begin the current exercise. */
+  private enter() {
+    this.phase = "answer";
+    this.answers.clear();
+    this.acks.clear();
+    this.promptId = randomId(6);
+    const ex = this.ex;
+    this.speakerId = null;
+    if (ex?.kind === "speak") {
+      const ps = this.players;
+      this.speakerId = ps[this.speakTurn++ % Math.max(1, ps.length)]?.playerId ?? null;
     }
-    return s;
-  }
-
-  get lanes(): Session[] {
-    return this.rt.activePlayers.map((p) => this.sessionFor(p));
+    play(ex?.kind === "intro" ? "star" : "whoosh");
+    setTimeout(() => this.repeat(), 350);
+    this.rt.refreshViews();
+    this.rt.bump();
   }
 
   tick() {}
 
-  onPlayersChanged() {
-    for (const p of this.rt.activePlayers) this.rt.view(p, this.viewFor(p));
+  repeat() {
+    const ex = this.ex;
+    if (!ex) return;
+    if (this.phase === "reveal") return this.rt.speakPt(answerOf(ex).pt.includes(" = ") ? undefined : "say" in ex ? ex.say : undefined);
+    if (ex.kind === "write" || ex.kind === "pairs" || ex.kind === "build") return; // no audio: it would give the answer away
+    if (ex.kind === "gap") return this.rt.speakPt(ex.text.replace("___", "…"));
+    if ("say" in ex && ex.say) this.rt.speakPt(ex.say, { slow: ex.kind === "listen" });
   }
 
-  repeat(p?: RuntimePlayer) {
-    // Only reached when a phone has no Portuguese voice: the TV reads that player's audio.
-    const s = p && this.sessions.get(p.playerId);
-    const ex = s?.queue[s.index];
-    const text = s?.result?.say ?? (ex && "say" in ex ? ex.say : undefined);
-    this.rt.speakPt(text, { slow: true });
+  onPlayersChanged() {
+    this.rt.refreshViews();
+  }
+
+  onNav(dir: string) {
+    // TV remote "OK" moves on from intros and reveals (handy when one phone is slow).
+    if (dir !== "ok") return;
+    const ex = this.ex;
+    if (!ex) return;
+    if (!isGraded(ex) || this.phase === "reveal") this.next();
   }
 
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
-    if (value.mode !== "learn") return;
-    const s = this.sessionFor(p);
-    if (s.done || promptId !== s.promptId) return;
-    const ex = s.queue[s.index];
+    if (value.mode !== "learn" || promptId !== this.promptId || this.finished) return;
+    const ex = this.ex;
     if (!ex) return;
     const a = value.answer as LearnAnswer;
-    if (s.result || !isGraded(ex)) {
-      if (a.t === "next") this.advance(s);
+
+    // Intros / tips / reveals: everyone taps "continue".
+    if (!isGraded(ex) || this.phase === "reveal") {
+      if (a.t !== "next") return;
+      this.acks.add(p.playerId);
+      play("tap");
+      if (this.players.every((x) => this.acks.has(x.playerId))) return this.next();
+      this.rt.refreshViews();
+      this.rt.bump();
       return;
     }
-    if (a.t === "next") return;
-    this.grade(s, ex, a);
-  }
 
-  private grade(s: Session, ex: LearnEx, a: LearnAnswer) {
+    if (ex.kind === "speak") {
+      // The partner judges the speaker (solo: self-judged).
+      const solo = this.players.length < 2;
+      const speaker = this.players.find((x) => x.playerId === this.speakerId);
+      if (!speaker) return;
+      const ok = a.t === "judge" ? a.ok : a.t === "speak" ? judge(ex, a).ok : null;
+      if (ok === null) return;
+      if (!solo && p === speaker) return;
+      this.answers.set(speaker.playerId, { a, ok, perItem: { [ex.itemId]: ok } });
+      return this.reveal();
+    }
+
+    if (this.answers.has(p.playerId) || a.t === "next" || a.t === "judge") return;
     const { ok, perItem } = judge(ex, a);
-    const at = Date.now();
-    for (const [itemId, good] of Object.entries(perItem)) {
-      this.rt.learner.record({ profileId: s.p.profile.profileId, itemId, context: `learn.${ex.kind}`, tier: exTier(ex), outcome: good ? "correct" : "wrong", at });
-    }
-    const retry = s.retried.has(s.index);
-    s.graded++;
-    const ans = answerOf(ex);
-    if (ok) {
-      s.correct++;
-      s.streak++;
-      s.bestStreak = Math.max(s.bestStreak, s.streak);
-      s.xp += retry ? 5 : 10 + (s.streak >= 5 ? 2 : 0);
-      sfx.correct();
-      if (s.streak === 5 || s.streak === 10) this.rt.say({ type: "streak", name: s.p.name, n: s.streak }, false);
-    } else {
-      s.streak = 0;
-      s.hearts = Math.max(0, s.hearts - 1);
-      sfx.wrong();
-      // Come back to it once at the end.
-      if (!retry) {
-        s.queue.push(ex);
-        s.retried.add(s.queue.length - 1);
-      }
-      if (!s.p.missed.some((m) => m.answer === ans.pt)) s.p.missed.push({ itemId: Object.keys(perItem)[0] ?? "", answer: ans.pt, why: ans.en });
-    }
-    const why = "why" in ex && ex.why ? ex.why : !ok && "itemId" in ex ? cardById(ex.itemId)?.note : undefined;
-    s.result = ex.kind === "pairs" && ok ? { ok, pt: "Todos os pares certos!" } : { ok, pt: ans.pt, en: ans.en, why, say: "say" in ex ? ex.say : undefined };
-    s.flash = { ok, text: ex.kind === "pairs" ? "pares" : ans.pt, seq: ++this.flashSeq };
-    this.rt.conn.fx(s.p.playerId, ok ? "success" : "fail");
-    this.rt.addScore(s.p, ok ? 10 : 0, "learn");
-    this.rt.view(s.p, this.viewFor(s.p));
+    this.answers.set(p.playerId, { a, ok, perItem });
+    play("lock");
+    if (this.players.every((x) => this.answers.has(x.playerId))) return this.reveal();
+    this.rt.refreshViews();
     this.rt.bump();
   }
 
-  private advance(s: Session) {
-    s.result = null;
-    s.index++;
-    s.promptId = randomId(6);
-    if (s.index >= s.queue.length) {
-      s.done = true;
-      s.xp += 20 + (s.correct === s.graded ? 20 : 0);
-      sfx.fanfare();
-      const first = this.lanes.filter((x) => x.done).length === 1 && this.lanes.length > 1;
-      this.rt.say(first ? { type: "finishFirst", name: s.p.name } : { type: "lessonDone", name: s.p.name }, true, 3000);
+  private reveal() {
+    const ex = this.ex!;
+    this.phase = "reveal";
+    const at = Date.now();
+    const everyone = [...this.answers.values()];
+    const allRight = everyone.length > 0 && everyone.every((x) => x.ok);
+    for (const [pid, ans] of this.answers) {
+      const p = this.rt.players.get(pid);
+      if (!p) continue;
+      for (const [itemId, good] of Object.entries(ans.perItem)) {
+        this.rt.evidence(p, itemId, `learn.${ex.kind}`, ex.kind === "speak" ? (good ? "judged-correct" : "judged-wrong") : good ? "correct" : "wrong", exTier(ex));
+      }
+      const pp = this.perPlayer.get(pid) ?? { correct: 0, graded: 0 };
+      pp.graded++;
+      if (ans.ok) pp.correct++;
+      this.perPlayer.set(pid, pp);
+      this.rt.emote(pid, ans.ok ? "cheer" : "sad", 2200);
+      if (ans.ok) this.rt.addScore(p, 10, "learn");
     }
-    this.rt.view(s.p, this.viewFor(s.p));
+    this.graded++;
+    if (allRight) {
+      this.stars++;
+      play("star");
+      this.rt.celebrate();
+    } else {
+      play("wrong");
+      // Bring it back once at the end.
+      if (!this.retried.has(this.index) && ex.kind !== "speak") {
+        this.queue.push(ex);
+        this.retried.add(this.queue.length - 1);
+      }
+    }
+    setTimeout(() => this.repeat(), 500);
+    this.rt.refreshViews();
     this.rt.bump();
-    if (this.lanes.every((x) => x.done) && !this.finished) {
-      this.finished = true;
-      setTimeout(() => this.finish(), 1800);
-    }
+    void at;
+  }
+
+  private next() {
+    if (this.finished) return;
+    this.index++;
+    if (this.index >= this.queue.length) return this.finish();
+    this.enter();
   }
 
   private finish() {
-    const summaries = this.lanes.map((s) => ({
-      playerId: s.p.playerId,
-      xp: s.xp,
-      correct: s.correct,
-      graded: s.graded,
-      bestStreak: s.bestStreak,
-      hearts: s.hearts,
-      stars: starsFor(s.correct, s.graded),
-    }));
-    markLessonDone(this.lesson.id, Math.max(1, ...summaries.map((x) => x.stars)));
+    this.finished = true;
+    play("success-jingle");
+    this.rt.celebrate();
+    const stars = this.graded ? this.stars / this.graded : 1;
+    markLessonDone(this.lesson.id, stars >= 0.85 ? 3 : stars >= 0.6 ? 2 : 1);
     void this.rt.learner.sync().then(() => this.rt.learner.pushSnapshot());
-    this.onDone(summaries);
+    this.onDone({
+      stars: this.stars,
+      graded: this.graded,
+      perPlayer: [...this.perPlayer].map(([playerId, v]) => ({ playerId, ...v })),
+      words: this.words,
+    });
+  }
+
+  /* --------------------------------- views --------------------------------- */
+
+  /** Names of players we're still waiting for (answer phase or "continue"). */
+  waitingFor(): string[] {
+    const ex = this.ex;
+    if (!ex) return [];
+    if (!isGraded(ex) || this.phase === "reveal") return this.players.filter((x) => !this.acks.has(x.playerId)).map((x) => x.name);
+    if (ex.kind === "speak") return [];
+    return this.players.filter((x) => !this.answers.has(x.playerId)).map((x) => x.name);
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
-    const s = this.sessionFor(p);
-    if (s.done) {
-      const waiting = this.lanes.filter((x) => !x.done).map((x) => x.p.name);
-      return {
-        mode: "wait",
-        title: "Lição completa! 🎉",
-        subtitle: waiting.length ? `+${s.xp} XP · à espera de ${waiting.join(" e ")}…` : `+${s.xp} XP`,
-        emoji: s.correct === s.graded ? "🏆" : "⭐",
-      };
-    }
-    const ex = s.queue[s.index]!;
+    const ex = this.ex;
+    if (!ex) return { mode: "wait", title: "Lição completa!", pic: "🎉" };
     const instr = INSTRUCTIONS[ex.kind];
     const beginner = lessonsDone().size < 4;
     const known = "itemId" in ex ? p.profile.items[ex.itemId] : undefined;
-    return {
-      mode: "learn",
+    const base = {
+      mode: "learn" as const,
       roundId: this.roundId,
-      promptId: s.promptId,
-      step: Math.min(s.index, s.queue.length),
-      total: s.queue.length,
-      hearts: s.hearts,
-      streak: s.streak,
-      xp: s.xp,
+      promptId: this.promptId,
+      step: this.index,
+      total: this.queue.length,
       instr: instr.pt,
       instrEn: beginner ? instr.en : undefined,
       showEn: ex.kind === "intro" || ex.kind === "tip" || showEnglishFor(known),
+    };
+    const others = this.players.filter((x) => x !== p).map((x) => x.name);
+
+    // Speaking turn: speaker speaks, partner judges.
+    if (ex.kind === "speak" && this.phase === "answer") {
+      const speaker = this.players.find((x) => x.playerId === this.speakerId);
+      const solo = this.players.length < 2;
+      if (!solo && speaker && speaker !== p) {
+        return { ...base, instr: `${speaker.name} disse bem?`, instrEn: beginner ? `Did ${speaker.name} say it right?` : undefined, ex: { kind: "judge", name: speaker.name, pt: ex.pt, en: ex.en, emoji: ex.emoji }, debugAnswer: this.rt.testMode ? { t: "judge", ok: true } : undefined };
+      }
+      return {
+        ...base,
+        ex: toView(ex),
+        waiting: solo ? undefined : `${others.join(" e ")} vai dizer se ficou bem`,
+        debugAnswer: this.rt.testMode ? { t: "speak", transcripts: [ex.say], self: true } : undefined,
+      };
+    }
+
+    if (this.phase === "reveal" || !isGraded(ex)) {
+      const mine = this.answers.get(p.playerId) ?? (ex.kind === "speak" ? this.answers.get(this.speakerId ?? "") : undefined);
+      const ans = answerOf(ex);
+      const acked = this.acks.has(p.playerId);
+      return {
+        ...base,
+        ex: toView(ex),
+        result: isGraded(ex) ? { ok: mine?.ok ?? false, pt: ans.pt, en: ans.en, why: !mine?.ok && "itemId" in ex ? (("why" in ex && ex.why) || cardById(ex.itemId)?.note) : undefined } : undefined,
+        waiting: acked ? `À espera de ${this.waitingFor().join(" e ")}…` : undefined,
+        debugAnswer: this.rt.testMode ? { t: "next" } : undefined,
+      };
+    }
+
+    const answered = this.answers.has(p.playerId);
+    return {
+      ...base,
       ex: toView(ex),
-      result: s.result ?? undefined,
+      waiting: answered ? `À espera de ${this.waitingFor().join(" e ")}…` : undefined,
       debugAnswer: this.rt.testMode ? debugAnswer(ex) : undefined,
     };
   }
-}
 
-export function starsFor(correct: number, graded: number): number {
-  const acc = graded ? correct / graded : 1;
-  return acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : 1;
+  /** For the TV: what each player picked (choice exercises). */
+  pickedBy(optionId: string): RuntimePlayer[] {
+    return this.players.filter((p) => {
+      const a = this.answers.get(p.playerId)?.a;
+      return a?.t === "choice" && a.id === optionId;
+    });
+  }
+
+  answerOf(p: RuntimePlayer): Answer | undefined {
+    return this.answers.get(p.playerId);
+  }
 }
 
 /** Strip the answer out: the phone only gets what it needs to render. */
@@ -292,8 +336,6 @@ function debugAnswer(ex: LearnEx): LearnAnswer {
       return { t: "build", words: ex.answer };
     case "pairs":
       return { t: "pairs", missed: [] };
-    case "speak":
-      return { t: "speak", transcripts: [ex.say], self: null };
     default:
       return { t: "next" };
   }

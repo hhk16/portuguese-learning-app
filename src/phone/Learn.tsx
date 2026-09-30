@@ -1,91 +1,56 @@
 /**
- * Aprender on the phone: one Duolingo-style exercise at a time, at your own pace.
- * Select → VERIFICAR → green/red sheet with the answer, English and a tip → CONTINUAR.
- * Audio plays on this phone (each player hears their own exercise).
+ * Aprender juntos on the phone: answer privately, then see the verdict when the TV reveals both
+ * answers. The phone never talks — 🔊 asks the TV to say it again, for both of you.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
-import { hasPortugueseVoice, speak } from "../audio/tts.ts";
+import { useMemo, useRef, useState } from "react";
 import type { PhoneConnection } from "../net/phone.ts";
 import type { ControllerView, InputValue } from "../shared/protocol.ts";
-import { stripAccents } from "../shared/answer-check.ts";
-import { recognizeOnce } from "./speech.ts";
-
-const loose = (s: string) => stripAccents(s.toLowerCase().replace(/[.,!?¿¡…]/g, "").replace(/\s+/g, " ").trim());
+import { play } from "../audio/sfx.ts";
+import { Picture } from "../ui/Picture.tsx";
+import type { Send } from "./Controller.tsx";
 
 type LearnView = Extract<ControllerView, { mode: "learn" }>;
 type Answer = Extract<InputValue, { mode: "learn" }>["answer"];
 
-/** Say Portuguese on this phone; if it has no Portuguese voice, ask the TV to say it. */
-export function sayHere(conn: PhoneConnection, text: string | undefined, slow = false) {
-  if (!text) return;
-  if (hasPortugueseVoice() === false) conn.menu("repeat");
-  else void speak(text, { slow });
-}
-
-export function Learn({ v, conn }: { v: LearnView; conn: PhoneConnection }) {
-  const send = (answer: Answer) => {
+export function Learn({ v, conn, send }: { v: LearnView; conn: PhoneConnection; send: Send }) {
+  const answer = (a: Answer) => {
     navigator.vibrate?.(12);
-    conn.input(v.roundId, v.promptId, { mode: "learn", answer });
+    play(a.t === "next" ? "tap" : "lock");
+    send({ mode: "learn", answer: a });
   };
-  const ex = v.ex;
-  const say = "say" in ex ? ex.say : undefined;
-
-  // Auto-play the exercise audio when it appears (not for "write": that would give it away).
-  useEffect(() => {
-    if (say && ex.kind !== "tip") sayHere(conn, say, ex.kind === "listen");
-  }, [v.promptId]);
-  useEffect(() => {
-    if (v.result?.say) sayHere(conn, v.result.say);
-  }, [!!v.result]);
-
+  const locked = !!v.waiting || !!v.result;
   return (
     <div className="learn">
       <div className="learn-top">
-        <div className="learn-progress">
-          <div style={{ width: `${Math.round((v.step / v.total) * 100)}%` }} />
+        <div className="learn-progress" aria-label={`${v.step + 1} de ${v.total}`}>
+          <div style={{ width: `${Math.round(((v.step + (v.result ? 1 : 0)) / v.total) * 100)}%` }} />
         </div>
-        <span className="hearts">❤️ {v.hearts}</span>
-        {v.streak >= 2 && <span className="streak">🔥 {v.streak}</span>}
+        <button className="icon-btn" onClick={() => conn.menu("repeat")} aria-label="Ouvir outra vez na TV">
+          🔊
+        </button>
       </div>
       <div className="learn-instr">
-        {v.instr}
+        <span className="display">{v.instr}</span>
         {v.instrEn && <small>{v.instrEn}</small>}
       </div>
-      <div className="learn-body">
-        <Exercise v={v} conn={conn} send={send} locked={!!v.result} />
-      </div>
+      <Exercise v={v} answer={answer} locked={locked} />
+      {v.waiting && !v.result && <div className="learn-waiting">✓ {v.waiting}</div>}
       {v.result && (
         <div className={`learn-sheet ${v.result.ok ? "ok" : "bad"}`}>
-          <div className="verdict">{v.result.ok ? "Muito bem! 🎉" : "Resposta certa:"}</div>
-          <div className="ans">
-            {v.result.pt}
-            {v.result.say && (
-              <button className="spk" onClick={() => sayHere(conn, v.result!.say, true)} aria-label="Ouvir devagar">
-                🐢
-              </button>
-            )}
-          </div>
+          <div className="verdict display">{v.result.ok ? "Muito bem!" : "Quase! A resposta é:"}</div>
+          <div className="ans">{v.result.pt}</div>
           {v.result.en && <div className="en">{v.result.en}</div>}
-          {v.result.why && !v.result.ok && <div className="why">💡 {v.result.why}</div>}
-          <button className="bbtn" onClick={() => send({ t: "next" })}>
-            CONTINUAR
-          </button>
+          {v.result.why && <div className="why">{v.result.why}</div>}
+          {v.waiting ? (
+            <div className="learn-waiting inline">✓ {v.waiting}</div>
+          ) : (
+            <button className={`btn block ${v.result.ok ? "mint" : "white"}`} onClick={() => answer({ t: "next" })}>
+              Continuar
+            </button>
+          )}
         </div>
       )}
     </div>
-  );
-}
-
-function Speaker({ conn, text }: { conn: PhoneConnection; text: string }) {
-  return (
-    <span className="speakers">
-      <button className="spk big" onClick={() => sayHere(conn, text)} aria-label="Ouvir">
-        🔊
-      </button>
-      <button className="spk" onClick={() => sayHere(conn, text, true)} aria-label="Ouvir devagar">
-        🐢
-      </button>
-    </span>
   );
 }
 
@@ -95,19 +60,19 @@ function En({ text, show }: { text: string; show: boolean }) {
   if (open) return <div className="learn-en">{text}</div>;
   return (
     <button className="learn-en hidden" onClick={() => setOpen(true)}>
-      🇬🇧 ver em inglês
+      ver em inglês
     </button>
   );
 }
 
-function Exercise({ v, conn, send, locked }: { v: LearnView; conn: PhoneConnection; send: (a: Answer) => void; locked: boolean }) {
+function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => void; locked: boolean }) {
   const ex = v.ex;
   switch (ex.kind) {
     case "tip":
       return (
         <>
-          <div className="learn-card">
-            <div className="kicker">📘 {ex.title}</div>
+          <div className="learn-card card">
+            <div className="kicker">{ex.title}</div>
             <table className="tip-table">
               <tbody>
                 {ex.rows.map(([a, b]) => (
@@ -119,71 +84,67 @@ function Exercise({ v, conn, send, locked }: { v: LearnView; conn: PhoneConnecti
               </tbody>
             </table>
             {ex.note && <div className="note">{ex.note}</div>}
-            {ex.say && <Speaker conn={conn} text={ex.say} />}
           </div>
-          <div style={{ flex: 1 }} />
-          <button className="bbtn" onClick={() => send({ t: "next" })}>
-            PERCEBI 👍
-          </button>
+          <div className="p-grow" />
+          {!locked && (
+            <button className="btn block player" onClick={() => answer({ t: "next" })}>
+              Percebi
+            </button>
+          )}
         </>
       );
     case "intro":
       return (
         <>
-          <div className="learn-card intro">
-            <div className="kicker">✨ PALAVRA NOVA</div>
-            {ex.emoji && ex.emoji !== ex.en && <div className="pic">{ex.emoji}</div>}
-            <div className="pt">{ex.pt}</div>
-            <Speaker conn={conn} text={ex.say} />
+          <div className="learn-card card intro">
+            <div className="kicker">Palavra nova</div>
+            {ex.emoji && <Picture glyph={ex.emoji} size="120px" />}
+            <div className="pt display">{ex.pt}</div>
             <div className="learn-en">{ex.en}</div>
             {ex.note && <div className="note">{ex.note}</div>}
           </div>
-          <div style={{ flex: 1 }} />
-          <button className="bbtn" onClick={() => send({ t: "next" })}>
-            CONTINUAR
-          </button>
+          <div className="p-grow" />
+          {!locked && (
+            <button className="btn block player" onClick={() => answer({ t: "next" })}>
+              Percebi
+            </button>
+          )}
         </>
       );
     case "listen":
       return (
         <>
-          <div className="learn-card center">
-            <button className="listen-btn" onClick={() => sayHere(conn, ex.say)}>
-              🔊
-            </button>
-            <button className="spk" onClick={() => sayHere(conn, ex.say, true)}>
-              🐢 devagar
-            </button>
+          <div className="learn-card card center">
+            <Picture glyph="🔊" size="84px" />
+            <div className="note">Ouve a TV e escolhe.</div>
           </div>
-          <Choose options={ex.options} send={send} locked={locked} />
+          <Choose options={ex.options} answer={answer} locked={locked} />
         </>
       );
     case "read":
       return (
         <>
-          <div className="learn-card">
-            <div className="pt">
-              {ex.pt} <Speaker conn={conn} text={ex.say} />
-            </div>
+          <div className="learn-card card center">
+            <div className="pt display">{ex.pt}</div>
           </div>
-          <Choose options={ex.options} send={send} locked={locked} />
+          <Choose options={ex.options} answer={answer} locked={locked} />
         </>
       );
     case "write":
       return (
         <>
-          <div className="learn-card">
-            {ex.emoji && ex.emoji !== ex.en && <div className="pic small">{ex.emoji}</div>}
+          <div className="learn-card card center">
+            {ex.emoji && ex.emoji !== ex.en && <Picture glyph={ex.emoji} size="84px" />}
             <div className="en-prompt">“{ex.en}”</div>
           </div>
-          <Choose options={ex.options} send={send} locked={locked} />
+          <Choose options={ex.options} answer={answer} locked={locked} />
         </>
       );
     case "gap":
       return (
         <>
-          <div className="learn-card">
-            <div className="pt gap-text">
+          <div className="learn-card card">
+            <div className="pt display gap-text">
               {ex.text.split("___").map((part, i, arr) => (
                 <span key={i}>
                   {part}
@@ -193,46 +154,103 @@ function Exercise({ v, conn, send, locked }: { v: LearnView; conn: PhoneConnecti
             </div>
             <En text={ex.en} show={v.showEn} />
           </div>
-          <Choose options={ex.options} send={send} locked={locked} />
+          <Choose options={ex.options} answer={answer} locked={locked} />
         </>
       );
     case "build":
-      return <Build key={v.promptId} ex={ex} send={send} locked={locked} />;
+      return <Build ex={ex} answer={answer} locked={locked} />;
     case "pairs":
-      return <Pairs key={v.promptId} ex={ex} conn={conn} send={send} />;
+      return <Pairs ex={ex} answer={answer} locked={locked} />;
     case "speak":
-      return <Speak key={v.promptId} ex={ex} conn={conn} send={send} locked={locked} showEn={v.showEn} />;
+      return (
+        <>
+          <div className="learn-card card intro">
+            {ex.emoji && ex.emoji !== ex.en && <Picture glyph={ex.emoji} size="96px" />}
+            <div className="pt display">{ex.pt}</div>
+            <En text={ex.en} show={v.showEn} />
+          </div>
+          <div className="speak-cue">
+            <Picture glyph="🗣️" size="56px" />
+            <span>Diz em voz alta!</span>
+          </div>
+          <div className="p-grow" />
+          {!v.waiting && !locked && (
+            <div className="row2">
+              <button className="btn mint" onClick={() => answer({ t: "judge", ok: true })}>
+                Disse bem
+              </button>
+              <button className="btn white" onClick={() => answer({ t: "judge", ok: false })}>
+                Ainda não
+              </button>
+            </div>
+          )}
+        </>
+      );
+    case "judge":
+      return (
+        <>
+          <div className="learn-card card intro">
+            {ex.emoji && ex.emoji !== ex.en && <Picture glyph={ex.emoji} size="84px" />}
+            <div className="pt display">{ex.pt}</div>
+            <div className="learn-en">{ex.en}</div>
+          </div>
+          <div className="speak-cue">
+            <Picture glyph="👂" size="56px" />
+            <span>Ouve {ex.name}. Ficou bem?</span>
+          </div>
+          <div className="p-grow" />
+          {!locked && (
+            <div className="row2">
+              <button className="btn mint" onClick={() => answer({ t: "judge", ok: true })}>
+                👍 Sim!
+              </button>
+              <button className="btn white" onClick={() => answer({ t: "judge", ok: false })}>
+                Ainda não
+              </button>
+            </div>
+          )}
+        </>
+      );
   }
 }
 
-function Choose({ options, send, locked }: { options: { id: string; label: string; emoji?: string }[]; send: (a: Answer) => void; locked: boolean }) {
+function Choose({ options, answer, locked }: { options: { id: string; label: string; emoji?: string }[]; answer: (a: Answer) => void; locked: boolean }) {
   const [sel, setSel] = useState<string | null>(null);
+  const pictures = options.every((o) => o.emoji);
   return (
     <>
-      <div className="learn-options">
+      <div className={`learn-options ${pictures ? "pictures" : ""}`}>
         {options.map((o) => (
-          <button key={o.id} className={`lopt ${sel === o.id ? "sel" : ""}`} disabled={locked} onClick={() => setSel(o.id)}>
-            {o.emoji && <span className="e">{o.emoji}</span>}
-            {o.label}
+          <button
+            key={o.id}
+            className={`lopt card ${sel === o.id ? "sel" : ""}`}
+            disabled={locked}
+            onClick={() => {
+              setSel(o.id);
+              play("tap");
+            }}
+          >
+            {o.emoji && <Picture glyph={o.emoji} size={pictures ? "64px" : "40px"} />}
+            <span>{o.label}</span>
           </button>
         ))}
       </div>
-      <div style={{ flex: 1 }} />
+      <div className="p-grow" />
       {!locked && (
-        <button className="bbtn" disabled={!sel} onClick={() => sel && send({ t: "choice", id: sel })}>
-          VERIFICAR
+        <button className="btn block player" disabled={!sel} onClick={() => sel && answer({ t: "choice", id: sel })}>
+          Verificar
         </button>
       )}
     </>
   );
 }
 
-function Build({ ex, send, locked }: { ex: Extract<LearnView["ex"], { kind: "build" }>; send: (a: Answer) => void; locked: boolean }) {
+function Build({ ex, answer, locked }: { ex: Extract<LearnView["ex"], { kind: "build" }>; answer: (a: Answer) => void; locked: boolean }) {
   const [chosen, setChosen] = useState<string[]>([]);
   const text = (id: string) => ex.bank.find((w) => w.id === id)?.text ?? "";
   return (
     <>
-      <div className="learn-card">
+      <div className="learn-card card center">
         <div className="en-prompt">“{ex.en}”</div>
       </div>
       <div className="build-line">
@@ -245,22 +263,30 @@ function Build({ ex, send, locked }: { ex: Extract<LearnView["ex"], { kind: "bui
       </div>
       <div className="build-bank">
         {ex.bank.map((w) => (
-          <button key={w.id} className={`word ${chosen.includes(w.id) ? "used" : ""}`} disabled={locked || chosen.includes(w.id)} onClick={() => setChosen([...chosen, w.id])}>
+          <button
+            key={w.id}
+            className={`word ${chosen.includes(w.id) ? "used" : ""}`}
+            disabled={locked || chosen.includes(w.id)}
+            onClick={() => {
+              setChosen([...chosen, w.id]);
+              play("tap");
+            }}
+          >
             {w.text}
           </button>
         ))}
       </div>
-      <div style={{ flex: 1 }} />
+      <div className="p-grow" />
       {!locked && (
-        <button className="bbtn" disabled={chosen.length === 0} onClick={() => send({ t: "build", words: chosen.map(text) })}>
-          VERIFICAR
+        <button className="btn block player" disabled={chosen.length === 0} onClick={() => answer({ t: "build", words: chosen.map(text) })}>
+          Verificar
         </button>
       )}
     </>
   );
 }
 
-function Pairs({ ex, conn, send }: { ex: Extract<LearnView["ex"], { kind: "pairs" }>; conn: PhoneConnection; send: (a: Answer) => void }) {
+function Pairs({ ex, answer, locked }: { ex: Extract<LearnView["ex"], { kind: "pairs" }>; answer: (a: Answer) => void; locked: boolean }) {
   const right = useMemo(() => [...ex.pairs].sort((a, b) => a.en.localeCompare(b.en)), [ex.pairs]);
   const [left, setLeft] = useState<string | null>(null);
   const [rightSel, setRightSel] = useState<string | null>(null);
@@ -274,14 +300,16 @@ function Pairs({ ex, conn, send }: { ex: Extract<LearnView["ex"], { kind: "pairs
     if (l === r) {
       const next = [...matched, l];
       setMatched(next);
+      play("pop");
       navigator.vibrate?.(15);
       if (next.length === ex.pairs.length && !sent.current) {
         sent.current = true;
-        setTimeout(() => send({ t: "pairs", missed: [...missed.current] }), 350);
+        setTimeout(() => answer({ t: "pairs", missed: [...missed.current] }), 300);
       }
     } else {
       missed.current.add(l);
       setBad(`${l}|${r}`);
+      play("wrong");
       navigator.vibrate?.([40, 30, 40]);
       setTimeout(() => setBad(null), 450);
     }
@@ -295,10 +323,9 @@ function Pairs({ ex, conn, send }: { ex: Extract<LearnView["ex"], { kind: "pairs
         {ex.pairs.map((p) => (
           <button
             key={p.id}
-            className={`pair ${left === p.id ? "sel" : ""} ${matched.includes(p.id) ? "done" : ""} ${bad?.startsWith(`${p.id}|`) ? "bad" : ""}`}
-            disabled={matched.includes(p.id)}
+            className={`pair card ${left === p.id ? "sel" : ""} ${matched.includes(p.id) ? "done" : ""} ${bad?.startsWith(`${p.id}|`) ? "bad" : ""}`}
+            disabled={locked || matched.includes(p.id)}
             onClick={() => {
-              sayHere(conn, p.pt);
               setLeft(p.id);
               tryMatch(p.id, rightSel);
             }}
@@ -311,8 +338,8 @@ function Pairs({ ex, conn, send }: { ex: Extract<LearnView["ex"], { kind: "pairs
         {right.map((p) => (
           <button
             key={p.id}
-            className={`pair en ${rightSel === p.id ? "sel" : ""} ${matched.includes(p.id) ? "done" : ""} ${bad?.endsWith(`|${p.id}`) ? "bad" : ""}`}
-            disabled={matched.includes(p.id)}
+            className={`pair card en ${rightSel === p.id ? "sel" : ""} ${matched.includes(p.id) ? "done" : ""} ${bad?.endsWith(`|${p.id}`) ? "bad" : ""}`}
+            disabled={locked || matched.includes(p.id)}
             onClick={() => {
               setRightSel(p.id);
               tryMatch(left, p.id);
@@ -323,63 +350,5 @@ function Pairs({ ex, conn, send }: { ex: Extract<LearnView["ex"], { kind: "pairs
         ))}
       </div>
     </div>
-  );
-}
-
-function Speak({ ex, conn, send, locked, showEn }: { ex: Extract<LearnView["ex"], { kind: "speak" }>; conn: PhoneConnection; send: (a: Answer) => void; locked: boolean; showEn: boolean }) {
-  const [state, setState] = useState<"idle" | "listening" | "unsupported">("idle");
-  const [heard, setHeard] = useState("");
-  const [miss, setMiss] = useState(false);
-  const abort = useRef<() => void>(() => {});
-  useEffect(() => () => abort.current(), []);
-
-  const listen = () => {
-    const r = recognizeOnce("pt-PT", setHeard);
-    abort.current = r.abort;
-    setState("listening");
-    navigator.vibrate?.(20);
-    void r.done.then((alts) => {
-      if (alts === null) return setState("unsupported");
-      setState("idle");
-      // Recognisers make mistakes: only a clear match submits by itself. Otherwise try again,
-      // or judge yourself honestly.
-      if (alts.some((a) => loose(a).includes(loose(ex.say)))) send({ t: "speak", transcripts: alts.slice(0, 8), self: null });
-      else if (alts.length) setMiss(true);
-    });
-  };
-
-  return (
-    <>
-      <div className="learn-card">
-        {ex.emoji && ex.emoji !== ex.en && <div className="pic small">{ex.emoji}</div>}
-        <div className="pt">
-          {ex.pt} <Speaker conn={conn} text={ex.say} />
-        </div>
-        <En text={ex.en} show={showEn} />
-      </div>
-      {!locked && (
-        <>
-          {state !== "unsupported" && (
-            <div className="mega">
-              <button className={state === "listening" ? "mic-on" : ""} onClick={listen} disabled={state === "listening"}>
-                {state === "listening" ? "A OUVIR…" : "🎤 FALA"}
-              </button>
-            </div>
-          )}
-          <div className="heard-line">
-            {heard ? `Ouvi: “${heard}”` : state === "unsupported" ? "Sem microfone aqui: diz em voz alta!" : "Toca e diz a frase"}
-            {miss && <small>Não percebi bem — tenta outra vez, ou decide tu.</small>}
-          </div>
-          <div style={{ display: "flex", gap: 10, width: "100%" }}>
-            <button className="bbtn good" onClick={() => send({ t: "speak", transcripts: heard ? [heard] : [], self: true })}>
-              ✅ Disse bem
-            </button>
-            <button className="bbtn ghost" onClick={() => send({ t: "speak", transcripts: heard ? [heard] : [], self: false })}>
-              Ainda não
-            </button>
-          </div>
-        </>
-      )}
-    </>
   );
 }

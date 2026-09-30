@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { ALL_ITEMS } from "../src/curriculum/index.ts";
-import { FORMAT_KINDS, generate, mergeForm, spellTiles, type PromptFormat } from "../src/curriculum/generators.ts";
+import { ALL_ITEMS, getItem } from "../src/curriculum/index.ts";
+import { cardOf, lessonCards } from "../src/curriculum/learn.ts";
+import { LESSONS } from "../src/curriculum/lessons.ts";
 import { KnowledgeItem } from "../src/curriculum/schema.ts";
 import { lintPtPt } from "../src/curriculum/pt-pt-lint.ts";
-import { Rng } from "../src/shared/rng.ts";
 
 describe("curriculum content", () => {
   it("every item is schema-valid with provenance and a unique id", () => {
@@ -21,25 +21,29 @@ describe("curriculum content", () => {
     for (const item of ALL_ITEMS) expect(lintPtPt(JSON.stringify(item)), item.id).toEqual([]);
   });
 
-  it("every format can be generated from its item kinds, with a correct answer that is on offer", () => {
-    const rng = new Rng(42);
-    for (const format of Object.keys(FORMAT_KINDS) as PromptFormat[]) {
-      const items = ALL_ITEMS.filter((i) => FORMAT_KINDS[format].includes(i.kind));
-      let produced = 0;
-      for (const item of items) {
-        const p = generate(format, item, rng, ALL_ITEMS);
-        if (!p) continue;
-        produced++;
-        if (p.format === "choice") {
-          expect(p.options.some((o) => o.id === p.correctId)).toBe(true);
-          expect(new Set(p.options.map((o) => o.label)).size).toBe(p.options.length);
-        }
-        if (p.format === "tiles") expect(spellTiles(p, p.correctSeq)).toBe(p.answerText);
-        if (p.format === "merge") expect(mergeForm(p.correct.top, p.correct.bottom)).toBe(p.answerText);
-        if (p.format === "errorTap") expect(p.words.some((w) => w.id === p.wrongId)).toBe(true);
-        if (p.format === "stream") expect(p.words.some((w) => w.isTarget)).toBe(true);
-      }
-      expect(produced, format).toBeGreaterThan(3);
+  it("every lesson points at real items and has enough cards to teach", () => {
+    for (const l of LESSONS) {
+      for (const id of l.itemIds) expect(getItem(id), `${l.id}: unknown item ${id}`).toBeDefined();
+      expect(lessonCards(l).length, l.id).toBeGreaterThanOrEqual(4);
+      expect(lintPtPt(l.title), l.id).toEqual([]);
+    }
+  });
+
+  it("the A1 core nouns carry an article and a picture, and adjectives come in opposite pairs", () => {
+    const nouns = ALL_ITEMS.filter((i) => i.kind === "noun");
+    expect(nouns.length).toBeGreaterThanOrEqual(60);
+    for (const n of nouns) {
+      const c = cardOf(n)!;
+      expect(c.pt, n.id).toMatch(/^(o|a) /);
+      expect(c.emoji, n.id).toBeTruthy();
+    }
+    const adjs = ALL_ITEMS.filter((i) => i.kind === "adjective");
+    expect(adjs.length).toBeGreaterThanOrEqual(24);
+    for (const a of adjs) {
+      if (a.kind !== "adjective" || !a.opposite) continue;
+      const opp = getItem(a.opposite);
+      expect(opp, `${a.id} → ${a.opposite}`).toBeDefined();
+      expect(opp?.kind === "adjective" && opp.opposite).toBe(a.id);
     }
   });
 });

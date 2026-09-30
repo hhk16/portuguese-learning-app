@@ -25,10 +25,12 @@ export function audioKey(text: string): string {
 }
 
 let ptVoice: SpeechSynthesisVoice | null | undefined;
+/** European Portuguese only: a Brazilian voice would teach the wrong pronunciation. */
 function pickVoice(): SpeechSynthesisVoice | null {
   if (ptVoice !== undefined && ptVoice !== null) return ptVoice;
   const voices = typeof speechSynthesis !== "undefined" ? speechSynthesis.getVoices() : [];
-  ptVoice = voices.find((v) => v.lang === "pt-PT") ?? voices.find((v) => /pt[-_]PT/i.test(v.lang)) ?? voices.find((v) => v.lang.startsWith("pt")) ?? null;
+  const pt = voices.filter((v) => /^pt[-_]PT$/i.test(v.lang));
+  ptVoice = pt.find((v) => /natural|online|raquel|duarte/i.test(v.name)) ?? pt[0] ?? null;
   return ptVoice;
 }
 if (typeof speechSynthesis !== "undefined") speechSynthesis.onvoiceschanged = () => (ptVoice = undefined);
@@ -62,7 +64,12 @@ export function speak(text: string, opts: SpeakOpts = {}): Promise<void> {
   const file = !opts.character ? manifest?.[audioKey(text)] : undefined;
   if (file) {
     currentAudio?.pause();
+    if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
     const a = new Audio(`/audio/${file}`);
+    if (opts.slow) {
+      a.playbackRate = 0.75;
+      a.preservesPitch = true;
+    }
     currentAudio = a;
     return new Promise((resolve) => {
       a.onended = () => resolve();
@@ -70,7 +77,7 @@ export function speak(text: string, opts: SpeakOpts = {}): Promise<void> {
       void a.play().catch(() => resolve());
     });
   }
-  if (typeof speechSynthesis === "undefined") return Promise.resolve();
+  if (typeof speechSynthesis === "undefined" || !pickVoice()) return Promise.resolve();
   return new Promise((resolve) => {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "pt-PT";

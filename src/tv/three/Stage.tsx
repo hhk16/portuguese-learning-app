@@ -1,155 +1,215 @@
 /**
- * The TV canvas: one WebGL context for everything 3D. The backdrop is always on; activities add
- * their own scene. Blip is anchored to the camera so he stays in frame whatever the camera does.
+ * The TV stage (three.js via react-three-fiber): the toy-world backdrop, the players' cartoon
+ * characters standing in it, and confetti. Orthographic camera in CSS pixels, so the DOM overlay
+ * and the scene share one coordinate system.
+ *
+ * Characters react to the game: idle bob, cheer (jump), oops (wobble), think (sway), wave.
+ * During games they stand in the bottom corners so the question card owns the centre.
  */
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Bloom, ChromaticAberration, EffectComposer, Noise, Vignette } from "@react-three/postprocessing";
-import { useRef, type ReactNode } from "react";
+import { useFrame, useLoader, useThree, Canvas } from "@react-three/fiber";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { MicroRush } from "../../games/micro/rush.ts";
-import { TurboRace } from "../../games/race/race.ts";
-import { COLOR_HEX } from "../../ui/Avatar.tsx";
-import { ResultsActivity } from "../activities.ts";
-import { useRuntime, type TvRuntime } from "../runtime.ts";
-import { ArcadeWorld } from "./ArcadeWorld.tsx";
-import { AvatarMesh } from "./AvatarMesh.tsx";
-import { Blip } from "./Blip.tsx";
-import { RaceScene } from "./RaceScene.tsx";
+import { poseUrl, type Pose } from "../../art/avatars.ts";
+import type { Avatar } from "../../shared/protocol.ts";
+import { useRuntime, type Emote, type RuntimePlayer, type TvRuntime } from "../runtime.ts";
 
-function CameraAnchored({ offset, children }: { offset: [number, number, number]; children: ReactNode }) {
-  const g = useRef<THREE.Group>(null);
-  const { camera, size } = useThree();
-  const v = useRef(new THREE.Vector3());
-  useFrame(() => {
-    if (!g.current) return;
-    // keep a constant screen position regardless of aspect
-    const aspect = size.width / size.height;
-    v.current.set(offset[0] * (aspect / (16 / 9)), offset[1], offset[2]);
-    g.current.position.copy(camera.localToWorld(v.current.clone()));
-    g.current.quaternion.copy(camera.quaternion);
-  });
-  return <group ref={g}>{children}</group>;
+const POSES: Pose[] = ["stand", "wave", "cheer", "oops", "think"];
+const EMOTE_POSE: Record<Emote, Pose> = { idle: "stand", wave: "wave", cheer: "cheer", sad: "oops", think: "think" };
+
+function useTex(url: string): THREE.Texture {
+  const t = useLoader(THREE.TextureLoader, url);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
 }
 
-function DefaultCamera({ active }: { active: boolean }) {
-  const { camera } = useThree();
-  const t = useRef(0);
-  useFrame((_, dt) => {
-    if (!active) return;
-    t.current += dt;
-    const target = new THREE.Vector3(Math.sin(t.current * 0.15) * 1.2, 3.2 + Math.sin(t.current * 0.2) * 0.3, 14);
-    camera.position.lerp(target, Math.min(1, dt * 2));
-    camera.lookAt(0, 3, 0);
-    const pc = camera as THREE.PerspectiveCamera;
-    if (Math.abs(pc.fov - 55) > 0.1) {
-      pc.fov += (55 - pc.fov) * Math.min(1, dt * 3);
-      pc.updateProjectionMatrix();
+function Backdrop() {
+  const tex = useTex("/art/backdrop.webp");
+  const { size } = useThree();
+  const ref = useRef<THREE.Mesh>(null);
+  // Cover the viewport (3:2 art), with a little overscan for the drift.
+  const aspect = 1536 / 1024;
+  const w = Math.max(size.width, size.height * aspect) * 1.06;
+  const h = w / aspect;
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    if (ref.current) {
+      ref.current.position.x = Math.sin(t * 0.05) * size.width * 0.012;
+      ref.current.position.y = Math.cos(t * 0.04) * size.height * 0.006;
     }
   });
-  return null;
-}
-
-/** Players standing on glowing pedestals (lobby / title / results podium). */
-function Pedestals({ rt, podium }: { rt: TvRuntime; podium?: string[] }) {
-  const players = podium ? podium.map((id) => rt.players.get(id)!).filter(Boolean) : rt.activePlayers;
-  const n = players.length;
   return (
-    <group position={[0, 0, 2]}>
-      {players.map((p, i) => {
-        const x = (i - (n - 1) / 2) * 3.2;
-        const spacing = podium ? 2.3 : 3.2;
-        const h = podium ? [2.2, 1.4, 0.9, 0.6][i]! : 0.6;
-        const px = podium && n > 1 ? [0, -spacing, spacing, spacing * 2][i]! : x;
-        return <Pedestal key={p.playerId} x={px} h={h} color={COLOR_HEX[p.color]} avatar={p.avatar} playerColor={p.color} ready={p.ready} />;
-      })}
-    </group>
+    <mesh ref={ref} position={[0, 0, -10]}>
+      <planeGeometry args={[w, h]} />
+      <meshBasicMaterial map={tex} toneMapped={false} />
+    </mesh>
   );
 }
 
-function Pedestal({ x, h, color, avatar, playerColor, ready }: { x: number; h: number; color: string; avatar: Parameters<typeof AvatarMesh>[0]["kind"]; playerColor: Parameters<typeof AvatarMesh>[0]["color"]; ready: boolean }) {
-  const g = useRef<THREE.Group>(null);
-  const seed = useRef(Math.random() * 10);
-  useFrame((state) => {
-    if (!g.current) return;
-    const t = state.clock.elapsedTime + seed.current;
-    g.current.position.y = h + 0.9 + Math.abs(Math.sin(t * (ready ? 6 : 2))) * (ready ? 0.5 : 0.15);
-    g.current.rotation.y = Math.sin(t * 0.8) * 0.4;
+/** Soft oval shadow under a character. */
+const shadowTex = (() => {
+  if (typeof document === "undefined") return null;
+  const c = document.createElement("canvas");
+  c.width = 128;
+  c.height = 32;
+  const g = c.getContext("2d")!;
+  const grad = g.createRadialGradient(64, 16, 2, 64, 16, 62);
+  grad.addColorStop(0, "rgba(31,42,68,0.45)");
+  grad.addColorStop(1, "rgba(31,42,68,0)");
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 128, 32);
+  const t = new THREE.CanvasTexture(c);
+  return t;
+})();
+
+function Character({ rt, p, x, y, height, flip }: { rt: TvRuntime; p: RuntimePlayer; x: number; y: number; height: number; flip: boolean }) {
+  const textures = POSES.map((pose) => useTex(poseUrl(p.avatar as Avatar, pose))); // eslint-disable-line react-hooks/rules-of-hooks
+  const group = useRef<THREE.Group>(null);
+  const body = useRef<THREE.Mesh>(null);
+  const mat = useRef<THREE.MeshBasicMaterial>(null);
+  const seed = useMemo(() => Math.random() * 10, []);
+  const pos = useRef({ x, y });
+  useFrame(({ clock }, dt) => {
+    const t = clock.elapsedTime + seed;
+    const emote = rt.emoteOf(p.playerId);
+    const pose = EMOTE_POSE[emote];
+    const tex = textures[POSES.indexOf(pose)]!;
+    if (mat.current && mat.current.map !== tex) {
+      mat.current.map = tex;
+      mat.current.needsUpdate = true;
+    }
+    // Glide to the target spot.
+    pos.current.x += (x - pos.current.x) * Math.min(1, dt * 4);
+    pos.current.y += (y - pos.current.y) * Math.min(1, dt * 4);
+    const img = tex.image as { width: number; height: number } | undefined;
+    const w = img ? (height * img.width) / img.height : height * 0.5;
+    if (!group.current || !body.current) return;
+    let dy = Math.sin(t * 2.2) * height * 0.008;
+    let rot = 0;
+    let sx = 1;
+    let sy = 1 + Math.sin(t * 2.2) * 0.008;
+    if (emote === "cheer") {
+      const j = Math.abs(Math.sin(t * 6));
+      dy = j * height * 0.08;
+      sy = 1 + (1 - j) * 0.03;
+      sx = 1 - (1 - j) * 0.02;
+    } else if (emote === "sad") rot = Math.sin(t * 16) * 0.035;
+    else if (emote === "think") rot = Math.sin(t * 1.5) * 0.04;
+    else if (emote === "wave") rot = Math.sin(t * 3) * 0.02;
+    group.current.position.set(pos.current.x, pos.current.y, 0);
+    body.current.scale.set(w * sx * (flip ? -1 : 1), height * sy, 1);
+    body.current.position.set(0, height / 2 + dy, 0);
+    body.current.rotation.z = rot;
   });
   return (
-    <group position={[x, -1.5, 0]}>
-      <mesh position={[0, h / 2, 0]}>
-        <cylinderGeometry args={[1.1, 1.3, h, 24]} />
-        <meshStandardMaterial color="#1a0b3d" emissive={color} emissiveIntensity={ready ? 0.9 : 0.25} />
+    <group ref={group}>
+      {shadowTex && (
+        <mesh position={[0, 2, -0.5]} scale={[height * 0.42, height * 0.1, 1]}>
+          <planeGeometry args={[1, 1]} />
+          <meshBasicMaterial map={shadowTex} transparent depthWrite={false} toneMapped={false} />
+        </mesh>
+      )}
+      <mesh ref={body}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial ref={mat} map={textures[0]} transparent alphaTest={0.02} toneMapped={false} />
       </mesh>
-      <mesh position={[0, h + 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.9, 1.1, 32]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2.5} />
-      </mesh>
-      <group ref={g}>
-        <AvatarMesh kind={avatar} color={playerColor} scale={1.6} />
-      </group>
     </group>
   );
 }
 
-/** Where Blip stands per screen (camera space) — kept clear of each screen's panels. */
-export function blipLayout(activityId: string | undefined): { offset: [number, number, number]; scale: number; bubble: string } {
-  switch (activityId) {
-    case "title":
-      return { offset: [0.3, 1.75, -8], scale: 0.95, bubble: "top" };
-    case "lobby":
-      return { offset: [5.3, -2.4, -8], scale: 0.85, bubble: "corner-right" };
-    case "results":
-      return { offset: [-5.1, 1.7, -8], scale: 0.7, bubble: "left-top" };
-    default:
-      return { offset: [-5.4, -2.3, -8], scale: 0.85, bubble: "corner" };
+const CONFETTI_COLORS = ["#ff6b6b", "#4ba3f5", "#3ecf95", "#ffc23d", "#ffffff", "#ff9fb2"];
+
+function Confetti({ burst, count }: { burst: number; count: number }) {
+  const mesh = useRef<THREE.InstancedMesh>(null);
+  const { size } = useThree();
+  const parts = useRef<{ x: number; y: number; vx: number; vy: number; r: number; vr: number; s: number }[]>([]);
+  const alive = useRef(0);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  useEffect(() => {
+    if (!burst) return;
+    parts.current = Array.from({ length: count }, (_, i) => ({
+      x: (Math.random() - 0.5) * size.width * 0.9,
+      y: size.height / 2 + Math.random() * size.height * 0.3,
+      vx: (Math.random() - 0.5) * 120,
+      vy: -(150 + Math.random() * 250),
+      r: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 8,
+      s: 8 + (i % 5) * 2,
+    }));
+    alive.current = 4.5;
+    if (mesh.current) {
+      for (let i = 0; i < count; i++) mesh.current.setColorAt(i, new THREE.Color(CONFETTI_COLORS[i % CONFETTI_COLORS.length]));
+      if (mesh.current.instanceColor) mesh.current.instanceColor.needsUpdate = true;
+    }
+  }, [burst, count, size.width, size.height]);
+  useFrame((_, dt) => {
+    if (!mesh.current) return;
+    alive.current = Math.max(0, alive.current - dt);
+    mesh.current.visible = alive.current > 0;
+    if (!mesh.current.visible) return;
+    parts.current.forEach((p, i) => {
+      p.vy -= 40 * dt;
+      p.x += (p.vx + Math.sin(p.r * 2) * 40) * dt;
+      p.y += p.vy * dt;
+      p.r += p.vr * dt;
+      dummy.position.set(p.x, p.y, 5);
+      dummy.rotation.set(p.r, p.r * 0.7, p.r * 0.3);
+      dummy.scale.set(p.s, p.s * 0.55, 1);
+      dummy.updateMatrix();
+      mesh.current!.setMatrixAt(i, dummy.matrix);
+    });
+    mesh.current.instanceMatrix.needsUpdate = true;
+  });
+  return (
+    <instancedMesh ref={mesh} args={[undefined, undefined, count]} visible={false}>
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial side={THREE.DoubleSide} toneMapped={false} />
+    </instancedMesh>
+  );
+}
+
+/** Where characters stand for each activity (in CSS px relative to the screen centre). */
+function layout(activityId: string | undefined, n: number, w: number, h: number): { x: number; y: number; height: number }[] {
+  const onStage = activityId === "title" || activityId === "lobby" || activityId === "results";
+  if (onStage) {
+    const height = h * 0.42;
+    const gap = Math.min(w * 0.14, height * 0.62);
+    const cx = activityId === "title" ? w * 0.26 : activityId === "results" ? -w * 0.3 : w * 0.24;
+    return Array.from({ length: n }, (_, i) => ({ x: cx + (i - (n - 1) / 2) * gap, y: -h * 0.5 + h * 0.06, height }));
   }
+  const height = h * 0.34;
+  return Array.from({ length: n }, (_, i) => {
+    const left = i % 2 === 0;
+    const k = Math.floor(i / 2);
+    return { x: (left ? -1 : 1) * (w * 0.5 - height * 0.28 - k * height * 0.4), y: -h * 0.5 + h * 0.01, height };
+  });
 }
 
 function Scene() {
   const rt = useRuntime();
-  const a = rt.activity;
-  const race = a instanceof TurboRace ? a : null;
-  const micro = a instanceof MicroRush ? a : null;
-  const results = a instanceof ResultsActivity ? a : null;
-  const pulse = micro ? micro.pulse.correct * 2 + micro.pulse.wrong * 2 + micro.pulse.slam : 0;
-  const pulseColor = micro && micro.phase === "reveal" ? (micro.pulse.wrong > 0 && micro.round && [...micro.round.per.values()].every((x) => !x.outcome || x.outcome === "wrong" || x.outcome === "timeout") ? "#ff4d6d" : "#8dff4a") : "#ffd23f";
-  const layout = blipLayout(a?.id);
-  const showPedestals = a?.id === "title" || a?.id === "lobby";
+  const { size } = useThree();
+  const players = rt.activePlayers;
+  const spots = layout(rt.activity?.id, players.length, size.width, size.height);
   return (
     <>
-      <DefaultCamera active={!race} />
-      <ArcadeWorld speed={race ? 8 : micro ? 2.2 * micro.speed : 1} pulse={pulse} pulseColor={pulseColor} lowFx={rt.settings.lowFx} far={!!race} />
-      {race && <RaceScene race={race} players={rt.activePlayers.filter((p) => race.karts.has(p.playerId))} />}
-      {showPedestals && <Pedestals rt={rt} />}
-      {results && <Pedestals rt={rt} podium={results.ranking.map((p) => p.playerId)} />}
-      <CameraAnchored offset={layout.offset}>
-        <Blip mood={rt.mcMood} talkingUntil={rt.mcTalkUntil} scale={layout.scale} hop={rt.mc?.seq ?? 0} />
-      </CameraAnchored>
+      <Backdrop />
+      {players.map((p, i) => (
+        <Suspense key={p.playerId} fallback={null}>
+          <Character rt={rt} p={p} x={spots[i]!.x} y={spots[i]!.y} height={spots[i]!.height} flip={rt.activity?.id !== "title" && rt.activity?.id !== "lobby" && rt.activity?.id !== "results" && i % 2 === 1} />
+        </Suspense>
+      ))}
+      <Confetti burst={rt.confetti} count={rt.settings.lowFx ? 60 : 160} />
     </>
   );
 }
 
 export function Stage() {
-  const rt = useRuntime();
-  const low = rt.settings.lowFx;
   return (
-    <Canvas
-      dpr={1}
-      gl={{ antialias: low, powerPreference: "high-performance", alpha: false }}
-      camera={{ position: [0, 3.2, 14], fov: 55, near: 0.1, far: 400 }}
-      style={{ position: "absolute", inset: 0 }}
-    >
-      <color attach="background" args={["#0b0420"]} />
-      <Scene />
-      {!low && (
-        <EffectComposer multisampling={0}>
-          <Bloom mipmapBlur luminanceThreshold={0.35} luminanceSmoothing={0.2} intensity={1.1} radius={0.7} />
-          <ChromaticAberration offset={new THREE.Vector2(0.0006, 0.0006)} radialModulation={false} modulationOffset={0} />
-          <Noise opacity={0.05} />
-          <Vignette offset={0.25} darkness={0.75} />
-        </EffectComposer>
-      )}
+    <Canvas orthographic dpr={[1, 1.5]} camera={{ position: [0, 0, 100], zoom: 1, near: 0.1, far: 1000 }} gl={{ antialias: true, alpha: false }} style={{ position: "absolute", inset: 0 }}>
+      <color attach="background" args={["#bfe6ff"]} />
+      <Suspense fallback={null}>
+        <Scene />
+      </Suspense>
     </Canvas>
   );
 }

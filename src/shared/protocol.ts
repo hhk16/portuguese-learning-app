@@ -7,7 +7,7 @@
  */
 import { z } from "zod";
 
-export const PROTOCOL_VERSION = 1;
+export const PROTOCOL_VERSION = 2;
 
 const id = z.string().min(1).max(64);
 const shortText = z.string().max(200);
@@ -16,11 +16,12 @@ const shortText = z.string().max(200);
 /* Player identity                                                     */
 /* ------------------------------------------------------------------ */
 
-export const PLAYER_COLORS = ["cyan", "pink", "yellow", "lime"] as const;
+export const PLAYER_COLORS = ["coral", "sky", "mint", "sun"] as const;
 export const PlayerColor = z.enum(PLAYER_COLORS);
 export type PlayerColor = z.infer<typeof PlayerColor>;
 
-export const AVATARS = ["blob", "bot", "cat", "ghost", "alien", "robo"] as const;
+/** Player characters (cartoon art in /art/characters/<id>-<pose>.webp). */
+export const AVATARS = ["ana", "hadi", "a", "b", "c", "d"] as const;
 export const Avatar = z.enum(AVATARS);
 export type Avatar = z.infer<typeof Avatar>;
 
@@ -42,49 +43,14 @@ export type PlayerInfo = z.infer<typeof PlayerInfo>;
 
 const Option = z.object({ id, label: shortText, sub: shortText.optional(), emoji: z.string().max(16).optional() });
 
-export const Feedback = z.object({
-  status: z.enum(["correct", "wrong", "late", "neutral"]),
-  text: shortText,
-  detail: shortText.optional(),
-});
-export type Feedback = z.infer<typeof Feedback>;
+/** A picture word as the phone shows it. `pic` is an emoji glyph mapped to the Fluent 3D art. */
+const Word = z.object({ pt: shortText, en: shortText.optional(), pic: z.string().max(24).optional() });
+export type Word = z.infer<typeof Word>;
 
-export const SPEEDS = ["calma", "normal", "turbo"] as const;
-export const Speed = z.enum(SPEEDS);
-export type Speed = z.infer<typeof Speed>;
-
-/** The prompt as the phone shows it — the phone is a full second screen, not just buttons. */
-export const PromptCard = z.object({
-  kicker: shortText.optional(),
-  visual: z.string().max(32).optional(),
-  /** May contain "___" for the gap. */
-  headline: shortText,
-  sub: shortText.optional(),
-  /** No TV audio to replay for this prompt (hides the phone's 🔊). */
-  quiet: z.boolean().optional(),
-});
-export type PromptCard = z.infer<typeof PromptCard>;
-
-const promptBase = {
-  roundId: id,
-  promptId: id,
-  /** Host-clock (TV performance.now) deadline in ms. */
-  deadline: z.number(),
-  /** Verb shouted by the microgame, e.g. "ESCOLHE!". */
-  title: shortText.optional(),
-  question: shortText.optional(),
-  card: PromptCard.optional(),
-  feedback: Feedback.optional(),
-  /** Small status line (e.g. race position). */
-  hud: shortText.optional(),
-  /** Only sent when the TV runs in test mode (automated e2e). */
-  debugAnswer: z.unknown().optional(),
-};
-
-/* Aprender (Duolingo-style) exercises as the phone sees them — answers stay on the TV. */
-const LearnOpt = z.object({ id, label: shortText, emoji: z.string().max(16).optional() });
+/* Aprender juntos exercises as the phone sees them — answers stay on the TV. */
+const LearnOpt = z.object({ id, label: shortText, emoji: z.string().max(24).optional() });
 const learnOpts = z.array(LearnOpt).min(2).max(6);
-const emojiField = z.string().max(16).optional();
+const emojiField = z.string().max(24).optional();
 export const LearnExView = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("tip"), title: shortText, rows: z.array(z.tuple([shortText, shortText])).max(8), note: shortText.optional(), say: shortText.optional() }),
   z.object({ kind: z.literal("intro"), pt: shortText, en: shortText, emoji: emojiField, say: shortText, note: shortText.optional() }),
@@ -95,125 +61,81 @@ export const LearnExView = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("gap"), text: shortText, en: shortText, options: learnOpts }),
   z.object({ kind: z.literal("build"), en: shortText, bank: z.array(z.object({ id, text: shortText })).min(2).max(12) }),
   z.object({ kind: z.literal("speak"), pt: shortText, en: shortText, emoji: emojiField, say: shortText }),
+  /** Partner judges a spoken answer. */
+  z.object({ kind: z.literal("judge"), name: shortText, pt: shortText, en: shortText, emoji: emojiField }),
 ]);
 export type LearnExView = z.infer<typeof LearnExView>;
 
+const round = { roundId: id, promptId: id, debugAnswer: z.unknown().optional() };
+
+export const SecretCard = z.object({
+  id,
+  word: Word,
+  /** Public state on the board. */
+  state: z.enum(["hidden", "found", "neutral", "boom"]),
+  /** This player's private key (only on the clue-giver's phone). */
+  key: z.enum(["target", "bomb", "neutral"]).optional(),
+});
+export type SecretCard = z.infer<typeof SecretCard>;
+
 export const ControllerView = z.discriminatedUnion("mode", [
+  z.object({ mode: z.literal("wait"), title: shortText, subtitle: shortText.optional(), pic: emojiField }),
+  z.object({ mode: z.literal("lobby"), ready: z.boolean(), hint: shortText.optional() }),
+  z.object({ mode: z.literal("paused"), title: shortText }),
+  z.object({ mode: z.literal("remote"), title: shortText, hint: shortText.optional() }),
+  z.object({ mode: z.literal("pick"), ...round, title: shortText, subtitle: shortText.optional(), options: z.array(Option).min(1).max(8) }),
+  /** Aprender juntos: the same exercise for everyone, answered privately, revealed together. */
   z.object({
     mode: z.literal("learn"),
-    roundId: id,
-    promptId: id,
+    ...round,
     step: z.number().int().nonnegative(),
     total: z.number().int().positive(),
-    hearts: z.number().int().nonnegative(),
-    streak: z.number().int().nonnegative(),
-    xp: z.number().int().nonnegative(),
     instr: shortText,
-    /** English instruction (shown while the players are beginners). */
     instrEn: shortText.optional(),
-    /** Adaptive English: show translations by default (else behind a tap). */
     showEn: z.boolean(),
     ex: LearnExView,
-    /** Present after answering: the phone shows the verdict and a Continue button. */
-    result: z.object({ ok: z.boolean(), pt: shortText, en: shortText.optional(), why: shortText.optional(), say: shortText.optional() }).optional(),
-    debugAnswer: z.unknown().optional(),
+    /** After answering: whose answer we're waiting for. */
+    waiting: shortText.optional(),
+    /** After the reveal. */
+    result: z.object({ ok: z.boolean(), pt: shortText, en: shortText.optional(), why: shortText.optional() }).optional(),
   }),
-  /** Diz-me!: the describer's secret card. */
+  /** Pares Secretos (Codenames Duet style). */
   z.object({
-    mode: z.literal("describe"),
-    roundId: id,
-    promptId: id,
-    deadline: z.number(),
-    title: shortText,
-    card: z.object({ pt: shortText, en: shortText, emoji: emojiField, say: shortText }),
-    score: z.number().int(),
+    mode: z.literal("secret"),
+    ...round,
+    role: z.enum(["clue", "guess", "watch"]),
     partner: shortText,
+    cards: z.array(SecretCard).min(4).max(20),
+    clue: z.object({ count: z.number().int().min(1).max(9) }).optional(),
+    guessesLeft: z.number().int().nonnegative().optional(),
+    turnsLeft: z.number().int().nonnegative(),
+    found: z.number().int().nonnegative(),
+    goal: z.number().int().positive(),
   }),
-  /** Apanha!: the phone is one big slam button. */
+  /** Na Mesma Onda (Wavelength style). */
   z.object({
-    mode: z.literal("buzzer"),
-    roundId: id,
-    promptId: id,
-    state: z.enum(["listen", "go", "stunned", "won", "lost"]),
-    label: shortText.optional(),
-    score: z.number().int(),
-    debugAnswer: z.unknown().optional(),
+    mode: z.literal("dial"),
+    ...round,
+    role: z.enum(["psychic", "guess", "watch"]),
+    partner: shortText,
+    left: Word,
+    right: Word,
+    /** 0..100 — only on the psychic's phone (and everyone's after the reveal). */
+    target: z.number().min(0).max(100).optional(),
+    value: z.number().min(0).max(100),
+    /** Clue ideas for the psychic: words they know, with pictures. */
+    ideas: z.array(Word).max(12).optional(),
+    phase: z.enum(["clue", "guess", "reveal"]),
+    points: z.number().int().optional(),
   }),
-  /** A short menu on the phone (e.g. what to play after a lesson). */
+  /** Em Sintonia (Medium style). */
   z.object({
-    mode: z.literal("pick"),
-    roundId: id,
-    promptId: id,
-    title: shortText,
-    subtitle: shortText.optional(),
-    options: z.array(Option).min(1).max(6),
-  }),
-  z.object({ mode: z.literal("wait"), title: shortText, subtitle: shortText.optional(), emoji: z.string().max(16).optional(), feedback: Feedback.optional() }),
-  z.object({
-    mode: z.literal("lobby"),
-    ready: z.boolean(),
-    canNavigate: z.boolean(),
-    hint: shortText.optional(),
-    speed: Speed,
-  }),
-  z.object({ mode: z.literal("paused"), speed: Speed, title: shortText }),
-  z.object({ mode: z.literal("remote"), title: shortText, hint: shortText.optional() }),
-  z.object({
-    mode: z.literal("choices"),
-    ...promptBase,
-    options: z.array(Option).min(2).max(6),
-    layout: z.enum(["grid", "stack"]).optional(),
-    /** Race sabotage: number of ink splats covering the buttons (tap to wipe). */
-    ink: z.number().int().min(0).max(8).optional(),
-  }),
-  z.object({
-    mode: z.literal("tiles"),
-    ...promptBase,
-    tiles: z.array(z.object({ id, ch: z.string().min(1).max(4) })).min(2).max(12),
-    length: z.number().int().min(1).max(12),
-  }),
-  z.object({ mode: z.literal("errorTap"), ...promptBase, words: z.array(z.object({ id, text: shortText })).min(2).max(12) }),
-  z.object({ mode: z.literal("merge"), ...promptBase, top: z.array(Option).min(1).max(4), bottom: z.array(Option).min(1).max(6) }),
-  z.object({
-    mode: z.literal("tapStream"),
-    ...promptBase,
-    rule: shortText,
-    /** Mirror of the TV's word stream, scheduled on the host clock. */
-    stream: z
-      .object({
-        words: z.array(z.object({ text: shortText, visual: z.string().max(16).optional() })).max(16),
-        startAt: z.number(),
-        per: z.number().positive(),
-        lead: z.number().nonnegative(),
-      })
-      .optional(),
-  }),
-  z.object({ mode: z.literal("mic"), ...promptBase, target: shortText, lang: z.string().max(10) }),
-  z.object({
-    mode: z.literal("judge"),
-    ...promptBase,
-    targetPlayerName: shortText,
-    target: shortText,
-    heard: shortText.optional(),
-  }),
-  z.object({
-    mode: z.literal("itemPick"),
-    ...promptBase,
-    items: z.array(z.object({ id, label: shortText, emoji: z.string().max(16), desc: shortText })).min(2).max(4),
-  }),
-  z.object({
-    mode: z.literal("lesson"),
-    ...promptBase,
-    step: shortText,
-    canContinue: z.boolean(),
-    /** Lesson content mirrored on the phone (paradigm rows, examples, notes). */
-    lines: z.array(shortText).max(10).optional(),
-  }),
-  z.object({
-    mode: z.literal("results"),
-    title: shortText,
-    lines: z.array(shortText).max(12),
-    review: z.array(z.object({ pt: shortText, why: shortText.optional() })).max(10),
+    mode: z.literal("sync"),
+    ...round,
+    words: z.tuple([Word, Word]),
+    attempt: z.number().int().positive(),
+    bank: z.array(Word).max(16),
+    submitted: z.boolean(),
   }),
 ]);
 export type ControllerView = z.infer<typeof ControllerView>;
@@ -224,20 +146,6 @@ export type ControllerMode = ControllerView["mode"];
 /* ------------------------------------------------------------------ */
 
 export const InputValue = z.discriminatedUnion("mode", [
-  z.object({ mode: z.literal("choices"), choice: id }),
-  z.object({ mode: z.literal("tiles"), seq: z.array(id).max(12) }),
-  z.object({ mode: z.literal("errorTap"), wordId: id }),
-  z.object({ mode: z.literal("merge"), top: id, bottom: id }),
-  z.object({ mode: z.literal("tapStream"), tapHostTime: z.number() }),
-  z.object({
-    mode: z.literal("mic"),
-    /** Speech recognition alternatives; empty when recognition is unavailable. */
-    transcripts: z.array(shortText).max(8),
-    unsupported: z.boolean(),
-  }),
-  z.object({ mode: z.literal("judge"), verdict: z.boolean() }),
-  z.object({ mode: z.literal("itemPick"), item: id }),
-  z.object({ mode: z.literal("lesson"), ok: z.literal(true) }),
   z.object({
     mode: z.literal("learn"),
     answer: z.discriminatedUnion("t", [
@@ -245,12 +153,29 @@ export const InputValue = z.discriminatedUnion("mode", [
       z.object({ t: z.literal("build"), words: z.array(shortText).max(12) }),
       z.object({ t: z.literal("pairs"), missed: z.array(id).max(6) }),
       z.object({ t: z.literal("speak"), transcripts: z.array(shortText).max(8), self: z.boolean().nullable() }),
+      z.object({ t: z.literal("judge"), ok: z.boolean() }),
       z.object({ t: z.literal("next") }),
     ]),
   }),
-  z.object({ mode: z.literal("describe"), action: z.enum(["skip"]) }),
-  z.object({ mode: z.literal("buzz"), tapHostTime: z.number() }),
   z.object({ mode: z.literal("pick"), id }),
+  z.object({
+    mode: z.literal("secret"),
+    action: z.discriminatedUnion("a", [
+      z.object({ a: z.literal("clue"), count: z.number().int().min(1).max(9) }),
+      z.object({ a: z.literal("tap"), cardId: id }),
+      z.object({ a: z.literal("stop") }),
+    ]),
+  }),
+  z.object({
+    mode: z.literal("dial"),
+    action: z.discriminatedUnion("a", [
+      z.object({ a: z.literal("move"), value: z.number().min(0).max(100) }),
+      z.object({ a: z.literal("clued") }),
+      z.object({ a: z.literal("lock") }),
+      z.object({ a: z.literal("next") }),
+    ]),
+  }),
+  z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40) }),
 ]);
 export type InputValue = z.infer<typeof InputValue>;
 
@@ -273,7 +198,7 @@ export const PlayerBody = z.discriminatedUnion("k", [
   }),
   z.object({ k: z.literal("nav"), dir: NavDir }),
   z.object({ k: z.literal("ready"), ready: z.boolean() }),
-  z.object({ k: z.literal("menu"), action: z.enum(["pause", "resume", "restart", "quit", "speed", "repeat"]), speed: Speed.optional() }),
+  z.object({ k: z.literal("menu"), action: z.enum(["pause", "resume", "restart", "quit", "repeat"]) }),
 ]);
 export type PlayerBody = z.infer<typeof PlayerBody>;
 
@@ -284,8 +209,6 @@ export const HostBody = z.discriminatedUnion("k", [
   z.object({ k: z.literal("fx"), fx: z.enum(["buzz", "success", "fail", "boost"]) }),
   /** Host clock jumped (resume after pause): re-estimate the offset now. */
   z.object({ k: z.literal("resync") }),
-  /** Speak Portuguese on the phone (the TV has no Portuguese voice). */
-  z.object({ k: z.literal("speak"), text: shortText }),
 ]);
 export type HostBody = z.infer<typeof HostBody>;
 
