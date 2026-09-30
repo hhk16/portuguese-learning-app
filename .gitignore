@@ -10,3 +10,4 @@ coverage/
 sources/
 test-results/
 e2e-output/
+__pycache__/
