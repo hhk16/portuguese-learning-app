@@ -15,7 +15,7 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
     <div className="tv-overlay game-screen centered final-screen">
       <GameTop title="Grande Final" pic="🏆">
         <span className="pill">
-          Pergunta {Math.min(a.index + 1, QUESTIONS)}/{QUESTIONS}
+          {a.tieBreak ? "Desempate! · Tie-break" : `Pergunta ${Math.min(a.index + 1, QUESTIONS)}/${QUESTIONS}`}
         </span>
         {a.last && <span className="pill double-pill">×2</span>}
         {a.phase === "ask" && <span className={`pill clock ${a.msLeft < 4000 ? "low" : ""}`}>⏱ {secs}</span>}

@@ -844,7 +844,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "boa!": {
-  "downloaded": "transcode.ogg",
   "file": "49fc01bef2.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -1674,6 +1673,14 @@
   "text": "Empate! Mais uma letra!",
   "voice": "pt_PT-tugão-medium"
  },
+ "empate! pergunta de desempate!": {
+  "file": "a1a5b06fea.mp3",
+  "lengthScale": 1.12,
+  "say": "Empate! Pergunta de desempate!",
+  "source": "piper",
+  "text": "Empate! Pergunta de desempate!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "empregada de mesa": {
   "file": "b72bb8b7b8.mp3",
   "lengthScale": 1.12,
@@ -1951,7 +1958,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "excelente!": {
-  "downloaded": "transcode.ogg",
   "file": "dafe131e6b.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -1962,7 +1968,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-excelente.wav"
  },
  "fantástico!": {
-  "downloaded": "transcode.ogg",
   "file": "f9cb1b34fa.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2047,7 +2052,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "fácil": {
-  "downloaded": "transcode.ogg",
   "file": "63c1195bec.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2082,7 +2086,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "grande": {
-  "downloaded": "transcode.ogg",
   "file": "ebe4d63bbc.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2173,7 +2176,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "inglês": {
-  "downloaded": "transcode.ogg",
   "file": "33f551f30f.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2280,7 +2282,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "jornalista": {
-  "downloaded": "transcode.ogg",
   "file": "3cf480fef7.mp3",
   "license": "CC0",
   "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
@@ -2459,7 +2460,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "leve": {
-  "downloaded": "transcode.ogg",
   "file": "fed0a3d2c2.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2582,7 +2582,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "médica": {
-  "downloaded": "transcode.ogg",
   "file": "718f689d6b.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2593,7 +2592,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-m%C3%A9dica.wav"
  },
  "médico": {
-  "downloaded": "transcode.ogg",
   "file": "43cc1d4a8c.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2612,7 +2610,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "na": {
-  "downloaded": "transcode.ogg",
   "file": "adb2956cca.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2631,7 +2628,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "nas": {
-  "downloaded": "transcode.ogg",
   "file": "68ac49bb03.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2642,7 +2638,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-nas.wav"
  },
  "no": {
-  "downloaded": "transcode.ogg",
   "file": "a0a5984aa0.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2701,7 +2696,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "nos": {
-  "downloaded": "transcode.ogg",
   "file": "632791272f.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -2712,7 +2706,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-nos.wav"
  },
  "nove": {
-  "downloaded": "transcode.ogg",
   "file": "bb7f051644.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -3501,7 +3494,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "oito": {
-  "downloaded": "transcode.ogg",
   "file": "507ac7cf12.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -4245,12 +4237,12 @@
   "text": "Que pena!",
   "voice": "pt_PT-tugão-medium"
  },
- "quem vê o alvo escolhe uma pista: muito frio, um pouco quente…": {
-  "file": "5b8fc3f1a0.mp3",
+ "quem vê o alvo escolhe uma coisa como pista: o gelado, o café…": {
+  "file": "1752d457b5.mp3",
   "lengthScale": 1.12,
-  "say": "Quem vê o alvo escolhe uma pista: muito frio, um pouco quente, .",
+  "say": "Quem vê o alvo escolhe uma coisa como pista: o gelado, o café, .",
   "source": "piper",
-  "text": "Quem vê o alvo escolhe uma pista: muito frio, um pouco quente…",
+  "text": "Quem vê o alvo escolhe uma coisa como pista: o gelado, o café…",
   "voice": "pt_PT-tugão-medium"
  },
  "quente": {
@@ -5110,7 +5102,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "tempo!": {
-  "downloaded": "transcode.ogg",
   "file": "5340845e79.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",

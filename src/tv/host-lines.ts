@@ -78,6 +78,7 @@ export const SAY = {
   swap: { pt: "Troca!", en: "Swap!" },
   customerLeft: { pt: "O cliente foi-se embora…", en: "The customer left…" },
   tie: { pt: "Empate! Mais uma letra!", en: "It's a tie! One more letter!" },
+  tieBreak: { pt: "Empate! Pergunta de desempate!", en: "A tie! Tie-break question!" },
   inSync: { pt: "Em sintonia!", en: "In sync!" },
   makesSense: { pt: "Faz sentido?", en: "Does it make sense?" },
   listen: { pt: "Ouçam com atenção.", en: "Listen carefully." },

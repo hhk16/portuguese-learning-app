@@ -64,6 +64,7 @@ export class GrandeFinal implements Activity {
   private readonly words: FinalWord[];
   private readonly onDone: (r: GameOutcome) => void;
   private hurried = false;
+  private spare: LearnCard[] = [];
 
   constructor(words: FinalWord[], onDone: (r: GameOutcome) => void) {
     this.words = words;
@@ -79,8 +80,12 @@ export class GrandeFinal implements Activity {
   get q(): Question | undefined {
     return this.questions[this.index];
   }
+  /** The tenth question counts double (tie-break questions don't). */
   get last() {
     return this.index === QUESTIONS - 1;
+  }
+  get tieBreak() {
+    return this.index >= QUESTIONS;
   }
   get msLeft() {
     return Math.max(0, this.phaseEnd - gameNow());
@@ -96,6 +101,7 @@ export class GrandeFinal implements Activity {
     const tonight = this.words.map((w) => nouns.find((c) => norm(c.pt) === norm(w.pt))).filter((c): c is LearnCard => !!c);
     const pool = [...new Map([...rt.rng.shuffle(tonight), ...rt.rng.shuffle(nouns)].map((c) => [c.itemId, c])).values()];
     const picked = pool.slice(0, QUESTIONS);
+    this.spare = nouns;
     this.questions = picked.map((word, i) => {
       const others = rt.rng.sample(
         nouns.filter((c) => c.itemId !== word.itemId && c.pt !== word.pt),
@@ -105,6 +111,13 @@ export class GrandeFinal implements Activity {
     });
     for (const p of this.players) this.points.set(p.playerId, 0);
     this.ask();
+  }
+
+  private extraQuestion(): Question {
+    const used = new Set(this.questions.map((q) => q.word.itemId));
+    const q = this.rt.rng.pick(this.spare.filter((c) => !used.has(c.itemId)).length ? this.spare.filter((c) => !used.has(c.itemId)) : this.spare);
+    const others = this.rt.rng.sample(this.spare.filter((c) => c.itemId !== q.itemId), this.rules.options - 1);
+    return { kind: "see", word: q, options: this.rt.rng.shuffle([q, ...others]) };
   }
 
   private ask() {
@@ -132,7 +145,17 @@ export class GrandeFinal implements Activity {
       if (now >= this.phaseEnd) this.reveal();
     } else if (this.phase === "reveal" && now >= this.phaseEnd) {
       this.index++;
-      if (this.index >= QUESTIONS) return this.finish();
+      if (this.index >= this.questions.length) {
+        // Level at the top after the last question: one sudden-death question (at most three).
+        const [a, b] = this.ranking();
+        if (a && b && a.score === b.score && this.questions.length < QUESTIONS + 3) {
+          this.questions.push(this.extraQuestion());
+          this.rt.say(SAY.tieBreak, { interrupt: true });
+          play("heartbeat");
+          return this.ask();
+        }
+        return this.finish();
+      }
       this.ask();
     }
   }
@@ -237,7 +260,7 @@ export class GrandeFinal implements Activity {
       promptId: this.promptId,
       kind: q.kind,
       index: this.index,
-      total: QUESTIONS,
+      total: Math.max(QUESTIONS, this.questions.length),
       double: this.last || undefined,
       msLeft: this.msLeft,
       prompt: q.kind === "see" ? { pt: "", en: q.word.en, pic: q.word.emoji } : undefined,
