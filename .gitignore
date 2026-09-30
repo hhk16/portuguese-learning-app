@@ -1,9 +1,12 @@
-   @"
 node_modules/
-.next/
-out/
-.env*
+dist/
+.vite/
+coverage/
 *.log
 .DS_Store
-Thumbs.db
-"@ | Out-File -FilePath .gitignore -Encoding UTF8
+.env
+.env.*
+# Book sources and rendered pages are never committed (copyright).
+sources/
+test-results/
+e2e-output/

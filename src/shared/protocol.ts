@@ -1,0 +1,233 @@
+/**
+ * Realtime protocol shared by the relay server, the TV host and the phone controllers.
+ *
+ * Topology: phone <-> relay <-> TV. The TV is authoritative for all game state; the relay
+ * only owns rooms (codes, epochs, presence, tokens) and routes messages. Every message is
+ * zod-validated on receipt, on every hop.
+ */
+import { z } from "zod";
+
+export const PROTOCOL_VERSION = 1;
+
+const id = z.string().min(1).max(64);
+const shortText = z.string().max(200);
+
+/* ------------------------------------------------------------------ */
+/* Player identity                                                     */
+/* ------------------------------------------------------------------ */
+
+export const PLAYER_COLORS = ["cyan", "pink", "yellow", "lime"] as const;
+export const PlayerColor = z.enum(PLAYER_COLORS);
+export type PlayerColor = z.infer<typeof PlayerColor>;
+
+export const AVATARS = ["blob", "bot", "cat", "ghost", "alien", "robo"] as const;
+export const Avatar = z.enum(AVATARS);
+export type Avatar = z.infer<typeof Avatar>;
+
+export const PlayerInfo = z.object({
+  playerId: id,
+  name: z.string().min(1).max(16),
+  color: PlayerColor,
+  avatar: Avatar,
+  /** Stable profile id remembered by the phone, so the TV can reconnect it to a learner profile. */
+  profileHint: z.string().max(64).optional(),
+  connected: z.boolean(),
+});
+export type PlayerInfo = z.infer<typeof PlayerInfo>;
+
+/* ------------------------------------------------------------------ */
+/* Phone controller views (TV -> phone). The phone renders exactly one */
+/* view at a time; the TV sends the full view (a snapshot), never diffs. */
+/* ------------------------------------------------------------------ */
+
+const Option = z.object({ id, label: shortText, sub: shortText.optional(), emoji: z.string().max(16).optional() });
+
+export const Feedback = z.object({
+  status: z.enum(["correct", "wrong", "late", "neutral"]),
+  text: shortText,
+  detail: shortText.optional(),
+});
+export type Feedback = z.infer<typeof Feedback>;
+
+const promptBase = {
+  roundId: id,
+  promptId: id,
+  /** Host-clock (TV performance.now) deadline in ms. */
+  deadline: z.number(),
+  /** Verb shouted by the microgame, e.g. "ESCOLHE!". */
+  title: shortText.optional(),
+  question: shortText.optional(),
+  feedback: Feedback.optional(),
+  /** Small status line (e.g. race position). */
+  hud: shortText.optional(),
+  /** Only sent when the TV runs in test mode (automated e2e). */
+  debugAnswer: z.unknown().optional(),
+};
+
+export const ControllerView = z.discriminatedUnion("mode", [
+  z.object({ mode: z.literal("wait"), title: shortText, subtitle: shortText.optional(), emoji: z.string().max(16).optional(), feedback: Feedback.optional() }),
+  z.object({
+    mode: z.literal("lobby"),
+    ready: z.boolean(),
+    canNavigate: z.boolean(),
+    hint: shortText.optional(),
+  }),
+  z.object({ mode: z.literal("remote"), title: shortText, hint: shortText.optional() }),
+  z.object({
+    mode: z.literal("choices"),
+    ...promptBase,
+    options: z.array(Option).min(2).max(6),
+    layout: z.enum(["grid", "stack"]).optional(),
+    /** Race sabotage: number of ink splats covering the buttons (tap to wipe). */
+    ink: z.number().int().min(0).max(8).optional(),
+  }),
+  z.object({
+    mode: z.literal("tiles"),
+    ...promptBase,
+    tiles: z.array(z.object({ id, ch: z.string().min(1).max(4) })).min(2).max(12),
+    length: z.number().int().min(1).max(12),
+  }),
+  z.object({ mode: z.literal("errorTap"), ...promptBase, words: z.array(z.object({ id, text: shortText })).min(2).max(12) }),
+  z.object({ mode: z.literal("merge"), ...promptBase, top: z.array(Option).min(1).max(4), bottom: z.array(Option).min(1).max(6) }),
+  z.object({ mode: z.literal("tapStream"), ...promptBase, rule: shortText }),
+  z.object({ mode: z.literal("mic"), ...promptBase, target: shortText, lang: z.string().max(10) }),
+  z.object({
+    mode: z.literal("judge"),
+    ...promptBase,
+    targetPlayerName: shortText,
+    target: shortText,
+    heard: shortText.optional(),
+  }),
+  z.object({
+    mode: z.literal("itemPick"),
+    ...promptBase,
+    items: z.array(z.object({ id, label: shortText, emoji: z.string().max(16), desc: shortText })).min(2).max(4),
+  }),
+  z.object({ mode: z.literal("lesson"), ...promptBase, step: shortText, canContinue: z.boolean() }),
+  z.object({
+    mode: z.literal("results"),
+    title: shortText,
+    lines: z.array(shortText).max(12),
+    review: z.array(z.object({ pt: shortText, why: shortText.optional() })).max(10),
+  }),
+]);
+export type ControllerView = z.infer<typeof ControllerView>;
+export type ControllerMode = ControllerView["mode"];
+
+/* ------------------------------------------------------------------ */
+/* Player input values (phone -> TV), keyed by the controller mode.    */
+/* ------------------------------------------------------------------ */
+
+export const InputValue = z.discriminatedUnion("mode", [
+  z.object({ mode: z.literal("choices"), choice: id }),
+  z.object({ mode: z.literal("tiles"), seq: z.array(id).max(12) }),
+  z.object({ mode: z.literal("errorTap"), wordId: id }),
+  z.object({ mode: z.literal("merge"), top: id, bottom: id }),
+  z.object({ mode: z.literal("tapStream"), tapHostTime: z.number() }),
+  z.object({
+    mode: z.literal("mic"),
+    /** Speech recognition alternatives; empty when recognition is unavailable. */
+    transcripts: z.array(shortText).max(8),
+    unsupported: z.boolean(),
+  }),
+  z.object({ mode: z.literal("judge"), verdict: z.boolean() }),
+  z.object({ mode: z.literal("itemPick"), item: id }),
+  z.object({ mode: z.literal("lesson"), ok: z.literal(true) }),
+]);
+export type InputValue = z.infer<typeof InputValue>;
+
+export const NavDir = z.enum(["up", "down", "left", "right", "ok", "back"]);
+export type NavDir = z.infer<typeof NavDir>;
+
+/* ------------------------------------------------------------------ */
+/* Message bodies                                                      */
+/* ------------------------------------------------------------------ */
+
+export const PlayerBody = z.discriminatedUnion("k", [
+  z.object({ k: z.literal("ping"), id, t0: z.number() }),
+  z.object({
+    k: z.literal("input"),
+    roundId: id,
+    promptId: id,
+    value: InputValue,
+    /** When the player acted, on the host clock (phone performance.now + synced offset). */
+    clientHostTime: z.number(),
+  }),
+  z.object({ k: z.literal("nav"), dir: NavDir }),
+  z.object({ k: z.literal("ready"), ready: z.boolean() }),
+]);
+export type PlayerBody = z.infer<typeof PlayerBody>;
+
+export const HostBody = z.discriminatedUnion("k", [
+  z.object({ k: z.literal("pong"), id, t0: z.number(), hostTime: z.number() }),
+  z.object({ k: z.literal("view"), view: ControllerView, snapshotSeq: z.number().int().nonnegative() }),
+  z.object({ k: z.literal("ack"), messageIds: z.array(id).max(64) }),
+  z.object({ k: z.literal("fx"), fx: z.enum(["buzz", "success", "fail", "boost"]) }),
+]);
+export type HostBody = z.infer<typeof HostBody>;
+
+/** Envelope fields carried by every gameplay message. */
+const envelope = {
+  protocolVersion: z.literal(PROTOCOL_VERSION),
+  roomId: id,
+  roomEpoch: z.number().int().positive(),
+  messageId: id,
+  sequence: z.number().int().nonnegative(),
+};
+
+export const PlayerMsg = z.object({ ...envelope, playerId: id, clientTime: z.number(), body: PlayerBody });
+export type PlayerMsg = z.infer<typeof PlayerMsg>;
+
+export const HostMsg = z.object({ ...envelope, to: z.union([z.literal("all"), id]), body: HostBody });
+export type HostMsg = z.infer<typeof HostMsg>;
+
+/* ------------------------------------------------------------------ */
+/* Wire messages (socket level)                                        */
+/* ------------------------------------------------------------------ */
+
+export const PhoneToServer = z.discriminatedUnion("t", [
+  z.object({
+    t: z.literal("p.join"),
+    protocolVersion: z.literal(PROTOCOL_VERSION),
+    code: z.string().min(4).max(6),
+    name: z.string().trim().min(1).max(16),
+    color: PlayerColor,
+    avatar: Avatar,
+    profileHint: z.string().max(64).optional(),
+    resume: z.object({ playerId: id, playerToken: z.string().min(16).max(128) }).optional(),
+  }),
+  z.object({ t: z.literal("p.msg"), playerToken: z.string().min(16).max(128), msg: PlayerMsg }),
+]);
+export type PhoneToServer = z.infer<typeof PhoneToServer>;
+
+export const HostToServer = z.discriminatedUnion("t", [
+  z.object({ t: z.literal("h.create"), protocolVersion: z.literal(PROTOCOL_VERSION) }),
+  z.object({ t: z.literal("h.resume"), protocolVersion: z.literal(PROTOCOL_VERSION), roomId: id, hostToken: z.string().min(16).max(128) }),
+  z.object({ t: z.literal("h.msg"), hostToken: z.string().min(16).max(128), msg: HostMsg }),
+  z.object({ t: z.literal("h.close"), hostToken: z.string().min(16).max(128), roomId: id }),
+]);
+export type HostToServer = z.infer<typeof HostToServer>;
+
+export const ServerToHost = z.discriminatedUnion("t", [
+  z.object({ t: z.literal("s.created"), roomId: id, code: z.string(), roomEpoch: z.number().int(), hostToken: z.string() }),
+  z.object({ t: z.literal("s.resumed"), roomId: id, code: z.string(), roomEpoch: z.number().int(), players: z.array(PlayerInfo) }),
+  z.object({ t: z.literal("s.resumeFailed"), reason: shortText }),
+  z.object({ t: z.literal("s.player"), player: PlayerInfo, rejoin: z.boolean() }),
+  z.object({ t: z.literal("s.playerLeft"), playerId: id }),
+  z.object({ t: z.literal("s.fromPlayer"), msg: PlayerMsg, serverTime: z.number() }),
+  z.object({ t: z.literal("s.error"), reason: shortText }),
+]);
+export type ServerToHost = z.infer<typeof ServerToHost>;
+
+export const ServerToPhone = z.discriminatedUnion("t", [
+  z.object({ t: z.literal("s.joined"), roomId: id, code: z.string(), roomEpoch: z.number().int(), playerId: id, playerToken: z.string() }),
+  z.object({ t: z.literal("s.joinFailed"), reason: z.enum(["no-room", "full", "bad-token", "version"]) }),
+  z.object({ t: z.literal("s.fromHost"), msg: HostMsg }),
+  z.object({ t: z.literal("s.epoch"), roomEpoch: z.number().int() }),
+  z.object({ t: z.literal("s.hostAway") }),
+  z.object({ t: z.literal("s.roomClosed") }),
+  z.object({ t: z.literal("s.error"), reason: shortText }),
+]);
+export type ServerToPhone = z.infer<typeof ServerToPhone>;
+
+export const MAX_PLAYERS = 4;

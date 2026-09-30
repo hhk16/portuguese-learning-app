@@ -1,0 +1,28 @@
+/** The 24 end-of-A1 can-do statements. Progress is shown per player in these terms. */
+export const CAN_DOS = [
+  ["cd01.introduce-self", "Apresentar-me e apresentar outra pessoa"],
+  ["cd02.personal-info", "Trocar informações pessoais básicas"],
+  ["cd03.greet-polite", "Cumprimentar e ser educado/a"],
+  ["cd04.repair", "Pedir para repetir, falar devagar ou explicar"],
+  ["cd05.family-describe", "Falar da família e descrever pessoas"],
+  ["cd06.routines", "Falar de rotinas, passatempos e preferências"],
+  ["cd07.numbers-prices", "Perceber números, datas, preços e quantidades"],
+  ["cd08.time", "Dizer e perceber as horas"],
+  ["cd09.order-food", "Pedir comida e bebida"],
+  ["cd10.buy-pay", "Comprar coisas simples e pagar"],
+  ["cd11.directions", "Pedir e dar direções simples"],
+  ["cd12.transport", "Usar vocabulário de transportes"],
+  ["cd13.home", "Descrever a casa e localizar objetos"],
+  ["cd14.weather-clothes", "Falar do tempo e da roupa"],
+  ["cd15.future-plans", "Fazer planos simples para o futuro"],
+  ["cd16.health", "Explicar problemas de saúde simples"],
+  ["cd17.invitations", "Fazer, aceitar e recusar convites"],
+  ["cd18.festivals", "Falar de festas e datas"],
+  ["cd19.past", "Falar de uma experiência passada"],
+  ["cd20.travel", "Resolver situações simples de viagem e alojamento"],
+  ["cd21.forms", "Preencher informações pessoais"],
+  ["cd22.listen-clear", "Perceber frases curtas e claras em PT-PT"],
+  ["cd23.speak-short", "Produzir frases curtas e compreensíveis"],
+  ["cd24.cope", "Desenrascar-me quando a comunicação falha"],
+] as const;
+export type CanDoId = (typeof CAN_DOS)[number][0];
