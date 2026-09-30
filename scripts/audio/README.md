@@ -17,9 +17,15 @@ speech synthesis.
    (`LL_SPEAKERS` in `render.py`: Santamarcanda, Waldyrious). A recording is used only when it
    matches the text exactly: case-insensitive, NFC, trailing punctuation ignored. The script checks
    the licence (from `extmetadata`) and the speaker before using a file.
-2. **Piper** `pt_PT-tugão-medium` for everything else, at `length_scale` 1.12. Before synthesis,
-   display punctuation is normalised: `/` becomes `. `, `·` becomes `, `, and `…` becomes `, `.
-   See `synth_text()`.
+2. **A TTS voice** for everything else:
+   - **Gemini TTS** (default when `GEMINI_API_KEY` is set): `gemini-3.8-flash-tts`, prebuilt voice
+     **Leda** (`--gemini-voice` to change), `languageCode: pt-PT`. Only the text is sent — the model
+     reads any instruction aloud, so accent comes from the language code alone. 429s are waited out;
+     a clip much longer than its text (the model said something else) is re-requested once.
+   - **Piper** `pt_PT-tugão-medium` (`--engine piper`, offline), at `length_scale` 1.12.
+
+   Before synthesis, display punctuation is normalised: `/` becomes `. `, `·` becomes `, `, and `…`
+   becomes `, `. See `synth_text()`.
 
 Output: mono MP3, 22.05 kHz, 48 kbps CBR, about 60 ms of silence kept at each end, gain set to
 -18 LUFS (EBU R128) and limited to -1.5 dBFS. Files are named `sha1(key + source + settings)[:10].mp3`,
@@ -41,6 +47,7 @@ Piper voice (~63 MB) into `$WORK/voices/` on first use. It needs Node 22+, which
 ## Re-run (incremental)
 
 ```sh
+export GEMINI_API_KEY=…   # from the environment/secret store — never commit it
 "$WORK/venv/bin/python" scripts/audio/render.py --work "$WORK"
 ```
 
@@ -49,7 +56,8 @@ Piper voice (~63 MB) into `$WORK/voices/` on first use. It needs Node 22+, which
 - MP3s that no current text uses are deleted (keep them with `--keep-orphans`).
 - The Lingua Libre file index and metadata are cached in `$WORK`. `--refresh-ll` re-fetches the
   index, for example after a speaker uploads new words.
-- `--force` re-renders everything. `--no-ll` uses Piper only.
+- `--force` re-renders everything. `--no-ll` skips Lingua Libre (TTS only).
+- `--engine piper|gemini` picks the TTS voice; changing voice or engine re-renders those texts.
 - Exit code 1 means some text failed. The failures are listed at the end of the log, and a failed
   text keeps its previous file if it had one.
 

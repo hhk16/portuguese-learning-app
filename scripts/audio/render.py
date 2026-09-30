@@ -8,7 +8,9 @@ skipped, so re-running after the curriculum grows only renders the new texts.
 Sources, in priority order:
   1. Native recordings from Lingua Libre (Wikimedia Commons), only from pt-PT speakers
      (see LL_SPEAKERS), matched on the exact word/expression.
-  2. Piper TTS voice pt_PT-tugão-medium for everything else.
+  2. A TTS voice for everything else: Google Gemini TTS (`--engine gemini`, default voice Leda,
+     language pt-PT; needs GEMINI_API_KEY in the environment) or Piper pt_PT-tugão-medium
+     (`--engine piper`, offline).
 
 Outputs (repo-relative):
   public/audio/manifest.json   audioKey(text) -> "<hash>.mp3"   (read by src/audio/tts.ts)
@@ -55,6 +57,49 @@ TARGET_LUFS = -18.0
 PEAK_LIMIT = 0.84  # ≈ -1.5 dBFS
 SILENCE_DB = -42
 KEEP_SILENCE = 0.06  # seconds kept at each end
+
+# ---- Gemini TTS ----------------------------------------------------------------------------------
+GEMINI_MODEL = "gemini-3.8-flash-tts"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
+
+def gemini_tts(text: str, voice: str, dst: Path) -> None:
+    """Synthesise `text` in European Portuguese with a Gemini prebuilt voice → WAV at `dst`.
+
+    Only the text itself is sent (the model reads any instruction aloud); the accent comes from
+    languageCode pt-PT. Rate limits (429) are waited out with backoff.
+    """
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key:
+        raise RuntimeError("GEMINI_API_KEY is not set")
+    body = {
+        "contents": [{"parts": [{"text": text}]}],
+        "generationConfig": {
+            "responseModalities": ["AUDIO"],
+            "speechConfig": {"languageCode": "pt-PT", "voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice}}},
+        },
+    }
+    for attempt in range(10):
+        r = requests.post(GEMINI_URL.format(model=GEMINI_MODEL), json=body, headers={"x-goog-api-key": key}, timeout=120)
+        if r.status_code in (429, 500, 503):
+            time.sleep(min(90, 15 * (attempt + 1)))
+            continue
+        r.raise_for_status()
+        part = r.json()["candidates"][0]["content"]["parts"][0]["inlineData"]
+        data = __import__("base64").b64decode(part["data"])
+        if "wav" not in part.get("mimeType", ""):
+            # Raw 16-bit PCM (audio/L16;rate=24000): wrap it in a WAV header.
+            rate = int(re.search(r"rate=(\d+)", part.get("mimeType", "")).group(1)) if "rate=" in part.get("mimeType", "") else 24000
+            with wave.open(str(dst), "wb") as w:
+                w.setnchannels(1)
+                w.setsampwidth(2)
+                w.setframerate(rate)
+                w.writeframes(data)
+        else:
+            dst.write_bytes(data)
+        return
+    raise RuntimeError("Gemini TTS still rate-limited after retries")
+
 
 # ---- Piper -------------------------------------------------------------------------------------
 VOICE = "pt_PT-tugão-medium"
@@ -339,6 +384,8 @@ def ensure_voice(work: Path) -> Path:
 def write_credits(sources: dict[str, dict]) -> None:
     ll = sorted((v for v in sources.values() if v["source"] == "lingua-libre"), key=lambda v: v["text"].lower())
     piper = [v for v in sources.values() if v["source"] == "piper"]
+    gem = [v for v in sources.values() if v["source"] == "gemini"]
+    gem_voices = sorted({v.get("voice", "") for v in gem})
     lines = [
         "# Audio credits",
         "",
@@ -347,7 +394,14 @@ def write_credits(sources: dict[str, dict]) -> None:
         "script instead of editing it by hand.",
         "",
         f"- **{len(ll)}** clips are native recordings from Lingua Libre (Wikimedia Commons).",
+        f"- **{len(gem)}** clips are synthesised with Google Gemini TTS (`{GEMINI_MODEL}`, voice {', '.join(gem_voices) or '-'}, language pt-PT).",
         f"- **{len(piper)}** clips are synthesised with the Piper voice `{VOICE}`.",
+        "",
+        "## Gemini TTS",
+        "",
+        f"- Generated at build time with the Gemini API text-to-speech model `{GEMINI_MODEL}` (prebuilt voice,",
+        "  `languageCode: pt-PT`), under the Gemini API terms of service. Only the text is sent; the API key",
+        "  comes from the environment and is never stored in the repository.",
         "",
         "All clips were trimmed (leading/trailing silence), loudness-normalised and re-encoded as mono",
         "MP3. For the Lingua Libre recordings these are modifications of the original works; under the",
@@ -395,12 +449,16 @@ def main() -> None:
     ap.add_argument("--ll-patience", type=float, default=5,
                     help="minutes to keep retrying (1 request/min) while Wikimedia throttles media downloads")
     ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument("--engine", choices=["gemini", "piper"], default="gemini" if os.environ.get("GEMINI_API_KEY") else "piper",
+                    help="TTS for texts without a native recording (default: gemini when GEMINI_API_KEY is set)")
+    ap.add_argument("--gemini-voice", default="Leda", help="Gemini prebuilt voice (default Leda)")
     args = ap.parse_args()
 
     work = Path(args.work).resolve()
     work.mkdir(parents=True, exist_ok=True)
     (work / "ll").mkdir(exist_ok=True)
     (work / "piper").mkdir(exist_ok=True)
+    (work / "gemini").mkdir(exist_ok=True)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     ffmpeg = find_ffmpeg()
 
@@ -442,6 +500,9 @@ def main() -> None:
 
     def piper_plan(k: str, text: str) -> dict:
         say = say_as.get(k) or synth_text(text)
+        if args.engine == "gemini" and k not in force_piper:
+            return {"text": text, "source": "gemini", "model": GEMINI_MODEL, "voice": args.gemini_voice, "say": say,
+                    "file": short_hash(k, "gemini", GEMINI_MODEL, args.gemini_voice, say, PIPELINE_VERSION) + ".mp3"}
         return {"text": text, "source": "piper", "voice": VOICE, "lengthScale": LENGTH_SCALE, "say": say,
                 "file": short_hash(k, "piper", VOICE, str(LENGTH_SCALE), say, PIPELINE_VERSION) + ".mp3"}
 
@@ -489,6 +550,17 @@ def main() -> None:
                     print(f"  LL download failed for {p['text']!r} ({e}); Piper this run", file=sys.stderr)
                     p = plan[k] = piper_plan(k, p["text"])
                     ll_deferred.append(p["text"])
+            if p["source"] == "gemini":
+                dst = work / "gemini" / (short_hash(p["say"], GEMINI_MODEL, p["voice"]) + ".wav")
+                if not dst.exists():
+                    gemini_tts(p["say"], p["voice"], dst)
+                    # A clip far longer than the text means the model said something else: retry once.
+                    if duration(dst) > 2.5 + 0.12 * len(p["say"]):
+                        dst.unlink()
+                        gemini_tts(p["say"], p["voice"], dst)
+                    print(f"  gemini {duration(dst):5.2f}s  {p['text']}", file=sys.stderr, flush=True)
+                raw[k] = dst
+                continue
             if voice is None:
                 from piper import PiperVoice, SynthesisConfig  # type: ignore
 
@@ -542,8 +614,9 @@ def main() -> None:
             f.unlink(missing_ok=True)
 
     n_ll = sum(1 for v in new_sources.values() if v["source"] == "lingua-libre")
+    n_gem = sum(1 for v in new_sources.values() if v["source"] == "gemini")
     size = sum((OUT_DIR / f).stat().st_size for f in set(new_manifest.values()))
-    print(f"\nmanifest: {len(new_manifest)}/{len(by_key)} texts  (lingua libre {n_ll}, piper {len(new_manifest) - n_ll})"
+    print(f"\nmanifest: {len(new_manifest)}/{len(by_key)} texts  (lingua libre {n_ll}, gemini {n_gem}, piper {len(new_manifest) - n_ll - n_gem})"
           f"  total {size / 1e6:.2f} MB", file=sys.stderr)
     if ll_deferred:
         print(f"{len(ll_deferred)} recordings not downloaded yet (rendered with Piper; re-run later): "
