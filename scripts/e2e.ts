@@ -421,7 +421,9 @@ async function botStep(b: Bot, seen: Set<string>) {
       const d = v.debugAnswer as { word?: string } | undefined;
       // Ana often thinks of something else on the first try (then both see each other's words).
       const miss = LOSE ? Math.random() < 0.7 : b.name === "Ana" && Math.random() < (v.attempt === 1 ? 0.45 : 1 - b.skill);
-      const word = miss ? (bank.find((w) => w.pt !== d?.word)?.pt ?? "casa") : (d?.word ?? bank[0]?.pt ?? "casa");
+      const others = bank.filter((w) => w.pt !== d?.word);
+      // A miss is a random other word (two bots missing the same way would "match" by accident).
+      const word = miss ? (others[Math.floor(Math.random() * others.length)]?.pt ?? "casa") : (d?.word ?? bank[0]?.pt ?? "casa");
       await pg.fill(".sync-form input", word).catch(() => {});
       await shoot("sync-write", b);
       return click(pg, ".sync-form .btn");
