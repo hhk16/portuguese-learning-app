@@ -566,7 +566,7 @@ async function bombStep(b: Bot, v: View, seen: Set<string>) {
   if (i >= 0) await pg.locator(v.pictures ? ".final-pics .final-pic" : ".draw-options .lopt").nth(i).click({ timeout: 2500 }).catch(() => {});
 }
 
-const tipsAnswered = new Set<string>();
+const typedAt = new Map<string, number>();
 
 async function kitchenStep(b: Bot, v: View) {
   const pg = b.page;
@@ -577,31 +577,29 @@ async function kitchenStep(b: Bot, v: View) {
   const d = v.debugAnswer as { add: string[]; wrongTray: boolean; serve: boolean; table?: number; tip?: string };
   const pantry = v.pantry as { id: string; pt: string }[];
   // "📞 Pedido por telefone": write the order (usually right; sometimes a gender slip: "um sopa").
-  const dc = v.debugAnswer as { call?: string };
-  if (v.call && dc.call && !tipsAnswered.has(`call:${b.name}:${v.served}`)) {
-    tipsAnswered.add(`call:${b.name}:${v.served}`);
-    await nap(pg, 3000 + Math.random() * 4000);
-    const text = Math.random() < b.skill ? dc.call : dc.call.replace(/\buma\b/, "um").replace(/\bduas\b/, "dois");
-    await pg.fill(".call-card input", text).catch(() => {});
-    await shoot("kitchen-call", b);
-    return click(pg, ".call-card .btn", "OK");
-  }
-  // "Gorjeta!": type the dish (usually right; sometimes without the article, sometimes wrong).
-  if (v.tip && d.tip && !tipsAnswered.has(`${b.name}:${v.served}`)) {
-    tipsAnswered.add(`${b.name}:${v.served}`);
-    await nap(pg, 1800 + Math.random() * 2500);
+  // Never block the loop: short timeouts, and a retry a few seconds later if it didn't go through.
+  const dc = v.debugAnswer as { call?: string; tip?: string };
+  const form = v.call && dc.call ? ".call-card" : v.tip && dc.tip ? ".tip-card" : null;
+  if (form && (typedAt.get(`${b.name}:${form}`) ?? 0) < Date.now()) {
+    typedAt.set(`${b.name}:${form}`, Date.now() + 6000);
+    await pg.waitForTimeout(1500 + Math.random() * 2000);
     const r = Math.random();
-    const text = r < b.skill ? d.tip : r < b.skill + 0.1 ? d.tip.replace(/^(o|a) /, "") : "o queijo";
-    await pg.fill(".tip-card input", text).catch(() => {});
-    await shoot("kitchen-tip", b);
-    return click(pg, ".tip-card .btn", "OK");
+    const text =
+      form === ".call-card"
+        ? r < b.skill ? dc.call! : dc.call!.replace(/\buma\b/, "um").replace(/\bduas\b/, "dois")
+        : r < b.skill ? dc.tip! : r < b.skill + 0.1 ? dc.tip!.replace(/^(o|a) /, "") : "o queijo";
+    const filled = await pg.fill(`${form} input`, text, { timeout: 1500 }).then(() => true).catch(() => false);
+    await shoot(form === ".call-card" ? "kitchen-call" : "kitchen-tip", b);
+    if (filled) await pg.locator(`${form} .btn`).click({ timeout: 1500 }).catch(() => {});
+    return;
   }
   // Listening levels: now and then ask to hear an order again (it costs patience).
   if (Array.isArray(v.replay) && v.replay.length && Math.random() < 0.06) return click(pg, ".replay-row .btn");
   if (d.serve) return v.tables ? click(pg, ".serve-tables .btn", `Mesa ${d.table}`) : click(pg, ".btn", "Servir");
   if (d.wrongTray) return click(pg, ".btn", "Deitar fora");
   const want = Math.random() < 0.08 ? pantry.find((x) => !d.add.includes(x.id)) : pantry.find((x) => d.add.includes(x.id));
-  if (want) await click(pg, ".pantry-item", new RegExp(`^.?${want.pt}$`));
+  // By position: during a tip or a phone order the pantry shows pictures only.
+  if (want) await pg.locator(".pantry-item").nth(pantry.indexOf(want)).click({ timeout: 2500 }).catch(() => {});
 }
 
 async function checkPause() {
