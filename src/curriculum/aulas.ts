@@ -13,7 +13,7 @@ export type AulaStep =
   | { kind: "check"; itemId: string; ms: number }
   | { kind: "summary"; rows: [string, string][]; note?: string; ms: number };
 
-export const AULAS: Record<string, AulaStep[]> = {
+const BASE_AULAS: Record<string, AulaStep[]> = {
   "u00.cumprimentos": [
     { kind: "title", big: "Olá! Bom dia!", small: "Cumprimentar e despedir-se", say: "Olá! Bom dia!", ms: 3800 },
     { kind: "table", kicker: "A HORA CONTA", rows: [["🌅 de manhã", "Bom dia!"], ["☀️ à tarde", "Boa tarde!"], ["🌙 à noite", "Boa noite!"]], say: "Bom dia. Boa tarde. Boa noite.", ms: 6500 },
@@ -124,3 +124,13 @@ export const AULAS: Record<string, AulaStep[]> = {
     { kind: "summary", rows: [["13 · 14", "treze · catorze"], ["16 · 17", "dezasseis · dezassete"], ["19", "dezanove"]], ms: 4500 },
   ],
 };
+
+import { U02_AULAS } from "./lessons/u02.ts";
+import { U03_AULAS } from "./lessons/u03.ts";
+import { U04_AULAS } from "./lessons/u04.ts";
+import { U05_AULAS } from "./lessons/u05.ts";
+import { U06_AULAS } from "./lessons/u06.ts";
+import { U07_AULAS } from "./lessons/u07.ts";
+import { U08_AULAS } from "./lessons/u08.ts";
+
+export const AULAS: Record<string, AulaStep[]> = { ...BASE_AULAS, ...U02_AULAS, ...U03_AULAS, ...U04_AULAS, ...U05_AULAS, ...U06_AULAS, ...U07_AULAS, ...U08_AULAS };

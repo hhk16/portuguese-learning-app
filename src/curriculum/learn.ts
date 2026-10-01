@@ -78,7 +78,8 @@ export function cardOf(item: KnowledgeItem): LearnCard | null {
         short: true,
       };
     case "conjugation": {
-      const en = EN_CONJ[item.verb]?.[PERSON_INDEX[item.person]];
+      // Verbs from later units carry their own English ("we ate"); the Unit 1 verbs use the table.
+      const en = EN_CONJ[item.verb]?.[PERSON_INDEX[item.person]] ?? item.en;
       if (!en) return null;
       return { ...base, pt: `${PRON[item.person]} ${item.form}`, say: `${PRON_SAY[item.person]} ${item.form}`, en, emoji: PERSON_EMOJI[item.person], short: true };
     }

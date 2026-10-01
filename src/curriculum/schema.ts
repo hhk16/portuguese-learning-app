@@ -66,7 +66,8 @@ export const ConjugationItem = z.object({
   ...common,
   kind: z.literal("conjugation"),
   verb: z.string(),
-  tense: z.enum(["presente"]),
+  /** presente · pps (pretérito perfeito simples: falei) · ir_futuro (vou falar) · estar_a (estou a falar) · imperativo (fala!) */
+  tense: z.enum(["presente", "pps", "ir_futuro", "estar_a", "imperativo"]),
   person: Person,
   form: z.string(),
   en: z.string().optional(),
@@ -129,7 +130,7 @@ export const PhraseItem = z.object({
   kind: z.literal("phrase"),
   pt: z.string(),
   en: z.string(),
-  fn: z.enum(["greeting", "farewell", "courtesy", "repair", "introduce", "question", "answer"]),
+  fn: z.enum(["greeting", "farewell", "courtesy", "repair", "introduce", "question", "answer", "statement", "order", "opinion", "plan", "time", "weather", "health", "direction"]),
   situation: z.string().optional(),
 });
 
@@ -149,7 +150,7 @@ export const NounItem = z.object({
   article: z.enum(["o", "a"]),
   en: z.string(),
   emoji: z.string(),
-  category: z.enum(["comida", "bebida", "animal", "casa", "objeto", "transporte", "lugar", "natureza", "roupa", "corpo"]),
+  category: z.enum(["comida", "bebida", "animal", "casa", "objeto", "transporte", "lugar", "natureza", "roupa", "corpo", "familia", "pessoa", "tempo", "saude", "lazer", "escola"]),
 });
 
 /** Adjective with its opposite (Na Mesma Onda). */
@@ -183,7 +184,7 @@ export type ItemOf<K extends ItemKind> = Extract<KnowledgeItem, { kind: K }>;
 
 /** A lesson groups items and has a Mini Aula. Stages: teach → recognise → produce → use. */
 export const Lesson = z.object({
-  id: z.string().regex(/^(u\d\d|a1)\.[a-z0-9_]+$/),
+  id: z.string().regex(/^(u\d\d|pds\d|trab\d|mundo\d|a1)\.[a-z0-9_]+$/),
   unit: z.string(),
   title: z.string(),
   source: Source,

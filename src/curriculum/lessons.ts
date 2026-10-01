@@ -3,11 +3,18 @@
  * Order = the book's order, so "next lesson" follows the class.
  */
 import type { Lesson } from "./schema.ts";
+import { U02_LESSONS } from "./lessons/u02.ts";
+import { U03_LESSONS } from "./lessons/u03.ts";
+import { U04_LESSONS } from "./lessons/u04.ts";
+import { U05_LESSONS } from "./lessons/u05.ts";
+import { U06_LESSONS } from "./lessons/u06.ts";
+import { U07_LESSONS } from "./lessons/u07.ts";
+import { U08_LESSONS } from "./lessons/u08.ts";
 
 const verbIds = (slug: string) => ["eu", "tu", "ele", "nos", "eles"].map((p) => `grammar.${slug}.${p}`);
 const pav = (unit: "u00" | "u01", pages: number[], concept: string) => ({ sourceId: "pav1-student" as const, unit, pages, concept });
 
-export const LESSONS: Lesson[] = [
+const BASE_LESSONS: Lesson[] = [
   {
     id: "u00.cumprimentos",
     unit: "u00",
@@ -119,7 +126,7 @@ export const LESSONS: Lesson[] = [
 const a1 = (concept: string) => ({ sourceId: "camoes-a1" as const, concept });
 const nouns = (...slugs: string[]) => slugs.map((s) => `vocab.noun.${s}`);
 const adjs = (...slugs: string[]) => slugs.map((s) => `vocab.adjective.${s}`);
-LESSONS.push(
+BASE_LESSONS.push(
   {
     id: "a1.comer_beber",
     unit: "a1",
@@ -165,3 +172,16 @@ LESSONS.push(
 export function getLesson(id: string): Lesson | undefined {
   return LESSONS.find((l) => l.id === id);
 }
+
+/** Book order: Units 0–1, then 2–8 (with their reviews), then the everyday-words lessons. */
+export const LESSONS: Lesson[] = [
+  ...BASE_LESSONS.filter((l) => l.unit === "u00" || l.unit === "u01"),
+  ...U02_LESSONS,
+  ...U03_LESSONS,
+  ...U04_LESSONS,
+  ...U05_LESSONS,
+  ...U06_LESSONS,
+  ...U07_LESSONS,
+  ...U08_LESSONS,
+  ...BASE_LESSONS.filter((l) => l.unit !== "u00" && l.unit !== "u01"),
+];

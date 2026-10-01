@@ -7,6 +7,7 @@
 import { gameNow } from "./clock.ts";
 import type { LearnCard } from "../curriculum/learn.ts";
 import { getLesson, LESSONS } from "../curriculum/lessons.ts";
+import { unitOf } from "../curriculum/units.ts";
 import type { Lesson } from "../curriculum/schema.ts";
 import { LearnActivity, type LearnSummary } from "../games/learn/learn.ts";
 import { GrandeFinal } from "../games/final/final.ts";
@@ -105,7 +106,7 @@ export class TitleActivity implements Activity {
       return LESSONS.map((l) => ({
         id: `lesson:${l.id}`,
         label: l.title,
-        sub: l.unit === "u00" ? "Unidade 0" : l.unit === "u01" ? "Unidade 1" : "Palavras do dia a dia",
+        sub: unitOf(l.unit)?.short ?? "",
         pic: lessonPic(l),
         badge: l.id === next ? "Próxima" : undefined,
         stars: done.has(l.id) ? (stars[l.id] ?? 1) : 0,
