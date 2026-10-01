@@ -28,6 +28,11 @@ export function WaveScreen({ a }: { a: NaMesmaOnda }) {
         <span className="pill star-pill">{a.score} pontos</span>
         {!a.inPractice && <MetaBar score={a.score} max={a.maxScore} />}
       </GameTop>
+      {a.phase === "clue" && a.round <= 0 && (
+        <div className="goal-line">
+          🎯 <b>Há um alvo escondido no mostrador. Acertem nele!</b> <i>A target is hidden on the dial: one sees it and gives a clue, the other turns the dial to it.</i>
+        </div>
+      )}
       <div className="turn-banner card">
         {a.phase === "clue" && psychic && (
           <>

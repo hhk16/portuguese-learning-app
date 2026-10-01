@@ -29,6 +29,11 @@ export function SecretScreen({ a }: { a: ParesSecretos }) {
         <span className="pill">{"❤️".repeat(Math.max(0, a.lives))}</span>
         {a.phase === "clue" && !a.inPractice && <span className={`pill clock ${a.msLeft < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
       </GameTop>
+      {a.phase === "clue" && a.turnsUsed === 0 && (
+        <div className="goal-line">
+          🎯 <b>Objetivo: encontrar as {a.goal} imagens secretas em {a.rules.turns} turnos</b> <i>Goal: find all {a.goal} secret pictures in {a.rules.turns} turns — without the bombs</i>
+        </div>
+      )}
       <div className={`turn-banner card ${a.phase === "sudden" ? "sudden" : ""}`}>
         {a.phase === "sudden" && (
           <span className="bi-line">

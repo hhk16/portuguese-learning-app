@@ -2858,3 +2858,15 @@ html.tv-root #root {
   bottom: 24vh;
   font-size: 1.25em;
 }
+.goal-line {
+  padding: 0.4rem 1.2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 1.1em;
+  animation: pop-in 0.4s ease-out both;
+}
+.goal-line i {
+  font-style: normal;
+  color: var(--ink-3);
+  font-size: 0.85em;
+}
