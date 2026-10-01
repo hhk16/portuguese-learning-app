@@ -3,8 +3,8 @@
  * cartoon style. A look = one top + one bottom (with its shoes). Every piece has its Portuguese
  * name, so dressing up is also clothes vocabulary (a camisola, a saia, as botas…).
  *
- * Art: /art/characters/looks/ana-<top>-<bottom>-<pose>.webp. Looks without a pose yet fall back
- * to their standing pose; the original look ("blazer" + "couro") is the regular character art.
+ * Art: /art/characters/looks/ana-<top>-<bottom>-<pose>.webp (all 18 looks × 5 poses); the original
+ * look ("blazer" + "couro") is the regular character art.
  */
 import type { Pose } from "./avatars.ts";
 
@@ -32,21 +32,11 @@ export const BOTTOMS: Piece[] = [
 
 export const DEFAULT_LOOK = { top: "blazer", bottom: "couro" };
 
-/** Looks with finished art, and which poses each has (the rest use the standing pose). */
-const LOOKS: Record<string, Pose[]> = {
-  "blazer-couro": ["stand", "wave", "cheer", "oops", "think"],
-  "blazer-calcoes": ["stand"],
-  "blazer-saia": ["stand"],
-  "heart-calcoes": ["stand"],
-  "gola-couro": ["stand"],
-  "gola-calcoes": ["stand"],
-  "gola-saia": ["stand"],
-  "fecho-couro": ["stand"],
-  "fecho-calcoes": ["stand"],
-  "fecho-saia": ["stand"],
-  "tpreta-saia": ["stand"],
-  "aviador-couro": ["stand"],
-};
+/** Looks with finished art: every top with every bottom, each in all five poses. */
+const ALL_POSES: Pose[] = ["stand", "wave", "cheer", "oops", "think"];
+const LOOKS: Record<string, Pose[]> = Object.fromEntries(
+  ["blazer", "heart", "gola", "fecho", "tpreta", "aviador"].flatMap((t) => ["couro", "calcoes", "saia"].map((b) => [`${t}-${b}`, ALL_POSES])),
+);
 
 export function hasLook(top: string, bottom: string): boolean {
   return `${top}-${bottom}` in LOOKS;
