@@ -338,6 +338,11 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
                     </span>
                   </span>
                   {aw.streak >= 1 && <span className="xp-streak">🔥 {aw.streak}</span>}
+                  {aw.newBadges.slice(0, 2).map((b) => (
+                    <span key={b.pt} className="xp-badge" title={b.en}>
+                      {b.pic} {b.pt}
+                    </span>
+                  ))}
                   {aw.levelUp && <span className="xp-up display">Subiu de nível! 🎉</span>}
                 </div>
               );

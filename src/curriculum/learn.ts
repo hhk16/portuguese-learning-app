@@ -81,6 +81,11 @@ export function cardOf(item: KnowledgeItem): LearnCard | null {
       // Verbs from later units carry their own English ("we ate"); the Unit 1 verbs use the table.
       const en = EN_CONJ[item.verb]?.[PERSON_INDEX[item.person]] ?? item.en;
       if (!en) return null;
+      // Commands read as commands ("Bebe!"), not as a present tense with a pronoun.
+      if (item.tense === "imperativo") {
+        const cmd = `${item.form[0]!.toUpperCase()}${item.form.slice(1)}!`;
+        return { ...base, pt: cmd, say: cmd, en, emoji: "👉", short: true };
+      }
       return { ...base, pt: `${PRON[item.person]} ${item.form}`, say: `${PRON_SAY[item.person]} ${item.form}`, en, emoji: PERSON_EMOJI[item.person], short: true };
     }
     case "number":
@@ -210,9 +215,21 @@ function options(rng: Rng, correct: LearnOption, wrong: LearnOption[]): { option
 
 function distractors(rng: Rng, c: LearnCard, lessonCards: readonly LearnCard[], n: number): LearnCard[] {
   // Prefer the lesson's own cards (the confusable ones), then the rest of the unit.
-  const inLesson = rng.shuffle(sameKindPool(c, lessonCards).filter((x) => lessonCards.some((l) => l.itemId === x.itemId)));
-  const rest = rng.shuffle(sameKindPool(c, []).filter((x) => !inLesson.includes(x)));
-  return [...inLesson, ...rest].slice(0, n);
+  // Compared by id and by label (cards are rebuilt per call, so object identity means nothing).
+  const unlike = (x: LearnCard) => x.itemId !== c.itemId && x.pt !== c.pt && x.en !== c.en;
+  const lessonIds = new Set(lessonCards.map((l) => l.itemId));
+  const inLesson = rng.shuffle(sameKindPool(c, lessonCards).filter((x) => unlike(x) && lessonIds.has(x.itemId)));
+  const out: LearnCard[] = [];
+  const seen = new Set<string>();
+  const take = (x: LearnCard) => {
+    const keys = [`i:${x.itemId}`, `p:${x.pt}`, `e:${x.en}`];
+    if (keys.some((k) => seen.has(k))) return;
+    keys.forEach((k) => seen.add(k));
+    out.push(x);
+  };
+  for (const x of inLesson) if (out.length < n) take(x);
+  if (out.length < n) for (const x of rng.shuffle(sameKindPool(c, []).filter((x) => unlike(x) && !lessonIds.has(x.itemId)))) if (out.length < n) take(x);
+  return out;
 }
 
 export function listenEx(rng: Rng, c: LearnCard, lesson: readonly LearnCard[]): LearnEx {

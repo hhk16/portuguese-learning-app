@@ -707,8 +707,7 @@ export class ResultsActivity implements Activity {
         rt.say(NAMED.levelUp, { name: p.name });
         rt.emote(p.playerId, "cheer", 3000);
       }
-      const badges = rt.activePlayers.flatMap((p) => (this.awards.get(p.playerId)?.newBadges ?? []).map((b) => ({ p, b })));
-      badges.slice(0, 2).forEach(({ p, b }, i) => setTimeout(() => rt.activity === this && rt.cue({ pt: `${b.pic} ${b.pt}`, en: `New badge: ${b.en}` }, p), i * 3000));
+      if (rt.activePlayers.some((p) => this.awards.get(p.playerId)?.newBadges.length)) play("sparkle");
     }, 3200);
   }
 

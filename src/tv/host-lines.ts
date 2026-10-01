@@ -203,7 +203,7 @@ export function hostSpoken(): string[] {
 }
 
 /** Big announcements: Pipo steps to the centre of the stage for these. */
-const SPOTLIGHT = new Set<Line>([SAY.lightning, SAY.finalRound, SAY.twist, SAY.rush, SAY.suddenDeath, SAY.nightMaths, SAY.tie, SAY.tieBreak, SAY.hotPotato]);
+const SPOTLIGHT = new Set<Line>([SAY.finalRound, SAY.twist, SAY.rush, SAY.suddenDeath, SAY.nightMaths, SAY.tie, SAY.tieBreak, SAY.hotPotato]);
 export function isSpotlight(l: Line): boolean {
   return SPOTLIGHT.has(l);
 }

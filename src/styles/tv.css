@@ -2829,3 +2829,32 @@ html.tv-root #root {
 .chain-step.now b {
   color: var(--sky-p-d);
 }
+.xp-row {
+  flex-wrap: nowrap;
+  gap: 0.6rem;
+}
+.xp-card {
+  flex: 1;
+  gap: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.82em;
+}
+.xp-card .xp-bar {
+  width: 5rem;
+}
+.xp-badge {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--white);
+  font-weight: 700;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+/* Big announcements: Pipo at the centre bottom, the bubble low so the game stays visible. */
+.pipo.spotlight {
+  height: 24vh;
+}
+.host-bubble.spotlight {
+  bottom: 24vh;
+  font-size: 1.25em;
+}

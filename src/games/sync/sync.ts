@@ -455,7 +455,10 @@ export class EmSintonia implements Activity {
     this.rt.bump();
     const n = this.matches.length;
     const out = this.lives <= 0;
-    const en = (w: string) => LINKS.find((l) => normWord(l.pt) === normWord(w));
+    const en = (w: string) => {
+      const node = nodeOf(w);
+      return node ? nodeWord(node) : undefined;
+    };
     this.onDone({
       score: this.score,
       // Every pair first try (the last one doubled) and a couple of predictions right.
