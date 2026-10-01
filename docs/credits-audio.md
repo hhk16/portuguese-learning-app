@@ -6,7 +6,7 @@ script instead of editing it by hand.
 
 - **48** clips are native recordings from Lingua Libre (Wikimedia Commons).
 - **0** clips are synthesised with Google Gemini TTS (`gemini-3.8-flash-tts`, voice -, language pt-PT).
-- **673** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
+- **727** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
 
 ## Gemini TTS
 

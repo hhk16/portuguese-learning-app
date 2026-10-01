@@ -10,14 +10,21 @@ import { useCountdown } from "./useCountdown.ts";
 import { recognizeOnce } from "./speech.ts";
 
 type V = Extract<ControllerView, { mode: "draw" }>;
-const TURN_MS = 60_000;
 
 export function Draw({ v, send }: { v: V; send: Send }) {
   const left = useCountdown(v.msLeft);
   const timer = (
-    <div className="p-timer">
-      <div style={{ width: `${(left / TURN_MS) * 100}%` }} className={left < 10_000 ? "low" : ""} />
-    </div>
+    <>
+      <div className="p-timer">
+        <div style={{ width: `${(left / (v.turnMs ?? 60_000)) * 100}%` }} className={left < 10_000 ? "low" : ""} />
+      </div>
+      {v.twist && (
+        <div className="twist-banner">
+          <b className="display">⚡ {v.twist.pt}</b>
+          <i>{v.twist.en}</i>
+        </div>
+      )}
+    </>
   );
   if (v.role === "guess") return <Guess v={v} send={send} timer={timer} />;
   return <Pad v={v} send={send} timer={timer} />;
@@ -32,6 +39,11 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
   const stroke = useRef<{ id: number; seg: number; buf: number[]; last: number[] | null; c: number; w: number } | null>(null);
   const nextId = useRef(0);
   const flushTimer = useRef<number | null>(null);
+  /** Strokes started for this word (twist rounds limit them). */
+  const [started, setStarted] = useState(0);
+  useEffect(() => setStarted(0), [v.word?.pt, v.round]);
+  const limit = v.strokeLimit;
+  const outOfInk = !!limit && Math.max(started, v.strokesUsed ?? 0) >= limit;
 
   const ctx = () => canvas.current?.getContext("2d") ?? null;
   const reset = () => {
@@ -87,12 +99,22 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
           {v.word?.en && <i>{v.word.en}</i>}
         </span>
       </div>
+      {limit && (
+        <div className={`stroke-count ${outOfInk ? "out" : ""}`}>
+          ✏️ Traços · Strokes: {Math.max(started, v.strokesUsed ?? 0)}/{limit}
+        </div>
+      )}
       <canvas
         ref={canvas}
         width={720}
         height={720}
-        className="pad-canvas"
+        className={`pad-canvas ${outOfInk ? "out" : ""}`}
         onPointerDown={(e) => {
+          if (outOfInk) {
+            navigator.vibrate?.(40);
+            return;
+          }
+          if (limit) setStarted((n) => n + 1);
           (e.target as Element).setPointerCapture?.(e.pointerId);
           const [x, y] = point(e);
           stroke.current = { id: nextId.current++, seg: 0, buf: [x, y], last: null, c: color, w: color === 5 ? 4 : thick ? 4 : 2 };

@@ -41,6 +41,7 @@ const NOUNS: N[] = [
   ["sandes", "a", "sandes", "sandwich", "🥪", "comida"],
   ["bolacha", "a", "bolacha", "biscuit", "🍪", "comida"],
   ["sal", "o", "sal", "salt", "🧂", "comida"],
+  ["acucar", "o", "açúcar", "sugar", "🍬", "comida"],
   ["cebola", "a", "cebola", "onion", "🧅", "comida"],
   ["pera", "a", "pera", "pear", "🍐", "comida"],
   // bebida

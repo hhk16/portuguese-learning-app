@@ -17,8 +17,10 @@ const PORT = 8799;
 const REMOTE = process.env.E2E_BASE;
 const BASE = REMOTE ?? `http://localhost:${PORT}`;
 const OUT = "e2e-output";
-type M = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen" | "night";
-const MODES = (process.env.E2E_MODES ?? "lesson,secret,wave,sync,draw,stop,kitchen").split(",") as M[];
+type M = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen" | "bomb" | "night";
+const MODES = (process.env.E2E_MODES ?? "lesson,secret,wave,sync,draw,stop,kitchen,bomb").split(",") as M[];
+/** Position of each game in the Jogar menu. */
+const MENU_INDEX: Record<string, number> = { secret: 0, wave: 1, sync: 2, draw: 3, stop: 4, kitchen: 5, bomb: 6 };
 /** E2E_MODES=night: a whole game night (three games + the Grande Final) from the main menu. */
 const NIGHT = MODES[0] === "night";
 const LESSON_INDEX = Number(process.env.E2E_LESSON ?? 0);
@@ -103,7 +105,7 @@ if (first === "night") {
   await press("ArrowDown", 2);
   await press("Enter");
   await tv.waitForTimeout(400);
-  await press("ArrowRight", { secret: 0, wave: 1, sync: 2, draw: 3, stop: 4, kitchen: 5 }[first]);
+  await press("ArrowRight", MENU_INDEX[first]);
   await tv.screenshot({ path: `${OUT}/04-tv-play-menu.png` });
 }
 await press("Enter");
@@ -199,6 +201,17 @@ async function botStep(b: Bot, seen: Set<string>) {
       return;
     case "pick": {
       const key = `pick:${v.promptId}`;
+      // Desenha!'s "melhor desenho" vote: both vote, usually for a drawing that was guessed.
+      const gopts = v.options as { id: string; label: string; sub?: string }[];
+      if (gopts[0]?.id.startsWith("g") && /melhor desenho/i.test(String(v.title))) {
+        if (seen.has(key)) return;
+        seen.add(key);
+        await nap(pg, 2000 + Math.random() * 2000);
+        await shoot("draw-vote", b);
+        const good = gopts.filter((o) => o.sub?.includes("✓"));
+        const o = (good.length ? good : gopts)[Math.floor(Math.random() * (good.length || gopts.length))]!;
+        return click(pg, ".pick-item", o.label);
+      }
       if (!allowPick || seen.has(key) || b.name !== "Hadi") return;
       seen.add(key);
       allowPick = false;
@@ -313,6 +326,8 @@ async function botStep(b: Bot, seen: Set<string>) {
     }
     case "draw":
       return drawStep(b, v, seen);
+    case "bomb":
+      return bombStep(b, v, seen);
     case "stop":
       return stopStep(b, v, seen);
     case "kitchen":
@@ -447,6 +462,33 @@ async function stopStep(b: Bot, v: View, seen: Set<string>) {
   }
 }
 
+async function bombStep(b: Bot, v: View, seen: Set<string>) {
+  const pg = b.page;
+  if (!v.holding) {
+    // The safe player sometimes tells the other one to hurry up (it burns the fuse faster).
+    const key = `bomb:hurry:${v.promptId}`;
+    if (typeof v.hurryLeft === "number" && v.hurryLeft > 0 && !seen.has(key) && Math.random() < 0.35) {
+      seen.add(key);
+      await nap(pg, 500);
+      await shoot("bomb-safe", b);
+      return click(pg, ".btn", "Despacha-te");
+    }
+    return;
+  }
+  const key = `bomb:${v.promptId}:${v.lockedMs ? "l" : ""}`;
+  if (seen.has(key) || v.lockedMs) return;
+  seen.add(key);
+  // A human-ish pause, then usually the right answer.
+  await nap(pg, 700 + Math.random() * 1500);
+  await shoot(`bomb-${v.kind}`, b);
+  const answer = (v.debugAnswer as { answer?: string } | undefined)?.answer;
+  const opts = (v.options as { pt: string }[] | undefined) ?? [];
+  const right = Math.random() < b.skill + 0.1;
+  const pick = right ? opts.find((o) => o.pt === answer) : opts.find((o) => o.pt !== answer);
+  const i = opts.indexOf(pick ?? opts[0]!);
+  if (i >= 0) await pg.locator(v.pictures ? ".final-pics .final-pic" : ".draw-options .lopt").nth(i).click({ timeout: 2500 }).catch(() => {});
+}
+
 async function kitchenStep(b: Bot, v: View) {
   const pg = b.page;
   const now = Date.now();
@@ -504,7 +546,7 @@ while (Date.now() - start < LIMIT) {
     resultsSeen++;
     console.log(`results after ${NIGHT ? kicker : MODES[modeIndex]}: ${(await tv.textContent(".results-card h1"))?.trim()}`);
     if (NIGHT) {
-      if (kicker.startsWith("Grande Final")) {
+      if (kicker.startsWith("Fim da noite")) {
         await tv.waitForTimeout(6000 * PACE);
         finished = true;
         break;
@@ -528,7 +570,7 @@ while (Date.now() - start < LIMIT) {
       await press("ArrowDown", 2);
       await press("Enter");
       await tv.waitForTimeout(300);
-      await press("ArrowRight", { secret: 0, wave: 1, sync: 2, draw: 3, stop: 4, kitchen: 5 }[m]);
+      await press("ArrowRight", MENU_INDEX[m]);
     }
     await press("Enter");
   }

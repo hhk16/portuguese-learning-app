@@ -59,7 +59,7 @@ export function Sync({ v, send }: { v: V; send: Send }) {
         <div className="p-big">“{v.mine ?? word}”</div>
         <div className="p-sub">Segredo guardado! À espera do teu par… · Locked in! Waiting for your partner…</div>
         <div className="side-bet">
-          <span className="kicker">Vamos coincidir? · Will you match? (+1 if right)</span>
+          <span className="kicker">Vamos coincidir? · Will you match? (+2 if right)</span>
           <div className="row2">
             <button className={`btn ${v.predicted === true ? "mint" : "white"}`} disabled={v.predicted !== undefined} onClick={() => send({ mode: "sync", predict: true })}>
               <span className="bi">
@@ -82,6 +82,7 @@ export function Sync({ v, send }: { v: V; send: Send }) {
         <span className="kicker">
           Tentativa {v.attempt}/{v.tries ?? 3} · Try {v.attempt} of {v.tries ?? 3}{v.final ? " · ×2!" : ""}
         </span>
+        {v.lives !== undefined && <span className="pill">{"❤️".repeat(v.lives)}</span>}
         {v.msLeft !== undefined && <span className={`pill ${left < 8000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>}
       </div>
       <div className="sync-pair">

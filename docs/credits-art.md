@@ -8,7 +8,7 @@ Third-party and generated media shipped in `public/art/` and `public/sfx/`. The 
 | Country flags (circular SVG) | `public/art/flags/*.svg` | [HatScripts circle-flags](https://github.com/HatScripts/circle-flags) (https://hatscripts.github.io/circle-flags/) | MIT (notice below) |
 | Player characters (5 poses each + face portrait, WebP) | `public/art/characters/*.webp` | Generated for this private game with OpenAI gpt-image (image edits API). Hadi and Ana are drawn from photos Hadi supplied; the four guests are invented. Processed by `scripts/art/characters.py` | Project art (private use) |
 | Stage backdrop | `public/art/backdrop.webp` | Generated with OpenAI gpt-image | Project art (private use) |
-| Game backdrops (kitchen, secret, wave, sync, draw, stop, learn; 1536×1024 WebP) | `public/art/sets/*.webp` | Generated with OpenAI gpt-image (image edits API, the stage backdrop as style reference) | Project art (private use) |
+| Game backdrops (kitchen, secret, wave, sync, draw, stop, learn, final, bomb; 1536×1024 WebP) | `public/art/sets/*.webp` | Generated with OpenAI gpt-image (image edits API, the stage backdrop as style reference) | Project art (private use) |
 | Host mascot Pipo the parrot (idle, talk, cheer, oops; 512 px tall WebP with alpha) | `public/art/host/pipo-*.webp` | Generated with OpenAI gpt-image (image edits API, a player character as style reference; poses edited from the idle image) | Project art (private use) |
 | Sound effects and stingers | `public/sfx/*.mp3` | Mixkit and Freesound (CC0), per file in [credits-sfx.md](credits-sfx.md) | Mixkit SFX Free License / CC0 1.0 |
 | Music | `public/music/*.mp3` | Generated for this game with Google Lyria | Project audio (private use) |

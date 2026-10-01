@@ -68,9 +68,9 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
               {a.ticketShows(t).pictures && (
                 <div className="ticket-items">
                   {a.lines(t.order).map((l) => (
-                    <span key={l.dish.id} className="ticket-item">
+                    <span key={l.dish.id} className={`ticket-item ${l.n === 0 ? "without" : ""}`}>
                       <Picture glyph={l.dish.pic} size="2.4em" />
-                      <b>×{l.n}</b>
+                      <b>{l.n === 0 ? "🚫" : `×${l.n}`}</b>
                     </span>
                   ))}
                 </div>

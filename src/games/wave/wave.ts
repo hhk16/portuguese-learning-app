@@ -26,6 +26,8 @@ import { THINGS } from "./things.ts";
 export const ROUNDS = 6;
 /** Points in the bullseye; outer bands give 3 and 2. */
 export const BULLSEYE = 4;
+/** The psychic's side bet, when it comes true. */
+export const SIDE_BET = 2;
 
 /** Difficulty: band half-widths (dial is 0..100), clue types, and timers. */
 export const LEVEL_RULES: Record<Level, { bands: [number, number, number]; chips: number; clueMs: number; guessMs: number }> = {
@@ -63,6 +65,8 @@ export class NaMesmaOnda implements Activity {
   value = 50;
   score = 0;
   lastPoints = 0;
+  /** This dial's points without the side bet (the bet gets its own card). */
+  lastDial = 0;
   sure = false;
   /** The psychic's side bet while the partner turns the dial. */
   psychicBet: "cheio" | "perto" | "longe" | null = null;
@@ -76,6 +80,8 @@ export class NaMesmaOnda implements Activity {
   private deck: Spectrum[] = [];
   private readonly onDone: (r: GameOutcome) => void;
   private lastMoveSent = 0;
+  /** Who did what, for the MVP split on game night. */
+  contrib = new Map<string, number>();
   private hurried = false;
 
   constructor(onDone: (r: GameOutcome) => void) {
@@ -266,11 +272,31 @@ export class NaMesmaOnda implements Activity {
     this.promptId = randomId(6);
     const raw = pointsFor(this.target, this.value, this.rules.bands);
     this.lastPoints = betPoints(raw, this.sure) * (this.final ? 2 : 1);
-    // The psychic's side bet: +1 when they called it (bullseye / close / far).
+    // The psychic's side bet: +2 when they called it (bullseye / close / far).
     const called = raw >= BULLSEYE ? "cheio" : raw > 0 ? "perto" : "longe";
     this.betWon = !!this.psychicBet && this.psychicBet === called;
-    if (this.betWon && !this.inPractice) this.lastPoints += 1;
+    const dialPoints = this.lastPoints;
+    this.lastDial = dialPoints;
+    if (this.betWon && !this.inPractice) this.lastPoints += SIDE_BET;
     if (!this.inPractice) this.score += this.lastPoints;
+    const ps = this.psychic;
+    const gs = this.guesser;
+    if (!this.inPractice && ps && gs && ps !== gs) {
+      // The guesser turned it, the psychic chose the clue: 60/40 of the dial, plus the side bet.
+      this.contrib.set(gs.playerId, (this.contrib.get(gs.playerId) ?? 0) + dialPoints * 0.6);
+      this.contrib.set(ps.playerId, (this.contrib.get(ps.playerId) ?? 0) + dialPoints * 0.4 + (this.betWon ? SIDE_BET : 0));
+    }
+    // The side bet gets its own beat once the dial has landed.
+    if (this.psychicBet && ps && ps !== gs) {
+      const label = { cheio: "Em cheio", perto: "Perto", longe: "Longe" }[this.psychicBet];
+      const labelEn = { cheio: "Bullseye", perto: "Close", longe: "Far" }[this.psychicBet];
+      const doubted = this.psychicBet === "longe" && raw >= BULLSEYE;
+      this.rt.showBet(
+        { pt: `${ps.name} apostou: “${label}”`, en: `${ps.name}'s side bet: “${labelEn}”` },
+        [{ playerId: ps.playerId, pt: this.betWon ? `Certo! +${SIDE_BET}` : "Errado!", en: this.betWon ? "Called it!" : "Wrong call", won: this.betWon, pts: this.betWon ? SIDE_BET : undefined }],
+        { delay: 1900, line: doubted ? NAMED.noFaith : this.betWon ? SAY.betWon : SAY.betLost, name: ps.name },
+      );
+    }
     if (!this.inPractice) this.history.push({ spectrum: this.spectrum, clue: this.clue?.pt ?? "", clueEn: this.clue?.en, cluePic: this.clue?.pic, target: this.target, value: this.value, points: this.lastPoints });
     play("cymbal");
     if (raw >= BULLSEYE) {
@@ -304,7 +330,7 @@ export class NaMesmaOnda implements Activity {
       this.rt.bump();
       const bulls = this.history.filter((h) => h.points >= BULLSEYE).length;
       // Bets can double a bullseye, so ⭐⭐⭐ needs bullseyes *and* a brave bet or two.
-      const max = 36;
+      const max = 40;
       const headline = this.score >= max * 0.85 ? "Telepatia! 🔮" : this.score >= max * 0.6 ? "Na mesma onda!" : this.score >= max * 0.35 ? "Boa onda!" : "Quase… outra vez?";
       const headlineEn = this.score >= max * 0.85 ? "Telepathy!" : this.score >= max * 0.6 ? "On the same wavelength!" : this.score >= max * 0.35 ? "Good vibes!" : "Almost… again?";
       this.onDone({
@@ -315,6 +341,7 @@ export class NaMesmaOnda implements Activity {
         sub: `${bulls} em cheio`,
         subEn: `${bulls} bullseye${bulls === 1 ? "" : "s"}`,
         words: this.history.map((h) => ({ pt: h.clue, en: h.clueEn, pic: h.cluePic })),
+        contrib: Object.fromEntries(this.contrib),
         highlight: (() => {
           const best = [...this.history].sort((x, y) => y.points - x.points)[0];
           return best && best.points >= BULLSEYE ? { pt: `Em cheio com “${best.clue}”!`, en: `Bullseye with “${best.clueEn ?? best.clue}”`, pic: best.cluePic } : undefined;

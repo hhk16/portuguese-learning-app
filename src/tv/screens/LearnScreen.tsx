@@ -5,8 +5,49 @@ import { Face, PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
 import { GameTop } from "./Menus.tsx";
 import { lessonPic } from "../activities.ts";
+import { gameNow } from "../clock.ts";
+import { useTick } from "./useTick.ts";
+
+/** The lesson's lightning round: the TV says a word, both tap it — how many together in 40 s? */
+function RushView({ a }: { a: LearnActivity }) {
+  useTick(100, true);
+  const r = a.rush!;
+  const left = Math.max(0, r.endAt - gameNow());
+  return (
+    <div className="tv-overlay game-screen centered">
+      <GameTop title={a.lesson.title} pic={lessonPic(a.lesson)}>
+        <span className="pill twist-pill">⚡ Desafio relâmpago <i>Lightning round</i></span>
+        <span className={`pill clock ${left < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}</span>
+        <span className="pill star-pill">{r.team} ⭐</span>
+        {r.combo >= 2 && <span className="pill double-pill">Combo ×{r.combo}</span>}
+      </GameTop>
+      <div className={`card stage-card rush-card ${r.last ? (r.last.ok ? "ok" : "miss") : ""}`} key={r.asked}>
+        {!r.wordEnd ? (
+          <h2 className="display">⚡ Ouçam e toquem — juntos! <i>Listen and tap — together!</i></h2>
+        ) : (
+          <>
+            <Picture glyph="🔊" size="4em" />
+            <div className="rush-options">
+              {r.options.map((o) => (
+                <span key={o.itemId} className="rush-opt">
+                  {r.pictures ? <Picture glyph={o.emoji} size="3.4em" /> : <b className="display">{o.pt}</b>}
+                </span>
+              ))}
+            </div>
+            <div className="rush-players">
+              {a.players.map((p) => (
+                <PlayerChip key={p.playerId} p={p} size="1.8em" extra={<b>{r.answers.has(p.playerId) ? "✓" : "…"}</b>} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function LearnScreen({ a }: { a: LearnActivity }) {
+  if (a.rush) return <RushView a={a} />;
   const ex = a.ex;
   if (!ex) return null;
   const reveal = a.phase === "reveal";

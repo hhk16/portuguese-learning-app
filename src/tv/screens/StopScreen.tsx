@@ -92,7 +92,18 @@ export function StopScreen({ a }: { a: Stop }) {
                     </span>
                   );
                 })}
-                {a.phase === "score" && hints.length > 0 && <span className="hint">ex.: {hints.map((h) => h.pt).join(", ")} · other words you could use</span>}
+                {a.phase === "score" && hints.length > 0 && (
+                  <span className="hint">
+                    ex.:{" "}
+                    {hints.map((h, i) => (
+                      <span key={h.pt}>
+                        {i > 0 && ", "}
+                        <b>{h.pt}</b>
+                        {h.en && <i> ({h.en})</i>}
+                      </span>
+                    ))}
+                  </span>
+                )}
               </div>
             );
           })}

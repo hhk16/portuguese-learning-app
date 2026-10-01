@@ -102,7 +102,12 @@ body,
   flex-direction: column;
   padding: 4px 16px max(16px, env(safe-area-inset-bottom));
   overflow-y: auto;
-  animation: rise-in 0.25s ease-out both;
+  /* Never fade from blank: the new view is already half there on its first frame. */
+  animation: p-view-in 0.2s ease-out both;
+}
+@keyframes p-view-in {
+  from { transform: translateY(0.3em); opacity: 0.55; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .p-flash {
@@ -1353,4 +1358,67 @@ body,
 }
 .frase-n {
   font-size: 34px;
+}
+
+/* ---------------------------------------------------------------- round 4 */
+.twist-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.8rem;
+  background: var(--sun);
+  color: var(--navy);
+  text-align: center;
+}
+.twist-banner i {
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+.stroke-count {
+  align-self: center;
+  padding: 0.2rem 0.8rem;
+  border-radius: 999px;
+  background: var(--white);
+  font-weight: 800;
+}
+.stroke-count.out {
+  background: var(--coral);
+  color: #fff;
+}
+.pad-canvas.out {
+  opacity: 0.6;
+}
+.bomb-score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+.p-callout.hot {
+  background: linear-gradient(135deg, #ffe0c2, #ffc0a8);
+}
+.bomb-hot {
+  animation: bomb-arrive 0.35s ease-out both;
+}
+.bomb-hot.locked .final-pic,
+.bomb-hot.locked .lopt {
+  opacity: 0.45;
+}
+.bomb-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 0.6rem;
+  font-size: 1.6em;
+}
+.bomb-locked {
+  text-align: center;
+  color: var(--coral-d);
+}
+@keyframes bomb-arrive {
+  0% { transform: scale(0.92) rotate(-2deg); }
+  60% { transform: scale(1.03) rotate(1deg); }
+  100% { transform: scale(1) rotate(0); }
 }

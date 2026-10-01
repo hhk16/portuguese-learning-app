@@ -10,7 +10,7 @@ export interface Line {
 /** Pipo's pose while saying a line. */
 export type Mood = "talk" | "cheer" | "oops";
 
-export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen" | "final";
+export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "bomb" | "kitchen" | "final";
 
 /** Rules, spoken one by one in the lobby. */
 export const RULES: Record<Mode, Line[]> = {
@@ -43,6 +43,11 @@ export const RULES: Record<Mode, Line[]> = {
     { pt: "Uma letra e quatro categorias.", en: "One letter and four categories." },
     { pt: "Escreve uma palavra para cada uma, com essa letra.", en: "Write a word for each one, starting with that letter." },
     { pt: "Acabaste? Carrega STOP! O outro tem poucos segundos.", en: "Done? Hit STOP! The other player gets a few seconds." },
+  ],
+  bomb: [
+    { pt: "A batata está quente! Responde no telemóvel.", en: "The potato is hot! Answer on your phone." },
+    { pt: "Acertaste? A batata passa para o outro.", en: "Got it right? The potato goes to the other player." },
+    { pt: "Quando explodir, quem a tiver perde!", en: "When it blows up, whoever is holding it loses!" },
   ],
   final: [
     { pt: "A Grande Final! Um contra o outro.", en: "The Grand Final! Head to head." },
@@ -91,6 +96,19 @@ export const SAY = {
   listen: { pt: "Ouçam com atenção.", en: "Listen carefully." },
   stop: { pt: "Stop!", en: "Stop!" },
   rush: { pt: "Hora de ponta! Pontos a dobrar!", en: "Rush hour! Double points!" },
+  betWon: { pt: "Bem apostado!", en: "Good bet!" },
+  betLost: { pt: "Aposta perdida!", en: "Bet lost!" },
+  bothPredicted: { pt: "Os dois adivinharam!", en: "You both saw it coming!" },
+  livesOut: { pt: "Acabaram-se as vidas!", en: "Out of lives!" },
+  lifeLost: { pt: "Menos uma vida!", en: "One life lost!" },
+  twist: { pt: "Desafio especial!", en: "Special challenge!" },
+  galleryTime: { pt: "Vamos ver a galeria!", en: "Let's look at the gallery!" },
+  bestDrawing: { pt: "Qual é o melhor desenho?", en: "Which is the best drawing?" },
+  hotPotato: { pt: "Batata quente!", en: "Hot potato!" },
+  boom: { pt: "Bum!", en: "Boom!" },
+  nightMaths: { pt: "Vamos fazer as contas da noite!", en: "Let's add up tonight's points!" },
+  sem: { pt: "Atenção: com ou sem?", en: "Careful: with or without?" },
+  lightning: { pt: "Desafio relâmpago! Quarenta segundos!", en: "Lightning round! Forty seconds!" },
   suddenDeath: { pt: "Morte súbita! Sem pistas. Um erro e acabou!", en: "Sudden death! No clues. One mistake and it's over!" },
 } satisfies Record<string, Line>;
 
@@ -125,6 +143,9 @@ export const VARIANTS: Partial<Record<keyof typeof SAY, Line[]>> = {
   served: [{ pt: "Bom apetite!", en: "Enjoy your meal!" }],
   notThat: [{ pt: "Isso não é o pedido!", en: "That's not the order!" }],
   notQuite: [{ pt: "Não é bem isso!", en: "Not really!" }],
+  betWon: [{ pt: "Acertaste na aposta!", en: "You called it!" }],
+  betLost: [{ pt: "Falhaste a aposta!", en: "You missed the bet!" }],
+  boom: [{ pt: "Bum! Queimou!", en: "Boom! Burned!" }],
 };
 
 /** Lines with the player's name ("Boa, Ana!"). Pre-recorded for NAMES; other names use the device voice. */
@@ -137,6 +158,11 @@ export const NAMED = {
   wellDone: { pt: "Boa, {name}!", en: "Nice one, {name}!" },
   wins: { pt: "{name} ganha!", en: "{name} wins!" },
   mvp: { pt: "{name} é a estrela da noite!", en: "{name} is tonight's star!" },
+  noFaith: { pt: "{name}, não acreditaste?!", en: "{name}, you didn't believe it?!" },
+  burned: { pt: "{name} queimou-se!", en: "{name} got burned!" },
+  hurryUp: { pt: "Despacha-te, {name}!", en: "Hurry up, {name}!" },
+  bestBy: { pt: "{name} fez o melhor desenho!", en: "{name} made the best drawing!" },
+  mvpGame: { pt: "{name} foi a estrela deste jogo!", en: "{name} was the star of this game!" },
 } satisfies Record<string, Line>;
 
 /** Names the host's lines are pre-recorded with. */
@@ -153,10 +179,13 @@ export const CUE = {
   fill: { pt: "Escreve!", en: "Write!" },
   cook: { pt: "Ouve e serve!", en: "Listen and serve!" },
   vote: { pt: "Vota!", en: "Vote!" },
+  answer: { pt: "Responde!", en: "Answer!" },
+  listenTap: { pt: "Ouve e toca!", en: "Listen and tap!" },
+  pickBest: { pt: "Escolhe o melhor!", en: "Pick the best!" },
 } satisfies Record<string, Line>;
 
-const CHEER = new Set<Line>([SAY.near, SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
-const OOPS = new Set<Line>([SAY.farOff, SAY.revenge, SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
+const CHEER = new Set<Line>([SAY.betWon, SAY.bothPredicted, NAMED.bestBy, NAMED.mvpGame, SAY.near, SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
+const OOPS = new Set<Line>([SAY.betLost, SAY.livesOut, SAY.lifeLost, SAY.boom, NAMED.burned, NAMED.noFaith, SAY.farOff, SAY.revenge, SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
 export function moodOf(l: Line): Mood {
   return CHEER.has(l) ? "cheer" : OOPS.has(l) ? "oops" : "talk";
 }
@@ -169,4 +198,10 @@ export function hostSpoken(): string[] {
     ...Object.values(VARIANTS).flatMap((ls) => ls!.map((l) => l.pt)),
     ...named,
   ];
+}
+
+/** Big announcements: Pipo steps to the centre of the stage for these. */
+const SPOTLIGHT = new Set<Line>([SAY.lightning, SAY.finalRound, SAY.twist, SAY.rush, SAY.suddenDeath, SAY.nightMaths, SAY.galleryTime, SAY.bestDrawing, SAY.tie, SAY.tieBreak, SAY.hotPotato]);
+export function isSpotlight(l: Line): boolean {
+  return SPOTLIGHT.has(l);
 }

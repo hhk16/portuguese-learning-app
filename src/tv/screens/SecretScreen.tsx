@@ -37,9 +37,6 @@ export function SecretScreen({ a }: { a: ParesSecretos }) {
           </span>
         )}
         {giver && a.phase !== "sudden" && <PlayerChip p={giver} size="2em" />}
-        {a.phase === "clue" && a.lastBet && (
-          <span className={`bet-line ${a.lastBet.won ? "ok" : ""}`}>Aposta {a.lastBet.n}: {a.lastBet.won ? "certa! +5" : "falhou"}</span>
-        )}
         {a.phase === "clue" && (
           <span className="bi-line">
             está a escolher uma pista…<i>is choosing a clue</i>

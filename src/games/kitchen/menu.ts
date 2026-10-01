@@ -17,9 +17,11 @@ export interface Dish {
   pic: string;
   /** Uncountable at the counter ("um leite", never "dois leites"). */
   onlyOne?: boolean;
+  /** An extra that only comes "com …" another dish (o açúcar, o gelo, o limão). */
+  extra?: boolean;
 }
 
-const D = (id: string, sing: string, plural: string, g: "m" | "f", pic: string, onlyOne = false): Dish => ({ id, sing, plural, g, pic, onlyOne });
+const D = (id: string, sing: string, plural: string, g: "m" | "f", pic: string, onlyOne = false, extra = false): Dish => ({ id, sing, plural, g, pic, onlyOne, extra });
 
 export const DISHES: Record<string, Dish> = Object.fromEntries(
   [
@@ -43,6 +45,9 @@ export const DISHES: Record<string, Dish> = Object.fromEntries(
     D("chocolate", "chocolate", "chocolates", "m", "🍫"),
     D("maca", "maçã", "maçãs", "f", "🍎"),
     D("morango", "morango", "morangos", "m", "🍓"),
+    D("acucar", "açúcar", "açúcar", "m", "🍬", true, true),
+    D("gelo", "gelo", "gelo", "m", "🧊", true, true),
+    D("limao", "limão", "limões", "m", "🍋", true, true),
   ].map((d) => [d.id, d]),
 );
 
@@ -54,17 +59,24 @@ export interface Menu {
 }
 
 export const MENUS: Menu[] = [
-  { id: "manha", name: "Pequeno-almoço", pic: "🥐", dishes: ["cafe", "leite", "pao", "queijo", "ovo", "croissant", "laranja", "banana"] },
-  { id: "almoco", name: "Almoço", pic: "🍲", dishes: ["sopa", "salada", "pizza", "pao", "tomate", "agua", "vinho", "cerveja"] },
-  { id: "lanche", name: "Lanche", pic: "🎂", dishes: ["bolo", "gelado", "chocolate", "maca", "morango", "cafe", "agua", "leite"] },
+  { id: "manha", name: "Pequeno-almoço", pic: "🥐", dishes: ["cafe", "leite", "pao", "queijo", "ovo", "croissant", "laranja", "banana", "acucar"] },
+  { id: "almoco", name: "Almoço", pic: "🍲", dishes: ["sopa", "salada", "pizza", "pao", "tomate", "agua", "vinho", "cerveja", "gelo", "limao"] },
+  { id: "lanche", name: "Lanche", pic: "🎂", dishes: ["bolo", "gelado", "chocolate", "maca", "morango", "cafe", "agua", "leite", "acucar"] },
 ];
+
+/** Which dishes an extra goes with ("um café com açúcar", "uma água com gelo"). */
+const EXTRA_FOR: Record<string, string[]> = { acucar: ["cafe", "leite"], gelo: ["agua", "cerveja"], limao: ["agua"] };
 
 export interface Order {
   /** dish id → quantity */
   items: Record<string, number>;
-  /** 1 = one thing, 2 = two things, 3 = a proper order. */
-  level: 1 | 2 | 3;
+  /** 1 = one thing, 2 = two things, 3 = a proper order, 4 = "com / sem" (with or without an extra). */
+  level: 1 | 2 | 3 | 4;
   text: string;
+  /** "sem açúcar": the extra the customer does NOT want (a listening trap). */
+  without?: string;
+  /** "com gelo": the extra is part of the dish. */
+  with?: string;
 }
 
 const NUM: Record<number, [string, string]> = { 1: ["um", "uma"], 2: ["dois", "duas"], 3: ["três", "três"] };
@@ -87,10 +99,12 @@ function orderText(items: Record<string, number>, k: number): string {
 
 /** Every order for a menu, deterministic (same book on every device and in the audio pipeline). */
 export function orderBook(menu: Menu): Order[] {
-  const rng = new Rng(menu.id.length * 7919 + menu.dishes.length);
+  // Extras only appear in "com / sem" orders, after everything else (so the other orders never change).
+  const plain = menu.dishes.filter((id) => !DISHES[id]!.extra);
+  const rng = new Rng(menu.id.length * 7919 + plain.length);
   const out: Order[] = [];
   const add = (items: Record<string, number>, level: Order["level"]) => out.push({ items, level, text: orderText(items, out.length) });
-  const ds = menu.dishes.map((id) => DISHES[id]!);
+  const ds = plain.map((id) => DISHES[id]!);
   for (const d of ds) add({ [d.id]: 1 }, 1);
   for (const d of ds) if (!d.onlyOne) add({ [d.id]: 2 }, 2);
   for (let i = 0; i < ds.length; i++) for (let j = i + 1; j < ds.length; j++) add({ [ds[i]!.id]: 1, [ds[j]!.id]: 1 }, 2);
@@ -105,6 +119,21 @@ export function orderBook(menu: Menu): Order[] {
     if (seen.has(key)) continue;
     seen.add(key);
     add(items, 3);
+  }
+  // Level 4: "com / sem" — "Queria um café sem açúcar, por favor." means: no sugar on the tray.
+  for (const x of menu.dishes.filter((id) => DISHES[id]!.extra)) {
+    const extra = DISHES[x]!;
+    for (const base of (EXTRA_FOR[x] ?? []).filter((id) => plain.includes(id))) {
+      const b = DISHES[base]!;
+      const other = ds.find((d) => d.id !== base && !EXTRA_FOR[x]?.includes(d.id) && !d.onlyOne)!;
+      const k = out.length;
+      const one = `${NUM[1]![b.g === "m" ? 0 : 1]} ${b.sing}`;
+      const tpl = (s: string) => TEMPLATES[k % 2]!(s);
+      out.push({ items: { [base]: 1, [x]: 1 }, level: 4, with: x, text: tpl(`${one} com ${extra.sing}`) });
+      out.push({ items: { [base]: 1 }, level: 4, without: x, text: tpl(`${one} sem ${extra.sing}`) });
+      out.push({ items: { [base]: 1, [x]: 1, [other.id]: 2 }, level: 4, with: x, text: tpl(`${one} com ${extra.sing} e ${amount(other, 2)}`) });
+      out.push({ items: { [base]: 1, [other.id]: 1 }, level: 4, without: x, text: tpl(`${one} sem ${extra.sing} e ${amount(other, 1)}`) });
+    }
   }
   return out;
 }

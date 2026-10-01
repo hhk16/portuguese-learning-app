@@ -2182,12 +2182,450 @@ html.tv-root #root {
 .podium {
   margin-top: 2.2rem;
 }
-/* The Grande Final plays under the spotlights: the game-show stage, lights down. */
-.final-screen::before {
-  content: "";
+/* The Grande Final has its own spotlit night stage (public/art/sets/final.webp). */
+
+/* ---------------------------------------------------------------- round 4 */
+
+/* Side-bet reveal: a card that flips in over the game, after the main reveal. */
+.bet-card {
   position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(ellipse at 50% 45%, rgba(255, 240, 200, 0.15) 0, rgba(24, 18, 48, 0.55) 70%);
+  top: 22vh;
+  left: 50%;
+  z-index: 40;
+  min-width: 30rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1.1rem 2rem 1.3rem;
+  border: 0.3rem solid var(--sun);
+  transform: translateX(-50%);
+  animation: bet-flip 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  text-align: center;
+}
+.bet-card.won {
+  border-color: var(--mint);
+  box-shadow: 0 0 3rem rgba(62, 207, 149, 0.55), 0 0.5rem 0 rgba(0, 0, 0, 0.12);
+}
+.bet-card.lost {
+  border-color: var(--coral);
+}
+.bet-card .bet-title {
+  font-size: 2.1em;
+}
+.bet-card .bet-en {
+  color: var(--ink-3);
+}
+.bet-rows {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 0.4rem;
+}
+.bet-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 1.3em;
+  animation: pop-in 0.4s 0.6s ease-out both;
+}
+.bet-row.ok {
+  background: var(--good-bg);
+  color: var(--mint-d);
+}
+.bet-row.bad {
+  background: var(--bad-bg);
+  color: var(--coral-d);
+}
+@keyframes bet-flip {
+  0% { transform: translateX(-50%) perspective(60rem) rotateY(90deg) scale(0.8); opacity: 0; }
+  100% { transform: translateX(-50%) perspective(60rem) rotateY(0) scale(1); opacity: 1; }
+}
+
+.lives-pill {
+  letter-spacing: 0.1em;
+}
+.twist-pill {
+  background: var(--sun);
+  color: var(--navy);
+  font-weight: 800;
+  animation: pulse-soft 1.2s ease-in-out infinite;
+}
+.twist-pill i {
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+/* Desenha!: the gallery (each drawing full screen), the vote, the best drawing. */
+.gallery-big {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.2rem;
+  animation: pop-in 0.4s ease-out both;
+}
+.gallery-big canvas {
+  width: min(52vh, 40rem);
+  height: min(52vh, 40rem);
+  border-radius: 1rem;
+  background: #fff;
+}
+.gallery-big.best {
+  border: 0.35rem solid var(--sun);
+  box-shadow: 0 0 4rem rgba(255, 194, 61, 0.6);
+}
+.gallery-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.3em;
+}
+.gallery-caption i {
+  color: var(--ink-3);
+}
+.best-star {
+  font-size: 2em;
+  animation: crown-drop 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 1rem;
+}
+.gallery-grid .gallery-item {
+  margin: 0;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+.gallery-grid canvas {
+  width: 13rem;
+  height: 13rem;
+  border-radius: 0.6rem;
+}
+.gallery-grid small {
+  color: var(--ink-3);
+}
+
+/* The kitchen: "sem açúcar" — the extra crossed out. */
+.ticket-item.without .pic-img,
+.ticket-item.without .pic-glyph {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+/* Game night: tonight in numbers, before the crown. */
+.recap-card {
+  position: relative;
+  margin-top: 8vh;
+  padding: 1.4rem 2.2rem 1.6rem;
+  min-width: 46rem;
+  animation: pop-in 0.5s ease-out both;
+}
+.recap {
+  width: 100%;
+  margin-top: 0.6rem;
+  border-collapse: collapse;
+  font-size: 1.35em;
+}
+.recap th {
+  padding: 0.3rem 1rem 0.6rem;
+}
+.recap td {
+  padding: 0.45rem 1rem;
+  border-top: 1px solid var(--line);
+}
+.recap-row {
+  animation: pop-in 0.4s ease-out both;
+}
+.recap-game {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.recap-pts {
+  text-align: center;
+  color: var(--ink-2);
+}
+.recap-pts.lead {
+  color: var(--mint-d);
+  font-weight: 800;
+}
+.recap-total {
+  text-align: center;
+  font-size: 1.5em;
+  color: var(--navy);
+}
+.stage-crown {
+  position: fixed;
+  left: 50%;
+  top: 30vh;
+  z-index: 3;
+  font-size: 8rem;
+  transform: translateX(-50%);
+  animation: crown-drop-big 1.1s 0.2s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  filter: drop-shadow(0 0.4rem 0.6rem rgba(0, 0, 0, 0.35));
+}
+@keyframes crown-drop-big {
+  0% { transform: translate(-50%, -60vh) rotate(-30deg); opacity: 0; }
+  100% { transform: translate(-50%, 0) rotate(0); opacity: 1; }
+}
+.champion-screen.stage-1 .podium {
+  position: fixed;
+  bottom: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  gap: 24vw;
+}
+.champion-screen.stage-1 .podium-step.first {
+  min-height: 0;
+  padding-top: 1rem;
+}
+
+/* Batata Quente */
+.bomb-arena {
+  position: relative;
+  width: min(80vw, 96rem);
+  height: 30vh;
+}
+.bomb-seat {
+  position: absolute;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.75);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.bomb-seat.left {
+  left: 0;
+}
+.bomb-seat.right {
+  right: 0;
+}
+.bomb-seat.hot {
+  box-shadow: 0 0 0 0.3rem var(--coral), 0 0 2.4rem rgba(255, 107, 107, 0.7);
+  transform: scale(1.06);
+}
+.bomb-seat.burned {
+  filter: grayscale(0.5) brightness(0.7);
+}
+.hurry-bubble {
+  position: absolute;
+  top: -2.4rem;
+  white-space: nowrap;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: var(--sun);
+  color: var(--navy);
+  font-size: 1.2em;
+  animation: pop-in 0.3s ease-out both;
+}
+.potato {
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: left 0.45s cubic-bezier(0.4, 1.6, 0.5, 1);
+  transform: translateX(-50%);
+  filter: drop-shadow(0 0 calc(var(--heat, 0) * 2.4rem) rgba(255, 80, 40, 0.95)) saturate(calc(1 + var(--heat, 0)));
+}
+.potato.left {
+  left: 22%;
+}
+.potato.right {
+  left: 78%;
+}
+.potato.play .pic-img {
+  animation: potato-wobble calc(0.5s - var(--heat, 0) * 0.38s) ease-in-out infinite;
+}
+.potato-fuse {
+  font-size: 2.4rem;
+  margin-bottom: -1rem;
+  animation: pulse-soft 0.4s ease-in-out infinite;
+}
+.potato-steam {
+  font-size: 2rem;
+  opacity: calc(0.3 + var(--heat, 0) * 0.7);
+  animation: steam-rise 1.2s ease-in-out infinite;
+}
+.potato.boom {
+  left: 50%;
+}
+.boom-burst {
+  font-size: 12rem;
+  animation: boom-burst 0.6s ease-out both;
+}
+@keyframes potato-wobble {
+  0%, 100% { transform: rotate(-8deg) scale(1); }
+  50% { transform: rotate(8deg) scale(1.06); }
+}
+@keyframes steam-rise {
+  0% { transform: translateY(0.4rem); }
+  50% { transform: translateY(-0.4rem); }
+  100% { transform: translateY(0.4rem); }
+}
+@keyframes boom-burst {
+  0% { transform: scale(0.2); opacity: 0; }
+  60% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.bomb-question {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.9rem 1.4rem;
+  min-width: 34rem;
+  animation: pop-in 0.3s ease-out both;
+}
+.bomb-question.wrong {
+  border: 0.25rem solid var(--coral);
+  animation: shake 0.4s ease-in-out;
+}
+.bomb-question .kicker i {
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.bq-body {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.bq-prompt {
+  font-size: 3em;
+}
+.bq-word {
+  font-size: 2.4em;
+}
+.bq-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.bq-opt {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  border-radius: 0.8rem;
+  background: var(--cream);
+  font-size: 1.2em;
+}
+.bq-wrong {
+  position: absolute;
+  right: 1rem;
+  top: 0.4rem;
+  font-size: 3em;
+  color: var(--coral);
+}
+.bomb-intro,
+.bomb-boom {
+  position: relative;
+  font-size: 3.6em;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 0.08em 0 rgba(0, 0, 0, 0.35);
+  animation: pop-in 0.45s ease-out both;
+}
+.bomb-boom {
+  font-size: 6em;
+  color: var(--sun);
+}
+.bomb-intro i,
+.bomb-boom i {
+  display: block;
+  font-family: var(--body);
+  font-style: normal;
+  font-size: 0.3em;
+  color: #fff;
+}
+.bomb-boom i {
+  font-size: 0.22em;
+}
+.score-pill b {
+  margin-left: 0.3em;
+  padding: 0 0.45em;
+  border-radius: 999px;
+  background: var(--pc, var(--sun));
+  color: #fff;
+}
+
+/* Pipo takes centre stage for the big announcements (×2, twists, rush hour, the night's maths). */
+.pipo {
+  transition: left 0.5s cubic-bezier(0.4, 1.4, 0.5, 1), height 0.5s cubic-bezier(0.4, 1.4, 0.5, 1);
+}
+.pipo.spotlight {
+  left: 44vw;
+  height: 30vh;
+  z-index: 30;
+  filter: drop-shadow(0 0 2.5rem rgba(255, 220, 120, 0.85));
+}
+.host-bubble.spotlight {
+  left: 50%;
+  bottom: 31vh;
+  z-index: 31;
+  transform: translateX(-50%);
+  font-size: 1.5em;
+  border-radius: 1.2em;
+  animation: none;
+}
+.bomb-question {
+  animation: bq-in 0.25s ease-out both;
+}
+@keyframes bq-in {
+  from { transform: scale(0.94); opacity: 0.6; }
+  to { transform: scale(1); opacity: 1; }
+}
+.bomb-boom i,
+.bomb-intro i {
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+  background: rgba(31, 42, 68, 0.72);
+  text-shadow: none;
+}
+.rush-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.6rem 2.4rem;
+  animation: bq-in 0.2s ease-out both;
+}
+.rush-card h2 i {
+  display: block;
+  font-family: var(--body);
+  font-style: normal;
+  font-size: 0.5em;
+  color: var(--ink-3);
+}
+.rush-options {
+  display: flex;
+  gap: 1.2rem;
+}
+.rush-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 7rem;
+  min-height: 6rem;
+  padding: 0.6rem 1rem;
+  border-radius: 1rem;
+  background: var(--cream);
+  font-size: 1.3em;
+}
+.rush-players {
+  display: flex;
+  gap: 2rem;
 }

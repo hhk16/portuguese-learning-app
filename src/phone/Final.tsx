@@ -28,7 +28,7 @@ export function Final({ v, send }: { v: V; send: Send }) {
     <div className="p-col">
       <div className="sync-head">
         <span className="kicker">
-          Grande Final · {v.index + 1}/{v.total}
+          {v.label ?? `Grande Final · ${v.index + 1}/${v.total}`}
           {v.double ? " · ×2!" : ""}
         </span>
         <span className={`pill ${left < 4000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>
@@ -46,7 +46,7 @@ export function Final({ v, send }: { v: V; send: Send }) {
       ) : (
         <div className="p-callout">
           <b className="display">🔊 Ouve e toca!</b>
-          <span>Listen to the TV and tap the picture — be the first!</span>
+          <span>{v.label ? "Listen to the TV and tap it — fast! You score when you both get it." : "Listen to the TV and tap the picture — be the first!"}</span>
         </div>
       )}
       {v.options ? (

@@ -9,11 +9,13 @@ import { NaMesmaOnda } from "../games/wave/wave.ts";
 import { Desenha } from "../games/draw/draw.ts";
 import { Stop } from "../games/stop/stop.ts";
 import { Cozinha } from "../games/kitchen/kitchen.ts";
+import { BatataQuente } from "../games/bomb/bomb.ts";
+import { BombScreen } from "./screens/BombScreen.tsx";
 import type { NavDir } from "../shared/protocol.ts";
 import { ChampionActivity, LobbyActivity, ResultsActivity, TitleActivity } from "./activities.ts";
 import { useRuntime } from "./runtime.ts";
 import { LearnScreen } from "./screens/LearnScreen.tsx";
-import { ChampionScreen, Command, HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
+import { BetCard, ChampionScreen, Command, HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
 import { SecretScreen } from "./screens/SecretScreen.tsx";
 import { SyncScreen } from "./screens/SyncScreen.tsx";
 import { WaveScreen } from "./screens/WaveScreen.tsx";
@@ -81,10 +83,12 @@ export function TvApp() {
       {a instanceof Desenha && <DrawScreen a={a} />}
       {a instanceof Stop && <StopScreen a={a} />}
       {a instanceof Cozinha && <KitchenScreen a={a} />}
+      {a instanceof BatataQuente && <BombScreen a={a} />}
       {a instanceof GrandeFinal && <FinalScreen a={a} />}
       {a instanceof ChampionActivity && <ChampionScreen a={a} />}
       <HostBubble />
       <Command />
+      <BetCard />
       <Reactions />
       {rt.paused && <PauseScreen />}
       {rt.socket !== "open" && <div className="conn-warn">A ligar ao servidor…</div>}

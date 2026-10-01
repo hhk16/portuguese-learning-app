@@ -23,7 +23,7 @@ import { clockPaused, gameNow, pauseClock, resumeClock } from "./clock.ts";
 import { play } from "../audio/sfx.ts";
 import { speak, stopSpeech } from "../audio/tts.ts";
 import { playMusic, setHurry, setMusicEnabled, type Track } from "../audio/music.ts";
-import { moodOf, SAY, VARIANTS, type Line, type Mood } from "./host-lines.ts";
+import { isSpotlight, moodOf, SAY, VARIANTS, type Line, type Mood } from "./host-lines.ts";
 
 /** SAY line → its variants. */
 const VARIANT_OF = new Map<Line, Line[]>(Object.entries(VARIANTS).map(([k, v]) => [SAY[k as keyof typeof SAY], v!]));
@@ -67,7 +67,7 @@ export interface Settings {
 const SETTINGS_KEY = "pp.tv.settings.v3";
 
 /** Background music per activity (menus, lobby and results share the menu theme). */
-const MUSIC: Record<string, Track> = { lesson: "learn", learn: "learn", secret: "secret", wave: "wave", sync: "sync", draw: "draw", stop: "versus", kitchen: "rush", final: "final", champion: "final" };
+const MUSIC: Record<string, Track> = { lesson: "learn", learn: "learn", secret: "secret", wave: "wave", sync: "sync", draw: "draw", stop: "versus", bomb: "versus", kitchen: "rush", final: "final", champion: "final" };
 
 export class TvRuntime {
   readonly conn: HostConnection;
@@ -94,6 +94,10 @@ export class TvRuntime {
     /** Highlights for "Melhores momentos", and the best drawing. */
     moments: { pt: string; en: string; pic?: string }[];
     drawing?: unknown;
+    /** What each game gave each player, for "a noite em números" before the crowning. */
+    log: { title: string; pic: string; gains: Record<string, number> }[];
+    /** Difficulty picked for the night (the Grande Final uses it). */
+    level?: 1 | 2 | 3;
   } | null = null;
   /** Emoji reactions flying up the TV (performance.now ms). */
   reactions: { id: number; playerId: string; emoji: string; at: number; x: number }[] = [];
@@ -232,6 +236,34 @@ export class TvRuntime {
     this.activity?.onNav?.(dir, "tv");
   }
 
+  /* ------------------------------- side bets ------------------------------- */
+
+  /** A side-bet / prediction reveal on the TV, after the main reveal ("Ana apostou: LONGE… ✗"). */
+  betCard: { seq: number; at: number; title: Line; rows: { playerId: string; pt: string; en?: string; won: boolean; pts?: number }[] } | null = null;
+  private betSeq = 0;
+
+  /** Flip the bet card `delay` ms from now (once the reveal has landed), with its own sting and a host line. */
+  showBet(title: Line, rows: { playerId: string; pt: string; en?: string; won: boolean; pts?: number }[], opts: { delay?: number; line?: Line; name?: string; ms?: number } = {}) {
+    if (!rows.length) return;
+    const a = this.activity;
+    setTimeout(() => {
+      if (this.activity !== a) return;
+      const seq = ++this.betSeq;
+      this.betCard = { seq, at: performance.now(), title, rows };
+      play("card-flip");
+      const won = rows.some((r) => r.won);
+      setTimeout(() => this.activity === a && play(won ? "sparkle" : "wrong", won ? 1 : 0.6), 700);
+      if (opts.line) this.say(opts.line, { name: opts.name });
+      this.bump();
+      setTimeout(() => {
+        if (this.betCard?.seq === seq) {
+          this.betCard = null;
+          this.bump();
+        }
+      }, opts.ms ?? 2800);
+    }, opts.delay ?? 1500);
+  }
+
   /* --------------------------------- pause --------------------------------- */
 
   get pauseItems(): { id: "resume" | "restart" | "quit"; label: string }[] {
@@ -323,6 +355,7 @@ export class TvRuntime {
     this.hostQueue = [];
     this.hostLine = null;
     this.command = null;
+    this.betCard = null;
     this.holdUntil = 0;
     setHurry(false);
     playMusic(MUSIC[a.id] ?? "menu");
@@ -385,11 +418,11 @@ export class TvRuntime {
 
   /** Speak Portuguese from the TV (pre-recorded audio when available). */
   /** What the host is saying right now (TV subtitle bubble: Portuguese + English). */
-  hostLine: (Line & { seq: number; mood: Mood }) | null = null;
+  hostLine: (Line & { seq: number; mood: Mood; spotlight?: boolean }) | null = null;
   /** The big one-verb command on the TV ("Escolhe uma pista!"), and who it's for. */
   command: (Line & { seq: number; playerId?: string; at: number }) | null = null;
   private commandSeq = 0;
-  private hostQueue: (Line & { mood: Mood })[] = [];
+  private hostQueue: (Line & { mood: Mood; spotlight?: boolean })[] = [];
   private lastVariant = new Map<Line, Line>();
   private hostBusy = false;
   private hostSeq = 0;
@@ -406,7 +439,7 @@ export class TvRuntime {
       const v = options[Math.floor(Math.random() * options.length)]!;
       this.lastVariant.set(l, v);
       const name = opts.name ?? "";
-      return { pt: v.pt.replace("{name}", name), en: v.en.replace("{name}", name), mood: moodOf(l) };
+      return { pt: v.pt.replace("{name}", name), en: v.en.replace("{name}", name), mood: moodOf(l), spotlight: isSpotlight(l) };
     });
     if (opts.interrupt) this.hostQueue = [];
     this.hostQueue.push(...ls);

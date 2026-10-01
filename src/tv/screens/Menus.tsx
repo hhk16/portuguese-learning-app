@@ -148,7 +148,7 @@ export function LobbyScreen({ a }: { a: LobbyActivity }) {
             </li>
           ))}
         </ol>
-        {a.spec.mode !== "lesson" && (
+        {a.picksLevel && (
           <div className="level-row">
             <span className="kicker">Dificuldade · Difficulty</span>
             <div className="level-pills">
@@ -299,28 +299,6 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             </div>
           </div>
         )}
-        {!info.nightTotals && rt.activePlayers.length >= 2 && (() => {
-          const ps = [...rt.activePlayers].sort((x, y) => y.score - x.score);
-          const tied = ps.every((p) => p.score === ps[0]!.score);
-          // Co-op games give both the same points: show the team total instead of a fake rivalry.
-          if (tied)
-            return (
-              <div className="tonight">
-                <span className="kicker">Equipa · Team</span>
-                <b className="pp-score">{ps[0]!.score} pontos</b>
-              </div>
-            );
-          return (
-            <div className="tonight">
-              <span className="kicker">Quem manda hoje? · Who's winning?</span>
-              <div className="tonight-row">
-                {ps.map((p, i) => (
-                  <PlayerChip key={p.playerId} p={p} size="2em" extra={<b className="pp-score">{i === 0 ? "👑 " : ""}{p.score}</b>} />
-                ))}
-              </div>
-            </div>
-          );
-        })()}
         <div className="next-list">
           {info.options.map((o, i) => (
             <div key={o.id} className={`next-item ${i === a.focus ? "focus" : ""}`}>
@@ -399,9 +377,9 @@ export function HostBubble() {
   const pose = mood === "cheer" ? "cheer" : mood === "oops" ? "oops" : speaking && flap ? "talk" : "idle";
   return (
     <>
-      <img className={`pipo pose-${pose} at-${rt.activity?.id ?? "none"} ${speaking ? "speaking" : ""}`} src={`/art/host/pipo-${pose}.webp`} alt="Pipo" />
+      <img className={`pipo pose-${pose} at-${rt.activity?.id ?? "none"} ${speaking ? "speaking" : ""} ${l?.spotlight ? "spotlight" : ""}`} src={`/art/host/pipo-${pose}.webp`} alt="Pipo" />
       {l && rt.activity?.id !== "lobby" && (
-        <div className="host-bubble card" key={l.seq}>
+        <div className={`host-bubble card ${l.spotlight ? "spotlight" : ""}`} key={l.seq}>
           <span>
             <b className="display">{l.pt}</b>
             <i>{l.en}</i>
@@ -436,6 +414,32 @@ export function Command() {
   );
 }
 
+/** A side bet / prediction flipping over on the TV after the reveal ("Ana apostou: Longe… ✗"). */
+export function BetCard() {
+  const rt = useRuntime();
+  const b = rt.betCard;
+  if (!b) return null;
+  const won = b.rows.some((r) => r.won);
+  return (
+    <div className={`bet-card card ${won ? "won" : "lost"}`} key={b.seq}>
+      <span className="kicker">🎲 Aposta · Side bet</span>
+      <b className="display bet-title">{b.title.pt}</b>
+      <i className="bet-en">{b.title.en}</i>
+      <div className="bet-rows">
+        {b.rows.map((r) => {
+          const p = rt.players.get(r.playerId);
+          return (
+            <span key={r.playerId + r.pt} className={`bet-row ${r.won ? "ok" : "bad"}`}>
+              {p && <PlayerChip p={p} size="1.6em" />}
+              <b className="display">{r.won ? "✓" : "✗"} {r.pt}</b>
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /** Emoji reactions from the phones, floating up the TV in the sender's colour. */
 export function Reactions() {
   const rt = useRuntime();
@@ -458,7 +462,7 @@ export function Reactions() {
 }
 
 /** One drawing, replayed stroke by stroke (Telestrations-style gallery). */
-function GalleryThumb({ g, delay }: { g: GalleryItem; delay: number }) {
+export function GalleryThumb({ g, delay }: { g: GalleryItem; delay: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     let n = 0;
@@ -488,11 +492,67 @@ function GalleryThumb({ g, delay }: { g: GalleryItem; delay: number }) {
   );
 }
 
-/** The end of a game night: drumroll, the star of the night crowned, then the best moments. */
+/** The end of a game night: tonight in numbers, drumroll, the star crowned on stage, then the best moments. */
 export function ChampionScreen({ a }: { a: ChampionActivity }) {
+  useTick(200, a.stage === -1);
+  const rt = useRuntime();
   const [top, second] = a.standings;
   const word = a.wordOfNight;
   const drawing = a.drawing;
+  const players = rt.activePlayers;
+  if (a.stage === -1) {
+    const shown = a.night.log.slice(0, a.rows);
+    const sum = (id: string) => shown.reduce((s, r) => s + (r.gains[id] ?? 0), 0);
+    return (
+      <div className="tv-overlay champion-screen stage--1">
+        <div className="champion-lights" />
+        <div className="card recap-card">
+          <div className="kicker">A noite em números · Tonight in numbers</div>
+          <table className="recap">
+            <thead>
+              <tr>
+                <th />
+                {players.map((p) => (
+                  <th key={p.playerId}>
+                    <PlayerChip p={p} size="2em" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {shown.map((r, i) => {
+                const best = Math.max(...players.map((p) => r.gains[p.playerId] ?? 0));
+                return (
+                  <tr key={i} className="recap-row">
+                    <td className="recap-game">
+                      <Picture glyph={r.pic} size="1.8em" /> <b>{r.title}</b>
+                    </td>
+                    {players.map((p) => (
+                      <td key={p.playerId} className={`recap-pts ${(r.gains[p.playerId] ?? 0) === best && players.length > 1 ? "lead" : ""}`}>
+                        +{r.gains[p.playerId] ?? 0}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td className="recap-game">
+                  <b>Total</b>
+                </td>
+                {players.map((p) => (
+                  <td key={p.playerId} className="recap-total display">
+                    {sum(p.playerId)}
+                  </td>
+                ))}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={`tv-overlay champion-screen stage-${a.stage}`}>
       <div className="champion-lights" />
@@ -500,14 +560,15 @@ export function ChampionScreen({ a }: { a: ChampionActivity }) {
         {a.stage === 0 ? "E a estrela da noite é… 🥁" : a.tie ? "Dois campeões! 👑👑" : `👑 ${top?.p.name ?? ""}!`}
         <i>{a.stage === 0 ? "And tonight's star is…" : a.tie ? "A tie — two champions!" : "Estrela da noite · Tonight's star"}</i>
       </div>
+      {a.stage === 1 && !a.tie && <div className="stage-crown">👑</div>}
       {a.stage > 0 && (
         <div className="podium">
-          {[second, top].filter(Boolean).map((s) => {
+          {[top, second].filter(Boolean).map((s) => {
             const first = s === top || a.tie;
             return (
               <div key={s!.p.playerId} className={`podium-step ${first ? "first" : "second"}`}>
-                {first && <span className="crown">👑</span>}
-                <PlayerChip p={s!.p} size={first ? "3.2em" : "2.4em"} />
+                {first && a.tie && <span className="crown">👑</span>}
+                <PlayerChip p={s!.p} size={first ? "2.4em" : "2em"} />
                 <b className="display">{s!.pts}</b>
                 <small>pontos da noite</small>
               </div>

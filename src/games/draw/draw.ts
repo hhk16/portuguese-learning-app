@@ -30,17 +30,46 @@ export const ROUNDS = 6;
 export const TURN_MS = 60_000;
 const REVEAL_MS = 3800;
 const OPTIONS = 6;
+/** Full-screen replay of each drawing at the end, then everyone votes for the best one. */
+const GALLERY_EACH_MS = 2300;
+const VOTE_MS = 15_000;
+const BEST_MS = 4200;
 
-/** Difficulty: when the tap-a-word options appear (ms into the turn; null = never), and the letter hint. */
-export const LEVEL_RULES: Record<Level, { optionsAt: number | null; hint: "first-letter" | "length" | "none"; hintAt: number }> = {
-  1: { optionsAt: 30_000, hint: "first-letter", hintAt: 0 },
-  2: { optionsAt: 40_000, hint: "length", hintAt: 15_000 },
-  3: { optionsAt: null, hint: "none", hintAt: 0 },
+/**
+ * Difficulty: the turn gets shorter every round (start → min, −step per round); when the
+ * tap-a-word options appear (fraction of the turn; null = never); the letter hint; and which
+ * rounds bring a drawing twist ("Só 3 traços!").
+ */
+export const LEVEL_RULES: Record<Level, { turnMs: number; stepMs: number; minMs: number; optionsAt: number | null; hint: "first-letter" | "length" | "none"; hintAt: number; twistRounds: number[] }> = {
+  1: { turnMs: 60_000, stepMs: 3_000, minMs: 45_000, optionsAt: 0.5, hint: "first-letter", hintAt: 0, twistRounds: [4] },
+  2: { turnMs: 50_000, stepMs: 4_000, minMs: 30_000, optionsAt: 0.66, hint: "length", hintAt: 0.25, twistRounds: [3, 4, 5] },
+  3: { turnMs: 45_000, stepMs: 4_000, minMs: 25_000, optionsAt: null, hint: "none", hintAt: 0, twistRounds: [3, 4, 5] },
 };
 
-/** Typed/said guesses: 3 / 2 / 1 points by time left. Tapping an option is always 1. */
-export function pointsForTime(msLeft: number): number {
-  return msLeft >= 40_000 ? 3 : msLeft >= 20_000 ? 2 : msLeft > 0 ? 1 : 0;
+export interface Twist {
+  id: "strokes3" | "oneLine" | "otherHand";
+  pt: string;
+  en: string;
+  /** Max strokes the drawer may use (undefined = honour system). */
+  limit?: number;
+}
+export const TWISTS: Twist[] = [
+  { id: "strokes3", pt: "Só 3 traços!", en: "Only 3 strokes!", limit: 3 },
+  { id: "oneLine", pt: "Sem levantar o dedo!", en: "One line — don't lift your finger!", limit: 1 },
+  { id: "otherHand", pt: "Com a outra mão!", en: "With your other hand!" },
+];
+
+/** Turn length for a round at a difficulty (the practice turn is relaxed). */
+export function turnMsFor(level: Level, round: number): number {
+  const r = LEVEL_RULES[level];
+  if (round < 0) return r.turnMs * 1.5;
+  return Math.max(r.minMs, r.turnMs - r.stepMs * round);
+}
+
+/** Typed/said guesses: 3 / 2 / 1 points by how much of the turn is left. Tapping an option is always 1. */
+export function pointsForTime(msLeft: number, turnMs = TURN_MS): number {
+  const f = msLeft / turnMs;
+  return f >= 2 / 3 ? 3 : f >= 1 / 3 ? 2 : msLeft > 0 ? 1 : 0;
 }
 
 /** Does a typed or spoken guess name the card? Article/accents/case don't matter; one typo is OK on longer words. */
@@ -67,7 +96,7 @@ export class Desenha implements Activity {
   level: Level = 1;
   practice = false;
   round = 0;
-  phase: "draw" | "reveal" | "end" = "draw";
+  phase: "draw" | "reveal" | "gallery" | "vote" | "best" | "end" = "draw";
   phaseStart = 0;
   phaseEnd = 0;
   word!: LearnCard;
@@ -91,8 +120,17 @@ export class Desenha implements Activity {
   /** "Revisão para Ana!" — this word is one the guesser has been missing. */
   reviewFor: string | null = null;
   guessed: { pt: string; en: string; pic?: string; secs: number }[] = [];
-  /** Every drawing of the game, for the results gallery. */
-  gallery: { pt: string; en?: string; guessed: boolean; strokes: Stroke[] }[] = [];
+  /** Every drawing of the game, for the gallery and the "melhor desenho" vote. */
+  gallery: { pt: string; en?: string; pic?: string; guessed: boolean; strokes: Stroke[]; drawer?: string; votes?: number; best?: boolean }[] = [];
+  /** This turn's twist ("Só 3 traços!"), and stroke ids the drawer has started. */
+  twist: Twist | null = null;
+  private strokeIds = new Set<number>();
+  private twists: Twist[] = [];
+  /** Best-drawing votes: playerId → gallery index. */
+  bestVotes = new Map<string, number>();
+  bestIndex = -1;
+  /** Who did what, for the MVP split on game night. */
+  contrib = new Map<string, number>();
   promptId = randomId(6);
   private readonly roundId = randomId(6);
   private pool: LearnCard[] = [];
@@ -123,6 +161,14 @@ export class Desenha implements Activity {
   get msLeft() {
     return Math.max(0, this.phaseEnd - gameNow());
   }
+  /** This round's turn length (it shrinks every round). */
+  get turnMs() {
+    return turnMsFor(this.level, this.round);
+  }
+  /** Which drawing the gallery is showing right now. */
+  get galleryIndex() {
+    return Math.min(this.gallery.length - 1, Math.max(0, Math.floor((gameNow() - this.phaseStart) / GALLERY_EACH_MS)));
+  }
   get final() {
     return this.round === ROUNDS - 1;
   }
@@ -133,10 +179,10 @@ export class Desenha implements Activity {
   /** The tap-a-word options are showing (after a while, on easier levels). */
   get optionsOpen() {
     const at = this.rules.optionsAt;
-    return at !== null && gameNow() - this.phaseStart >= at;
+    return at !== null && gameNow() - this.phaseStart >= at * this.turnMs;
   }
   get hint(): string | undefined {
-    if (this.phase !== "draw" || gameNow() - this.phaseStart < this.rules.hintAt) return undefined;
+    if (this.phase !== "draw" || gameNow() - this.phaseStart < this.rules.hintAt * this.turnMs) return undefined;
     return hintPattern(this.word.pt, this.rules.hint);
   }
 
@@ -149,6 +195,7 @@ export class Desenha implements Activity {
     const fromLessons = new Set(this.lessons.flatMap((l) => l.itemIds));
     this.pool = [...rt.rng.shuffle(nouns.filter((c) => fromLessons.has(c.itemId))), ...rt.rng.shuffle(nouns.filter((c) => !fromLessons.has(c.itemId)))];
     if (this.practice) this.round = -1;
+    this.twists = rt.rng.shuffle(TWISTS);
     this.newTurn();
   }
 
@@ -176,7 +223,10 @@ export class Desenha implements Activity {
   private newTurn() {
     this.phase = "draw";
     this.phaseStart = gameNow();
-    this.phaseEnd = this.phaseStart + (this.inPractice ? TURN_MS * 1.5 : TURN_MS);
+    this.phaseEnd = this.phaseStart + this.turnMs;
+    this.strokeIds.clear();
+    const ti = this.rules.twistRounds.indexOf(this.round);
+    this.twist = ti >= 0 ? this.twists[ti % this.twists.length]! : null;
     this.word = this.pickWord();
     this.passesLeft = 1;
     this.optionsShown = false;
@@ -189,6 +239,12 @@ export class Desenha implements Activity {
     setHurry(false);
     play("whoosh");
     if (this.final) this.rt.say(SAY.finalRound);
+    if (this.twist) {
+      // Twist rounds get their own announcement and banner.
+      this.rt.say(SAY.twist);
+      play("fanfare", 0.5);
+      if (this.drawer) this.rt.cue({ pt: this.twist.pt, en: this.twist.en }, this.drawer);
+    }
     if (this.drawer) {
       this.rt.emote(this.drawer.playerId, "think", 2500);
       this.rt.cue(CUE.draw, this.drawer, NAMED.drawIt);
@@ -234,9 +290,63 @@ export class Desenha implements Activity {
     }
     if (this.phase === "reveal" && now >= this.phaseEnd) {
       this.round++;
-      if (this.round >= ROUNDS) return this.finish();
+      if (this.round >= ROUNDS) return this.toGallery(now);
       this.newTurn();
     }
+    if (this.phase === "gallery" && now >= this.phaseEnd) this.toVote(now);
+    if (this.phase === "vote" && now >= this.phaseEnd) this.resolveVote();
+    if (this.phase === "best" && now >= this.phaseEnd) this.finish();
+  }
+
+  /** The gallery: every drawing full-screen for a couple of seconds, replayed stroke by stroke. */
+  private toGallery(now: number) {
+    if (this.gallery.length < 2) return this.finish();
+    this.phase = "gallery";
+    this.phaseStart = now;
+    this.phaseEnd = now + GALLERY_EACH_MS * this.gallery.length + 600;
+    setHurry(false);
+    play("whoosh");
+    this.rt.say(SAY.galleryTime);
+    this.rt.refreshViews();
+    this.rt.bump();
+  }
+
+  /** "Qual é o melhor desenho?" — both phones vote. */
+  private toVote(now: number) {
+    this.phase = "vote";
+    this.phaseStart = now;
+    this.phaseEnd = now + VOTE_MS;
+    this.promptId = randomId(6);
+    this.rt.say(SAY.bestDrawing);
+    this.rt.cue(CUE.pickBest);
+    this.rt.refreshViews();
+    this.rt.bump();
+  }
+
+  private resolveVote() {
+    const counts = this.gallery.map((_, i) => [...this.bestVotes.values()].filter((v) => v === i).length);
+    const top = Math.max(...counts);
+    // Most votes wins; a split goes to the drawing that was guessed fastest (or the first voted).
+    const tied = counts.map((c, i) => (c === top ? i : -1)).filter((i) => i >= 0);
+    const best = top > 0 ? (tied.find((i) => this.gallery[i]!.guessed) ?? tied[0]!) : this.gallery.findIndex((g) => g.guessed);
+    this.bestIndex = Math.max(0, best);
+    this.gallery.forEach((g, i) => {
+      g.votes = counts[i];
+      g.best = i === this.bestIndex;
+    });
+    const g = this.gallery[this.bestIndex]!;
+    const drawer = g.drawer ? this.rt.players.get(g.drawer) : undefined;
+    if (drawer) {
+      this.contrib.set(drawer.playerId, (this.contrib.get(drawer.playerId) ?? 0) + 3);
+      this.rt.say(NAMED.bestBy, { name: drawer.name, interrupt: true });
+      this.rt.emote(drawer.playerId, "cheer", 3500);
+    }
+    this.phase = "best";
+    this.phaseEnd = gameNow() + BEST_MS;
+    play("fanfare");
+    this.rt.celebrate();
+    this.rt.refreshViews();
+    this.rt.bump();
   }
 
   repeat() {
@@ -252,10 +362,27 @@ export class Desenha implements Activity {
       this.round = 0;
       return this.newTurn();
     }
+    if (value.mode === "pick" && this.phase === "vote" && promptId === this.promptId && !this.bestVotes.has(p.playerId)) {
+      const i = Number(value.id.replace("g", ""));
+      if (!this.gallery[i]) return;
+      this.bestVotes.set(p.playerId, i);
+      play("lock");
+      if (this.players.every((x) => this.bestVotes.has(x.playerId))) return this.resolveVote();
+      this.rt.view(p, this.viewFor(p));
+      this.rt.bump();
+      return;
+    }
     if (value.mode !== "draw" || this.phase !== "draw") return;
     const act = value.action;
     if (p === this.drawer) {
       if (act.a === "stroke") {
+        // Twist: only so many strokes (new stroke ids past the limit are ignored).
+        const limit = this.twist?.limit;
+        if (limit && !this.strokeIds.has(act.s)) {
+          if (this.strokeIds.size >= limit) return;
+          this.strokeIds.add(act.s);
+          if (this.strokeIds.size === limit) this.rt.view(p, this.viewFor(p));
+        } else this.strokeIds.add(act.s);
         const s = this.strokes.get(act.s) ?? { c: act.c, w: act.w, segs: [] };
         s.segs[act.seg] = act.pts;
         this.strokes.set(act.s, s);
@@ -276,6 +403,7 @@ export class Desenha implements Activity {
         this.rt.bump();
       } else if (act.a === "pass" && this.passesLeft > 0) {
         this.passesLeft--;
+        this.strokeIds.clear();
         this.word = this.pickWord();
         this.dealOptions();
         this.clear();
@@ -321,19 +449,22 @@ export class Desenha implements Activity {
     this.rt.holdPhones(1800);
     const left = this.msLeft;
     if (!this.inPractice && this.strokes.size)
-      this.gallery.push({ pt: this.word.pt, en: this.word.en, guessed: how !== null, strokes: [...this.strokes.entries()].sort((a, b) => a[0] - b[0]).map(([, s]) => ({ c: s.c, w: s.w, segs: s.segs.map((x) => [...(x ?? [])]) })) });
+      this.gallery.push({ pt: this.word.pt, en: this.word.en, pic: this.word.emoji, drawer: this.drawer?.playerId, guessed: how !== null, strokes: [...this.strokes.entries()].sort((a, b) => a[0] - b[0]).map(([, s]) => ({ c: s.c, w: s.w, segs: s.segs.map((x) => [...(x ?? [])]) })) });
     this.phase = "reveal";
     this.phaseEnd = gameNow() + REVEAL_MS;
     this.lastGuessed = how !== null;
     this.lastHow = how;
-    const base = how === null ? 0 : how === "option" ? 1 : pointsForTime(left);
+    const base = how === null ? 0 : how === "option" ? 1 : pointsForTime(left, this.turnMs);
     this.lastPoints = this.inPractice ? 0 : base * (this.final ? 2 : 1);
     this.score += this.lastPoints;
+    // The guesser found it, the drawer drew it: 60/40.
+    for (const [who, share] of [[this.guesser, 0.6], [this.drawer, 0.4]] as const)
+      if (who && this.lastPoints) this.contrib.set(who.playerId, (this.contrib.get(who.playerId) ?? 0) + this.lastPoints * share);
     setHurry(false);
     const g = this.guesser;
     const d = this.drawer;
     if (how && g) {
-      if (!this.inPractice) this.guessed.push({ pt: this.word.pt, en: this.word.en, pic: this.word.emoji, secs: Math.round((TURN_MS - left) / 1000) });
+      if (!this.inPractice) this.guessed.push({ pt: this.word.pt, en: this.word.en, pic: this.word.emoji, secs: Math.round((this.turnMs - left) / 1000) });
       // Producing the word (typed/said) is stronger evidence than recognising it in a list.
       this.rt.evidence(g, this.word.itemId, "draw.guess", how === "option" ? "close" : this.lastTypo ? "close" : "correct");
       for (const p of [g, d]) if (p) this.rt.addScore(p, this.lastPoints * 50, "draw");
@@ -353,10 +484,13 @@ export class Desenha implements Activity {
   }
 
   private finish() {
+    if (this.phase === "end") return;
     this.phase = "end";
-    play("fanfare");
+    if (this.bestIndex < 0) play("fanfare");
     this.rt.bump();
     const n = this.guessed.length;
+    const best = this.gallery[this.bestIndex];
+    const bestBy = best?.drawer ? this.rt.players.get(best.drawer) : undefined;
     this.onDone({
       score: this.score,
       max: (ROUNDS - 1) * 3 + 6,
@@ -366,12 +500,30 @@ export class Desenha implements Activity {
       subEn: n ? `Fastest guess: ${[...this.guessed].sort((a, b) => a.secs - b.secs)[0]!.secs}s` : "Draw bigger and simpler!",
       words: this.guessed.map((w) => ({ pt: w.pt, en: w.en, pic: w.pic })),
       gallery: this.gallery,
+      contrib: Object.fromEntries(this.contrib),
+      highlight: best && bestBy ? { pt: `Melhor desenho: ${best.pt}, por ${bestBy.name}`, en: `Best drawing: ${best.en ?? best.pt}, by ${bestBy.name}`, pic: "🎨" } : undefined,
     });
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
     if (this.players.length < 2) return { mode: "wait", title: "Desenha! precisa de 2", subtitle: "Chama o teu par! · Needs two players", pic: "🎨" };
     if (this.phase === "end") return { mode: "wait", title: "Fim!", subtitle: `${this.score} pontos · points`, pic: "🎨" };
+    if (this.phase === "gallery") return { mode: "wait", title: "A galeria! 🖼️", subtitle: "Olha para a TV — your drawings, one by one", pic: "🖼️" };
+    if (this.phase === "best") {
+      const g = this.gallery[this.bestIndex];
+      return { mode: "wait", title: `⭐ ${g?.pt ?? ""}`, subtitle: "Melhor desenho! · Best drawing — olha para a TV!", pic: g?.pic ?? "🎨" };
+    }
+    if (this.phase === "vote") {
+      if (this.bestVotes.has(p.playerId)) return { mode: "wait", title: "Votaste! ✓", subtitle: "À espera do teu par… · Waiting for your partner", pic: "🗳️" };
+      return {
+        mode: "pick",
+        roundId: this.roundId,
+        promptId: this.promptId,
+        title: "Qual é o melhor desenho?",
+        subtitle: "Which drawing is the best? Vote!",
+        options: this.gallery.slice(0, 8).map((g, i) => ({ id: `g${i}`, label: g.pt, sub: `${this.rt.players.get(g.drawer ?? "")?.name ?? ""} ${g.guessed ? "✓" : "✗"}`, emoji: g.pic })),
+      };
+    }
     if (this.phase === "reveal")
       return {
         mode: "wait",
@@ -389,10 +541,14 @@ export class Desenha implements Activity {
       round: Math.max(0, this.round),
       rounds: ROUNDS,
       msLeft: this.msLeft,
+      turnMs: this.turnMs,
       final: this.final,
+      twist: this.twist ? { pt: this.twist.pt, en: this.twist.en } : undefined,
+      strokeLimit: role === "draw" ? this.twist?.limit : undefined,
+      strokesUsed: role === "draw" && this.twist?.limit ? this.strokeIds.size : undefined,
       word: role === "draw" ? { pt: this.word.pt, en: this.word.en, pic: this.word.emoji } : undefined,
       options: role === "guess" && this.optionsOpen ? this.options : undefined,
-      optionsInMs: role === "guess" && this.rules.optionsAt !== null && !this.optionsOpen ? Math.max(0, this.phaseStart + this.rules.optionsAt - gameNow()) : undefined,
+      optionsInMs: role === "guess" && this.rules.optionsAt !== null && !this.optionsOpen ? Math.max(0, this.phaseStart + this.rules.optionsAt * this.turnMs - gameNow()) : undefined,
       hint: role === "guess" ? this.hint : undefined,
       guesses: role === "draw" ? this.wrongGuesses.map((g) => g.text) : undefined,
       tried: role === "guess" ? [...this.tried] : undefined,

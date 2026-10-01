@@ -102,6 +102,9 @@ export class Cozinha implements Activity {
   private flashSeq = 0;
   private words = new Set<string>();
   private firstServe = true;
+  private semAnnounced = false;
+  /** Items each player put on trays that were served (the MVP split on game night). */
+  contrib = new Map<string, number>();
   private readonly onDone: (r: GameOutcome) => void;
 
   constructor(onDone: (r: GameOutcome) => void) {
@@ -162,8 +165,9 @@ export class Cozinha implements Activity {
     if (b) this.pantries.set(b.playerId, ds.slice(half));
   }
 
-  /** Harder orders as you serve more. */
+  /** Harder orders as you serve more; from the 4th order on, every other one is "com / sem". */
   private levelNow(): Order["level"] {
+    if (this.served >= 4 && this.served % 2 === 0 && this.book.some((o) => o.level === 4)) return 4;
     return this.served < 2 ? 1 : this.served < 5 ? 2 : 3;
   }
 
@@ -178,6 +182,10 @@ export class Cozinha implements Activity {
     const table = [1, 2, 3].find((n) => !used.has(n)) ?? 1;
     this.tickets.push({ id: randomId(5), order, arrived: now, deadline: now + patience, table });
     play("ding");
+    if (order.level === 4 && !this.semAnnounced) {
+      this.semAnnounced = true;
+      this.rt.say(SAY.sem);
+    }
     if (this.rules.tables) void this.rt.speakSeq([order.text, TABLE_SAY[table]!]);
     else this.rt.speakPt(order.text);
     this.rt.bump();
@@ -340,6 +348,7 @@ export class Cozinha implements Activity {
     for (const b of this.trayBy) {
       const who = this.rt.players.get(b.playerId);
       if (who) this.rt.evidence(who, `vocab.noun.${b.dish}`, "kitchen.listen", "correct");
+      this.contrib.set(b.playerId, (this.contrib.get(b.playerId) ?? 0) + 1);
     }
     for (const p of this.players) {
       this.rt.addScore(p, 100, "kitchen");
@@ -373,6 +382,7 @@ export class Cozinha implements Activity {
         : `${this.menu.name} · ${this.missed === 0 ? "Nenhum cliente se foi embora!" : this.missed === 1 ? "1 cliente foi-se embora" : `${this.missed} clientes foram-se embora`}`,
       subEn: closedEarly ? "The kitchen closed: too many customers left!" : this.missed === 1 ? "1 customer left" : `${this.missed} customers left`,
       words: [...this.words].map((id) => ({ pt: DISHES[id]!.sing, pic: DISHES[id]!.pic })),
+      contrib: Object.fromEntries(this.contrib),
       highlight: this.served ? { pt: `${this.served} pedidos servidos na cozinha!`, en: `${this.served} orders served`, pic: "🧑‍🍳" } : undefined,
     });
   }
@@ -381,9 +391,11 @@ export class Cozinha implements Activity {
     return [...this.tray].map(([id, n]) => ({ dish: DISHES[id]!, n }));
   }
 
-  /** "dois pães" etc. for a ticket line. */
+  /** "dois pães" etc. for a ticket line; a "sem" order shows the extra crossed out (n = 0). */
   lines(o: Order): { dish: Dish; n: number; text: string }[] {
-    return Object.entries(o.items).map(([id, n]) => ({ dish: DISHES[id]!, n, text: amount(DISHES[id]!, n) }));
+    const out = Object.entries(o.items).map(([id, n]) => ({ dish: DISHES[id]!, n, text: amount(DISHES[id]!, n) }));
+    if (o.without) out.push({ dish: DISHES[o.without]!, n: 0, text: `sem ${DISHES[o.without]!.sing}` });
+    return out;
   }
 
   viewFor(p: RuntimePlayer): ControllerView {

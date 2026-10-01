@@ -9,6 +9,7 @@
  * letter is worth double; a tie brings a sudden-death letter.
  */
 import { REFERENCE } from "./reference.ts";
+import { GLOSS, NOT_FOR_SUGGESTIONS } from "./reference-gloss.ts";
 import { randomId } from "../../shared/ids.ts";
 import type { ControllerView, InputValue } from "../../shared/protocol.ts";
 import { play } from "../../audio/sfx.ts";
@@ -349,18 +350,21 @@ export class Stop implements Activity {
   }
 
   /** Other words you could have written (from the reference list), never ones you did write. */
-  hints(catId: string): { pt: string }[] {
+  hints(catId: string): { pt: string; en?: string }[] {
     const key = `${this.round}:${catId}`;
     const cached = this.hintCache.get(key);
     if (cached) return cached;
     const typed = new Set(this.players.map((p) => normStop(this.answers.get(p.playerId)?.[catId] ?? "")));
     const ref = (REFERENCE as Record<string, string[]>)[catId] ?? [];
-    const pool = [...new Set([...ref, ...examples(catId, this.letter).map((d) => d.pt)])].filter((w) => startsWith(w, this.letter) && !typed.has(normStop(w)));
-    const out = this.rt.rng.sample(pool, Math.min(3, pool.length)).map((pt) => ({ pt }));
+    // A1–A2 words only, each with its English (the curriculum words first).
+    const curriculum = examples(catId, this.letter);
+    const pool = [...new Set([...curriculum.map((d) => d.pt), ...ref.filter((w) => !NOT_FOR_SUGGESTIONS.has(w))])].filter((w) => startsWith(w, this.letter) && !typed.has(normStop(w)));
+    const enOf = (w: string) => GLOSS[w] ?? curriculum.find((d) => d.pt === w)?.en;
+    const out = this.rt.rng.sample(pool, Math.min(3, pool.length)).map((pt) => ({ pt, en: enOf(pt) }));
     if (this.phase === "score") this.hintCache.set(key, out);
     return out;
   }
-  private hintCache = new Map<string, { pt: string }[]>();
+  private hintCache = new Map<string, { pt: string; en?: string }[]>();
 
   filled(p: RuntimePlayer): number {
     const a = this.answers.get(p.playerId) ?? {};

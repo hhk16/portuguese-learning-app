@@ -47,6 +47,14 @@
   "text": "a batata",
   "voice": "pt_PT-tugão-medium"
  },
+ "a batata está quente! responde no telemóvel.": {
+  "file": "76f0cfb321.mp3",
+  "lengthScale": 1.12,
+  "say": "A batata está quente! Responde no telemóvel.",
+  "source": "piper",
+  "text": "A batata está quente! Responde no telemóvel.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a bicicleta": {
   "file": "bdf3137fee.mp3",
   "lengthScale": 1.12,
@@ -567,6 +575,14 @@
   "text": "a árvore",
   "voice": "pt_PT-tugão-medium"
  },
+ "acabaram-se as vidas!": {
+  "file": "86fb057c97.mp3",
+  "lengthScale": 1.12,
+  "say": "Acabaram-se as vidas!",
+  "source": "piper",
+  "text": "Acabaram-se as vidas!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "acabaste? carrega stop! o outro tem poucos segundos.": {
   "file": "b24191dc30.mp3",
   "lengthScale": 1.12,
@@ -589,6 +605,22 @@
   "say": "Acertam os dois? Ganham uma estrela!",
   "source": "piper",
   "text": "Acertam os dois? Ganham uma estrela!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "acertaste na aposta!": {
+  "file": "f7d6dac1bb.mp3",
+  "lengthScale": 1.12,
+  "say": "Acertaste na aposta!",
+  "source": "piper",
+  "text": "Acertaste na aposta!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "acertaste? a batata passa para o outro.": {
+  "file": "dce8faa4fd.mp3",
+  "lengthScale": 1.12,
+  "say": "Acertaste? A batata passa para o outro.",
+  "source": "piper",
+  "text": "Acertaste? A batata passa para o outro.",
   "voice": "pt_PT-tugão-medium"
  },
  "adeus!": {
@@ -691,12 +723,36 @@
   "text": "alemão, alemã",
   "voice": "pt_PT-tugão-medium"
  },
+ "ana fez o melhor desenho!": {
+  "file": "9e5965640b.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana fez o melhor desenho!",
+  "source": "piper",
+  "text": "Ana fez o melhor desenho!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ana foi a estrela deste jogo!": {
+  "file": "37e9f451dd.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana foi a estrela deste jogo!",
+  "source": "piper",
+  "text": "Ana foi a estrela deste jogo!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "ana ganha!": {
   "file": "29665ebe7b.mp3",
   "lengthScale": 1.12,
   "say": "Ana ganha!",
   "source": "piper",
   "text": "Ana ganha!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "ana queimou-se!": {
+  "file": "616e894edd.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana queimou-se!",
+  "source": "piper",
+  "text": "Ana queimou-se!",
   "voice": "pt_PT-tugão-medium"
  },
  "ana é a estrela da noite!": {
@@ -739,6 +795,14 @@
   "text": "Ana, escolhe uma pista!",
   "voice": "pt_PT-tugão-medium"
  },
+ "ana, não acreditaste?!": {
+  "file": "3a5c45f4eb.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana, não acreditaste?!",
+  "source": "piper",
+  "text": "Ana, não acreditaste?!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "ana, é a tua vez!": {
   "file": "52cf196d91.mp3",
   "lengthScale": 1.12,
@@ -779,6 +843,14 @@
   "text": "Aparecem duas palavras.",
   "voice": "pt_PT-tugão-medium"
  },
+ "aposta perdida!": {
+  "file": "cfb63a85ca.mp3",
+  "lengthScale": 1.12,
+  "say": "Aposta perdida!",
+  "source": "piper",
+  "text": "Aposta perdida!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "arquiteta": {
   "file": "ff705d9bc0.mp3",
   "lengthScale": 1.12,
@@ -801,6 +873,14 @@
   "say": "arquiteto, arquiteta.",
   "source": "piper",
   "text": "arquiteto, arquiteta",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "atenção: com ou sem?": {
+  "file": "7a129e63a0.mp3",
+  "lengthScale": 1.12,
+  "say": "Atenção: com ou sem?",
+  "source": "piper",
+  "text": "Atenção: com ou sem?",
   "voice": "pt_PT-tugão-medium"
  },
  "até amanhã!": {
@@ -835,12 +915,28 @@
   "text": "barulhento, barulhenta",
   "voice": "pt_PT-tugão-medium"
  },
+ "batata quente!": {
+  "file": "ecad4a6af3.mp3",
+  "lengthScale": 1.12,
+  "say": "Batata quente!",
+  "source": "piper",
+  "text": "Batata quente!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "belga": {
   "file": "cc7bd7084f.mp3",
   "lengthScale": 1.12,
   "say": "belga.",
   "source": "piper",
   "text": "belga",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bem apostado!": {
+  "file": "8273d347a2.mp3",
+  "lengthScale": 1.12,
+  "say": "Bem apostado!",
+  "source": "piper",
+  "text": "Bem apostado!",
   "voice": "pt_PT-tugão-medium"
  },
  "boa noite!": {
@@ -941,12 +1037,28 @@
   "text": "brasileiro, brasileira",
   "voice": "pt_PT-tugão-medium"
  },
+ "bum!": {
+  "file": "2c9a85aea6.mp3",
+  "lengthScale": 1.12,
+  "say": "Bum!",
+  "source": "piper",
+  "text": "Bum!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "bum! cuidado com as bombas!": {
   "file": "e9efbc988f.mp3",
   "lengthScale": 1.12,
   "say": "Bum! Cuidado com as bombas!",
   "source": "piper",
   "text": "Bum! Cuidado com as bombas!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bum! queimou!": {
+  "file": "a97ffab36e.mp3",
+  "lengthScale": 1.12,
+  "say": "Bum! Queimou!",
+  "source": "piper",
+  "text": "Bum! Queimou!",
   "voice": "pt_PT-tugão-medium"
  },
  "cabeleireira": {
@@ -1165,6 +1277,22 @@
   "title": "File:LL-Q5146 (por)-Santamarcanda-depressa.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-depressa.wav"
  },
+ "desafio especial!": {
+  "file": "382de63786.mp3",
+  "lengthScale": 1.12,
+  "say": "Desafio especial!",
+  "source": "piper",
+  "text": "Desafio especial!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "desafio relâmpago! quarenta segundos!": {
+  "file": "866bad8932.mp3",
+  "lengthScale": 1.12,
+  "say": "Desafio relâmpago! Quarenta segundos!",
+  "source": "piper",
+  "text": "Desafio relâmpago! Quarenta segundos!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "desculpe.": {
   "file": "8a60f528e4.mp3",
   "license": "CC BY-SA 4.0",
@@ -1174,6 +1302,22 @@
   "text": "Desculpe.",
   "title": "File:LL-Q5146 (por)-Santamarcanda-desculpe.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-desculpe.wav"
+ },
+ "despacha-te, ana!": {
+  "file": "88f61f8553.mp3",
+  "lengthScale": 1.12,
+  "say": "Despacha-te, Ana!",
+  "source": "piper",
+  "text": "Despacha-te, Ana!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "despacha-te, hadi!": {
+  "file": "b8132a6306.mp3",
+  "lengthScale": 1.12,
+  "say": "Despacha-te, Hadi!",
+  "source": "piper",
+  "text": "Despacha-te, Hadi!",
+  "voice": "pt_PT-tugão-medium"
  },
  "dez": {
   "file": "db8164f6c6.mp3",
@@ -2007,6 +2151,14 @@
   "title": "File:LL-Q5146 (por)-Santamarcanda-excelente.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-excelente.wav"
  },
+ "falhaste a aposta!": {
+  "file": "ffc1740e08.mp3",
+  "lengthScale": 1.12,
+  "say": "Falhaste a aposta!",
+  "source": "piper",
+  "text": "Falhaste a aposta!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "fantástico!": {
   "file": "f9cb1b34fa.mp3",
   "license": "CC BY-SA 4.0",
@@ -2143,12 +2295,36 @@
   "text": "guineense",
   "voice": "pt_PT-tugão-medium"
  },
+ "hadi fez o melhor desenho!": {
+  "file": "3ac345e066.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi fez o melhor desenho!",
+  "source": "piper",
+  "text": "Hadi fez o melhor desenho!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi foi a estrela deste jogo!": {
+  "file": "06ac7c116c.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi foi a estrela deste jogo!",
+  "source": "piper",
+  "text": "Hadi foi a estrela deste jogo!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "hadi ganha!": {
   "file": "21d3f7702b.mp3",
   "lengthScale": 1.12,
   "say": "Hadi ganha!",
   "source": "piper",
   "text": "Hadi ganha!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi queimou-se!": {
+  "file": "bb7dce2e4c.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi queimou-se!",
+  "source": "piper",
+  "text": "Hadi queimou-se!",
   "voice": "pt_PT-tugão-medium"
  },
  "hadi é a estrela da noite!": {
@@ -2189,6 +2365,14 @@
   "say": "Hadi, escolhe uma pista!",
   "source": "piper",
   "text": "Hadi, escolhe uma pista!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi, não acreditaste?!": {
+  "file": "7508f751d9.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi, não acreditaste?!",
+  "source": "piper",
+  "text": "Hadi, não acreditaste?!",
   "voice": "pt_PT-tugão-medium"
  },
  "hadi, é a tua vez!": {
@@ -2539,6 +2723,14 @@
   "say": "mau, má.",
   "source": "piper",
   "text": "mau, má",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "menos uma vida!": {
+  "file": "4c33de4f11.mp3",
+  "lengthScale": 1.12,
+  "say": "Menos uma vida!",
+  "source": "piper",
+  "text": "Menos uma vida!",
   "voice": "pt_PT-tugão-medium"
  },
  "mesa dois.": {
@@ -2945,6 +3137,14 @@
   "say": "o avião.",
   "source": "piper",
   "text": "o avião",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o açúcar": {
+  "file": "af8f72d0ea.mp3",
+  "lengthScale": 1.12,
+  "say": "o açúcar.",
+  "source": "piper",
+  "text": "o açúcar",
   "voice": "pt_PT-tugão-medium"
  },
  "o balão": {
@@ -3577,6 +3777,14 @@
   "text": "Os clientes pedem em português. Ouçam bem!",
   "voice": "pt_PT-tugão-medium"
  },
+ "os dois adivinharam!": {
+  "file": "9089c2c5b0.mp3",
+  "lengthScale": 1.12,
+  "say": "Os dois adivinharam!",
+  "source": "piper",
+  "text": "Os dois adivinharam!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "ouçam com atenção.": {
   "file": "29579276ad.mp3",
   "lengthScale": 1.12,
@@ -4148,7 +4356,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-perfeito.wav"
  },
  "perto!": {
-  "downloaded": "transcode.ogg",
   "file": "4b3b4d9c20.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -4175,7 +4382,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "piloto": {
-  "downloaded": "transcode.ogg",
   "file": "fb3e4ea32a.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -4234,7 +4440,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "professor": {
-  "downloaded": "transcode.ogg",
   "file": "bae947bfb0.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -4260,6 +4465,22 @@
   "text": "professora",
   "voice": "pt_PT-tugão-medium"
  },
+ "qual é o melhor desenho?": {
+  "file": "fd555ae558.mp3",
+  "lengthScale": 1.12,
+  "say": "Qual é o melhor desenho?",
+  "source": "piper",
+  "text": "Qual é o melhor desenho?",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "quando explodir, quem a tiver perde!": {
+  "file": "c473bce570.mp3",
+  "lengthScale": 1.12,
+  "say": "Quando explodir, quem a tiver perde!",
+  "source": "piper",
+  "text": "Quando explodir, quem a tiver perde!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "quantos anos tens?": {
   "file": "4cb733f723.mp3",
   "lengthScale": 1.12,
@@ -4279,7 +4500,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quase.wav"
  },
  "quatro": {
-  "downloaded": "transcode.ogg",
   "file": "0b0a1c6be4.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -4306,7 +4526,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "quente": {
-  "downloaded": "transcode.ogg",
   "file": "d32a8118e3.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -4716,6 +4935,38 @@
   "text": "Queria um vinho, por favor.",
   "voice": "pt_PT-tugão-medium"
  },
+ "queria uma cerveja com gelo e duas sopas, por favor.": {
+  "file": "27b668a7d1.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma cerveja com gelo e duas sopas, por favor.",
+  "source": "piper",
+  "text": "Queria uma cerveja com gelo e duas sopas, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma cerveja com gelo, por favor.": {
+  "file": "eddb9f25eb.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma cerveja com gelo, por favor.",
+  "source": "piper",
+  "text": "Queria uma cerveja com gelo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma cerveja sem gelo e uma sopa, por favor.": {
+  "file": "8fe79b4781.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma cerveja sem gelo e uma sopa, por favor.",
+  "source": "piper",
+  "text": "Queria uma cerveja sem gelo e uma sopa, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma cerveja sem gelo, por favor.": {
+  "file": "c72afd44fc.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma cerveja sem gelo, por favor.",
+  "source": "piper",
+  "text": "Queria uma cerveja sem gelo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "queria uma laranja e uma banana, por favor.": {
   "file": "b8ef87d712.mp3",
   "lengthScale": 1.12,
@@ -4844,6 +5095,38 @@
   "text": "Queria uma sopa, por favor.",
   "voice": "pt_PT-tugão-medium"
  },
+ "queria uma água com gelo e duas sopas, por favor.": {
+  "file": "8b11c86dfb.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água com gelo e duas sopas, por favor.",
+  "source": "piper",
+  "text": "Queria uma água com gelo e duas sopas, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água com gelo, por favor.": {
+  "file": "40d79c8a9a.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água com gelo, por favor.",
+  "source": "piper",
+  "text": "Queria uma água com gelo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água com limão e duas sopas, por favor.": {
+  "file": "8d3be12160.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água com limão e duas sopas, por favor.",
+  "source": "piper",
+  "text": "Queria uma água com limão e duas sopas, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água com limão, por favor.": {
+  "file": "6d74a10c0c.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água com limão, por favor.",
+  "source": "piper",
+  "text": "Queria uma água com limão, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "queria uma água e um leite, por favor.": {
   "file": "2c329a4faa.mp3",
   "lengthScale": 1.12,
@@ -4858,6 +5141,38 @@
   "say": "Queria uma água e uma cerveja, por favor.",
   "source": "piper",
   "text": "Queria uma água e uma cerveja, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água sem gelo e uma sopa, por favor.": {
+  "file": "560b4cf73a.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água sem gelo e uma sopa, por favor.",
+  "source": "piper",
+  "text": "Queria uma água sem gelo e uma sopa, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água sem gelo, por favor.": {
+  "file": "57b980e38b.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água sem gelo, por favor.",
+  "source": "piper",
+  "text": "Queria uma água sem gelo, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água sem limão e uma sopa, por favor.": {
+  "file": "b429fd223e.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água sem limão e uma sopa, por favor.",
+  "source": "piper",
+  "text": "Queria uma água sem limão e uma sopa, por favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "queria uma água sem limão, por favor.": {
+  "file": "ab46b8646c.mp3",
+  "lengthScale": 1.12,
+  "say": "Queria uma água sem limão, por favor.",
+  "source": "piper",
+  "text": "Queria uma água sem limão, por favor.",
   "voice": "pt_PT-tugão-medium"
  },
  "queria uma água, por favor.": {
@@ -4949,7 +5264,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "seis": {
-  "downloaded": "transcode.ogg",
   "file": "37104396c0.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -4960,7 +5274,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-seis.wav"
  },
  "sete": {
-  "downloaded": "transcode.ogg",
   "file": "e9e58f8fd5.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -5205,7 +5518,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "triste": {
-  "downloaded": "transcode.ogg",
   "file": "4cce96afac.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -5226,7 +5538,6 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-troca.wav"
  },
  "três": {
-  "downloaded": "transcode.ogg",
   "file": "f66d7c7e96.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -5357,7 +5668,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "um": {
-  "downloaded": "transcode.ogg",
   "file": "4eb682cc2c.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
@@ -5383,6 +5693,30 @@
   "text": "Um bolo e um chocolate, se faz favor.",
   "voice": "pt_PT-tugão-medium"
  },
+ "um café com açúcar e dois bolos, se faz favor.": {
+  "file": "cb46b830bd.mp3",
+  "lengthScale": 1.12,
+  "say": "Um café com açúcar e dois bolos, se faz favor.",
+  "source": "piper",
+  "text": "Um café com açúcar e dois bolos, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um café com açúcar e dois pães, se faz favor.": {
+  "file": "aa39ffe53f.mp3",
+  "lengthScale": 1.12,
+  "say": "Um café com açúcar e dois pães, se faz favor.",
+  "source": "piper",
+  "text": "Um café com açúcar e dois pães, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um café com açúcar, se faz favor.": {
+  "file": "a1bee6e7d7.mp3",
+  "lengthScale": 1.12,
+  "say": "Um café com açúcar, se faz favor.",
+  "source": "piper",
+  "text": "Um café com açúcar, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "um café e um croissant, se faz favor.": {
   "file": "d70b8ebdab.mp3",
   "lengthScale": 1.12,
@@ -5405,6 +5739,30 @@
   "say": "Um café e uma água, se faz favor.",
   "source": "piper",
   "text": "Um café e uma água, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um café sem açúcar e um bolo, se faz favor.": {
+  "file": "e92482c842.mp3",
+  "lengthScale": 1.12,
+  "say": "Um café sem açúcar e um bolo, se faz favor.",
+  "source": "piper",
+  "text": "Um café sem açúcar e um bolo, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um café sem açúcar e um pão, se faz favor.": {
+  "file": "1b394420ef.mp3",
+  "lengthScale": 1.12,
+  "say": "Um café sem açúcar e um pão, se faz favor.",
+  "source": "piper",
+  "text": "Um café sem açúcar e um pão, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um café sem açúcar, se faz favor.": {
+  "file": "6639827dc2.mp3",
+  "lengthScale": 1.12,
+  "say": "Um café sem açúcar, se faz favor.",
+  "source": "piper",
+  "text": "Um café sem açúcar, se faz favor.",
   "voice": "pt_PT-tugão-medium"
  },
  "um chocolate e três cafés, se faz favor.": {
@@ -5487,6 +5845,30 @@
   "text": "Um gelado, se faz favor.",
   "voice": "pt_PT-tugão-medium"
  },
+ "um leite com açúcar e dois bolos, se faz favor.": {
+  "file": "3f83cdb5d0.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite com açúcar e dois bolos, se faz favor.",
+  "source": "piper",
+  "text": "Um leite com açúcar e dois bolos, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite com açúcar e dois pães, se faz favor.": {
+  "file": "2848838788.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite com açúcar e dois pães, se faz favor.",
+  "source": "piper",
+  "text": "Um leite com açúcar e dois pães, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite com açúcar, se faz favor.": {
+  "file": "ce4e2cca66.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite com açúcar, se faz favor.",
+  "source": "piper",
+  "text": "Um leite com açúcar, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "um leite e três croissants, se faz favor.": {
   "file": "8253f40fa3.mp3",
   "lengthScale": 1.12,
@@ -5509,6 +5891,30 @@
   "say": "Um leite e um pão, se faz favor.",
   "source": "piper",
   "text": "Um leite e um pão, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite sem açúcar e um bolo, se faz favor.": {
+  "file": "146df66312.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite sem açúcar e um bolo, se faz favor.",
+  "source": "piper",
+  "text": "Um leite sem açúcar e um bolo, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite sem açúcar e um pão, se faz favor.": {
+  "file": "d5b44eb604.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite sem açúcar e um pão, se faz favor.",
+  "source": "piper",
+  "text": "Um leite sem açúcar e um pão, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um leite sem açúcar, se faz favor.": {
+  "file": "c5eac9a883.mp3",
+  "lengthScale": 1.12,
+  "say": "Um leite sem açúcar, se faz favor.",
+  "source": "piper",
+  "text": "Um leite sem açúcar, se faz favor.",
   "voice": "pt_PT-tugão-medium"
  },
  "um leite, se faz favor.": {
@@ -5791,6 +6197,14 @@
   "text": "Uma sopa, uma salada e uma pizza, se faz favor.",
   "voice": "pt_PT-tugão-medium"
  },
+ "vamos fazer as contas da noite!": {
+  "file": "476fb6fde2.mp3",
+  "lengthScale": 1.12,
+  "say": "Vamos fazer as contas da noite!",
+  "source": "piper",
+  "text": "Vamos fazer as contas da noite!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "vamos jogar!": {
   "file": "25abe13934.mp3",
   "lengthScale": 1.12,
@@ -5805,6 +6219,14 @@
   "say": "Vamos lá!",
   "source": "piper",
   "text": "Vamos lá!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "vamos ver a galeria!": {
+  "file": "35ec3e9ff8.mp3",
+  "lengthScale": 1.12,
+  "say": "Vamos ver a galeria!",
+  "source": "piper",
+  "text": "Vamos ver a galeria!",
   "voice": "pt_PT-tugão-medium"
  },
  "velho, velha": {
@@ -5824,7 +6246,6 @@
   "voice": "pt_PT-tugão-medium"
  },
  "vinte": {
-  "downloaded": "transcode.ogg",
   "file": "acde03520b.mp3",
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",

@@ -29,6 +29,7 @@ export interface DictWord {
   /** Every accepted form, normalised. */
   forms: string[];
   pic?: string;
+  en?: string;
 }
 
 /** Lower-case, no accents, no article, letters and spaces only. */
@@ -62,11 +63,11 @@ function build(): DictWord[] {
   for (const it of ALL_ITEMS) {
     if (it.kind === "noun") {
       const cat = NOUN_CAT[it.category];
-      if (cat) out.push({ itemId: it.id, category: cat, pt: it.pt, forms: [normStop(it.pt)], pic: it.emoji });
+      if (cat) out.push({ itemId: it.id, category: cat, pt: it.pt, forms: [normStop(it.pt)], pic: it.emoji, en: it.en });
     } else if (it.kind === "profession") {
-      out.push({ itemId: it.id, category: "profissao", pt: it.m, forms: [...new Set([it.m, it.f].map(normStop))], pic: it.emoji });
+      out.push({ itemId: it.id, category: "profissao", pt: it.m, forms: [...new Set([it.m, it.f].map(normStop))], pic: it.emoji, en: it.en });
     } else if (it.kind === "nationality") {
-      out.push({ itemId: it.id, category: "pais", pt: it.country, forms: [...new Set([it.country, it.ms, it.fs, it.mp, it.fp].map(normStop))], pic: it.flag });
+      out.push({ itemId: it.id, category: "pais", pt: it.country, forms: [...new Set([it.country, it.ms, it.fs, it.mp, it.fp].map(normStop))], pic: it.flag, en: it.en });
     }
   }
   return out;

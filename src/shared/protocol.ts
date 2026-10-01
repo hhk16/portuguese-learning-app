@@ -137,6 +137,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
   z.object({
     mode: z.literal("final"),
     ...round,
+    /** Header label (default "Grande Final"); the lesson's lightning round reuses this view. */
+    label: shortText.optional(),
     kind: z.enum(["see", "hear", "frase"]),
     index: z.number().int().nonnegative(),
     total: z.number().int().positive(),
@@ -197,6 +199,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
     previous: z.array(z.object({ name: shortText, word: shortText })).max(4).optional(),
     /** Same word but not an obvious link: "Faz sentido?" vote. */
     sense: z.object({ word: shortText, voted: z.boolean() }).optional(),
+    /** Team lives left (a pair you never match costs one). */
+    lives: z.number().int().nonnegative().optional(),
   }),
   /** Desenha! — one draws the secret word, the other picks it from Portuguese words. */
   z.object({
@@ -206,8 +210,9 @@ export const ControllerView = z.discriminatedUnion("mode", [
     partner: shortText,
     round: z.number().int().nonnegative(),
     rounds: z.number().int().positive(),
-    /** Milliseconds left in this turn when the view was sent. */
+    /** Milliseconds left in this turn when the view was sent, and the turn's full length (it shrinks each round). */
     msLeft: z.number().nonnegative(),
+    turnMs: z.number().positive().optional(),
     /** The secret word (drawer only). */
     word: Word.optional(),
     final: z.boolean().optional(),
@@ -221,6 +226,11 @@ export const ControllerView = z.discriminatedUnion("mode", [
     guesses: z.array(shortText).max(6).optional(),
     tried: z.array(id).max(8).optional(),
     canPass: z.boolean().optional(),
+    /** Twist rounds: the drawer may only use this many strokes ("Só 3 traços!"), and has used these. */
+    strokeLimit: z.number().int().positive().optional(),
+    strokesUsed: z.number().int().nonnegative().optional(),
+    /** The twist's rule, shown on both phones ("Só 3 traços!"). */
+    twist: z.object({ pt: shortText, en: shortText }).optional(),
   }),
   /** Stop! — a letter, four categories, a word for each. */
   z.object({
@@ -240,11 +250,32 @@ export const ControllerView = z.discriminatedUnion("mode", [
     votes: z.array(z.object({ id, category: shortText, word: shortText })).max(6).optional(),
     voted: z.boolean().optional(),
   }),
+  /** Batata Quente — answer right to pass the hot potato; whoever holds it when it blows loses the round. */
+  z.object({
+    mode: z.literal("bomb"),
+    ...round,
+    holding: z.boolean(),
+    holder: shortText,
+    kind: z.enum(["hear", "see", "opposite", "number", "hearNumber"]),
+    /** What to answer: a picture (see), a word (opposite), a digit (number); hear = the TV says it. */
+    prompt: Word.optional(),
+    options: z.array(Word).max(6).optional(),
+    /** Options are pictures to tap (hear) rather than words. */
+    pictures: z.boolean().optional(),
+    /** A wrong answer locks you out for a moment. */
+    lockedMs: z.number().nonnegative().optional(),
+    round: z.number().int().nonnegative(),
+    rounds: z.number().int().positive(),
+    double: z.boolean().optional(),
+    /** The waiting player's "Despacha-te!" presses left (each shortens the fuse a little). */
+    hurryLeft: z.number().int().nonnegative().optional(),
+    score: z.array(z.object({ name: shortText, wins: z.number().int().nonnegative() })).max(4),
+  }),
   /** Cozinha Caótica — your half of the pantry; the orders are on the TV. */
   z.object({
     mode: z.literal("kitchen"),
     ...round,
-    pantry: z.array(z.object({ id, pt: shortText, pic: emojiField })).max(8),
+    pantry: z.array(z.object({ id, pt: shortText, pic: emojiField })).max(10),
     /** Open tables to serve (when the level needs the right table). */
     tables: z.array(z.number().int().min(1).max(3)).max(3).optional(),
     /** Tables whose order can be heard again. */
@@ -303,6 +334,7 @@ export const InputValue = z.discriminatedUnion("mode", [
       z.object({ a: z.literal("next") }),
     ]),
   }),
+  z.object({ mode: z.literal("bomb"), answer: z.string().trim().min(1).max(40).optional(), hurry: z.boolean().optional() }),
   z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40).optional(), sense: z.boolean().optional(), predict: z.boolean().optional() }),
   z.object({
     mode: z.literal("draw"),

@@ -24,19 +24,17 @@ function useTex(url: string): THREE.Texture {
 }
 
 /** One themed set per game (public/art/sets), the meadow for menus. */
-const SETS = ["menu", "learn", "secret", "wave", "sync", "draw", "stop", "kitchen"] as const;
+const SETS = ["menu", "learn", "secret", "wave", "sync", "draw", "stop", "kitchen", "final", "bomb"] as const;
 type SetId = (typeof SETS)[number];
 const setUrl = (id: SetId) => (id === "menu" ? "/art/backdrop.webp" : `/art/sets/${id}.webp`);
 
 /** Which set an activity plays in (lobby and results use their game's set). */
 export function setOf(a: { id: string } | null | undefined): SetId {
   if (!a || a.id === "title") return "menu";
-  if (a.id === "champion") return "stop";
+  if (a.id === "champion") return "final";
   const spec = (a as { spec?: { mode?: string } }).spec ?? (a as { info?: { spec?: { mode?: string } } }).info?.spec;
   const mode = a.id === "lobby" || a.id === "results" ? (spec?.mode ?? "menu") : a.id;
   if (mode === "lesson" || mode === "learn") return "learn";
-  // The Grande Final plays on the game-show stage.
-  if (mode === "final") return "stop";
   return (SETS as readonly string[]).includes(mode) ? (mode as SetId) : "menu";
 }
 
@@ -113,7 +111,7 @@ function Character({ rt, p, x, y, height, flip }: { rt: TvRuntime; p: RuntimePla
   const body = useRef<THREE.Mesh>(null);
   const mat = useRef<THREE.MeshBasicMaterial>(null);
   const seed = useMemo(() => Math.random() * 10, []);
-  const pos = useRef({ x, y });
+  const pos = useRef({ x, y, h: height });
   useFrame(({ clock }, dt) => {
     const t = clock.elapsedTime + seed;
     const emote = rt.emoteOf(p.playerId);
@@ -126,24 +124,26 @@ function Character({ rt, p, x, y, height, flip }: { rt: TvRuntime; p: RuntimePla
     // Glide to the target spot.
     pos.current.x += (x - pos.current.x) * Math.min(1, dt * 4);
     pos.current.y += (y - pos.current.y) * Math.min(1, dt * 4);
+    pos.current.h += (height - pos.current.h) * Math.min(1, dt * 3);
+    const hh = pos.current.h;
     const img = tex.image as { width: number; height: number } | undefined;
-    const w = img ? (height * img.width) / img.height : height * 0.5;
+    const w = img ? (hh * img.width) / img.height : hh * 0.5;
     if (!group.current || !body.current) return;
-    let dy = Math.sin(t * 2.2) * height * 0.008;
+    let dy = Math.sin(t * 2.2) * hh * 0.008;
     let rot = 0;
     let sx = 1;
     let sy = 1 + Math.sin(t * 2.2) * 0.008;
     if (emote === "cheer") {
       const j = Math.abs(Math.sin(t * 6));
-      dy = j * height * 0.08;
+      dy = j * hh * 0.08;
       sy = 1 + (1 - j) * 0.03;
       sx = 1 - (1 - j) * 0.02;
     } else if (emote === "sad") rot = Math.sin(t * 16) * 0.035;
     else if (emote === "think") rot = Math.sin(t * 1.5) * 0.04;
     else if (emote === "wave") rot = Math.sin(t * 3) * 0.02;
     group.current.position.set(pos.current.x, pos.current.y, 0);
-    body.current.scale.set(w * sx * (flip ? -1 : 1), height * sy, 1);
-    body.current.position.set(0, height / 2 + dy, 0);
+    body.current.scale.set(w * sx * (flip ? -1 : 1), hh * sy, 1);
+    body.current.position.set(0, hh / 2 + dy, 0);
     body.current.rotation.z = rot;
   });
   return (
@@ -214,12 +214,14 @@ function Confetti({ burst, count }: { burst: number; count: number }) {
 }
 
 /** Where characters stand for each activity (in CSS px relative to the screen centre). */
-function layout(activityId: string | undefined, n: number, w: number, h: number): { x: number; y: number; height: number }[] {
+function layout(activityId: string | undefined, n: number, w: number, h: number, star = -1): { x: number; y: number; height: number }[] {
   const onStage = activityId === "title" || activityId === "lobby" || activityId === "results" || activityId === "champion";
   if (activityId === "champion") {
-    // The crowning: players stand either side of the podium, big.
+    // The crowning: players stand either side of the podium, big — and the star walks to centre stage for the crown.
     const height = h * 0.46;
-    return Array.from({ length: n }, (_, i) => ({ x: (i % 2 === 0 ? -1 : 1) * (w * 0.36 + Math.floor(i / 2) * height * 0.4), y: -h * 0.5 + h * 0.03, height }));
+    return Array.from({ length: n }, (_, i) =>
+      i === star ? { x: 0, y: -h * 0.5 + h * 0.02, height: h * 0.56 } : { x: (i % 2 === 0 ? -1 : 1) * (w * 0.36 + Math.floor(i / 2) * height * 0.4), y: -h * 0.5 + h * 0.03, height },
+    );
   }
   if (onStage) {
     const height = h * 0.42;
@@ -239,7 +241,10 @@ function Scene() {
   const rt = useRuntime();
   const { size } = useThree();
   const players = rt.activePlayers;
-  const spots = layout(rt.activity?.id, players.length, size.width, size.height);
+  // The crowning: the star of the night (not on a tie) takes centre stage while the crown drops.
+  const champ = rt.activity?.id === "champion" ? (rt.activity as unknown as { stage: number; tie: boolean; standings: { p: RuntimePlayer }[] }) : null;
+  const star = champ && champ.stage === 1 && !champ.tie ? players.indexOf(champ.standings[0]!.p) : -1;
+  const spots = layout(rt.activity?.id, players.length, size.width, size.height, star);
   return (
     <>
       <Backdrop set={setOf(rt.activity)} />

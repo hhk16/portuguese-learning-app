@@ -131,6 +131,7 @@ button:disabled {
 .btn.mint { --b: var(--mint); --bd: var(--mint-d); }
 .btn.sky { --b: var(--sky-p); --bd: var(--sky-p-d); }
 .btn.sun { --b: var(--sun); --bd: var(--sun-d); color: var(--navy); }
+.btn.coral { --b: var(--coral); --bd: var(--coral-d); }
 .btn.white { --b: var(--white); --bd: #e3dccb; color: var(--navy); }
 .btn.player { --b: var(--pc); --bd: var(--pc-d); }
 .btn.block {

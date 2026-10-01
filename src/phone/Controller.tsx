@@ -15,6 +15,7 @@ import { Draw } from "./Draw.tsx";
 import { StopPad } from "./Stop.tsx";
 import { Kitchen } from "./Kitchen.tsx";
 import { Final } from "./Final.tsx";
+import { Bomb } from "./Bomb.tsx";
 
 export type ViewOf<M extends ControllerView["mode"]> = Extract<ControllerView, { mode: M }>;
 export type Send = (value: InputValue) => void;
@@ -26,7 +27,7 @@ export function Controller({ view, conn }: { view: ControllerView; conn: PhoneCo
   // Remount per prompt so local state (selections etc.) resets.
   const key = "promptId" in view ? `${view.mode}:${view.promptId}` : `${view.mode}:${"title" in view ? view.title : ""}`;
   // While you wait (or watch your partner), you can throw reactions onto the TV.
-  const idle = view.mode === "wait" || view.mode === "lobby" || ("role" in view && view.role === "watch");
+  const idle = view.mode === "wait" || view.mode === "lobby" || ("role" in view && view.role === "watch") || (view.mode === "bomb" && !view.holding);
   return (
     <div key={key} className="p-screen" onPointerDown={unlockAudio}>
       {"practice" in view && view.practice && (
@@ -73,6 +74,8 @@ function Body({ view, conn, send }: { view: ControllerView; conn: PhoneConnectio
       return <Kitchen v={view} send={send} />;
     case "final":
       return <Final v={view} send={send} />;
+    case "bomb":
+      return <Bomb v={view} send={send} />;
   }
 }
 

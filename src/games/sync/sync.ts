@@ -25,7 +25,7 @@ import { selectItem } from "../../learner/selector.ts";
 export const ROUNDS = 5;
 export const ATTEMPTS = 3;
 const COUNTDOWN_MS = 3200;
-const REVEAL_MS = 3800;
+const REVEAL_MS = 4600;
 const SENSE_MS = 15_000;
 /** Difficulty: seconds to choose, and how many of the 8 options each phone sees (0 = type only). */
 /**
@@ -33,11 +33,14 @@ const SENSE_MS = 15_000;
  * On Fácil both banks hold the intended link; on Médio only ONE phone has it — the other must
  * think of it (or type it); on Difícil you type.
  */
-export const LEVEL_RULES: Record<Level, { writeMs: number; options: number; tries: number; linkInBoth: boolean }> = {
-  1: { writeMs: 45_000, options: 8, tries: 3, linkInBoth: true },
-  2: { writeMs: 35_000, options: 6, tries: 2, linkInBoth: false },
-  3: { writeMs: 30_000, options: 0, tries: 2, linkInBoth: false },
+export const LEVEL_RULES: Record<Level, { writeMs: number; options: number; tries: number; linkInBoth: boolean; lives: number; wordsOnlyFinal: boolean }> = {
+  1: { writeMs: 45_000, options: 8, tries: 3, linkInBoth: true, lives: 4, wordsOnlyFinal: false },
+  2: { writeMs: 35_000, options: 6, tries: 2, linkInBoth: false, lives: 3, wordsOnlyFinal: true },
+  3: { writeMs: 30_000, options: 0, tries: 2, linkInBoth: false, lives: 2, wordsOnlyFinal: true },
 };
+
+/** A prediction ("Vamos coincidir?") that comes true. */
+export const PREDICT_POINTS = 2;
 
 /** Normalise a typed word: lower-case, no accents, no article, no punctuation. */
 export function normWord(s: string): string {
@@ -69,7 +72,9 @@ export function matchPoints(attempt: number, final: boolean): number {
 
 function memberCard(m: string): LearnCard | null {
   const it = getItem(m.startsWith("prof:") ? `vocab.profession.${m.slice(5)}` : `vocab.noun.${m}`);
-  return it ? cardOf(it) : null;
+  const c = it ? cardOf(it) : null;
+  // Professions come without an article ("dentista"); nouns have one ("a cama").
+  return c && m.startsWith("prof:") && !/^(o|a) /.test(c.pt) ? { ...c, pt: `o ${c.pt}`, say: `o ${c.say}` } : c;
 }
 
 export class EmSintonia implements Activity {
@@ -94,6 +99,10 @@ export class EmSintonia implements Activity {
   rightPredictions: RuntimePlayer[] = [];
   lastMatch = false;
   score = 0;
+  /** Team lives: a pair you never match costs one; none left and the game is over. */
+  lives = 3;
+  /** Who did what, for the MVP split on game night. */
+  contrib = new Map<string, number>();
   matches: { words: [string, string]; word: string; attempt: number }[] = [];
   banks = new Map<string, Word[]>();
   promptId = randomId(6);
@@ -129,6 +138,8 @@ export class EmSintonia implements Activity {
   start(rt: TvRuntime) {
     this.rt = rt;
     this.pool = ALL_ITEMS.map(cardOf).filter((c): c is LearnCard => !!c && c.short);
+    this.lives = this.rules.lives;
+    for (const p of this.players) this.contrib.set(p.playerId, 1);
     if (this.practice) this.round = -1;
     this.newRound();
   }
@@ -165,6 +176,8 @@ export class EmSintonia implements Activity {
     ) as [string, string];
     this.pairMembers = [m1, m2];
     this.pair = [this.toWord(memberCard(m1)!), this.toWord(memberCard(m2)!)];
+    // The last pair on Médio/Difícil: words only, no pictures — you have to read them.
+    if (this.final && this.rules.wordsOnlyFinal) this.pair = [{ ...this.pair[0], pic: undefined }, { ...this.pair[1], pic: undefined }];
     this.attempt = 1;
     this.previous = [];
     this.startAttempt();
@@ -317,9 +330,23 @@ export class EmSintonia implements Activity {
 
   private settle(match: boolean) {
     this.lastMatch = match;
-    // Predictions that came true: +1 each.
+    // Predictions that came true: +2 each, revealed on their own card after the result.
     this.rightPredictions = this.players.filter((p) => this.predictions.get(p.playerId) === match);
-    if (!this.inPractice) this.score += this.rightPredictions.length;
+    if (!this.inPractice) {
+      this.score += this.rightPredictions.length * PREDICT_POINTS;
+      for (const p of this.rightPredictions) this.contrib.set(p.playerId, (this.contrib.get(p.playerId) ?? 0) + 2);
+    }
+    const predicted = this.players.filter((p) => this.predictions.has(p.playerId));
+    if (predicted.length)
+      this.rt.showBet(
+        { pt: "Previsões: vamos coincidir?", en: "Predictions: will you match?" },
+        predicted.map((p) => {
+          const said = this.predictions.get(p.playerId)!;
+          const won = said === match;
+          return { playerId: p.playerId, pt: `${p.name}: “${said ? "Sim" : "Não"}” ${won ? `✓ +${PREDICT_POINTS}` : "✗"}`, en: said ? "said yes" : "said no", won, pts: won ? PREDICT_POINTS : undefined };
+        }),
+        { delay: 1700, line: this.rightPredictions.length === 2 ? SAY.bothPredicted : this.rightPredictions.length ? SAY.betWon : SAY.betLost },
+      );
     const words = this.players.map((p) => this.submitted.get(p.playerId) ?? "");
     if (match) {
       const pts = this.inPractice ? 0 : matchPoints(this.attempt, this.final);
@@ -337,12 +364,19 @@ export class EmSintonia implements Activity {
       play("sad-trombone", 0.6);
       for (const p of this.players) this.rt.emote(p.playerId, "think", 2000);
       this.rt.say(this.closeMiss ? SAY.close : SAY.notQuite);
+      // Never matched this pair: the team loses a life.
+      if (!this.inPractice && this.attempt >= this.rules.tries) {
+        this.lives--;
+        play("boom", 0.5);
+        this.rt.say(this.lives <= 0 ? SAY.livesOut : SAY.lifeLost);
+      }
     }
     this.rt.refreshViews();
     this.rt.bump();
   }
 
   private afterReveal() {
+    if (this.lives <= 0) return this.finish();
     if (this.lastMatch || this.attempt >= this.rules.tries) {
       this.round++;
       if (this.round >= ROUNDS) return this.finish();
@@ -359,14 +393,18 @@ export class EmSintonia implements Activity {
     play("success-jingle");
     this.rt.bump();
     const n = this.matches.length;
+    const out = this.lives <= 0;
+    const en = (w: string) => LINKS.find((l) => normWord(l.pt) === normWord(w));
     this.onDone({
       score: this.score,
-      max: 3 * (ROUNDS - 1) + 6,
+      // Every pair first try (the last one doubled) and a couple of predictions right.
+      max: 3 * (ROUNDS - 1) + 6 + 2 * PREDICT_POINTS,
       headline: `${n} de ${ROUNDS} em sintonia · ${this.score} pontos`,
       headlineEn: `In sync on ${n} of ${ROUNDS} pairs`,
-      sub: n ? `Palavras: ${this.matches.map((m) => m.word).join(", ")}` : "Continuem a tentar!",
-      subEn: n ? "Your shared words" : "Keep trying!",
-      words: this.matches.map((m) => ({ pt: m.word })),
+      sub: out ? "Acabaram-se as vidas!" : n ? `Palavras: ${this.matches.map((m) => m.word).join(", ")}` : "Continuem a tentar!",
+      subEn: out ? "Out of lives — the telepathy broke down." : n ? "Your shared words" : "Keep trying!",
+      words: this.matches.map((m) => ({ pt: m.word, en: en(m.word)?.en, pic: en(m.word)?.pic })),
+      contrib: Object.fromEntries(this.contrib),
       highlight: this.matches[0] ? { pt: `Os dois pensaram “${this.matches[0].word}”!`, en: `You both thought “${this.matches[0].word}”`, pic: "🤝" } : undefined,
     });
   }
@@ -400,6 +438,7 @@ export class EmSintonia implements Activity {
       msLeft: this.inPractice ? undefined : this.msLeft,
       previous: this.previous.length ? this.previous : undefined,
       practice: this.inPractice || undefined,
+      lives: this.inPractice ? undefined : this.lives,
     };
     if (this.phase === "sense")
       return { ...base, bank: [], submitted: true, sense: { word: this.submitted.get(p.playerId) ?? "", voted: this.senseVotes.has(p.playerId) } };

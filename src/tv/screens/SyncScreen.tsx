@@ -23,6 +23,7 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
           {a.inPractice ? "" : `Par ${Math.min(a.round + 1, ROUNDS)}/${ROUNDS} · `}tentativa {a.attempt}/{a.rules.tries}
         </span>
         {a.final && <span className="pill double-pill">×2</span>}
+        {!a.inPractice && <span className="pill lives-pill">{"❤️".repeat(Math.max(0, a.lives))}{"🖤".repeat(Math.max(0, a.rules.lives - a.lives))}</span>}
         {a.phase === "write" && !a.inPractice && <span className={`pill clock ${a.msLeft < 8000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
         <span className="pill star-pill">{a.score} pontos</span>
       </GameTop>
@@ -75,9 +76,8 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
       )}
       {a.phase === "reveal" && (
         <div className={`sync-verdict display ${a.lastMatch ? "match" : ""}`}>
-          {a.lastMatch ? "Em sintonia!" : `${a.closeMiss ? "Quase!" : "Nada disso!"} ${a.attempt < a.rules.tries ? "Outra vez…" : "Próximo par!"}`}
-          <i>{a.lastMatch ? "In sync!" : `${a.closeMiss ? "So close" : "Not quite"} — ${a.attempt < a.rules.tries ? "same pair again" : "next pair"}`}</i>
-          {a.rightPredictions.length > 0 && <small className="bet-line ok">🔮 {a.rightPredictions.map((p) => p.name).join(" e ")} previu bem! +{a.rightPredictions.length}</small>}
+          {a.lastMatch ? "Em sintonia!" : `${a.closeMiss ? "Quase!" : "Nada disso!"} ${a.attempt < a.rules.tries ? "Outra vez…" : a.inPractice ? "Próximo par!" : "Menos uma vida 💔"}`}
+          <i>{a.lastMatch ? "In sync!" : `${a.closeMiss ? "So close" : "Not quite"} — ${a.attempt < a.rules.tries ? "same pair again" : a.inPractice ? "next pair" : "you lose a life"}`}</i>
         </div>
       )}
     </div>

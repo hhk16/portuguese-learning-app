@@ -91,6 +91,9 @@ export const LINKS: Link[] = [
   word("Portugal", "Portugal", "🇵🇹", ["eletrico", "vinho", "cafe", "castelo", "praia", "sol", "bola"], "vocab.nationality.portugal"),
 ];
 
+/** Plain category words ("fruta", "animal"…): the obvious clue. Pares Secretos keeps them for Fácil only. */
+export const CATEGORY_LINKS: ReadonlySet<string> = new Set(["fruta", "bebida", "comida", "legumes", "carne", "animal", "transporte", "natureza", "corpo", "roupa"]);
+
 /** Links that contain a member. */
 export function linksOf(member: string): Link[] {
   return LINKS.filter((l) => l.members.includes(member));

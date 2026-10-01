@@ -19,17 +19,23 @@ import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
 import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
-import { LINKS, linksOf, type Link } from "../sync/links.ts";
+import { CATEGORY_LINKS, LINKS, linksOf, type Link } from "../sync/links.ts";
 
-/** Difficulty: board size, targets per player, bombs, turns, lives, clue timer. */
-export const LEVEL_RULES: Record<Level, { board: number; targets: number; bombs: number; turns: number; lives: number; clueMs: number; bombEnds: boolean }> = {
-  1: { board: 12, targets: 3, bombs: 2, turns: 8, lives: 3, clueMs: 60_000, bombEnds: false },
-  2: { board: 16, targets: 4, bombs: 3, turns: 7, lives: 2, clueMs: 45_000, bombEnds: false },
-  3: { board: 20, targets: 4, bombs: 3, turns: 6, lives: 1, clueMs: 35_000, bombEnds: true },
+/**
+ * Difficulty: board size, targets per player, bombs, turns, lives, clue timer, and the clue menu:
+ * on Médio and Difícil the obvious category words (fruta, animal…) are gone — only sideways clues
+ * (quente, velho, praia, manhã…) — and fewer of the chips touch your pictures at all.
+ */
+export const LEVEL_RULES: Record<Level, { board: number; targets: number; bombs: number; turns: number; lives: number; clueMs: number; bombEnds: boolean; categories: boolean; useful: number }> = {
+  1: { board: 12, targets: 3, bombs: 2, turns: 6, lives: 3, clueMs: 60_000, bombEnds: false, categories: true, useful: 6 },
+  2: { board: 16, targets: 4, bombs: 3, turns: 5, lives: 2, clueMs: 45_000, bombEnds: false, categories: false, useful: 4 },
+  3: { board: 20, targets: 4, bombs: 3, turns: 4, lives: 1, clueMs: 35_000, bombEnds: true, categories: false, useful: 3 },
 };
 
 /** How many clue chips the giver chooses from. */
-const CLUE_CHIPS = 14;
+const CLUE_CHIPS = 12;
+/** Bonus for a giver's bet that comes true (≈ a quarter of a good turn). */
+export const BET_BONUS = 5;
 
 interface Card {
   id: string;
@@ -78,6 +84,10 @@ export class ParesSecretos implements Activity {
   turnFinds = 0;
   betsWon = 0;
   lastBet: { n: number; won: boolean } | null = null;
+  /** Who did what, for the MVP split on game night: finds as guesser, finds from your clues, bets won. */
+  contrib = new Map<string, number>();
+  /** Bumped for every new board so the TV doesn't animate the old board's cards into the new one. */
+  boardSeq = 0;
   /** This turn's clue chips (dealt once per turn). */
   private turnClues: Link[] = [];
   private heartbeat: ReturnType<typeof setInterval> | null = null;
@@ -141,7 +151,8 @@ export class ParesSecretos implements Activity {
       if (picked.length >= this.rules.board * 0.6) break;
     }
     for (const m of ordered) if (picked.length < this.rules.board && !picked.includes(m)) picked.push(m);
-    this.cards = rt.rng.shuffle(picked).map((m, i) => ({ id: `c${i}`, member: m, card: memberCard(m)!, state: "hidden", targetOf: null, bomb: false }));
+    this.boardSeq++;
+    this.cards = rt.rng.shuffle(picked).map((m, i) => ({ id: `b${this.boardSeq}c${i}`, member: m, card: memberCard(m)!, state: "hidden", targetOf: null, bomb: false }));
     const [a, b] = this.players;
     // Targets in linked pairs where possible (so a clue can cover them).
     const order = this.targetOrder();
@@ -173,11 +184,13 @@ export class ParesSecretos implements Activity {
     const hidden = this.cards.filter((c) => c.state === "hidden");
     const mine = hidden.filter((c) => c.targetOf === p.playerId).map((c) => c.member);
     const others = hidden.filter((c) => c.targetOf !== p.playerId).map((c) => c.member);
-    const avail = LINKS.filter((l) => !board.has(l.pt.toLowerCase()));
-    const useful = this.rt.rng.shuffle(avail.filter((l) => l.members.some((m) => mine.includes(m))));
+    const avail = LINKS.filter((l) => !board.has(l.pt.toLowerCase()) && (this.rules.categories || !CATEGORY_LINKS.has(l.pt)));
+    // Clues that cover two of your pictures first — but only a few of them make the menu.
+    const covers = (l: Link) => l.members.filter((m) => mine.includes(m)).length;
+    const useful = this.rt.rng.shuffle(avail.filter((l) => covers(l) > 0)).sort((a, b) => Math.min(2, covers(b)) - Math.min(2, covers(a)));
     const decoys = this.rt.rng.shuffle(avail.filter((l) => !useful.includes(l) && l.members.some((m) => others.includes(m))));
     const filler = this.rt.rng.shuffle(avail.filter((l) => !useful.includes(l) && !decoys.includes(l)));
-    const n = Math.min(useful.length, Math.ceil(CLUE_CHIPS / 2));
+    const n = Math.min(useful.length, this.rules.useful);
     return [...useful.slice(0, n), ...decoys, ...filler].slice(0, CLUE_CHIPS).sort((x, y) => x.pt.localeCompare(y.pt, "pt"));
   }
 
@@ -293,6 +306,10 @@ export class ParesSecretos implements Activity {
     if (c.targetOf) {
       c.state = "found";
       this.turnFinds++;
+      if (!this.inPractice) {
+        this.credit(p, 2);
+        this.credit(giver, 1);
+      }
       this.flash = { id: c.id, kind: "found", seq: ++this.flashSeq };
       this.rt.evidence(p, c.card.itemId, "secret.guess", "correct");
       if (!this.inPractice) {
@@ -333,6 +350,7 @@ export class ParesSecretos implements Activity {
       play("correct", 1, 1 + this.streak++ * 0.06);
       this.rt.emote(p.playerId, "cheer");
       this.rt.addScore(p, 50, "secret");
+      this.credit(p, 2);
       if (this.found >= this.goal) return this.finish(true);
       this.rt.refreshViews();
       this.rt.bump();
@@ -358,11 +376,22 @@ export class ParesSecretos implements Activity {
       return;
     }
     this.turnsUsed++;
-    if (this.giverBet !== null) {
+    let pause = 900;
+    const giver = this.giver;
+    if (this.giverBet !== null && giver) {
       const won = this.giverBet === this.turnFinds;
-      if (won) this.betsWon++;
+      if (won) {
+        this.betsWon++;
+        this.credit(giver, 2);
+      }
       this.lastBet = { n: this.giverBet, won };
-      play(won ? "sparkle" : "tap");
+      // The bet gets its own beat on the TV before the next turn.
+      this.rt.showBet(
+        { pt: `${giver.name} apostou ${this.giverBet}`, en: `${giver.name} bet ${this.giverBet} — found ${this.turnFinds}` },
+        [{ playerId: giver.playerId, pt: won ? `Certo! +${BET_BONUS}` : `Encontraram ${this.turnFinds}`, en: won ? "Spot on!" : `Found ${this.turnFinds}`, won, pts: won ? BET_BONUS : undefined }],
+        { delay: 500, line: won ? SAY.betWon : SAY.betLost, ms: 2400 },
+      );
+      pause = 2900;
     } else this.lastBet = null;
     if (this.found >= this.goal) return this.finish(true);
     if (this.turnsLeft <= 0) return this.rules.bombEnds ? this.finish(false) : this.toSuddenDeath();
@@ -371,9 +400,13 @@ export class ParesSecretos implements Activity {
     const g = this.giver;
     if (g && !this.cards.some((c) => c.targetOf === g.playerId && c.state === "hidden")) this.giverIndex++;
     this.phase = "clue";
-    this.phaseEnd = gameNow() + 900 + this.rules.clueMs;
-    setTimeout(() => this.rt.activity === this && this.phase !== "end" && this.newTurn(), 900);
+    this.phaseEnd = gameNow() + pause + this.rules.clueMs;
+    setTimeout(() => this.rt.activity === this && this.phase !== "end" && this.newTurn(), pause);
     this.rt.bump();
+  }
+
+  private credit(p: RuntimePlayer, n: number) {
+    this.contrib.set(p.playerId, (this.contrib.get(p.playerId) ?? 0) + n);
   }
 
   /** Out of turns: no more clues. Both of you keep tapping your partner's pictures — one miss and it's over. */
@@ -404,8 +437,9 @@ export class ParesSecretos implements Activity {
     this.rt.bump();
     // Score: every pair found, plus a bonus for each turn to spare when you win.
     const spare = won ? this.turnsLeft : 0;
-    const score = this.found * 10 + spare * 5 + (won ? 20 : 0) + this.betsWon * 5;
-    const max = this.goal * 10 + 20 + 5 * Math.max(1, this.rules.turns - Math.ceil(this.goal / 2));
+    const score = this.found * 10 + spare * 5 + (won ? 20 : 0) + this.betsWon * BET_BONUS;
+    // A great game: every pair, a turn or two to spare and a couple of bets called.
+    const max = this.goal * 10 + 20 + 5 * Math.max(1, this.rules.turns - Math.ceil(this.goal / 2)) + 2 * BET_BONUS;
     setTimeout(
       () =>
         this.onDone({
@@ -416,6 +450,7 @@ export class ParesSecretos implements Activity {
           sub: won ? `${spare} turnos de sobra: +${spare * 5}` : this.lives <= 0 ? "A bomba ganhou desta vez." : "Acabaram-se os turnos.",
           subEn: won ? "Bonus for turns to spare" : this.lives <= 0 ? "The bomb got you this time." : "Out of turns.",
           words: this.cards.filter((c) => c.state === "found").map((c) => ({ pt: c.card.pt, en: c.card.en, pic: c.card.emoji })),
+          contrib: Object.fromEntries(this.contrib),
           highlight: won ? { pt: `Todos os pares em ${this.turnsUsed} turnos!`, en: `Every pair in ${this.turnsUsed} turns`, pic: "🕵️" } : undefined,
         }),
       2600,

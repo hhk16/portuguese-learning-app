@@ -13,6 +13,12 @@ import { randomId } from "../../shared/ids.ts";
 import type { ControllerView, InputValue, LearnExView } from "../../shared/protocol.ts";
 import { play } from "../../audio/sfx.ts";
 import { lessonsDone, markLessonDone } from "../../tv/progress.ts";
+import { gameNow } from "../../tv/clock.ts";
+import { CUE, SAY } from "../../tv/host-lines.ts";
+
+/** The lesson ends on a lightning round: the TV says the lesson's words, tap them — how many in 40 s? */
+export const RUSH_MS = 40_000;
+const RUSH_WORD_MS = 6_000;
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 
 export interface LearnSummary {
@@ -21,6 +27,23 @@ export interface LearnSummary {
   perPlayer: { playerId: string; correct: number; graded: number }[];
   words: LearnCard[];
   bestCombo: number;
+  /** Lightning round: words you both got, and each player's right taps. */
+  rush?: { team: number; asked: number };
+}
+
+interface Rush {
+  endAt: number;
+  wordEnd: number;
+  card: LearnCard;
+  options: LearnCard[];
+  pictures: boolean;
+  answers: Map<string, boolean>;
+  team: number;
+  asked: number;
+  combo: number;
+  /** Last word's result, for the TV flash. */
+  last: { ok: boolean; seq: number } | null;
+  recent: string[];
 }
 
 interface Answer {
@@ -54,6 +77,8 @@ export class LearnActivity implements Activity {
   private speakTurn = 0;
   private readonly onDone: (s: LearnSummary) => void;
   private finished = false;
+  /** The lightning round at the end (null before/without it). */
+  rush: Rush | null = null;
 
   constructor(lesson: Lesson, onDone: (s: LearnSummary) => void) {
     this.lesson = lesson;
@@ -105,7 +130,73 @@ export class LearnActivity implements Activity {
     this.rt.bump();
   }
 
-  tick() {}
+  tick(now: number) {
+    const r = this.rush;
+    if (!r || this.finished) return;
+    if (now >= r.endAt) return this.finish();
+    if (now >= r.wordEnd) this.nextRushWord();
+  }
+
+  /** Lightning round: needs at least four lesson words. */
+  private startRush() {
+    const pool = this.rushPool();
+    if (pool.length < 4 || !this.players.length) return this.finish();
+    this.rush = { endAt: gameNow() + RUSH_MS + 1500, wordEnd: 0, card: pool[0]!, options: [], pictures: false, answers: new Map(), team: 0, asked: 0, combo: 0, last: null, recent: [] };
+    this.rt.say(SAY.lightning);
+    this.rt.cue(CUE.listenTap);
+    play("whistle");
+    setTimeout(() => this.rt.activity === this && !this.finished && this.nextRushWord(), 1500);
+    this.rt.refreshViews();
+    this.rt.bump();
+  }
+
+  private rushPool(): LearnCard[] {
+    return this.words.filter((w) => w.say && w.pt.length <= 28);
+  }
+
+  private nextRushWord() {
+    const r = this.rush;
+    if (!r) return;
+    const pool = this.rushPool();
+    const fresh = pool.filter((c) => !r.recent.includes(c.itemId));
+    const card = this.rt.rng.pick(fresh.length ? fresh : pool);
+    r.recent = [...r.recent, card.itemId].slice(-Math.min(3, pool.length - 1));
+    const others = this.rt.rng.sample(pool.filter((c) => c.itemId !== card.itemId && c.pt !== card.pt), 3);
+    r.card = card;
+    r.options = this.rt.rng.shuffle([card, ...others]);
+    // Pictures when every option has a distinct one, else the Portuguese words.
+    r.pictures = r.options.every((o) => o.emoji) && new Set(r.options.map((o) => o.emoji)).size === r.options.length;
+    r.answers = new Map();
+    r.asked++;
+    r.wordEnd = gameNow() + RUSH_WORD_MS;
+    this.promptId = randomId(6);
+    this.rt.speakPt(card.say);
+    this.rt.refreshViews();
+    this.rt.bump();
+  }
+
+  private rushAnswer(p: RuntimePlayer, answer: string) {
+    const r = this.rush!;
+    if (r.answers.has(p.playerId)) return;
+    const ok = answer === r.card.pt;
+    r.answers.set(p.playerId, ok);
+    this.rt.evidence(p, r.card.itemId, "learn.rush", ok ? "correct" : "wrong");
+    play(ok ? "pop" : "buzzer", ok ? 0.8 : 0.4, 1 + Math.min(r.combo, 8) * 0.05);
+    if (this.players.every((x) => r.answers.has(x.playerId))) {
+      const all = [...r.answers.values()].every(Boolean);
+      if (all) {
+        r.team++;
+        r.combo++;
+        play("star", 0.8, 1 + Math.min(r.combo, 8) * 0.06);
+        if (r.combo === 5) this.rt.say(SAY.perfect);
+      } else r.combo = 0;
+      r.last = { ok: all, seq: (r.last?.seq ?? 0) + 1 };
+      // A beat to see it, then the next word.
+      r.wordEnd = Math.min(r.wordEnd, gameNow() + 600);
+    }
+    this.rt.view(p, this.viewFor(p));
+    this.rt.bump();
+  }
 
   repeat() {
     const ex = this.ex;
@@ -129,6 +220,7 @@ export class LearnActivity implements Activity {
   }
 
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
+    if (this.rush && value.mode === "final" && promptId === this.promptId && !this.finished) return this.rushAnswer(p, value.answer);
     if (value.mode !== "learn" || promptId !== this.promptId || this.finished) return;
     const ex = this.ex;
     if (!ex) return;
@@ -227,11 +319,12 @@ export class LearnActivity implements Activity {
   private next() {
     if (this.finished) return;
     this.index++;
-    if (this.index >= this.queue.length) return this.finish();
+    if (this.index >= this.queue.length) return this.startRush();
     this.enter();
   }
 
   private finish() {
+    if (this.finished) return;
     this.finished = true;
     play("success-jingle");
     this.rt.celebrate();
@@ -244,6 +337,7 @@ export class LearnActivity implements Activity {
       perPlayer: [...this.perPlayer].map(([playerId, v]) => ({ playerId, ...v })),
       words: this.words,
       bestCombo: this.bestCombo,
+      rush: this.rush ? { team: this.rush.team, asked: this.rush.asked } : undefined,
     });
   }
 
@@ -259,6 +353,24 @@ export class LearnActivity implements Activity {
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
+    const r = this.rush;
+    if (r && !this.finished) {
+      if (!r.wordEnd) return { mode: "wait", title: "⚡ Desafio relâmpago!", subtitle: "Lightning round: listen to the TV, tap fast — together!", pic: "⚡" };
+      return {
+        mode: "final",
+        roundId: this.roundId,
+        promptId: this.promptId,
+        label: `⚡ Relâmpago · ${r.team} ⭐`,
+        kind: "hear",
+        index: r.asked - 1,
+        total: Math.max(r.asked, 1),
+        msLeft: Math.max(0, r.endAt - gameNow()),
+        options: r.options.map((c) => (r.pictures ? { pt: c.pt, pic: c.emoji } : { pt: c.pt })),
+        pictures: r.pictures || undefined,
+        answered: r.answers.has(p.playerId),
+        debugAnswer: this.rt.testMode ? { answer: r.card.pt } : undefined,
+      };
+    }
     const ex = this.ex;
     if (!ex) return { mode: "wait", title: "Lição completa!", pic: "🎉" };
     const instr = INSTRUCTIONS[ex.kind];
