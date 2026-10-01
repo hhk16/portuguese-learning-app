@@ -38,9 +38,9 @@ const FAST_BURN_MS = 1000;
 
 /** Difficulty: hidden fuse range (ms) and how many options each question has. */
 export const LEVEL_RULES: Record<Level, { fuse: [number, number]; options: number }> = {
-  1: { fuse: [22_000, 32_000], options: 3 },
-  2: { fuse: [16_000, 26_000], options: 4 },
-  3: { fuse: [12_000, 20_000], options: 6 },
+  1: { fuse: [24_000, 29_000], options: 3 },
+  2: { fuse: [18_000, 22_000], options: 4 },
+  3: { fuse: [13_000, 16_000], options: 6 },
 };
 
 export type BombKind = "hear" | "see" | "opposite" | "number" | "hearNumber" | "phrase";
@@ -78,6 +78,8 @@ export class BatataQuente implements Activity {
   fuseStart = 0;
   fuseEnd = 0;
   holderIndex = 0;
+  /** Who started the first potato: the start then alternates, so neither player is stuck starting. */
+  private firstStarter = 0;
   q: Question | null = null;
   lockedUntil = 0;
   askedAt = 0;
@@ -163,11 +165,14 @@ export class BatataQuente implements Activity {
       this.right.set(p.playerId, 0);
     }
     this.holderIndex = rt.rng.int(2);
+    this.firstStarter = this.holderIndex;
     if (this.practice) this.round = -1;
     this.newRound();
   }
 
   private newRound() {
+    // Starters alternate potato by potato (the practice one included), so the start is fair.
+    this.holderIndex = this.firstStarter + Math.max(0, this.round) + (this.extra ? 1 : 0);
     this.phase = "intro";
     this.phaseEnd = gameNow() + INTRO_MS;
     this.hurryLeft = HURRIES;
@@ -295,7 +300,7 @@ export class BatataQuente implements Activity {
     setHurry(false);
     play("boom");
     // The puppy hides its eyes at every bang (and Pipo sometimes says so).
-    this.rt.petDo("hide", 3200);
+    this.rt.petStar("hide", 2800);
     setTimeout(() => this.rt.activity === this && this.rt.petSay(PET.scared, 0.5), 2600);
     setTimeout(() => this.rt.activity === this && play(this.inPractice ? "reveal" : "crowd-ooh", 0.8), 500);
     this.rt.celebrate();
@@ -307,7 +312,7 @@ export class BatataQuente implements Activity {
       this.rt.emote(winner.playerId, "cheer", 3200);
       if (!this.inPractice) this.wins.set(winner.playerId, (this.wins.get(winner.playerId) ?? 0) + (this.final ? 2 : 1));
     }
-    // The one who got burned starts the next potato.
+    // A beat for the bang, then the next potato (starters alternate).
     this.rt.holdPhones(1600);
     this.rt.refreshViews();
     this.rt.bump();
@@ -441,7 +446,7 @@ export class BatataQuente implements Activity {
     if (this.phase === "end") return { mode: "wait", title: "Fim!", subtitle: "Olha para a TV! · Look at the TV!", pic: "🥔" };
     if (this.phase === "boom")
       return this.burned === p
-        ? { mode: "wait", title: "💥 Bum! Queimaste-te!", subtitle: "You got burned! Começas tu a próxima.", pic: "💥" }
+        ? { mode: "wait", title: "💥 Bum! Queimaste-te!", subtitle: "You got burned! Na próxima vais à desforra · Get them next time.", pic: "💥" }
         : { mode: "wait", title: "Safaste-te! 😅", subtitle: "You're safe — this potato is yours!", pic: "🥔" };
     const holding = p === this.holder;
     const score = this.players.map((x) => ({ name: x.name, wins: this.wins.get(x.playerId) ?? 0 }));

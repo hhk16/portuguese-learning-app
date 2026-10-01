@@ -78,7 +78,9 @@ async function makePhone(name: string, avatarIdx: number, colorIdx: number, skil
 }
 
 // A1 learners: right most of the time, not always.
-const bots = [await makePhone("Hadi", 0, 1, 0.75), await makePhone("Ana", 1, 0, 0.65)];
+// E2E_LOSE=1: a rough night — both bots get most things wrong, so the losing screens get seen too.
+const LOSE = !!process.env.E2E_LOSE;
+const bots = [await makePhone("Hadi", 0, 1, LOSE ? 0.3 : 0.75), await makePhone("Ana", 1, 0, LOSE ? 0.25 : 0.65)];
 await tv.waitForTimeout(2000);
 await tv.screenshot({ path: `${OUT}/02-tv-title-joined.png` });
 await bots[0]!.page.screenshot({ path: `${OUT}/03-phone-remote.png` });
@@ -409,7 +411,7 @@ async function botStep(b: Bot, seen: Set<string>) {
       const bank = v.bank as { pt: string }[];
       const d = v.debugAnswer as { word?: string } | undefined;
       // Ana often thinks of something else on the first try (then both see each other's words).
-      const miss = b.name === "Ana" && Math.random() < (v.attempt === 1 ? 0.45 : 1 - b.skill);
+      const miss = LOSE ? Math.random() < 0.7 : b.name === "Ana" && Math.random() < (v.attempt === 1 ? 0.45 : 1 - b.skill);
       const word = miss ? (bank.find((w) => w.pt !== d?.word)?.pt ?? "casa") : (d?.word ?? bank[0]?.pt ?? "casa");
       await pg.fill(".sync-form input", word).catch(() => {});
       await shoot("sync-write", b);
@@ -601,6 +603,19 @@ while (Date.now() - start < LIMIT) {
     await tv.waitForTimeout(2500);
     await shoot(`results-${MODES[modeIndex]}`, bots[0]);
     const kicker = (await tv.textContent(".results-card .kicker"))?.trim() ?? "";
+    // Layout check: nothing on the results card may spill out of it.
+    const spill = await tv.evaluate(() => {
+      const card = document.querySelector(".results-card")?.getBoundingClientRect();
+      if (!card) return [];
+      return [...document.querySelectorAll(".results-card *")]
+        .filter((el) => {
+          const r = el.getBoundingClientRect();
+          return r.height > 0 && (r.bottom > card.bottom + 2 || r.right > card.right + 2);
+        })
+        .map((el) => el.className || el.tagName)
+        .slice(0, 5);
+    });
+    if (spill.length) console.log(`LAYOUT: results card overflow (${spill.join(", ")})`);
     resultsSeen++;
     console.log(`results after ${NIGHT ? kicker : MODES[modeIndex]}: ${(await tv.textContent(".results-card h1"))?.trim()} · ${((await tv.textContent(".results-card > p.muted").catch(() => "")) ?? "").trim().slice(0, 160)}`);
     if (NIGHT) {

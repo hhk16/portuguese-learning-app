@@ -6,7 +6,7 @@ import { GameTop } from "./Menus.tsx";
 import { useTick } from "./useTick.ts";
 
 const CAT_EN: Record<string, string> = { comida: "Food or drink", animal: "Animal", coisa: "Thing", profissao: "Job", pais: "Country / nationality", lugar: "Place / nature" };
-const MARK: Record<string, string> = { known: "✓", spelling: "✓", "voted-yes": "✓", "voted-no": "✗", letter: "✗", empty: "—", pending: "?", wrongcat: "✗" };
+const MARK: Record<string, string> = { known: "✓", spelling: "✓", "voted-yes": "✓", "voted-no": "✗", letter: "✗", empty: "—", pending: "?", wrongcat: "✗", notword: "✗" };
 /** "É uma coisa!" — what a word from the wrong category really is. */
 const CAT_PT: Record<string, string> = { comida: "uma comida", animal: "um animal", coisa: "uma coisa", profissao: "uma profissão", pais: "um país", lugar: "um lugar" };
 
@@ -90,6 +90,7 @@ export function StopScreen({ a }: { a: Stop }) {
                       <i>{cell ? MARK[cell.status] : ""}</i>
                       {cell?.status === "spelling" && cell.dict && <small className="fix">Quase! Querias dizer {cell.dict.pt}?</small>}
                       {cell?.status === "wrongcat" && cell.realCat && <small className="fix">É {CAT_PT[cell.realCat] ?? cell.realCat}!</small>}
+                      {cell?.status === "notword" && <small className="fix">Isso não é português! 🦜</small>}
                       {cell?.helped && <small className="fix">💡</small>}
                       {a.phase === "score" && ok && <em className="display">+{cell.points}</em>}
                     </span>

@@ -27,7 +27,22 @@ function RushView({ a }: { a: LearnActivity }) {
         </span>
         {r.combo >= 2 && <span className="pill double-pill">Combo ×{r.combo}</span>}
       </GameTop>
-      <div className={`card stage-card rush-card ${r.last ? (r.last.ok ? "ok" : "miss") : ""}`} key={r.asked}>
+      {a.rushResult && (
+        <div className={`card rush-result ${a.rushResult}`}>
+          <div className="display rush-result-title">{a.rushResult === "won" ? "⚡ Relâmpago superado!" : "⚡ Relâmpago perdido!"}</div>
+          <div className="rush-result-sub">
+            <b className="display">
+              {r.team}/{RUSH_GOAL} ⭐
+            </b>{" "}
+            <span>
+              {"❤️".repeat(Math.max(0, r.hearts))}
+              {"🖤".repeat(Math.max(0, RUSH_HEARTS - r.hearts))}
+            </span>
+          </div>
+          <i>{a.rushResult === "won" ? "Lesson complete! Lição completa!" : "The lesson isn't complete yet — try the lightning round again!"}</i>
+        </div>
+      )}
+      <div className={`card stage-card rush-card ${r.last ? (r.last.ok ? "ok" : "miss") : ""}`} key={r.asked} style={a.rushResult ? { visibility: "hidden" } : undefined}>
         {!r.wordEnd ? (
           <h2 className="display">
             ⚡ {RUSH_GOAL} certas juntos para passar! <i>Get {RUSH_GOAL} right together to pass — {RUSH_HEARTS} hearts</i>

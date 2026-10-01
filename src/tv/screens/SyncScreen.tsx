@@ -46,7 +46,7 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
           {a.pair[1].en && <i>{a.pair[1].en}</i>}
         </div>
       </div>
-      <div className="sync-help">
+      <div className="sync-help" style={a.phase === "reveal" ? { visibility: "hidden" } : undefined}>
         Uma palavra que ligue as duas <i>One word that links both — the same as your partner. Different? Your two words become the next pair.</i>
       </div>
       {a.chain.length > 0 && (a.phase === "write" || a.phase === "countdown") && (

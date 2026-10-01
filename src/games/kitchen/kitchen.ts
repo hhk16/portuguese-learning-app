@@ -342,7 +342,9 @@ export class Cozinha implements Activity {
     for (const id of Object.keys(t.order.items)) this.words.add(id);
     this.flash = { kind: "served", seq: ++this.flashSeq, at: now };
     // The puppy sniffs every plate that goes out.
-    this.rt.petDo("sniff", 2200, this.served === 3 ? PET.hungry : undefined, 0.7);
+    // The first plate out gets the puppy's big sniff; after that a quick one in its corner.
+    if (this.served === 1) this.rt.petStar("sniff", 2200, PET.hungry, 0.8);
+    else this.rt.petDo("sniff", 2000);
     if (this.firstServe) {
       this.firstServe = false;
       this.rt.say(SAY.served);

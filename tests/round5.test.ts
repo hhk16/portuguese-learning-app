@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { inReference, otherCategory } from "../src/games/stop/dictionary.ts";
+import { notPortuguese } from "../src/games/stop/stop.ts";
 import { LEVEL_RULES, NaMesmaOnda, SIGNAL_BONUS } from "../src/games/wave/wave.ts";
 import { hostSpoken, PET, PET_NAMES } from "../src/tv/host-lines.ts";
 
@@ -16,6 +17,15 @@ describe("Stop! category check", () => {
   it("knows common words of a category", () => {
     expect(inReference("comida", "tremoço")).toBe(true);
     expect(inReference("comida", "bola")).toBe(false);
+  });
+});
+
+describe("Stop! veto", () => {
+  it("rejects strings that can't be Portuguese, keeps real-looking words for the vote", () => {
+    expect(notPortuguese("bxyz")).toBe(true);
+    expect(notPortuguese("trmp")).toBe(true);
+    expect(notPortuguese("fola")).toBe(false);
+    expect(notPortuguese("kiwi")).toBe(false);
   });
 });
 

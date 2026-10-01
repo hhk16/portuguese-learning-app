@@ -1093,6 +1093,8 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
         const night = rt.night;
         if (night) addNightPoints(rt, o, "Grande Final", "🏆");
         const totals = night ? { ...night.points } : undefined;
+        // Tonight's words: every game's, not only the Final's (one of each).
+        const nightWords = [...new Map([...(night?.words ?? []), ...(o.words ?? [])].map((w) => [w.pt, w])).values()];
         // After the crowning: the night is over — the star, tonight's points, what next. No stars or "faltam" here.
         const results = (champ?: ChampionActivity) => {
           rt.night = null;
@@ -1106,7 +1108,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
               sub: o.headline,
               subEn: "Grande Final",
               win: true,
-              practiced: o.words,
+              practiced: nightWords,
               champion: true,
               nightTotals: totals,
               xp: "night",

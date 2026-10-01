@@ -1061,7 +1061,7 @@ html.tv-root #root {
 }
 .sync-verdict {
   position: absolute;
-  top: 93%;
+  top: 57%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 2.2em;
@@ -3086,4 +3086,74 @@ html.tv-root #root {
 .sync-verdict {
   font-size: 1.5em;
   padding: 0.25em 1em;
+}
+
+/* Results always fit: the word lists and the gallery give up space first, the actions never. */
+.results-card > .words,
+.results-card > .per-player,
+.results-card > .xp-row {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+.results-card > .next-list,
+.results-card > h1,
+.results-card > .kicker,
+.results-card > .tonight {
+  flex: none;
+}
+.results-card .gallery {
+  flex-wrap: wrap;
+  max-height: 11.5rem;
+  overflow: hidden;
+}
+
+/* "Aquece!": the wick visibly jumps shorter. */
+.wick.jolt {
+  animation: wick-jolt 0.5s ease-out;
+}
+@keyframes wick-jolt {
+  0% { transform: scale(1, 1); background: rgba(255, 107, 61, 0.55); }
+  30% { transform: scale(1.03, 1.6); }
+  100% { transform: scale(1, 1); background: rgba(31, 42, 68, 0.18); }
+}
+.wick-burn {
+  position: absolute;
+  left: -4.2rem;
+  top: -0.7rem;
+  font-size: 1.6rem;
+  color: #d9472b;
+  animation: pop-in 0.3s ease-out both;
+}
+
+/* The lesson boss's outcome: a full-stage moment. */
+.rush-result {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 2rem 3.4rem;
+  animation: verdict-in 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.rush-result.won {
+  background: linear-gradient(135deg, #dcf7ea, #fff4c9);
+}
+.rush-result.lost {
+  background: linear-gradient(135deg, #ffe1dc, #f4f0ff);
+}
+.rush-result-title {
+  font-size: 3.4em;
+  white-space: nowrap;
+}
+.rush-result-sub {
+  font-size: 1.8em;
+}
+.rush-result i {
+  font-style: normal;
+  color: var(--ink-2);
 }

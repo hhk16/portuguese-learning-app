@@ -74,7 +74,8 @@ export function BombScreen({ a }: { a: BatataQuente }) {
         </div>
       </div>
       {a.phase === "play" && (
-        <div className={`wick ${heat > 0.75 ? "short" : ""}`} aria-hidden>
+        <div className={`wick ${heat > 0.75 ? "short" : ""} ${hurry ? "jolt" : ""}`} key={`wick-${a.hurrySeq}`} aria-hidden>
+          {hurry && <span className="wick-burn display">🔥 −1s</span>}
           <span className="wick-rope" style={{ width: `${Math.max(0, (1 - heat) * 100)}%` }} />
           <span className="wick-spark" style={{ left: `${Math.max(0, (1 - heat) * 100)}%` }}>
             ✨

@@ -59,7 +59,7 @@ export function Dial({ v, send }: { v: V; send: Send }) {
         <DialFace value={v.value} target={v.target} widths={v.bands} />
         {ends}
         {clue}
-        {v.psychicBet && <div className={`p-sub center ${v.betWon ? "ok" : ""}`}>Aposta: {{ cheio: "🎯 Em cheio", perto: "👌 Perto", longe: "🙈 Longe" }[v.psychicBet]} {v.betWon ? "✓ +2" : "✗"}</div>}
+        {v.psychicBet && <div className={`p-sub center ${v.betWon ? "ok" : ""}`}>Aposta: {{ cheio: "🎯 Em cheio", perto: "👌 Perto", longe: "🙈 Longe" }[v.psychicBet]} {v.betWon ? "✓ +3" : "✗"}</div>}
         <div className="p-grow" />
         <button className="btn block player" onClick={() => send({ mode: "dial", action: { a: "next" } })}>
           <span className="bi">
@@ -82,7 +82,7 @@ export function Dial({ v, send }: { v: V; send: Send }) {
         {v.phase === "guess" && clue}
         {v.phase === "guess" && !v.locked && (
           <div className="side-bet">
-            <span className="kicker">Aposta secreta · Secret bet: how close will {v.partner} get? (+2)</span>
+            <span className="kicker">Aposta secreta · Secret bet: how close will {v.partner} get? (+3)</span>
             <div className="row3">
               {(
                 [
@@ -91,7 +91,7 @@ export function Dial({ v, send }: { v: V; send: Send }) {
                   ["longe", "🙈 Longe", "Far"],
                 ] as const
               ).map(([id, pt, en]) => (
-                <button key={id} className={`btn ${v.psychicBet === id ? "mint" : "white"}`} disabled={!!v.psychicBet} onClick={() => send({ mode: "dial", action: { a: "bet", bet: id } })}>
+                <button key={id} className={`btn bet-btn ${v.psychicBet === id ? "mint" : "white"}`} disabled={!!v.psychicBet} onClick={() => send({ mode: "dial", action: { a: "bet", bet: id } })}>
                   <span className="bi">
                     {pt}
                     <small>{en}</small>

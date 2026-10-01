@@ -36,7 +36,14 @@ export const LEVEL_RULES: Record<Level, { cats: number; writeMs: number }> = {
 
 const CAT_EN: Record<string, string> = { comida: "Food or drink", animal: "Animal", coisa: "Thing", profissao: "Job", pais: "Country or nationality", lugar: "Place or nature" };
 
-export type CellStatus = "empty" | "letter" | "known" | "spelling" | "voted-yes" | "voted-no" | "pending" | "wrongcat";
+export type CellStatus = "empty" | "letter" | "known" | "spelling" | "voted-yes" | "voted-no" | "pending" | "wrongcat" | "notword";
+
+/** Pipo's veto: strings that can't be a Portuguese word (no vowel, or k/w/y outside known loanwords). */
+export function notPortuguese(word: string): boolean {
+  const w = normStop(word);
+  if (!w) return false;
+  return !/[aeiou]/.test(w) || (/[kwy]/.test(w) && !["kiwi", "ketchup", "yoga", "whisky", "karaté", "karate", "wifi", "sandwich"].includes(w));
+}
 
 export interface Cell {
   word: string;
@@ -256,7 +263,7 @@ export class Stop implements Activity {
         const dict = exact ?? near;
         // A known word of another category doesn't count here ("bola" isn't a country).
         const realCat = word && !exact && !near ? otherCategory(c.id, word) : undefined;
-        const status: CellStatus = !word ? "empty" : !startsWith(word, this.letter) ? "letter" : exact ? "known" : near ? "spelling" : realCat ? "wrongcat" : "pending";
+        const status: CellStatus = !word ? "empty" : !startsWith(word, this.letter) ? "letter" : exact ? "known" : near ? "spelling" : realCat ? "wrongcat" : notPortuguese(word) ? "notword" : "pending";
         row[c.id] = { word, status, dict, helped: !!this.help.get(p.playerId)?.[c.id], points: 0, realCat };
         if (dict && status !== "letter") {
           this.rt.evidence(p, dict.itemId, "stop.produce", exact ? "correct" : "accent-slip", 2);

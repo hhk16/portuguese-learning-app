@@ -87,6 +87,8 @@ export class LearnActivity implements Activity {
   private finished = false;
   /** The lightning round at the end (null before/without it). */
   rush: Rush | null = null;
+  /** The boss's outcome, shown full-stage for a moment before the results. */
+  rushResult: "won" | "lost" | null = null;
 
   /** Retry: straight to the lightning round with the lesson's words. */
   readonly rushOnly: boolean;
@@ -393,11 +395,14 @@ export class LearnActivity implements Activity {
     if (won) {
       play("success-jingle");
       this.rt.celebrate();
-      if (r) this.rt.say(SAY.lightningWon, { interrupt: true });
+      if (r) {
+        this.rt.say(SAY.lightningWon, { interrupt: true });
+        this.rt.petStar("cheer", 2600, PET.knew, 0.6);
+      }
     } else {
       play("fail-jingle");
       this.rt.say(SAY.lightningLost, { interrupt: true });
-      this.rt.petDo("oops", 2500);
+      this.rt.petStar("oops", 2600);
     }
     const stars = this.graded ? this.stars / this.graded : 1;
     // The lesson only counts as done once its lightning round is beaten.
@@ -413,10 +418,12 @@ export class LearnActivity implements Activity {
       rushOnly: this.rushOnly || undefined,
     };
     if (!r) return this.onDone(summary);
-    // The boss's outcome gets its own beat on the TV before the results.
-    this.rt.cue(won ? { pt: "⚡ Relâmpago superado!", en: "Lightning round beaten — lesson complete!" } : { pt: "⚡ Relâmpago perdido!", en: "Lightning round lost — try it again!" });
+    // The boss's outcome gets its own full-stage beat on the TV before the results.
+    this.rushResult = won ? "won" : "lost";
+    for (const p of this.players) this.rt.emote(p.playerId, won ? "cheer" : "sad", 3000);
+    this.rt.refreshViews();
     this.rt.bump();
-    setTimeout(() => this.rt.activity === this && this.onDone(summary), 2200);
+    setTimeout(() => this.rt.activity === this && this.onDone(summary), 3200);
   }
 
   /* --------------------------------- views --------------------------------- */
@@ -431,6 +438,10 @@ export class LearnActivity implements Activity {
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
+    if (this.rushResult)
+      return this.rushResult === "won"
+        ? { mode: "wait", title: "⚡ Relâmpago superado!", subtitle: "Lição completa! · Lesson complete — olha para a TV!", pic: "🏆" }
+        : { mode: "wait", title: "⚡ Relâmpago perdido!", subtitle: "Quase! Tentem outra vez · So close — try again!", pic: "💔" };
     const r = this.rush;
     if (r && !this.finished) {
       if (!r.wordEnd) return { mode: "wait", title: "⚡ Desafio relâmpago!", subtitle: "Lightning round: listen to the TV, tap fast — together!", pic: "⚡" };

@@ -1493,3 +1493,11 @@ body,
 .wardrobe-opt:disabled {
   opacity: 0.4;
 }
+.btn.bet-btn {
+  padding: 8px 4px;
+  font-size: 14px;
+  min-width: 0;
+}
+.btn.bet-btn .bi {
+  white-space: normal;
+}

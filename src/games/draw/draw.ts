@@ -349,7 +349,7 @@ export class Desenha implements Activity {
       this.contrib.set(drawer.playerId, (this.contrib.get(drawer.playerId) ?? 0) + 3);
       this.rt.say(NAMED.bestBy, { name: drawer.name, interrupt: true });
       // The puppy waves its paws at the winning drawing.
-      this.rt.petDo("wave", 3500, PET.loves, 0.5);
+      this.rt.petStar("wave", 2600, PET.loves, 0.6);
       this.rt.emote(drawer.playerId, "cheer", 3500);
     }
     this.phase = "best";

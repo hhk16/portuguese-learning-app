@@ -82,6 +82,8 @@ export class ParesSecretos implements Activity {
   /** The giver's bet this turn, finds this turn, and bets won (+5 each at the end). */
   giverBet: number | null = null;
   turnFinds = 0;
+  /** Between turns (bet card, then the next giver): phones show a short "end of turn" card. */
+  turnOver = false;
   betsWon = 0;
   lastBet: { n: number; won: boolean } | null = null;
   /** Who did what, for the MVP split on game night: finds as guesser, finds from your clues, bets won. */
@@ -214,6 +216,7 @@ export class ParesSecretos implements Activity {
     this.clueWord = null;
     this.giverBet = null;
     this.turnFinds = 0;
+    this.turnOver = false;
     this.guessesLeft = 0;
     this.promptId = randomId(6);
     play("whoosh");
@@ -384,6 +387,7 @@ export class ParesSecretos implements Activity {
     this.turnsUsed++;
     // The turn is over on every phone too (no taps on a finished turn).
     this.promptId = randomId(6);
+    this.turnOver = true;
     this.rt.refreshViews();
     let pause = 900;
     const giver = this.giver;
@@ -454,6 +458,7 @@ export class ParesSecretos implements Activity {
     for (const c of this.cards) if (c.state === "hidden" && (c.targetOf || c.bomb)) c.state = c.bomb ? "boom" : "neutral";
     play(won ? "fanfare" : "sad-trombone");
     if (won) this.rt.celebrate();
+    this.rt.petStar(won ? "cheer" : "oops", 2600);
     this.rt.bump();
     // Score: every pair found, plus a bonus for each turn to spare when you win.
     const spare = won ? this.turnsLeft : 0;
@@ -482,6 +487,13 @@ export class ParesSecretos implements Activity {
     if (this.players.length < 2) return { mode: "wait", title: "Pares Secretos precisa de 2", subtitle: "Chama o teu par! · Needs two players", pic: "🤝" };
     if (this.phase === "end") return { mode: "wait", title: this.found >= this.goal ? "Conseguiram!" : "Fim do jogo", subtitle: `${this.found}/${this.goal} pares · pairs found`, pic: this.found >= this.goal ? "🏆" : "💣" };
     const sudden = this.phase === "sudden";
+    if (this.turnOver && !sudden)
+      return {
+        mode: "wait",
+        title: `Fim do turno · ${this.turnFinds} encontrad${this.turnFinds === 1 ? "o" : "os"}`,
+        subtitle: `End of the turn — ${this.found}/${this.goal} found. Olha para a TV!`,
+        pic: this.turnFinds ? "✅" : "⏭️",
+      };
     const isGiver = p === this.giver && !sudden;
     const role = sudden ? "guess" : this.phase === "clue" ? (isGiver ? "clue" : "watch") : p === this.guesser ? "guess" : "watch";
     const partner = this.rt.partnerOf(p)?.name ?? "";

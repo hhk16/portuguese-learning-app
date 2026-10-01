@@ -18,7 +18,7 @@ import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
+import { CUE, NAMED, PET, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { spectra, spectrumKey, type Clue, type Spectrum } from "./scale.ts";
 import { THINGS } from "./things.ts";
@@ -337,6 +337,7 @@ export class NaMesmaOnda implements Activity {
     if (raw >= BULLSEYE) {
       play(this.sure ? "fanfare" : "success-jingle");
       this.rt.celebrate();
+      if (!this.inPractice) this.rt.petStar("cheer", 2400, PET.loves, 0.5);
       this.rt.say(SAY.perfect, { interrupt: true });
     } else if (raw > 0 && !(this.sure && this.lastPoints === 0)) {
       play("correct");

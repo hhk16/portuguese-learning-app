@@ -233,7 +233,10 @@ export class GrandeFinal implements Activity {
     }
     const first = this.firstRight ? this.rt.players.get(this.firstRight) : undefined;
     play(anyRight ? "correct" : "wrong");
-    if (first) this.rt.say(NAMED.wellDone, { name: first.name, interrupt: true });
+    if (first) {
+      this.rt.say(NAMED.wellDone, { name: first.name, interrupt: true });
+      this.rt.petDo("cheer", 1800);
+    }
     this.rt.speakPt(q.frase?.text ?? q.word.say);
     this.rt.refreshViews();
     this.rt.bump();

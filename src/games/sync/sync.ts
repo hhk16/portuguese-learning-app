@@ -410,7 +410,7 @@ export class EmSintonia implements Activity {
       }
       this.rt.say(this.attempt === 1 ? SAY.perfect : SAY.inSync);
       // The puppy jumps for joy when you think the same word.
-      this.rt.petDo("cheer", 2600, PET.loves, 0.4);
+      this.rt.petStar("cheer", 2400, PET.loves, 0.5);
       this.rt.speakPt(words[0]);
     } else {
       play("sad-trombone", 0.6);

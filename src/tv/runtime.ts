@@ -260,13 +260,19 @@ export class TvRuntime {
   petJoy = 0;
 
   /** A game moment the puppy acts out for a while: hides from a bang, sniffs the kitchen, carries the crown… */
-  petAct: { pose: PetAct; until: number; seq: number } | null = null;
+  petAct: { pose: PetAct; until: number; seq: number; spotlight?: boolean } | null = null;
   private petActSeq = 0;
   private petLineAt = 0;
 
   /** The puppy acts something out; sometimes Pipo comments on it (by name, at most every ~40 s). */
   petDo(pose: PetAct, ms = 2600, line?: Line, chance = 0.5) {
     this.petAct = { pose, until: performance.now() + ms, seq: ++this.petActSeq };
+    if (line) this.petSay(line, chance);
+  }
+
+  /** The puppy's big moment: it runs to centre stage, big, acts it out, then goes back to its person. */
+  petStar(pose: PetAct, ms = 2200, line?: Line, chance = 0.7) {
+    this.petAct = { pose, until: performance.now() + ms, seq: ++this.petActSeq, spotlight: true };
     if (line) this.petSay(line, chance);
   }
 
