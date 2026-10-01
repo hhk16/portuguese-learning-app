@@ -1501,3 +1501,35 @@ body,
 .btn.bet-btn .bi {
   white-space: normal;
 }
+
+.scard.s-missed {
+  outline: 3px dashed var(--mint-d);
+  outline-offset: -3px;
+}
+
+/* Cozinha: the pantry scrolls if it must; the tray and the actions always have their own room. */
+.kitchen-pad {
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+}
+.kitchen-pad .pantry {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
+}
+.kitchen-pad .pantry-item {
+  min-height: 60px;
+}
+.kitchen-pad .tray,
+.kitchen-pad .kitchen-actions {
+  flex: none;
+}
+.kitchen-pad .kitchen-actions {
+  position: static;
+  background: none;
+}
+.kitchen-pad .p-grow {
+  display: none;
+}

@@ -270,10 +270,26 @@ export class TvRuntime {
     if (line) this.petSay(line, chance);
   }
 
-  /** The puppy's big moment: it runs to centre stage, big, acts it out, then goes back to its person. */
+  /** The puppy's big moment: it pops up big over the game (above every card), acts it out, then goes back to its person. */
   petStar(pose: PetAct, ms = 2200, line?: Line, chance = 0.7) {
     this.petAct = { pose, until: performance.now() + ms, seq: ++this.petActSeq, spotlight: true };
     if (line) this.petSay(line, chance);
+    this.bump();
+  }
+
+  /** A game's big ending beat on the stage ("💔 Acabaram-se as vidas!", "📻 Sem sinal!"), before the results. */
+  moment: { seq: number; at: number; ms: number; pt: string; en: string; kind: "won" | "lost" } | null = null;
+  private momentSeq = 0;
+  bigMoment(line: Line, kind: "won" | "lost", ms = 2600) {
+    const seq = ++this.momentSeq;
+    this.moment = { seq, at: performance.now(), ms, pt: line.pt, en: line.en, kind };
+    this.bump();
+    setTimeout(() => {
+      if (this.moment?.seq === seq) {
+        this.moment = null;
+        this.bump();
+      }
+    }, ms);
   }
 
   /** Pipo says a line about the puppy, if it has a name (rate-limited so it stays a treat). */

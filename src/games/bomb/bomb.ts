@@ -180,8 +180,8 @@ export class BatataQuente implements Activity {
     this.burned = null;
     this.q = null;
     play("whoosh");
+    // The stage title already shouts "Batata quente!": Pipo only speaks up for the last (or tie-break) potato.
     if (this.final && !this.inPractice) this.rt.say(this.extra ? SAY.tie : SAY.finalRound);
-    else this.rt.say(SAY.hotPotato);
     this.rt.refreshViews();
     this.rt.bump();
   }
@@ -297,6 +297,7 @@ export class BatataQuente implements Activity {
     this.phaseEnd = now + BOOM_MS;
     this.burned = loser ?? null;
     this.q = null;
+    this.lastHurry = null;
     setHurry(false);
     play("boom");
     // The puppy hides its eyes at every bang (and Pipo sometimes says so).

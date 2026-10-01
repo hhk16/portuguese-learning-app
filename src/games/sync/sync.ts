@@ -458,23 +458,29 @@ export class EmSintonia implements Activity {
     const n = this.matches.length;
     const out = this.lives <= 0;
     play(out ? "sad-trombone" : "success-jingle");
+    // The ending gets its own beat on the stage before the results.
+    this.rt.bigMoment(out ? { pt: "💔 Acabaram-se as vidas!", en: "Out of lives — the telepathy broke down" } : { pt: "🔮 Telepatia!", en: `In sync on ${n} of ${ROUNDS} pairs` }, out ? "lost" : "won");
+    this.rt.petStar(out ? "oops" : "cheer", 2600);
     const en = (w: string) => {
       const node = nodeOf(w);
       return node ? nodeWord(node) : undefined;
     };
-    this.onDone({
-      failed: out,
-      score: this.score,
-      // Every pair first try (the last one doubled) and a couple of predictions right.
-      max: this.maxScore,
-      headline: `${n} de ${ROUNDS} em sintonia · ${this.score} pontos`,
-      headlineEn: `In sync on ${n} of ${ROUNDS} pairs`,
-      sub: out ? "Acabaram-se as vidas!" : n ? `Palavras: ${this.matches.map((m) => m.word).join(", ")}` : "Continuem a tentar!",
-      subEn: out ? "Out of lives — the telepathy broke down." : n ? "Your shared words" : "Keep trying!",
-      words: this.matches.map((m) => ({ pt: m.word, en: en(m.word)?.en, pic: en(m.word)?.pic })),
-      contrib: Object.fromEntries(this.contrib),
-      highlight: this.matches[0] ? { pt: `Os dois pensaram “${this.matches[0].word}”!`, en: `You both thought “${this.matches[0].word}”`, pic: "🤝" } : undefined,
-    });
+    setTimeout(() => {
+      if (this.rt.activity !== this) return;
+      this.onDone({
+        failed: out,
+        score: this.score,
+        // Every pair first try (the last one doubled) and a couple of predictions right.
+        max: this.maxScore,
+        headline: `${n} de ${ROUNDS} em sintonia · ${this.score} pontos`,
+        headlineEn: `In sync on ${n} of ${ROUNDS} pairs`,
+        sub: out ? "Acabaram-se as vidas!" : n ? `Palavras: ${[...new Set(this.matches.map((m) => m.word))].join(", ")}` : "Continuem a tentar!",
+        subEn: out ? "Out of lives — the telepathy broke down." : n ? "Your shared words" : "Keep trying!",
+        words: this.matches.map((m) => ({ pt: m.word, en: en(m.word)?.en, pic: en(m.word)?.pic })),
+        contrib: Object.fromEntries(this.contrib),
+        highlight: this.matches[0] ? { pt: `Os dois pensaram “${this.matches[0].word}”!`, en: `You both thought “${this.matches[0].word}”`, pic: "🤝" } : undefined,
+      });
+    }, 2700);
   }
 
   /** Words as submitted, for the TV reveal. */

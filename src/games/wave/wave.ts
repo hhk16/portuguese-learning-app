@@ -366,27 +366,32 @@ export class NaMesmaOnda implements Activity {
       setHurry(false);
       // Still on air at the end: every signal left is a bonus.
       if (!this.offAir) this.score += SIGNAL_BONUS * this.signals;
+      this.rt.bigMoment(this.offAir ? { pt: "📻 Sem sinal!", en: "The radio show went off the air" } : { pt: "📻 Ainda no ar!", en: `Still on air — ${this.signals} signal${this.signals === 1 ? "" : "s"} left, bonus!` }, this.offAir ? "lost" : "won");
+      this.rt.petStar(this.offAir ? "oops" : "cheer", 2600);
       this.rt.bump();
       const bulls = this.history.filter((h) => h.points >= BULLSEYE).length;
       // Bets can double a bullseye, so ⭐⭐⭐ needs bullseyes *and* a brave bet or two.
       const max = this.maxScore;
       const headline = this.score >= max * 0.85 ? "Telepatia! 🔮" : this.score >= max * 0.6 ? "Na mesma onda!" : this.score >= max * 0.35 ? "Boa onda!" : "Quase… outra vez?";
       const headlineEn = this.score >= max * 0.85 ? "Telepathy!" : this.score >= max * 0.6 ? "On the same wavelength!" : this.score >= max * 0.35 ? "Good vibes!" : "Almost… again?";
-      this.onDone({
-        failed: this.offAir,
-        score: this.score,
-        max,
-        headline: this.offAir ? `Sem sinal! 📻 ${this.score} pontos` : `${headline} ${this.score} pontos`,
-        headlineEn: this.offAir ? `Off the air! ${this.score} points` : `${headlineEn} ${this.score} points`,
-        sub: this.offAir ? `A rádio saiu do ar no mostrador ${this.history.length} · ${bulls} em cheio` : `${bulls} em cheio · ainda no ar com ${this.signals} sina${this.signals === 1 ? "l" : "is"}: +${SIGNAL_BONUS * this.signals}`,
-        subEn: this.offAir ? `The show went off-air after ${this.history.length} dials` : `${bulls} bullseye${bulls === 1 ? "" : "s"} · still on air: signal bonus`,
-        words: this.history.map((h) => ({ pt: h.clue, en: h.clueEn, pic: h.cluePic })),
-        contrib: Object.fromEntries(this.contrib),
-        highlight: (() => {
-          const best = [...this.history].sort((x, y) => y.points - x.points)[0];
-          return best && best.points >= BULLSEYE ? { pt: `Em cheio com “${best.clue}”!`, en: `Bullseye with “${best.clueEn ?? best.clue}”`, pic: best.cluePic } : undefined;
-        })(),
-      });
+      setTimeout(() => {
+        if (this.rt.activity !== this) return;
+        this.onDone({
+          failed: this.offAir,
+          score: this.score,
+          max,
+          headline: this.offAir ? `Sem sinal! 📻 ${this.score} pontos` : `${headline} ${this.score} pontos`,
+          headlineEn: this.offAir ? `Off the air! ${this.score} points` : `${headlineEn} ${this.score} points`,
+          sub: this.offAir ? `A rádio saiu do ar no mostrador ${this.history.length} · ${bulls} em cheio` : `${bulls} em cheio · ainda no ar com ${this.signals} sina${this.signals === 1 ? "l" : "is"}: +${SIGNAL_BONUS * this.signals}`,
+          subEn: this.offAir ? `The show went off-air after ${this.history.length} dials` : `${bulls} bullseye${bulls === 1 ? "" : "s"} · still on air: signal bonus`,
+          words: this.history.map((h) => ({ pt: h.clue, en: h.clueEn, pic: h.cluePic })),
+          contrib: Object.fromEntries(this.contrib),
+          highlight: (() => {
+            const best = [...this.history].sort((x, y) => y.points - x.points)[0];
+            return best && best.points >= BULLSEYE ? { pt: `Em cheio com “${best.clue}”!`, en: `Bullseye with “${best.clueEn ?? best.clue}”`, pic: best.cluePic } : undefined;
+          })(),
+        });
+      }, 2700);
       return;
     }
     this.newRound();
@@ -420,7 +425,8 @@ export class NaMesmaOnda implements Activity {
       psychicBet: isPsychic || this.phase === "reveal" ? (this.psychicBet ?? undefined) : undefined,
       betWon: this.phase === "reveal" && this.psychicBet ? this.betWon : undefined,
       msLeft: !this.inPractice && (phase === "clue" || (phase === "guess" && this.phase !== "suspense")) ? this.msLeft : undefined,
-      points: this.phase === "reveal" ? this.lastPoints : undefined,
+      // The dial's own points (the side bet is its own line), so the phones match the TV.
+      points: this.phase === "reveal" ? this.lastDial : undefined,
       practice: this.inPractice || undefined,
       signals: this.inPractice ? undefined : this.signals,
       debugAnswer: this.rt.testMode ? { target: this.target, ats: this.clues.map((c) => c.at ?? 50) } : undefined,

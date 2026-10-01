@@ -797,7 +797,9 @@ export class ResultsActivity implements Activity {
       }
       else if (xp === "game") gain = 15 + 10 * (stars ?? 0) + (winner === p.playerId ? 15 : 0);
       else gain = 40 + (champs.includes(p.playerId) ? 40 : 0);
-      this.awards.set(p.playerId, award(p.profile, gain, { lesson: xp === "lesson", game: xp === "game", win: winner === p.playerId, crown: xp === "night" && champs.includes(p.playerId) }));
+      // A lesson only counts (and earns its badges) once its lightning round is beaten.
+      const lessonDone = xp === "lesson" && !(lesson?.rush && !lesson.rush.won);
+      this.awards.set(p.playerId, award(p.profile, gain, { lesson: lessonDone, game: xp === "game", win: winner === p.playerId, crown: xp === "night" && champs.includes(p.playerId) }));
     }
     // A level up gets its own fanfare and a line from Pipo, after the stars.
     const ups = rt.activePlayers.filter((p) => this.awards.get(p.playerId)?.levelUp);
@@ -1035,8 +1037,8 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
               new ResultsActivity({
                 spec,
                 title: lesson.title,
-                headline: s.rushOnly ? (lost ? `Quase! ${s.rush!.team}/${s.rush!.goal} ⚡` : "Relâmpago superado! ⚡") : lost ? `Lição por completar ⚡ ${s.rush!.team}/${s.rush!.goal}` : `${s.stars} ⭐ de ${s.graded}`,
-                headlineEn: lost ? "So close — beat the lightning round to complete the lesson" : s.rushOnly ? "Lesson complete!" : undefined,
+                headline: s.rushOnly ? (lost ? `${s.rush!.team >= 3 ? "Quase!" : "Hoje não deu…"} ${s.rush!.team}/${s.rush!.goal} ⚡` : "Relâmpago superado! ⚡") : lost ? `Lição por completar ⚡ ${s.rush!.team}/${s.rush!.goal}` : `${s.stars} ⭐ de ${s.graded}`,
+                headlineEn: lost ? (s.rush!.team >= 3 ? "So close — beat the lightning round to complete the lesson" : "Not today — beat the lightning round to complete the lesson") : s.rushOnly ? "Lesson complete!" : undefined,
                 sub: s.rushOnly ? rushLine.trim() : `${s.stars === s.graded ? "Perfeito! Os dois acertaram tudo." : "Estrelas de equipa: quando os dois acertam."}${s.bestCombo >= 3 ? ` Melhor combo: ×${s.bestCombo}!` : ""}${rushLine}`,
                 subEn: s.rushOnly ? rushLineEn.trim() : `${s.stars === s.graded ? "Perfect — you both got everything right." : "Team stars: when you're both right."}${s.bestCombo >= 3 ? ` Best combo ×${s.bestCombo}!` : ""}${rushLineEn}`,
                 win: !lost,

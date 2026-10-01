@@ -16,7 +16,7 @@ import { ChampionActivity, LobbyActivity, ResultsActivity, TitleActivity, Wardro
 import { WardrobeScreen } from "./screens/WardrobeScreen.tsx";
 import { useRuntime } from "./runtime.ts";
 import { LearnScreen } from "./screens/LearnScreen.tsx";
-import { BetCard, ChampionScreen, Command, HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
+import { BetCard, BigMoment, PetStar, ChampionScreen, Command, HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
 import { SecretScreen } from "./screens/SecretScreen.tsx";
 import { SyncScreen } from "./screens/SyncScreen.tsx";
 import { WaveScreen } from "./screens/WaveScreen.tsx";
@@ -91,6 +91,8 @@ export function TvApp() {
       <HostBubble />
       <Command />
       <BetCard />
+      <BigMoment />
+      <PetStar />
       <Reactions />
       {rt.paused && <PauseScreen />}
       {rt.socket !== "open" && <div className="conn-warn">A ligar ao servidor…</div>}

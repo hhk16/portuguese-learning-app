@@ -127,6 +127,15 @@ if (process.env.E2E_MODES === "wardrobe") {
   }
   await ana.locator(".btn", { hasText: "Pronto" }).click();
   await tv.waitForTimeout(1500 * PACE);
+  if (VIDEO) {
+    const sounds = await tv.evaluate(() => (window as unknown as { __ppSoundLog?: unknown[] }).__ppSoundLog ?? []);
+    const pages = { tv, Hadi: bots[0]!.page, Ana: bots[1]!.page };
+    const end = Date.now();
+    for (const pg of Object.values(pages)) await pg.context().close();
+    const videos: Record<string, string> = {};
+    for (const [k, pg] of Object.entries(pages)) videos[k] = (await pg.video()?.path()) ?? "";
+    writeFileSync(`${OUT}/video/meta.json`, JSON.stringify({ modes: MODES, starts, end, videos, sounds }, null, 1));
+  }
   console.log(errors.length ? errors.join("\n") : "no page errors");
   console.log("PLAYED wardrobe ✓");
   await browser.close();
@@ -607,10 +616,12 @@ while (Date.now() - start < LIMIT) {
     const spill = await tv.evaluate(() => {
       const card = document.querySelector(".results-card")?.getBoundingClientRect();
       if (!card) return [];
-      return [...document.querySelectorAll(".results-card *")]
+      return [...document.querySelectorAll(".results-card, .results-card *")]
         .filter((el) => {
           const r = el.getBoundingClientRect();
-          return r.height > 0 && (r.bottom > card.bottom + 2 || r.right > card.right + 2);
+          // Spills past the card, or is itself cut (content taller than its box).
+          const clips = getComputedStyle(el).overflowY !== "visible";
+          return r.height > 0 && (r.bottom > card.bottom + 2 || r.right > card.right + 2 || (clips && el !== document.querySelector(".results-card") && el.scrollHeight > el.clientHeight + 2));
         })
         .map((el) => el.className || el.tagName)
         .slice(0, 5);

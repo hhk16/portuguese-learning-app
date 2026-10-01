@@ -455,10 +455,15 @@ export class ParesSecretos implements Activity {
     if (this.ended) return;
     this.ended = true;
     this.phase = "end";
-    for (const c of this.cards) if (c.state === "hidden" && (c.targetOf || c.bomb)) c.state = c.bomb ? "boom" : "neutral";
+    // The ones you didn't find light up (to learn), the bombs show where they were.
+    for (const c of this.cards) if (c.state === "hidden" && (c.targetOf || c.bomb)) c.state = c.bomb ? "boom" : "missed";
     play(won ? "fanfare" : "sad-trombone");
     if (won) this.rt.celebrate();
     this.rt.petStar(won ? "cheer" : "oops", 2600);
+    this.rt.bigMoment(
+      won ? { pt: "🕵️ Todos os pares!", en: "Every secret picture found!" } : this.lives <= 0 ? { pt: "💣 A bomba ganhou!", en: "The bomb got you — the missed ones are lit up" } : { pt: "⏰ Acabaram-se os turnos!", en: "Out of turns — the missed ones are lit up" },
+      won ? "won" : "lost",
+    );
     this.rt.bump();
     // Score: every pair found, plus a bonus for each turn to spare when you win.
     const spare = won ? this.turnsLeft : 0;

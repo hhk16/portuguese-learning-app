@@ -441,7 +441,7 @@ export class LearnActivity implements Activity {
     if (this.rushResult)
       return this.rushResult === "won"
         ? { mode: "wait", title: "⚡ Relâmpago superado!", subtitle: "Lição completa! · Lesson complete — olha para a TV!", pic: "🏆" }
-        : { mode: "wait", title: "⚡ Relâmpago perdido!", subtitle: "Quase! Tentem outra vez · So close — try again!", pic: "💔" };
+        : { mode: "wait", title: "⚡ Relâmpago perdido!", subtitle: (this.rush?.team ?? 0) >= 3 ? "Quase! Tentem outra vez · So close — try again!" : "Hoje não deu — tentem outra vez · Not today — try again!", pic: "💔" };
     const r = this.rush;
     if (r && !this.finished) {
       if (!r.wordEnd) return { mode: "wait", title: "⚡ Desafio relâmpago!", subtitle: "Lightning round: listen to the TV, tap fast — together!", pic: "⚡" };

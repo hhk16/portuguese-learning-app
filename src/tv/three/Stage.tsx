@@ -239,7 +239,6 @@ function useNameTag(name: string | undefined): { tex: THREE.CanvasTexture; aspec
 function Pet({ rt, x, y, height, flip, force }: { rt: TvRuntime; x: number; y: number; height: number; flip: boolean; force?: PetPose }) {
   const textures = PET_POSES.map((p) => useTex(`/art/pet/pup-${p}.webp`)); // eslint-disable-line react-hooks/rules-of-hooks
   const tag = useNameTag(rt.settings.petName);
-  const { size } = useThree();
   const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
   const mat = useRef<THREE.MeshBasicMaterial>(null);
@@ -276,14 +275,10 @@ function Pet({ rt, x, y, height, flip, force }: { rt: TvRuntime; x: number; y: n
       mat.current.map = tex;
       mat.current.needsUpdate = true;
     }
-    // Its big moment: centre stage, a quarter of the screen tall.
-    const star = rt.petAct?.spotlight && now < rt.petAct.until;
-    const tx = star ? 0 : x;
-    const ty = star ? -size.height * 0.5 + size.height * 0.03 : y;
-    const th = star ? size.height * 0.27 : height;
-    pos.current.x += (tx - pos.current.x) * Math.min(1, dt * (star ? 6 : 3));
-    pos.current.y += (ty - pos.current.y) * Math.min(1, dt * (star ? 6 : 3));
-    pos.current.h += (th - pos.current.h) * Math.min(1, dt * (star ? 6 : 3));
+    // Its big moments are drawn over the game (PetStar, in the DOM); here it stays by its person.
+    pos.current.x += (x - pos.current.x) * Math.min(1, dt * 3);
+    pos.current.y += (y - pos.current.y) * Math.min(1, dt * 3);
+    pos.current.h += (height - pos.current.h) * Math.min(1, dt * 3);
     const h = pos.current.h * PET_HEIGHT[pose];
     const img = tex.image as { width: number; height: number } | undefined;
     const w = img ? (h * img.width) / img.height : h;

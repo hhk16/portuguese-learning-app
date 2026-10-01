@@ -366,7 +366,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
           <div className="words">
             <div className="kicker">Palavras do jogo · Words you used</div>
             <div className="word-chips">
-              {[...new Map(info.practiced.map((w) => [w.pt, w])).values()].slice(0, 8).map((w, i) => (
+              {[...new Map(info.practiced.map((w) => [w.pt, w])).values()].slice(0, info.champion ? 6 : 8).map((w, i) => (
                 <span key={`${w.pt}-${i}`} className="word-chip">
                   {w.pic && <Picture glyph={w.pic} size="1.6em" />}
                   <b>{w.pt}</b>
@@ -398,7 +398,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             </div>
           </div>
         )}
-        {!info.lesson && review.length > 0 && (
+        {!info.lesson && !info.champion && !info.gallery?.length && review.length > 0 && (
           <div className="words">
             <div className="kicker">Para rever · To review</div>
             <div className="word-chips">
@@ -559,6 +559,40 @@ export function Command() {
         <i>{c.en}</i>
       </span>
       <span className="command-phone">📱</span>
+    </div>
+  );
+}
+
+/** The puppy's big moment: it pops up big over the game for a couple of seconds, above every card. */
+export function PetStar() {
+  const rt = useRuntime();
+  const act = rt.petAct;
+  const [, force] = useState(0);
+  const left = act?.spotlight ? act.until - performance.now() : 0;
+  useEffect(() => {
+    if (left <= 0) return;
+    const id = setTimeout(() => force((x) => x + 1), left + 30);
+    return () => clearTimeout(id);
+  }, [act?.seq, left]);
+  if (!act?.spotlight || left <= 0) return null;
+  const pose = act.pose === "think" ? "think" : act.pose;
+  return (
+    <div className={`pet-star ${pose}`} key={act.seq}>
+      <img src={`/art/pet/pup-${pose}.webp`} alt="" />
+      {rt.settings.petName && <span className="pet-star-tag display">{rt.settings.petName}</span>}
+    </div>
+  );
+}
+
+/** A game's big ending beat (lost the last life, off the air…), centre stage before the results. */
+export function BigMoment() {
+  const rt = useRuntime();
+  const m = rt.moment;
+  if (!m) return null;
+  return (
+    <div className={`card big-moment ${m.kind}`} key={m.seq}>
+      <b className="display">{m.pt}</b>
+      <i>{m.en}</i>
     </div>
   );
 }

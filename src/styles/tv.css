@@ -1061,7 +1061,7 @@ html.tv-root #root {
 }
 .sync-verdict {
   position: absolute;
-  top: 57%;
+  top: 60%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 2.2em;
@@ -3088,19 +3088,12 @@ html.tv-root #root {
   padding: 0.25em 1em;
 }
 
-/* Results always fit: the word lists and the gallery give up space first, the actions never. */
-.results-card > .words,
-.results-card > .per-player,
-.results-card > .xp-row {
-  flex: 0 1 auto;
-  min-height: 0;
-  overflow: hidden;
-}
-.results-card > .next-list,
-.results-card > h1,
-.results-card > .kicker,
-.results-card > .tonight {
+/* Results always fit: nothing shrinks (no half-cut rows); the card just shows fewer words. */
+.results-card > * {
   flex: none;
+}
+.results-card .word-chips {
+  max-height: none;
 }
 .results-card .gallery {
   flex-wrap: wrap;
@@ -3156,4 +3149,97 @@ html.tv-root #root {
 .rush-result i {
   font-style: normal;
   color: var(--ink-2);
+}
+
+/* The puppy's big moment, over everything (the 3D stage sits under the game cards). */
+.pet-star {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 30;
+  height: 34vh;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  animation: pet-star-in 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  filter: drop-shadow(0 0.6rem 1rem rgba(31, 42, 68, 0.35));
+}
+.pet-star img {
+  height: 100%;
+  width: auto;
+}
+.pet-star.cheer img {
+  animation: pet-hop 0.42s ease-in-out infinite alternate;
+}
+.pet-star.hide img,
+.pet-star.oops img {
+  animation: pet-tremble 0.08s linear infinite alternate;
+}
+.pet-star.wave img,
+.pet-star.sniff img {
+  animation: pet-sway 0.6s ease-in-out infinite alternate;
+}
+.pet-star-tag {
+  position: absolute;
+  top: -1.6rem;
+  padding: 0.1rem 0.9rem;
+  border-radius: 999px;
+  background: var(--white);
+  border: 0.15rem solid #f2994a;
+  font-size: 1.3rem;
+}
+@keyframes pet-star-in {
+  from { transform: translate(-50%, 60%) scale(0.6); opacity: 0; }
+  to { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+@keyframes pet-hop {
+  from { transform: translateY(0) rotate(-3deg); }
+  to { transform: translateY(-14%) rotate(3deg); }
+}
+@keyframes pet-tremble {
+  from { transform: translateX(-1.5%); }
+  to { transform: translateX(1.5%); }
+}
+@keyframes pet-sway {
+  from { transform: rotate(-4deg); }
+  to { transform: rotate(4deg); }
+}
+
+/* A game's big ending beat. */
+.big-moment {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.8rem 3.2rem;
+  animation: verdict-in 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.big-moment b {
+  font-size: 3.2em;
+  white-space: nowrap;
+}
+.big-moment i {
+  font-style: normal;
+  color: var(--ink-2);
+  font-size: 1.2em;
+}
+.big-moment.won {
+  background: linear-gradient(135deg, #dcf7ea, #fff4c9);
+}
+.big-moment.lost {
+  background: linear-gradient(135deg, #ffe1dc, #f4f0ff);
+}
+
+/* Secret, after a loss: the pictures you didn't find, lit up to learn them. */
+.sb-card.s-missed {
+  outline: 0.25rem dashed var(--mint-d);
+  outline-offset: -0.25rem;
+  background: #f0fff7;
 }

@@ -78,7 +78,7 @@ export const SecretCard = z.object({
   id,
   word: Word,
   /** Public state on the board. */
-  state: z.enum(["hidden", "found", "neutral", "boom"]),
+  state: z.enum(["hidden", "found", "neutral", "boom", "missed"]),
   /** This player's private key (only on the clue-giver's phone). */
   key: z.enum(["target", "bomb", "neutral"]).optional(),
 });
