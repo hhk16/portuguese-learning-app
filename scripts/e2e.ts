@@ -90,6 +90,22 @@ const press = async (key: string, n = 1) => {
   }
 };
 
+// First run on a fresh TV: Ana names the puppy before anything else.
+{
+  const ana = bots[1]!.page;
+  const named = await ana
+    .waitForSelector(".pet-ideas .btn", { timeout: 6000 })
+    .then(() => true)
+    .catch(() => false);
+  if (named) {
+    await ana.waitForTimeout(1200 * PACE);
+    await ana.screenshot({ path: `${OUT}/03-phone-pet-name.png` });
+    await ana.locator(".pet-ideas .btn", { hasText: "Bolacha" }).first().click({ timeout: 2500 }).catch(() => {});
+    await tv.waitForTimeout(3500 * PACE);
+    await tv.screenshot({ path: `${OUT}/03-tv-pet-named.png` });
+  }
+}
+
 // Main menu: Noite de jogos · Aprender juntos · Jogar · Definições
 const first = MODES[0]!;
 if (first === "night") {

@@ -453,7 +453,7 @@ export class ParesSecretos implements Activity {
           max,
           headline: won ? `Conseguiram! ${this.found}/${this.goal} em ${this.turnsUsed} turno${this.turnsUsed === 1 ? "" : "s"}` : `${this.found} de ${this.goal} pares`,
           headlineEn: won ? `You did it — ${this.turnsUsed} turns used` : `${this.found} of ${this.goal} found`,
-          sub: won ? `${spare} turnos de sobra: +${spare * 5}` : this.lives <= 0 ? "A bomba ganhou desta vez." : "Acabaram-se os turnos.",
+          sub: won ? `${spare} turno${spare === 1 ? "" : "s"} de sobra: +${spare * 5}` : this.lives <= 0 ? "A bomba ganhou desta vez." : "Acabaram-se os turnos.",
           subEn: won ? "Bonus for turns to spare" : this.lives <= 0 ? "The bomb got you this time." : "Out of turns.",
           words: this.cards.filter((c) => c.state === "found").map((c) => ({ pt: c.card.pt, en: c.card.en, pic: c.card.emoji })),
           contrib: Object.fromEntries(this.contrib),

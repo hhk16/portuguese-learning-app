@@ -31,7 +31,7 @@ export function SecretScreen({ a }: { a: ParesSecretos }) {
       </GameTop>
       {a.phase === "clue" && a.turnsUsed === 0 && (
         <div className="goal-line">
-          🎯 <b>Objetivo: encontrar as {a.goal} imagens secretas em {a.rules.turns} turnos</b> <i>Goal: find all {a.goal} secret pictures in {a.rules.turns} turns — without the bombs</i>
+          🎯 <b>Objetivo: encontrar as {a.goal} imagens secretas em {a.rules.turns} turnos</b> <i>Goal: all {a.goal} in {a.rules.turns} turns, no bombs</i>
         </div>
       )}
       <div className={`turn-banner card ${a.phase === "sudden" ? "sudden" : ""}`}>

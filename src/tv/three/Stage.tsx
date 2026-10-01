@@ -330,7 +330,7 @@ function Pet({ rt, x, y, height, flip, force }: { rt: TvRuntime; x: number; y: n
         <meshBasicMaterial ref={mat} map={textures[0]} transparent alphaTest={0.02} toneMapped={false} />
       </mesh>
       {tag && (
-        <mesh position={[0, height * 1.18, 0.2]} scale={[height * 0.2 * tag.aspect, height * 0.2, 1]}>
+        <mesh position={[0, height * 1.2, 0.2]} scale={[height * 0.25 * tag.aspect, height * 0.25, 1]}>
           <planeGeometry args={[1, 1]} />
           <meshBasicMaterial map={tag.tex} transparent toneMapped={false} />
         </mesh>
