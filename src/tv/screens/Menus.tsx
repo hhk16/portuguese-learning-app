@@ -354,7 +354,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             <div className="kicker">Galeria · Your drawings</div>
             <div className="gallery">
               {info.gallery.map((g, i) => (
-                <GalleryThumb key={i} g={g} delay={i * 1400} />
+                <GalleryThumb key={i} g={g} delay={i * 600} />
               ))}
             </div>
           </div>
@@ -363,7 +363,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
           <div className="words">
             <div className="kicker">Palavras do jogo · Words you used</div>
             <div className="word-chips">
-              {info.practiced.slice(0, 8).map((w, i) => (
+              {[...new Map(info.practiced.map((w) => [w.pt, w])).values()].slice(0, 8).map((w, i) => (
                 <span key={`${w.pt}-${i}`} className="word-chip">
                   {w.pic && <Picture glyph={w.pic} size="1.6em" />}
                   <b>{w.pt}</b>
@@ -423,7 +423,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             </div>
           </div>
         )}
-        <div className="next-list">
+        <div className={`next-list ${info.options.length <= 4 ? "few" : ""}`}>
           {info.options.map((o, i) => (
             <div key={o.id} className={`next-item ${i === a.focus ? "focus" : ""}`}>
               {o.pic && <Picture glyph={o.pic} size="2em" />}
@@ -706,7 +706,6 @@ export function ChampionScreen({ a }: { a: ChampionActivity }) {
         {a.stage === 0 ? "E a estrela da noite é… 🥁" : a.tie ? "Dois campeões! 👑👑" : `👑 ${top?.p.name ?? ""}!`}
         <i>{a.stage === 0 ? "And tonight's star is…" : a.tie ? "A tie — two champions!" : "Estrela da noite · Tonight's star"}</i>
       </div>
-      {a.stage === 1 && !a.tie && <div className="stage-crown">👑</div>}
       {a.stage > 0 && (
         <div className="podium">
           {[top, second].filter(Boolean).map((s) => {
@@ -732,7 +731,10 @@ export function ChampionScreen({ a }: { a: ChampionActivity }) {
                 <small>O melhor desenho · Best drawing</small>
               </div>
             )}
-            {a.night.moments.slice(0, 2).map((m, i) => (
+            {a.night.moments
+              .filter((m) => !(drawing && m.pic === "🎨"))
+              .slice(0, 2)
+              .map((m, i) => (
               <div key={i} className="moment card" style={{ animationDelay: `${0.3 + i * 0.3}s` }}>
                 {m.pic && <Picture glyph={m.pic} size="2.4em" />}
                 <b>{m.pt}</b>

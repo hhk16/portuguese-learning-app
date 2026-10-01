@@ -1971,12 +1971,76 @@
   "text": "Até amanhã!",
   "voice": "pt_PT-tugão-medium"
  },
+ "até bica sabia esta!": {
+  "file": "9181243a7e.mp3",
+  "lengthScale": 1.12,
+  "say": "Até Bica sabia esta!",
+  "source": "piper",
+  "text": "Até Bica sabia esta!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "até bolacha sabia esta!": {
+  "file": "cee717f850.mp3",
+  "lengthScale": 1.12,
+  "say": "Até Bolacha sabia esta!",
+  "source": "piper",
+  "text": "Até Bolacha sabia esta!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "até canela sabia esta!": {
+  "file": "c3cef9a281.mp3",
+  "lengthScale": 1.12,
+  "say": "Até Canela sabia esta!",
+  "source": "piper",
+  "text": "Até Canela sabia esta!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "até caramelo sabia esta!": {
+  "file": "edbb89a884.mp3",
+  "lengthScale": 1.12,
+  "say": "Até Caramelo sabia esta!",
+  "source": "piper",
+  "text": "Até Caramelo sabia esta!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "até logo!": {
   "file": "9909501c16.mp3",
   "lengthScale": 1.12,
   "say": "Até logo!",
   "source": "piper",
   "text": "Até logo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "até mel sabia esta!": {
+  "file": "5b77ab1776.mp3",
+  "lengthScale": 1.12,
+  "say": "Até Mel sabia esta!",
+  "source": "piper",
+  "text": "Até Mel sabia esta!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "até nata sabia esta!": {
+  "file": "02d7846fc7.mp3",
+  "lengthScale": 1.12,
+  "say": "Até Nata sabia esta!",
+  "source": "piper",
+  "text": "Até Nata sabia esta!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "até pipoca sabia esta!": {
+  "file": "597977b425.mp3",
+  "lengthScale": 1.12,
+  "say": "Até Pipoca sabia esta!",
+  "source": "piper",
+  "text": "Até Pipoca sabia esta!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "até tofu sabia esta!": {
+  "file": "8f5c43f14b.mp3",
+  "lengthScale": 1.12,
+  "say": "Até Tofu sabia esta!",
+  "source": "piper",
+  "text": "Até Tofu sabia esta!",
   "voice": "pt_PT-tugão-medium"
  },
  "azul": {
@@ -2073,6 +2137,46 @@
   "say": "Bem-vinda!",
   "source": "piper",
   "text": "Bem-vinda!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bica adora isto!": {
+  "file": "6aa66ac586.mp3",
+  "lengthScale": 1.12,
+  "say": "Bica adora isto!",
+  "source": "piper",
+  "text": "Bica adora isto!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bica está a dormir… joguem!": {
+  "file": "4c1806fd8e.mp3",
+  "lengthScale": 1.12,
+  "say": "Bica está a dormir, Joguem!",
+  "source": "piper",
+  "text": "Bica está a dormir… Joguem!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bica está com medo!": {
+  "file": "23c517a28d.mp3",
+  "lengthScale": 1.12,
+  "say": "Bica está com medo!",
+  "source": "piper",
+  "text": "Bica está com medo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bica também está com fome!": {
+  "file": "ae29976b8b.mp3",
+  "lengthScale": 1.12,
+  "say": "Bica também está com fome!",
+  "source": "piper",
+  "text": "Bica também está com fome!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bica traz a coroa!": {
+  "file": "616758b762.mp3",
+  "lengthScale": 1.12,
+  "say": "Bica traz a coroa!",
+  "source": "piper",
+  "text": "Bica traz a coroa!",
   "voice": "pt_PT-tugão-medium"
  },
  "boa ideia!": {
@@ -2179,6 +2283,46 @@
   "say": "Boas festas!",
   "source": "piper",
   "text": "Boas festas!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bolacha adora isto!": {
+  "file": "03ddfb36f0.mp3",
+  "lengthScale": 1.12,
+  "say": "Bolacha adora isto!",
+  "source": "piper",
+  "text": "Bolacha adora isto!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bolacha está a dormir… joguem!": {
+  "file": "268656588d.mp3",
+  "lengthScale": 1.12,
+  "say": "Bolacha está a dormir, Joguem!",
+  "source": "piper",
+  "text": "Bolacha está a dormir… Joguem!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bolacha está com medo!": {
+  "file": "f00022e657.mp3",
+  "lengthScale": 1.12,
+  "say": "Bolacha está com medo!",
+  "source": "piper",
+  "text": "Bolacha está com medo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bolacha também está com fome!": {
+  "file": "2c4dbec1df.mp3",
+  "lengthScale": 1.12,
+  "say": "Bolacha também está com fome!",
+  "source": "piper",
+  "text": "Bolacha também está com fome!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "bolacha traz a coroa!": {
+  "file": "9a212b32ef.mp3",
+  "lengthScale": 1.12,
+  "say": "Bolacha traz a coroa!",
+  "source": "piper",
+  "text": "Bolacha traz a coroa!",
   "voice": "pt_PT-tugão-medium"
  },
  "bom apetite!": {
@@ -2389,12 +2533,92 @@
   "text": "canadiano, canadiana",
   "voice": "pt_PT-tugão-medium"
  },
+ "canela adora isto!": {
+  "file": "76105b4bfa.mp3",
+  "lengthScale": 1.12,
+  "say": "Canela adora isto!",
+  "source": "piper",
+  "text": "Canela adora isto!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "canela está a dormir… joguem!": {
+  "file": "dd4fdd703e.mp3",
+  "lengthScale": 1.12,
+  "say": "Canela está a dormir, Joguem!",
+  "source": "piper",
+  "text": "Canela está a dormir… Joguem!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "canela está com medo!": {
+  "file": "f0b310d02c.mp3",
+  "lengthScale": 1.12,
+  "say": "Canela está com medo!",
+  "source": "piper",
+  "text": "Canela está com medo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "canela também está com fome!": {
+  "file": "d5d6a6c98e.mp3",
+  "lengthScale": 1.12,
+  "say": "Canela também está com fome!",
+  "source": "piper",
+  "text": "Canela também está com fome!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "canela traz a coroa!": {
+  "file": "bc8e440016.mp3",
+  "lengthScale": 1.12,
+  "say": "Canela traz a coroa!",
+  "source": "piper",
+  "text": "Canela traz a coroa!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "cansado, cansada": {
   "file": "97a286ac14.mp3",
   "lengthScale": 1.12,
   "say": "cansado, cansada.",
   "source": "piper",
   "text": "cansado, cansada",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "caramelo adora isto!": {
+  "file": "c22e720dae.mp3",
+  "lengthScale": 1.12,
+  "say": "Caramelo adora isto!",
+  "source": "piper",
+  "text": "Caramelo adora isto!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "caramelo está a dormir… joguem!": {
+  "file": "0f85268af9.mp3",
+  "lengthScale": 1.12,
+  "say": "Caramelo está a dormir, Joguem!",
+  "source": "piper",
+  "text": "Caramelo está a dormir… Joguem!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "caramelo está com medo!": {
+  "file": "b22b9694b5.mp3",
+  "lengthScale": 1.12,
+  "say": "Caramelo está com medo!",
+  "source": "piper",
+  "text": "Caramelo está com medo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "caramelo também está com fome!": {
+  "file": "476950399a.mp3",
+  "lengthScale": 1.12,
+  "say": "Caramelo também está com fome!",
+  "source": "piper",
+  "text": "Caramelo também está com fome!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "caramelo traz a coroa!": {
+  "file": "5497ab943f.mp3",
+  "lengthScale": 1.12,
+  "say": "Caramelo traz a coroa!",
+  "source": "piper",
+  "text": "Caramelo traz a coroa!",
   "voice": "pt_PT-tugão-medium"
  },
  "cardiologista": {
@@ -2526,6 +2750,14 @@
   "text": "cinco",
   "title": "File:LL-Q5146 (por)-Santamarcanda-cinco.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-cinco.wav"
+ },
+ "cinco certas para passar!": {
+  "file": "61bdc5ba80.mp3",
+  "lengthScale": 1.12,
+  "say": "Cinco certas para passar!",
+  "source": "piper",
+  "text": "Cinco certas para passar!",
+  "voice": "pt_PT-tugão-medium"
  },
  "cinquenta": {
   "file": "27c68b4139.mp3",
@@ -7085,6 +7317,46 @@
   "text": "mau, má",
   "voice": "pt_PT-tugão-medium"
  },
+ "mel adora isto!": {
+  "file": "f2766876a8.mp3",
+  "lengthScale": 1.12,
+  "say": "Mel adora isto!",
+  "source": "piper",
+  "text": "Mel adora isto!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mel está a dormir… joguem!": {
+  "file": "86a4797865.mp3",
+  "lengthScale": 1.12,
+  "say": "Mel está a dormir, Joguem!",
+  "source": "piper",
+  "text": "Mel está a dormir… Joguem!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mel está com medo!": {
+  "file": "7fca87f24b.mp3",
+  "lengthScale": 1.12,
+  "say": "Mel está com medo!",
+  "source": "piper",
+  "text": "Mel está com medo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mel também está com fome!": {
+  "file": "502d6022ed.mp3",
+  "lengthScale": 1.12,
+  "say": "Mel também está com fome!",
+  "source": "piper",
+  "text": "Mel também está com fome!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "mel traz a coroa!": {
+  "file": "afb8f8f7f7.mp3",
+  "lengthScale": 1.12,
+  "say": "Mel traz a coroa!",
+  "source": "piper",
+  "text": "Mel traz a coroa!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "meninos, bebam muita água!": {
   "file": "638f4d0540.mp3",
   "lengthScale": 1.12,
@@ -7443,6 +7715,46 @@
   "say": "Nasci em mil novecentos e noventa.",
   "source": "piper",
   "text": "Nasci em mil novecentos e noventa.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nata adora isto!": {
+  "file": "59ae2ff2ed.mp3",
+  "lengthScale": 1.12,
+  "say": "Nata adora isto!",
+  "source": "piper",
+  "text": "Nata adora isto!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nata está a dormir… joguem!": {
+  "file": "5d7cc60cc6.mp3",
+  "lengthScale": 1.12,
+  "say": "Nata está a dormir, Joguem!",
+  "source": "piper",
+  "text": "Nata está a dormir… Joguem!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nata está com medo!": {
+  "file": "2e027ada5e.mp3",
+  "lengthScale": 1.12,
+  "say": "Nata está com medo!",
+  "source": "piper",
+  "text": "Nata está com medo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nata também está com fome!": {
+  "file": "563887b714.mp3",
+  "lengthScale": 1.12,
+  "say": "Nata também está com fome!",
+  "source": "piper",
+  "text": "Nata também está com fome!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "nata traz a coroa!": {
+  "file": "af9d0711fa.mp3",
+  "lengthScale": 1.12,
+  "say": "Nata traz a coroa!",
+  "source": "piper",
+  "text": "Nata traz a coroa!",
   "voice": "pt_PT-tugão-medium"
  },
  "neste momento": {
@@ -10161,12 +10473,76 @@
   "text": "Olá! Como estás?",
   "voice": "pt_PT-tugão-medium"
  },
+ "olá, bica!": {
+  "file": "8ad4fa1c5b.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá, Bica!",
+  "source": "piper",
+  "text": "Olá, Bica!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "olá, bolacha!": {
+  "file": "5a75797683.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá, Bolacha!",
+  "source": "piper",
+  "text": "Olá, Bolacha!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "olá, canela!": {
+  "file": "c0df59227a.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá, Canela!",
+  "source": "piper",
+  "text": "Olá, Canela!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "olá, caramelo!": {
+  "file": "cc188ad7cd.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá, Caramelo!",
+  "source": "piper",
+  "text": "Olá, Caramelo!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "olá, cátia! prazer em conhecer-te!": {
   "file": "65c1d888b7.mp3",
   "lengthScale": 1.12,
   "say": "Olá, Cátia! Prazer em conhecer-te!",
   "source": "piper",
   "text": "Olá, Cátia! Prazer em conhecer-te!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "olá, mel!": {
+  "file": "64d21db89c.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá, Mel!",
+  "source": "piper",
+  "text": "Olá, Mel!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "olá, nata!": {
+  "file": "9f0ac7da95.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá, Nata!",
+  "source": "piper",
+  "text": "Olá, Nata!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "olá, pipoca!": {
+  "file": "aba8a1a1a6.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá, Pipoca!",
+  "source": "piper",
+  "text": "Olá, Pipoca!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "olá, tofu!": {
+  "file": "4caf3010da.mp3",
+  "lengthScale": 1.12,
+  "say": "Olá, Tofu!",
+  "source": "piper",
+  "text": "Olá, Tofu!",
   "voice": "pt_PT-tugão-medium"
  },
  "onde estiveste no fim de semana?": {
@@ -10977,6 +11353,14 @@
   "text": "pequeno, pequena",
   "voice": "pt_PT-tugão-medium"
  },
+ "perderam um sinal!": {
+  "file": "27cf97a9db.mp3",
+  "lengthScale": 1.12,
+  "say": "Perderam um sinal!",
+  "source": "piper",
+  "text": "Perderam um sinal!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "perfeito!": {
   "file": "83db3e35d0.mp3",
   "license": "CC BY-SA 4.0",
@@ -11030,6 +11414,46 @@
   "text": "piloto",
   "title": "File:LL-Q5146 (por)-Santamarcanda-piloto.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-piloto.wav"
+ },
+ "pipoca adora isto!": {
+  "file": "a5227cd28f.mp3",
+  "lengthScale": 1.12,
+  "say": "Pipoca adora isto!",
+  "source": "piper",
+  "text": "Pipoca adora isto!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "pipoca está a dormir… joguem!": {
+  "file": "de6b5637ef.mp3",
+  "lengthScale": 1.12,
+  "say": "Pipoca está a dormir, Joguem!",
+  "source": "piper",
+  "text": "Pipoca está a dormir… Joguem!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "pipoca está com medo!": {
+  "file": "67fcae4c60.mp3",
+  "lengthScale": 1.12,
+  "say": "Pipoca está com medo!",
+  "source": "piper",
+  "text": "Pipoca está com medo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "pipoca também está com fome!": {
+  "file": "92da686282.mp3",
+  "lengthScale": 1.12,
+  "say": "Pipoca também está com fome!",
+  "source": "piper",
+  "text": "Pipoca também está com fome!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "pipoca traz a coroa!": {
+  "file": "328f22cefe.mp3",
+  "lengthScale": 1.12,
+  "say": "Pipoca traz a coroa!",
+  "source": "piper",
+  "text": "Pipoca traz a coroa!",
+  "voice": "pt_PT-tugão-medium"
  },
  "pode começar no próximo mês?": {
   "file": "7a282815af.mp3",
@@ -11410,6 +11834,14 @@
   "text": "Quase!",
   "title": "File:LL-Q5146 (por)-Santamarcanda-quase.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quase.wav"
+ },
+ "quase! repitam o relâmpago.": {
+  "file": "743a315fbf.mp3",
+  "lengthScale": 1.12,
+  "say": "Quase! Repitam o relâmpago.",
+  "source": "piper",
+  "text": "Quase! Repitam o relâmpago.",
+  "voice": "pt_PT-tugão-medium"
  },
  "quatro": {
   "file": "0b0a1c6be4.mp3",
@@ -12287,6 +12719,22 @@
   "text": "rececionista",
   "voice": "pt_PT-tugão-medium"
  },
+ "recuperaram um sinal!": {
+  "file": "0a0739429a.mp3",
+  "lengthScale": 1.12,
+  "say": "Recuperaram um sinal!",
+  "source": "piper",
+  "text": "Recuperaram um sinal!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "relâmpago superado! lição completa!": {
+  "file": "59a65eb8f2.mp3",
+  "lengthScale": 1.12,
+  "say": "Relâmpago superado! Lição completa!",
+  "source": "piper",
+  "text": "Relâmpago superado! Lição completa!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "responde primeiro no telemóvel e ganha a coroa!": {
   "file": "615e1cb143.mp3",
   "lengthScale": 1.12,
@@ -12455,6 +12903,14 @@
   "say": "seiscentos.",
   "source": "piper",
   "text": "seiscentos",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "sem sinal! a rádio saiu do ar!": {
+  "file": "1c7eb770a0.mp3",
+  "lengthScale": 1.12,
+  "say": "Sem sinal! A rádio saiu do ar!",
+  "source": "piper",
+  "text": "Sem sinal! A rádio saiu do ar!",
   "voice": "pt_PT-tugão-medium"
  },
  "senhor costa, tome este comprimido.": {
@@ -12987,6 +13443,46 @@
   "say": "Todas as pessoas gostam de bolo.",
   "source": "piper",
   "text": "Todas as pessoas gostam de bolo.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tofu adora isto!": {
+  "file": "0dfdc6b566.mp3",
+  "lengthScale": 1.12,
+  "say": "Tofu adora isto!",
+  "source": "piper",
+  "text": "Tofu adora isto!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tofu está a dormir… joguem!": {
+  "file": "eb5c0a548b.mp3",
+  "lengthScale": 1.12,
+  "say": "Tofu está a dormir, Joguem!",
+  "source": "piper",
+  "text": "Tofu está a dormir… Joguem!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tofu está com medo!": {
+  "file": "18fecaf438.mp3",
+  "lengthScale": 1.12,
+  "say": "Tofu está com medo!",
+  "source": "piper",
+  "text": "Tofu está com medo!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tofu também está com fome!": {
+  "file": "7d2535de8d.mp3",
+  "lengthScale": 1.12,
+  "say": "Tofu também está com fome!",
+  "source": "piper",
+  "text": "Tofu também está com fome!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "tofu traz a coroa!": {
+  "file": "0077d3cb87.mp3",
+  "lengthScale": 1.12,
+  "say": "Tofu traz a coroa!",
+  "source": "piper",
+  "text": "Tofu traz a coroa!",
   "voice": "pt_PT-tugão-medium"
  },
  "toma!": {

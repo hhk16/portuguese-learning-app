@@ -105,11 +105,19 @@ const shadowTex = (() => {
   return t;
 })();
 
-function Character({ rt, p, x, y, height, flip }: { rt: TvRuntime; p: RuntimePlayer; x: number; y: number; height: number; flip: boolean }) {
+/** The star of the night's crown: flies from `from` (world px) onto the head, then sits there. */
+type CrownFrom = { x: number; y: number } | null;
+
+function Character({ rt, p, x, y, height, flip, crown = null }: { rt: TvRuntime; p: RuntimePlayer; x: number; y: number; height: number; flip: boolean; crown?: CrownFrom }) {
   const textures = POSES.map((pose) => useTex(poseUrl(p.avatar as Avatar, pose))); // eslint-disable-line react-hooks/rules-of-hooks
+  const crownTex = useTex("/art/pet/crown.webp");
   const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
   const mat = useRef<THREE.MeshBasicMaterial>(null);
+  const crownMesh = useRef<THREE.Mesh>(null);
+  const crownAnim = useRef<{ t0: number; from: { x: number; y: number } } | null>(null);
+  if (crown && !crownAnim.current) crownAnim.current = { t0: -1, from: crown };
+  if (!crown && crownAnim.current) crownAnim.current = null;
   const seed = useMemo(() => Math.random() * 10, []);
   const pos = useRef({ x, y, h: height });
   useFrame(({ clock }, dt) => {
@@ -145,6 +153,26 @@ function Character({ rt, p, x, y, height, flip }: { rt: TvRuntime; p: RuntimePla
     body.current.scale.set(w * sx * (flip ? -1 : 1), hh * sy, 1);
     body.current.position.set(0, hh / 2 + dy, 0);
     body.current.rotation.z = rot;
+    const cm = crownMesh.current;
+    const ca = crownAnim.current;
+    if (cm) {
+      cm.visible = !!ca;
+      if (ca) {
+        if (ca.t0 < 0) ca.t0 = clock.elapsedTime;
+        // Arc from the puppy's mouth to the top of the head, with a spin, then a gentle bob.
+        const k = Math.min(1, (clock.elapsedTime - ca.t0) / 1.3);
+        const e = 1 - Math.pow(1 - k, 3);
+        const headX = 0;
+        const headY = hh * sy * 0.985 + dy + hh * 0.03;
+        const fx = ca.from.x - pos.current.x;
+        const fy = ca.from.y - pos.current.y;
+        const cw = hh * 0.2;
+        cm.position.set(fx + (headX - fx) * e, fy + (headY - fy) * e + Math.sin(k * Math.PI) * hh * 0.35, 0.3);
+        cm.rotation.z = (1 - e) * Math.PI * 2 + (k >= 1 ? Math.sin(clock.elapsedTime * 3) * 0.05 : 0);
+        const sc = 0.5 + 0.5 * e;
+        cm.scale.set(cw * sc, cw * sc * (300 / 386), 1);
+      }
+    }
   });
   return (
     <group ref={group}>
@@ -158,6 +186,10 @@ function Character({ rt, p, x, y, height, flip }: { rt: TvRuntime; p: RuntimePla
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial ref={mat} map={textures[0]} transparent alphaTest={0.02} toneMapped={false} />
       </mesh>
+      <mesh ref={crownMesh} visible={false}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial map={crownTex} transparent alphaTest={0.02} toneMapped={false} />
+      </mesh>
     </group>
   );
 }
@@ -166,13 +198,43 @@ function Character({ rt, p, x, y, height, flip }: { rt: TvRuntime; p: RuntimePla
 /* The puppy: sits next to Ana and reacts to whatever is happening.            */
 /* -------------------------------------------------------------------------- */
 
-const PET_POSES = ["idle", "cheer", "oops", "think", "wave", "sleep"] as const;
+const PET_POSES = ["idle", "cheer", "oops", "think", "wave", "sleep", "hide", "sniff", "crown"] as const;
 type PetPose = (typeof PET_POSES)[number];
 /** Lying and curled-up poses are shorter than sitting ones. */
-const PET_HEIGHT: Record<PetPose, number> = { idle: 1, cheer: 1.05, oops: 0.55, think: 1, wave: 1.08, sleep: 0.72 };
+const PET_HEIGHT: Record<PetPose, number> = { idle: 1, cheer: 1.05, oops: 0.55, think: 1, wave: 1.08, sleep: 0.72, hide: 0.9, sniff: 0.85, crown: 0.95 };
 
-function Pet({ rt, x, y, height, flip }: { rt: TvRuntime; x: number; y: number; height: number; flip: boolean }) {
+/** A little name tag under the puppy (canvas texture). */
+function useNameTag(name: string | undefined): { tex: THREE.CanvasTexture; aspect: number } | null {
+  return useMemo(() => {
+    if (!name || typeof document === "undefined") return null;
+    const c = document.createElement("canvas");
+    const g = c.getContext("2d")!;
+    const font = "800 44px Nunito, 'Baloo 2', system-ui, sans-serif";
+    g.font = font;
+    const tw = Math.ceil(g.measureText(name).width);
+    c.width = tw + 64;
+    c.height = 68;
+    g.font = font;
+    g.fillStyle = "rgba(255,255,255,0.95)";
+    g.beginPath();
+    g.roundRect(2, 2, c.width - 4, c.height - 4, 32);
+    g.fill();
+    g.strokeStyle = "#f2994a";
+    g.lineWidth = 4;
+    g.stroke();
+    g.fillStyle = "#1f2a44";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(name, c.width / 2, c.height / 2 + 2);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return { tex, aspect: c.width / c.height };
+  }, [name]);
+}
+
+function Pet({ rt, x, y, height, flip, force }: { rt: TvRuntime; x: number; y: number; height: number; flip: boolean; force?: PetPose }) {
   const textures = PET_POSES.map((p) => useTex(`/art/pet/pup-${p}.webp`)); // eslint-disable-line react-hooks/rules-of-hooks
+  const tag = useNameTag(rt.settings.petName);
   const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
   const mat = useRef<THREE.MeshBasicMaterial>(null);
@@ -188,8 +250,12 @@ function Pet({ rt, x, y, height, flip }: { rt: TvRuntime; x: number; y: number; 
     const emotes = rt.activePlayers.map((p) => rt.emoteOf(p.playerId));
     const owner = rt.petOwner();
     const sleepy = now - rt.lastInputAt > 45_000 && (rt.activity?.id === "title" || rt.activity?.id === "lobby" || rt.paused);
-    const pose: PetPose =
-      now < joy.current.until || emotes.includes("cheer")
+    const act = rt.petAct && now < rt.petAct.until ? rt.petAct.pose : null;
+    const pose: PetPose = force
+      ? force
+      : act
+        ? act
+        : now < joy.current.until || emotes.includes("cheer")
         ? "cheer"
         : emotes.includes("sad")
           ? "oops"
@@ -227,7 +293,18 @@ function Pet({ rt, x, y, height, flip }: { rt: TvRuntime; x: number; y: number; 
       rot = Math.sin(t * 14) * 0.03;
       sy = 0.97;
     } else if (pose === "think") rot = Math.sin(t * 1.2) * 0.1;
-    else if (pose === "wave") rot = Math.sin(t * 5) * 0.06;
+    else if (pose === "hide") {
+      // Trembling.
+      rot = Math.sin(t * 40) * 0.025;
+      sx = 1 + Math.sin(t * 33) * 0.015;
+    } else if (pose === "sniff") {
+      rot = Math.sin(t * 3) * 0.04;
+      dy = Math.abs(Math.sin(t * 9)) * h * 0.02;
+    } else if (pose === "crown") {
+      // Proud trot.
+      dy = Math.abs(Math.sin(t * 8)) * h * 0.06;
+      rot = Math.sin(t * 8) * 0.04;
+    } else if (pose === "wave") rot = Math.sin(t * 5) * 0.06;
     else if (pose === "sleep") sy = 1 + Math.sin(t * 1.4) * 0.03;
     else {
       // Idle: breathing, and a little hop every few seconds.
@@ -252,6 +329,12 @@ function Pet({ rt, x, y, height, flip }: { rt: TvRuntime; x: number; y: number; 
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial ref={mat} map={textures[0]} transparent alphaTest={0.02} toneMapped={false} />
       </mesh>
+      {tag && (
+        <mesh position={[0, height * 1.18, 0.2]} scale={[height * 0.2 * tag.aspect, height * 0.2, 1]}>
+          <planeGeometry args={[1, 1]} />
+          <meshBasicMaterial map={tag.tex} transparent toneMapped={false} />
+        </mesh>
+      )}
     </group>
   );
 }
@@ -339,12 +422,25 @@ function Scene() {
   const champ = rt.activity?.id === "champion" ? (rt.activity as unknown as { stage: number; tie: boolean; standings: { p: RuntimePlayer }[] }) : null;
   const star = champ && champ.stage === 1 && !champ.tie ? players.indexOf(champ.standings[0]!.p) : -1;
   const spots = layout(rt.activity?.id, players.length, size.width, size.height, star);
+  // The puppy brings the crown: it trots to centre stage during the drumroll and the crown flies to the star's head.
+  const crowned = champ && champ.stage >= 1 && !champ.tie ? players.indexOf(champ.standings[0]!.p) : -1;
+  const petCarry = champ && !champ.tie && champ.stage === 0 && !!rt.petOwner();
+  const carrySpot = { x: size.height * 0.27, y: -size.height * 0.5 + size.height * 0.02 };
+  const crownFrom = { x: carrySpot.x, y: carrySpot.y + size.height * 0.1 };
   return (
     <>
       <Backdrop set={setOf(rt.activity)} />
       {players.map((p, i) => (
         <Suspense key={p.playerId} fallback={null}>
-          <Character rt={rt} p={p} x={spots[i]!.x} y={spots[i]!.y} height={spots[i]!.height} flip={rt.activity?.id !== "title" && rt.activity?.id !== "lobby" && rt.activity?.id !== "results" && i % 2 === 1} />
+          <Character
+            rt={rt}
+            p={p}
+            x={spots[i]!.x}
+            y={spots[i]!.y}
+            height={spots[i]!.height}
+            flip={rt.activity?.id !== "title" && rt.activity?.id !== "lobby" && rt.activity?.id !== "results" && i % 2 === 1}
+            crown={i === crowned ? crownFrom : null}
+          />
         </Suspense>
       ))}
       {(() => {
@@ -359,6 +455,14 @@ function Scene() {
         const centre = spots.reduce((sum, p) => sum + p.x, 0) / Math.max(1, spots.length);
         const side = onStage ? (spot.x >= centre ? 1 : -1) : spot.x > 0 ? -1 : 1;
         const h = spot.height * 0.42;
+        if (champ && !champ.tie && (champ.stage === 0 || champ.stage === 1)) {
+          // Centre stage, next to where the star will stand: crown in its mouth, then hopping for joy.
+          return (
+            <Suspense fallback={null}>
+              <Pet rt={rt} x={carrySpot.x} y={carrySpot.y} height={size.height * 0.2} flip={false} force={petCarry ? "crown" : "cheer"} />
+            </Suspense>
+          );
+        }
         return (
           <Suspense fallback={null}>
             <Pet rt={rt} x={spot.x + side * spot.height * 0.4} y={spot.y} height={h} flip={side < 0} />

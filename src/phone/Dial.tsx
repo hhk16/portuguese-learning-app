@@ -39,6 +39,7 @@ export function Dial({ v, send }: { v: V; send: Send }) {
   const head = (
     <div className="sync-head">
       <span className="kicker">{v.final ? "Último mostrador · ×2!" : "Na Mesma Onda"}</span>
+      {v.signals !== undefined && <span className="pill">📶 {v.signals}</span>}
       {v.msLeft !== undefined && <span className={`pill ${left < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>}
     </div>
   );

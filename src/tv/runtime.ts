@@ -23,7 +23,7 @@ import { clockPaused, gameNow, pauseClock, resumeClock } from "./clock.ts";
 import { play } from "../audio/sfx.ts";
 import { speak, stopSpeech } from "../audio/tts.ts";
 import { playMusic, setHurry, setMusicEnabled, type Track } from "../audio/music.ts";
-import { isSpotlight, moodOf, SAY, VARIANTS, type Line, type Mood } from "./host-lines.ts";
+import { isSpotlight, moodOf, PET, PET_NAMES, SAY, VARIANTS, type Line, type Mood } from "./host-lines.ts";
 
 /** SAY line → its variants. */
 const VARIANT_OF = new Map<Line, Line[]>(Object.entries(VARIANTS).map(([k, v]) => [SAY[k as keyof typeof SAY], v!]));
@@ -68,7 +68,9 @@ export interface Settings {
 }
 
 /** Name ideas for the puppy (Portuguese pet names). */
-export const PET_NAMES = ["Bolacha", "Pipoca", "Canela", "Mel", "Caramelo", "Tofu", "Nata", "Bica"];
+export { PET_NAMES, PET };
+/** Things the puppy acts out on cue (on top of following the players' moods). */
+export type PetAct = "hide" | "sniff" | "crown" | "cheer" | "oops" | "think";
 
 const SETTINGS_KEY = "pp.tv.settings.v3";
 
@@ -254,6 +256,26 @@ export class TvRuntime {
   petPrompt: string | null = null;
   /** Bumped when the puppy should get excited (named, a heart reaction…). */
   petJoy = 0;
+
+  /** A game moment the puppy acts out for a while: hides from a bang, sniffs the kitchen, carries the crown… */
+  petAct: { pose: PetAct; until: number; seq: number } | null = null;
+  private petActSeq = 0;
+  private petLineAt = 0;
+
+  /** The puppy acts something out; sometimes Pipo comments on it (by name, at most every ~40 s). */
+  petDo(pose: PetAct, ms = 2600, line?: Line, chance = 0.5) {
+    this.petAct = { pose, until: performance.now() + ms, seq: ++this.petActSeq };
+    if (line) this.petSay(line, chance);
+  }
+
+  /** Pipo says a line about the puppy, if it has a name (rate-limited so it stays a treat). */
+  petSay(line: Line, chance = 1) {
+    const name = this.settings.petName;
+    const now = performance.now();
+    if (!name || now - this.petLineAt < 40_000 || Math.random() > chance) return;
+    this.petLineAt = now;
+    this.say(line, { name });
+  }
 
   /** The puppy's person: Ana (by character or name), else the second player. */
   petOwner(): RuntimePlayer | undefined {

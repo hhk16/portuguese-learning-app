@@ -28,15 +28,20 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
         <span className="pill star-pill">{a.score} pontos</span>
         {!a.inPractice && <MetaBar score={a.score} max={a.maxScore} />}
       </GameTop>
+      {a.final && a.rules.wordsOnlyFinal && !a.pair[0].pic && (
+        <div className="goal-line">
+          📖 <b>Só palavras! Leiam bem.</b> <i>Last pair: words only, no pictures — read them!</i>
+        </div>
+      )}
       <div className="sync-stage">
         <div className="card sync-tv-word">
-          {a.pair[0].pic ? <Picture glyph={a.pair[0].pic} size="6em" /> : <span className="no-pic">✍️</span>}
+          {a.pair[0].pic && <Picture glyph={a.pair[0].pic} size="6em" />}
           <b className="display">{a.pair[0].pt}</b>
           {a.pair[0].en && <i>{a.pair[0].en}</i>}
         </div>
         <div className="sync-plus display">+</div>
         <div className="card sync-tv-word">
-          {a.pair[1].pic ? <Picture glyph={a.pair[1].pic} size="6em" /> : <span className="no-pic">✍️</span>}
+          {a.pair[1].pic && <Picture glyph={a.pair[1].pic} size="6em" />}
           <b className="display">{a.pair[1].pt}</b>
           {a.pair[1].en && <i>{a.pair[1].en}</i>}
         </div>

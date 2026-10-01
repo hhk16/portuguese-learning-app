@@ -13,7 +13,7 @@ import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { CUE, SAY } from "../../tv/host-lines.ts";
+import { CUE, PET, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { amount, DISHES, MENUS, orderBook, TABLE_SAY, type Dish, type Menu, type Order } from "./menu.ts";
 
@@ -341,6 +341,8 @@ export class Cozinha implements Activity {
     }
     for (const id of Object.keys(t.order.items)) this.words.add(id);
     this.flash = { kind: "served", seq: ++this.flashSeq, at: now };
+    // The puppy sniffs every plate that goes out.
+    this.rt.petDo("sniff", 2200, this.served === 3 ? PET.hungry : undefined, 0.7);
     if (this.firstServe) {
       this.firstServe = false;
       this.rt.say(SAY.served);

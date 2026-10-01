@@ -83,8 +83,9 @@ export function countPlay(mode: string) {
   write(PLAYS_KEY, all);
 }
 /** The first two plays of a game start with an unscored practice round ("Ensaio"). */
-export function wantsPractice(mode: string): boolean {
-  return playCount(mode) < 2;
+/** The unscored practice round ("Ensaio"): the first two plays — only the very first inside a game night. */
+export function wantsPractice(mode: string, night = false): boolean {
+  return playCount(mode) < (night ? 1 : 2);
 }
 
 export function bestScore(mode: string, level: Level): number | null {

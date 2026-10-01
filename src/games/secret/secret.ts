@@ -285,6 +285,7 @@ export class ParesSecretos implements Activity {
       c.state = "boom";
       this.flash = { id: c.id, kind: "boom", seq: ++this.flashSeq };
       play("boom");
+      this.rt.petDo("hide", 2800);
       this.rt.say(SAY.bomb, { interrupt: true });
       setTimeout(() => {
         if (c.state === "boom") c.state = "hidden";
@@ -297,6 +298,7 @@ export class ParesSecretos implements Activity {
       this.lives--;
       this.flash = { id: c.id, kind: "boom", seq: ++this.flashSeq };
       play("boom");
+      this.rt.petDo("hide", 2800);
       this.rt.say(SAY.bomb, { interrupt: true });
       this.rt.emote(p.playerId, "sad", 2500);
       this.rt.emote(giver.playerId, "sad", 2500);
@@ -321,7 +323,11 @@ export class ParesSecretos implements Activity {
       this.streak++;
       this.rt.emote(p.playerId, "cheer");
       this.rt.emote(giver.playerId, "cheer");
-      if (this.found >= this.goal) return this.finish(true);
+      if (this.found >= this.goal) {
+        // The winning tap still used this turn.
+        this.turnsUsed++;
+        return this.finish(true);
+      }
       // Someone else's target (lucky) ends the turn; the giver's own continues.
       if (c.targetOf !== giver.playerId) return this.endTurn();
       this.guessesLeft--;
@@ -445,13 +451,13 @@ export class ParesSecretos implements Activity {
         this.onDone({
           score,
           max,
-          headline: won ? `Conseguiram! ${this.found}/${this.goal} em ${this.turnsUsed} turnos` : `${this.found} de ${this.goal} pares`,
+          headline: won ? `Conseguiram! ${this.found}/${this.goal} em ${this.turnsUsed} turno${this.turnsUsed === 1 ? "" : "s"}` : `${this.found} de ${this.goal} pares`,
           headlineEn: won ? `You did it — ${this.turnsUsed} turns used` : `${this.found} of ${this.goal} found`,
           sub: won ? `${spare} turnos de sobra: +${spare * 5}` : this.lives <= 0 ? "A bomba ganhou desta vez." : "Acabaram-se os turnos.",
           subEn: won ? "Bonus for turns to spare" : this.lives <= 0 ? "The bomb got you this time." : "Out of turns.",
           words: this.cards.filter((c) => c.state === "found").map((c) => ({ pt: c.card.pt, en: c.card.en, pic: c.card.emoji })),
           contrib: Object.fromEntries(this.contrib),
-          highlight: won ? { pt: `Todos os pares em ${this.turnsUsed} turnos!`, en: `Every pair in ${this.turnsUsed} turns`, pic: "🕵️" } : undefined,
+          highlight: won ? { pt: `Todos os pares em ${this.turnsUsed} turno${this.turnsUsed === 1 ? "" : "s"}!`, en: `Every pair in ${this.turnsUsed} turns`, pic: "🕵️" } : undefined,
         }),
       2600,
     );

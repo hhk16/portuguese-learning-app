@@ -24,13 +24,22 @@ export function WaveScreen({ a }: { a: NaMesmaOnda }) {
           </span>
         )}
         {a.final && <span className="pill double-pill">×2</span>}
+        {!a.inPractice && a.signals >= 0 && (
+          <span className={`pill lives-pill signal-pill ${a.phase === "reveal" && a.signalDelta ? (a.signalDelta > 0 ? "gain" : "loss") : ""}`} key={`${a.round}-${a.signals}`} title="Sinais · Signals">
+            📻 {"📶".repeat(Math.max(0, a.signals))}
+            {"🔇".repeat(Math.max(0, a.rules.signals - a.signals))}
+          </span>
+        )}
         {timed && <span className={`pill clock ${a.msLeft < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
         <span className="pill star-pill">{a.score} pontos</span>
         {!a.inPractice && <MetaBar score={a.score} max={a.maxScore} />}
       </GameTop>
       {a.phase === "clue" && a.round <= 0 && (
         <div className="goal-line">
-          🎯 <b>Há um alvo escondido no mostrador. Acertem nele!</b> <i>A target is hidden on the dial: one sees it and gives a clue, the other turns the dial to it.</i>
+          🎯 <b>Há um alvo escondido no mostrador. Acertem nele!</b>{" "}
+          <i>
+            One sees the target and picks a clue, the other turns the dial. Far off loses a signal 📶 — lose them all and the radio show goes off-air!
+          </i>
         </div>
       )}
       <div className="turn-banner card">
@@ -65,6 +74,8 @@ export function WaveScreen({ a }: { a: NaMesmaOnda }) {
           <span className="bi-line">
             <b className="display big-points">{a.lastDial ? `+${a.lastDial} pontos!` : a.sure ? "Aposta perdida!" : "Longe… 0 pontos"}</b>
             <i>{a.lastDial ? (a.sure ? "Bullseye — “Tenho a certeza” doubled it!" : a.lastDial >= 4 * (a.final ? 2 : 1) ? "Em cheio! · Bullseye!" : `+${a.lastDial} points`) : a.sure ? "“Tenho a certeza” lost — bullseye or nothing" : "Far off — no points"}</i>
+            {a.signalDelta < 0 && <b className="signal-note loss">📶 −1 {a.signals > 0 ? "Perderam um sinal! · Signal lost" : "Sem sinal! · Off the air!"}</b>}
+            {a.signalDelta > 0 && <b className="signal-note gain">📶 +1 Recuperaram um sinal! · Signal back</b>}
           </span>
         )}
       </div>

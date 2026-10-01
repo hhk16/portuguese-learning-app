@@ -111,6 +111,12 @@ export const SAY = {
   petNamed: { pt: "Que nome tão bonito!", en: "What a lovely name!" },
   lightning: { pt: "Desafio relâmpago! Quarenta segundos!", en: "Lightning round! Forty seconds!" },
   suddenDeath: { pt: "Morte súbita! Sem pistas. Um erro e acabou!", en: "Sudden death! No clues. One mistake and it's over!" },
+  signalLost: { pt: "Perderam um sinal!", en: "You lost a signal!" },
+  offAir: { pt: "Sem sinal! A rádio saiu do ar!", en: "No signal! The show is off the air!" },
+  signalBack: { pt: "Recuperaram um sinal!", en: "You got a signal back!" },
+  lightningGoal: { pt: "Cinco certas para passar!", en: "Five right to pass!" },
+  lightningWon: { pt: "Relâmpago superado! Lição completa!", en: "Lightning round beaten! Lesson complete!" },
+  lightningLost: { pt: "Quase! Repitam o relâmpago.", en: "Almost! Try the lightning round again." },
 } satisfies Record<string, Line>;
 
 /** Other ways Pipo says the same thing, so the host doesn't repeat itself. */
@@ -170,6 +176,20 @@ export const NAMED = {
 /** Names the host's lines are pre-recorded with. */
 export const NAMES = ["Hadi", "Ana"];
 
+/** The puppy's name suggestions (Ana picks one or types her own); lines with them are pre-recorded. */
+export const PET_NAMES = ["Bolacha", "Pipoca", "Canela", "Mel", "Caramelo", "Tofu", "Nata", "Bica"];
+
+/** Pipo talking about the puppy ({name} = the puppy's name). */
+export const PET = {
+  scared: { pt: "{name} está com medo!", en: "{name} is scared!" },
+  hungry: { pt: "{name} também está com fome!", en: "{name} is hungry too!" },
+  loves: { pt: "{name} adora isto!", en: "{name} loves this!" },
+  knew: { pt: "Até {name} sabia esta!", en: "Even {name} knew that one!" },
+  crown: { pt: "{name} traz a coroa!", en: "{name} brings the crown!" },
+  hello: { pt: "Olá, {name}!", en: "Hi, {name}!" },
+  sleepy: { pt: "{name} está a dormir… Joguem!", en: "{name} is asleep… Play something!" },
+} satisfies Record<string, Line>;
+
 /** Big one-verb commands on the TV ("Escolhe! · Pick!"). */
 export const CUE = {
   pickClue: { pt: "Escolhe uma pista!", en: "Pick a clue!" },
@@ -186,14 +206,14 @@ export const CUE = {
   pickBest: { pt: "Escolhe o melhor!", en: "Pick the best!" },
 } satisfies Record<string, Line>;
 
-const CHEER = new Set<Line>([SAY.petNamed, NAMED.levelUp, SAY.betWon, SAY.bothPredicted, NAMED.bestBy, NAMED.mvpGame, SAY.near, SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
-const OOPS = new Set<Line>([SAY.betLost, SAY.livesOut, SAY.lifeLost, SAY.boom, NAMED.burned, NAMED.noFaith, SAY.farOff, SAY.revenge, SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
+const CHEER = new Set<Line>([SAY.signalBack, SAY.lightningWon, PET.loves, PET.crown, PET.hello, PET.knew, SAY.petNamed, NAMED.levelUp, SAY.betWon, SAY.bothPredicted, NAMED.bestBy, NAMED.mvpGame, SAY.near, SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
+const OOPS = new Set<Line>([SAY.signalLost, SAY.offAir, SAY.lightningLost, PET.scared, SAY.betLost, SAY.livesOut, SAY.lifeLost, SAY.boom, NAMED.burned, NAMED.noFaith, SAY.farOff, SAY.revenge, SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
 export function moodOf(l: Line): Mood {
   return CHEER.has(l) ? "cheer" : OOPS.has(l) ? "oops" : "talk";
 }
 
 export function hostSpoken(): string[] {
-  const named = Object.values(NAMED).flatMap((l) => NAMES.map((n) => l.pt.replace("{name}", n)));
+  const named = [...Object.values(NAMED).flatMap((l) => NAMES.map((n) => l.pt.replace("{name}", n))), ...Object.values(PET).flatMap((l) => PET_NAMES.map((n) => l.pt.replace("{name}", n)))];
   return [
     ...Object.values(RULES).flatMap((ls) => ls.map((l) => l.pt)),
     ...Object.values(SAY).map((l) => l.pt),
@@ -203,7 +223,7 @@ export function hostSpoken(): string[] {
 }
 
 /** Big announcements: Pipo steps to the centre of the stage for these. */
-const SPOTLIGHT = new Set<Line>([SAY.finalRound, SAY.twist, SAY.rush, SAY.suddenDeath, SAY.nightMaths, SAY.tie, SAY.tieBreak, SAY.hotPotato]);
+const SPOTLIGHT = new Set<Line>([SAY.twist, SAY.rush, SAY.suddenDeath, SAY.nightMaths, SAY.tie, SAY.tieBreak, SAY.hotPotato]);
 export function isSpotlight(l: Line): boolean {
   return SPOTLIGHT.has(l);
 }

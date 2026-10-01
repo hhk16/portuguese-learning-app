@@ -1442,3 +1442,11 @@ body,
   font-size: 1.05rem;
   text-align: center;
 }
+
+.vote-hint {
+  font-size: 0.75em;
+  color: var(--ink-3);
+}
+.vote-hint.likely {
+  color: var(--mint-d);
+}

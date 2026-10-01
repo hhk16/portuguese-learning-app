@@ -34,6 +34,7 @@ export function BombScreen({ a }: { a: BatataQuente }) {
   const q = a.q;
   const hurry = a.lastHurry && gameNow() - a.lastHurry.at < 1300 ? a.lastHurry : null;
   const hurrier = hurry ? a.rt.players.get(hurry.by) : undefined;
+  const fast = a.lastFast && gameNow() - a.lastFast.at < 1300 ? a.lastFast : null;
   return (
     <div className={`tv-overlay game-screen centered bomb-screen ${a.phase === "boom" ? "shake-screen" : ""}`}>
       <GameTop title="Batata Quente" pic="🥔">
@@ -45,7 +46,7 @@ export function BombScreen({ a }: { a: BatataQuente }) {
         {a.final && !a.inPractice && <span className="pill double-pill">×2</span>}
         {players.map((p) => (
           <span key={p.playerId} className="pill score-pill" data-color={p.color}>
-            {p.name} <b>{a.wins.get(p.playerId) ?? 0}</b>
+            {p.name} <b>{a.wins.get(p.playerId) ?? 0}</b> <small>pts</small>
           </span>
         ))}
       </GameTop>
@@ -72,6 +73,19 @@ export function BombScreen({ a }: { a: BatataQuente }) {
           )}
         </div>
       </div>
+      {a.phase === "play" && (
+        <div className={`wick ${heat > 0.75 ? "short" : ""}`} aria-hidden>
+          <span className="wick-rope" style={{ width: `${Math.max(0, (1 - heat) * 100)}%` }} />
+          <span className="wick-spark" style={{ left: `${Math.max(0, (1 - heat) * 100)}%` }}>
+            ✨
+          </span>
+          {fast && (
+            <span className="wick-fast display" key={fast.at}>
+              🔥 Rápido! −1s <i>Fast answer: hotter potato!</i>
+            </span>
+          )}
+        </div>
+      )}
       {a.phase === "intro" && holder && (
         <div className="bomb-intro display">
           🥔 {a.inPractice ? "Ensaio!" : a.final ? "Última batata — vale a dobrar!" : "Batata quente!"}

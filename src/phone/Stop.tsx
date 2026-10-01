@@ -104,7 +104,23 @@ function Vote({ v, send }: { v: V; send: Send }) {
   const [sent, setSent] = useState(!!v.voted);
   const votes = v.votes ?? [];
   if (sent || votes.length === 0)
-    return (
+    return v.mine?.length ? (
+      <div className="p-col">
+        <div className="p-callout">
+          <b className="display">Defende as tuas palavras! 🗣️</b>
+          <span>{"Your partner is voting on these. Say out loud why they count — in Portuguese if you can: “É um animal!”"}</span>
+        </div>
+        {v.mine.map((w) => (
+          <div key={w.id} className="vote-row card">
+            <span>
+              <small>{w.category}</small>
+              <b className="display">{w.word}</b>
+            </span>
+            <span className={`vote-hint ${w.likely ? "likely" : ""}`}>{w.likely ? "📖 Conheço!" : "❓ Não conheço"}</span>
+          </div>
+        ))}
+      </div>
+    ) : (
       <div className="p-center">
         <div className="p-big">À espera…</div>
         <div className="p-sub">O teu par está a ver as tuas palavras. · Your partner is checking your words.</div>
@@ -123,6 +139,7 @@ function Vote({ v, send }: { v: V; send: Send }) {
             <span>
               <small>{w.category}</small>
               <b className="display">{w.word}</b>
+              <small className={`vote-hint ${w.likely ? "likely" : ""}`}>{w.likely ? "📖 Pipo conhece esta palavra · Pipo knows this word" : "❓ Pipo não conhece — és tu o juiz · You're the judge"}</small>
             </span>
             <div className="vote-btns">
               <button className={`vbtn ${yes ? "sel yes" : ""}`} onClick={() => setOk({ ...ok, [w.id]: true })}>

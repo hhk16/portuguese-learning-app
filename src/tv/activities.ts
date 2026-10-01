@@ -41,6 +41,8 @@ export interface ModeSpec {
   level?: Level;
   /** Lesson to learn ("lesson") or whose words to play with (games). Default: everything learned. */
   lessonId?: string;
+  /** Lesson: just the lightning round again (a retry after losing it). */
+  rushOnly?: boolean;
 }
 
 export interface GameInfo {
@@ -791,12 +793,12 @@ export function startNight(rt: TvRuntime) {
 }
 
 /**
- * A co-op game's "pontos da noite": the team result (0–100), split by who did more — from 80%
- * to 120% of it (capped at 100), so every game moves the rivalry a little without breaking the team.
+ * A co-op game's "pontos da noite": the team result (0–100), split by who did more — from 70%
+ * to 130% of it (capped at 100), so every game moves the rivalry a little without breaking the team.
  */
 export function splitTeam(team: number, contrib: Record<string, number>, ids: string[]): Record<string, number> {
   const total = ids.reduce((s, id) => s + Math.max(0, contrib[id] ?? 0), 0);
-  return Object.fromEntries(ids.map((id) => [id, Math.round(Math.min(100, team * (total > 0 ? 0.8 + 0.2 * ids.length * (Math.max(0, contrib[id] ?? 0) / total) : 1)))]));
+  return Object.fromEntries(ids.map((id) => [id, Math.round(Math.min(100, team * (total > 0 ? 0.7 + 0.3 * ids.length * (Math.max(0, contrib[id] ?? 0) / total) : 1)))]));
 }
 
 /** Adds a game's "pontos da noite" (0–100 each) and returns what everyone gained. */
@@ -856,12 +858,14 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
   const level: Level = spec.level ?? 1;
   const night = rt.night && rt.night.games[rt.night.index] === spec.mode ? rt.night : null;
   const gameDone = (title: string, o: GameOutcome) => {
-    const stars = starsFor(o.score, o.max);
+    // Versus games have a winner, not team stars.
+    const versus = !!o.perPlayer;
+    const stars = versus ? undefined : starsFor(o.score, o.max);
     if (night) {
       night.words.push(...(o.words ?? []));
       const gained = addNightPoints(rt, o, title, GAMES.find((g) => g.mode === spec.mode)?.pic ?? "🎲");
       if (o.highlight) night.moments.push(o.highlight);
-      if (o.gallery?.length) night.drawing = o.gallery.find((g) => g.guessed) ?? o.gallery[0];
+      if (o.gallery?.length) night.drawing = o.gallery.find((g) => g.best) ?? o.gallery.find((g) => g.guessed) ?? o.gallery[0];
       const nextMode = night.games[night.index + 1];
       const nextGame = GAMES.find((g) => g.mode === nextMode);
       const advance: ResultOption = nextGame
@@ -875,7 +879,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
           headlineEn: o.headlineEn,
           sub: o.sub,
           subEn: o.subEn,
-          win: stars > 0,
+          win: versus || (stars ?? 0) > 0,
           score: o.score,
           max: o.max,
           stars,
@@ -902,7 +906,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
         headlineEn: o.headlineEn,
         sub: o.sub,
         subEn: o.subEn,
-        win: stars > 0,
+        win: versus || (stars ?? 0) > 0,
         score: o.score,
         max: o.max,
         stars,
@@ -919,27 +923,38 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
     case "lesson": {
       const lesson = getLesson(spec.lessonId ?? "") ?? LESSONS[0]!;
       const next = LESSONS[(LESSONS.indexOf(lesson) + 1) % LESSONS.length]!;
+      const retry = { id: "rush", label: "Repetir o relâmpago", sub: "Retry the lightning round", pic: "⚡", go: go({ ...spec, rushOnly: true }) };
       rt.run(
-        new LearnActivity(lesson, (s) =>
-          rt.run(
-            new ResultsActivity({
-              spec,
-              title: lesson.title,
-              headline: `${s.stars} ⭐ de ${s.graded}`,
-              sub: `${s.stars === s.graded ? "Perfeito! Os dois acertaram tudo." : "Estrelas de equipa: quando os dois acertam."}${s.bestCombo >= 3 ? ` Melhor combo: ×${s.bestCombo}!` : ""}${s.rush ? ` ⚡ Relâmpago: ${s.rush.team} de ${s.rush.asked}` : ""}`,
-              subEn: `${s.stars === s.graded ? "Perfect — you both got everything right." : "Team stars: when you're both right."}${s.bestCombo >= 3 ? ` Best combo ×${s.bestCombo}!` : ""}${s.rush ? ` Lightning round: ${s.rush.team} of ${s.rush.asked} together` : ""}`,
-              win: true,
-              lesson: s,
-              words: s.words,
-              xp: "lesson",
-              options: [
-                ...games().map((o) => ({ ...o, sub: "Jogar com estas palavras" })),
-                { id: "next", label: "Próxima lição", sub: next.title, pic: "➡️", go: go({ mode: "lesson", lessonId: next.id }) },
-                { id: "again", label: "Repetir a lição", pic: "🔁", go: go(spec) },
-                menu,
-              ],
-            }),
-          ),
+        new LearnActivity(
+          lesson,
+          (s) => {
+            const lost = s.rush && !s.rush.won;
+            const rushLine = s.rush ? (s.rush.won ? ` ⚡ Relâmpago superado: ${s.rush.team}/${s.rush.goal}!` : ` ⚡ Relâmpago: ${s.rush.team}/${s.rush.goal} — a lição ainda não está completa.`) : "";
+            const rushLineEn = s.rush ? (s.rush.won ? ` Lightning round beaten!` : ` Lightning round lost: the lesson isn't complete yet.`) : "";
+            rt.run(
+              new ResultsActivity({
+                spec,
+                title: lesson.title,
+                headline: s.rushOnly ? (lost ? `Quase! ${s.rush!.team}/${s.rush!.goal} ⚡` : "Relâmpago superado! ⚡") : lost ? `Quase! ${s.stars} ⭐ de ${s.graded}` : `${s.stars} ⭐ de ${s.graded}`,
+                headlineEn: lost ? "So close — beat the lightning round to complete the lesson" : s.rushOnly ? "Lesson complete!" : undefined,
+                sub: s.rushOnly ? rushLine.trim() : `${s.stars === s.graded ? "Perfeito! Os dois acertaram tudo." : "Estrelas de equipa: quando os dois acertam."}${s.bestCombo >= 3 ? ` Melhor combo: ×${s.bestCombo}!` : ""}${rushLine}`,
+                subEn: s.rushOnly ? rushLineEn.trim() : `${s.stars === s.graded ? "Perfect — you both got everything right." : "Team stars: when you're both right."}${s.bestCombo >= 3 ? ` Best combo ×${s.bestCombo}!` : ""}${rushLineEn}`,
+                win: !lost,
+                lesson: s,
+                words: s.words,
+                xp: "lesson",
+                options: lost
+                  ? [retry, { id: "again", label: "Repetir a lição", pic: "🔁", go: go({ ...spec, rushOnly: undefined }) }, ...games().map((o) => ({ ...o, sub: "Jogar com estas palavras" })), menu]
+                  : [
+                      ...games().map((o) => ({ ...o, sub: "Jogar com estas palavras" })),
+                      { id: "next", label: "Próxima lição", sub: next.title, pic: "➡️", go: go({ mode: "lesson", lessonId: next.id }) },
+                      { id: "again", label: "Repetir a lição", pic: "🔁", go: go({ ...spec, rushOnly: undefined }) },
+                      menu,
+                    ],
+              }),
+            );
+          },
+          { rushOnly: !!spec.rushOnly },
         ),
       );
       return;
@@ -947,28 +962,28 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
     case "secret": {
       const g = new ParesSecretos(lessonsFor(spec), (o) => gameDone("Pares Secretos", o));
       g.level = level;
-      if ("practice" in g) g.practice = wantsPractice(spec.mode);
+      if ("practice" in g) g.practice = wantsPractice(spec.mode, !!night);
       rt.run(g);
       return;
     }
     case "wave": {
       const g = new NaMesmaOnda((o) => gameDone("Na Mesma Onda", o));
       g.level = level;
-      if ("practice" in g) g.practice = wantsPractice(spec.mode);
+      if ("practice" in g) g.practice = wantsPractice(spec.mode, !!night);
       rt.run(g);
       return;
     }
     case "sync": {
       const g = new EmSintonia(lessonsFor(spec), (o) => gameDone("Em Sintonia", o));
       g.level = level;
-      if ("practice" in g) g.practice = wantsPractice(spec.mode);
+      if ("practice" in g) g.practice = wantsPractice(spec.mode, !!night);
       rt.run(g);
       return;
     }
     case "draw": {
       const g = new Desenha(lessonsFor(spec), (o) => gameDone("Desenha!", o));
       g.level = level;
-      if ("practice" in g) g.practice = wantsPractice(spec.mode);
+      if ("practice" in g) g.practice = wantsPractice(spec.mode, !!night);
       rt.run(g);
       return;
     }
@@ -1016,21 +1031,21 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
     case "bomb": {
       const g = new BatataQuente(lessonsFor(spec), (o) => gameDone("Batata Quente", o));
       g.level = level;
-      if ("practice" in g) g.practice = wantsPractice(spec.mode);
+      if ("practice" in g) g.practice = wantsPractice(spec.mode, !!night);
       rt.run(g);
       return;
     }
     case "stop": {
       const g = new Stop((o) => gameDone("Stop!", o));
       g.level = level;
-      if ("practice" in g) g.practice = wantsPractice(spec.mode);
+      if ("practice" in g) g.practice = wantsPractice(spec.mode, !!night);
       rt.run(g);
       return;
     }
     case "kitchen": {
       const g = new Cozinha((o) => gameDone("Cozinha Caótica", o));
       g.level = level;
-      if ("practice" in g) g.practice = wantsPractice(spec.mode);
+      if ("practice" in g) g.practice = wantsPractice(spec.mode, !!night);
       rt.run(g);
       return;
     }

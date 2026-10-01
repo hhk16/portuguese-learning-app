@@ -326,6 +326,12 @@ export class Desenha implements Activity {
     this.rt.bump();
   }
 
+  /** You vote for your partner's drawings, never your own (with no partner drawings: any). */
+  votable(p: RuntimePlayer): number[] {
+    const theirs = this.gallery.map((g, i) => (g.drawer !== p.playerId ? i : -1)).filter((i) => i >= 0);
+    return (theirs.length ? theirs : this.gallery.map((_, i) => i)).slice(0, 8);
+  }
+
   private resolveVote() {
     const counts = this.gallery.map((_, i) => [...this.bestVotes.values()].filter((v) => v === i).length);
     const top = Math.max(...counts);
@@ -367,8 +373,11 @@ export class Desenha implements Activity {
     }
     if (value.mode === "pick" && this.phase === "vote" && promptId === this.promptId && !this.bestVotes.has(p.playerId)) {
       const i = Number(value.id.replace("g", ""));
-      if (!this.gallery[i]) return;
+      if (!this.gallery[i] || !this.votable(p).includes(i)) return;
       this.bestVotes.set(p.playerId, i);
+      // Being picked by your partner is worth something even if it isn't the overall best.
+      const by = this.gallery[i]!.drawer;
+      if (by) this.contrib.set(by, (this.contrib.get(by) ?? 0) + 2);
       play("lock");
       if (this.players.every((x) => this.bestVotes.has(x.playerId))) return this.resolveVote();
       this.rt.view(p, this.viewFor(p));
@@ -522,9 +531,12 @@ export class Desenha implements Activity {
         mode: "pick",
         roundId: this.roundId,
         promptId: this.promptId,
-        title: "Qual é o melhor desenho?",
-        subtitle: "Which drawing is the best? Vote!",
-        options: this.gallery.slice(0, 8).map((g, i) => ({ id: `g${i}`, label: g.pt, sub: `${this.rt.players.get(g.drawer ?? "")?.name ?? ""} ${g.guessed ? "✓" : "✗"}`, emoji: g.pic })),
+        title: this.players.length > 1 ? "O melhor desenho do teu par?" : "Qual é o melhor desenho?",
+        subtitle: this.players.length > 1 ? "Pick your partner's best drawing!" : "Which drawing is the best? Vote!",
+        options: this.votable(p).map((i) => {
+          const g = this.gallery[i]!;
+          return { id: `g${i}`, label: g.pt, sub: `${this.rt.players.get(g.drawer ?? "")?.name ?? ""} ${g.guessed ? "✓" : "✗"}`, emoji: g.pic };
+        }),
       };
     }
     if (this.phase === "reveal")

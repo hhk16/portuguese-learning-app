@@ -19,7 +19,7 @@ import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
 import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
-import { CATEGORIES, examples, fairLetters, lookup, nearMiss, normStop, startsWith, type DictWord, type StopCategory } from "./dictionary.ts";
+import { CATEGORIES, examples, fairLetters, inReference, lookup, nearMiss, normStop, otherCategory, startsWith, type DictWord, type StopCategory } from "./dictionary.ts";
 
 export const ROUNDS = 3;
 export const HURRY_MS = 8_000;
@@ -36,7 +36,7 @@ export const LEVEL_RULES: Record<Level, { cats: number; writeMs: number }> = {
 
 const CAT_EN: Record<string, string> = { comida: "Food or drink", animal: "Animal", coisa: "Thing", profissao: "Job", pais: "Country or nationality", lugar: "Place or nature" };
 
-export type CellStatus = "empty" | "letter" | "known" | "spelling" | "voted-yes" | "voted-no" | "pending";
+export type CellStatus = "empty" | "letter" | "known" | "spelling" | "voted-yes" | "voted-no" | "pending" | "wrongcat";
 
 export interface Cell {
   word: string;
@@ -44,6 +44,8 @@ export interface Cell {
   dict?: DictWord;
   /** Written after asking for 💡 help (counts half). */
   helped?: boolean;
+  /** wrongcat: the category the word really belongs to (e.g. "coisa"). */
+  realCat?: string;
   points: number;
 }
 
@@ -250,8 +252,10 @@ export class Stop implements Activity {
         const exact = word ? lookup(c.id, word) : undefined;
         const near = word && !exact ? nearMiss(c.id, word) : undefined;
         const dict = exact ?? near;
-        const status: CellStatus = !word ? "empty" : !startsWith(word, this.letter) ? "letter" : exact ? "known" : near ? "spelling" : "pending";
-        row[c.id] = { word, status, dict, helped: !!this.help.get(p.playerId)?.[c.id], points: 0 };
+        // A known word of another category doesn't count here ("bola" isn't a country).
+        const realCat = word && !exact && !near ? otherCategory(c.id, word) : undefined;
+        const status: CellStatus = !word ? "empty" : !startsWith(word, this.letter) ? "letter" : exact ? "known" : near ? "spelling" : realCat ? "wrongcat" : "pending";
+        row[c.id] = { word, status, dict, helped: !!this.help.get(p.playerId)?.[c.id], points: 0, realCat };
         if (dict && status !== "letter") {
           this.rt.evidence(p, dict.itemId, "stop.produce", exact ? "correct" : "accent-slip", 2);
           this.words.set(dict.itemId, { pt: dict.pt, pic: dict.pic });
@@ -390,8 +394,12 @@ export class Stop implements Activity {
       const cells = partner ? (this.cells.get(partner.playerId) ?? {}) : {};
       const votes = Object.entries(cells)
         .filter(([, c]) => c.status === "pending")
-        .map(([cat, c]) => ({ id: `${partner!.playerId}:${cat}`, category: CATEGORIES.find((x) => x.id === cat)?.label ?? cat, word: c.word }));
-      return { ...base, phase: "vote", votes, voted: this.voted.has(p.playerId) };
+        .map(([cat, c]) => ({ id: `${partner!.playerId}:${cat}`, category: CATEGORIES.find((x) => x.id === cat)?.label ?? cat, word: c.word, likely: inReference(cat, c.word) || undefined }));
+      // While your partner votes: your own words under review, so you can plead your case out loud.
+      const mine = Object.entries(this.cells.get(p.playerId) ?? {})
+        .filter(([, c]) => c.status === "pending")
+        .map(([cat, c]) => ({ id: `${p.playerId}:${cat}`, category: CATEGORIES.find((x) => x.id === cat)?.label ?? cat, word: c.word, likely: inReference(cat, c.word) || undefined }));
+      return { ...base, phase: "vote", votes, mine: mine.length ? mine : undefined, voted: this.voted.has(p.playerId) };
     }
     const debug = this.rt.testMode
       ? Object.fromEntries(this.categories.map((c) => [c.id, examples(c.id, this.letter)[this.players.indexOf(p) % 2]?.pt ?? examples(c.id, this.letter)[0]?.pt ?? `${this.letter.toLowerCase()}xyz`]))

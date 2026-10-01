@@ -94,7 +94,7 @@ function Gallery({ a }: { a: Desenha }) {
       <div className="turn-banner card">
         <span className="bi-line">
           <b className="display">{best ? "⭐ Melhor desenho!" : "Qual é o melhor desenho?"}</b>
-          <i>{best ? `Best drawing — by ${nameOf(best.drawer)?.name ?? ""}` : "Which drawing is the best? Vote on your phones!"}</i>
+          <i>{best ? `Best drawing — by ${nameOf(best.drawer)?.name ?? ""}` : "Vote for your partner's best drawing on your phone!"}</i>
         </span>
         {a.phase === "vote" && <span className="pill">🗳️ {a.bestVotes.size}/{a.players.length}</span>}
       </div>

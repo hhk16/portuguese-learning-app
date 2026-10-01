@@ -181,6 +181,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
     betWon: z.boolean().optional(),
     msLeft: z.number().nonnegative().optional(),
     points: z.number().int().optional(),
+    /** Signals left: far-off dials lose one, bullseyes win one back; none left and the show goes off-air. */
+    signals: z.number().int().min(0).max(9).optional(),
   }),
   /** Em Sintonia (Medium style). */
   z.object({
@@ -249,7 +251,9 @@ export const ControllerView = z.discriminatedUnion("mode", [
     /** Who shouted STOP (during "hurry"). */
     stoppedBy: shortText.optional(),
     /** Your partner's words the dictionary doesn't know — you decide. */
-    votes: z.array(z.object({ id, category: shortText, word: shortText })).max(6).optional(),
+    votes: z.array(z.object({ id, category: shortText, word: shortText, likely: z.boolean().optional() })).max(6).optional(),
+    /** Your own words your partner is voting on (while you wait). */
+    mine: z.array(z.object({ id, category: shortText, word: shortText, likely: z.boolean().optional() })).max(6).optional(),
     voted: z.boolean().optional(),
   }),
   /** Name the puppy (asked once on Ana's phone; renamed from the TV's settings). */

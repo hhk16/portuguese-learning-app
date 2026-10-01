@@ -14,11 +14,14 @@ import type { ControllerView, InputValue, LearnExView } from "../../shared/proto
 import { play } from "../../audio/sfx.ts";
 import { lessonsDone, markLessonDone } from "../../tv/progress.ts";
 import { gameNow } from "../../tv/clock.ts";
-import { CUE, SAY } from "../../tv/host-lines.ts";
+import { CUE, PET, SAY } from "../../tv/host-lines.ts";
 
 /** The lesson ends on a lightning round: the TV says the lesson's words, tap them — how many in 40 s? */
-export const RUSH_MS = 40_000;
+export const RUSH_MS = 45_000;
 const RUSH_WORD_MS = 6_000;
+/** The lightning round is the lesson's boss: this many words together, before the hearts or the time run out. */
+export const RUSH_GOAL = 5;
+export const RUSH_HEARTS = 3;
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 
 export interface LearnSummary {
@@ -27,8 +30,10 @@ export interface LearnSummary {
   perPlayer: { playerId: string; correct: number; graded: number }[];
   words: LearnCard[];
   bestCombo: number;
-  /** Lightning round: words you both got, and each player's right taps. */
-  rush?: { team: number; asked: number };
+  /** Lightning round (the boss): words you both got, and whether you beat it. */
+  rush?: { team: number; asked: number; goal: number; won: boolean };
+  /** Only the lightning round was played (a retry). */
+  rushOnly?: boolean;
 }
 
 interface Rush {
@@ -41,6 +46,9 @@ interface Rush {
   team: number;
   asked: number;
   combo: number;
+  hearts: number;
+  /** Whether the current word was already settled (both answered). */
+  settled: boolean;
   /** Last word's result, for the TV flash. */
   last: { ok: boolean; seq: number } | null;
   recent: string[];
@@ -80,9 +88,13 @@ export class LearnActivity implements Activity {
   /** The lightning round at the end (null before/without it). */
   rush: Rush | null = null;
 
-  constructor(lesson: Lesson, onDone: (s: LearnSummary) => void) {
+  /** Retry: straight to the lightning round with the lesson's words. */
+  readonly rushOnly: boolean;
+
+  constructor(lesson: Lesson, onDone: (s: LearnSummary) => void, opts: { rushOnly?: boolean } = {}) {
     this.lesson = lesson;
     this.onDone = onDone;
+    this.rushOnly = !!opts.rushOnly;
   }
 
   get ex(): LearnEx | undefined {
@@ -109,6 +121,15 @@ export class LearnActivity implements Activity {
         if (c && !this.words.some((w) => w.itemId === c.itemId)) this.words.push(c);
       }
     }
+    if (this.rushOnly) {
+      // The retry knows every word of the lesson, not just today's new ones.
+      for (const id of this.lesson.itemIds) {
+        const c = cardById(id);
+        if (c && !this.words.some((w) => w.itemId === c.itemId)) this.words.push(c);
+      }
+      this.queue = [];
+      return this.startRush();
+    }
     this.enter();
   }
 
@@ -134,15 +155,19 @@ export class LearnActivity implements Activity {
     const r = this.rush;
     if (!r || this.finished) return;
     if (now >= r.endAt) return this.finish();
-    if (now >= r.wordEnd) this.nextRushWord();
+    if (now >= r.wordEnd) {
+      // Nobody (or only one of you) answered in time: that costs a heart.
+      if (r.wordEnd && !r.settled) this.rushMiss();
+      if (!this.finished) this.nextRushWord();
+    }
   }
 
   /** Lightning round: needs at least four lesson words. */
   private startRush() {
     const pool = this.rushPool();
     if (pool.length < 4 || !this.players.length) return this.finish();
-    this.rush = { endAt: gameNow() + RUSH_MS + 1500, wordEnd: 0, card: pool[0]!, options: [], pictures: false, answers: new Map(), team: 0, asked: 0, combo: 0, last: null, recent: [] };
-    this.rt.say(SAY.lightning);
+    this.rush = { endAt: gameNow() + RUSH_MS + 1500, wordEnd: 0, card: pool[0]!, options: [], pictures: false, answers: new Map(), team: 0, asked: 0, combo: 0, hearts: RUSH_HEARTS, settled: false, last: null, recent: [] };
+    this.rt.say([SAY.lightning, SAY.lightningGoal]);
     this.rt.cue(CUE.listenTap);
     play("whistle");
     setTimeout(() => this.rt.activity === this && !this.finished && this.nextRushWord(), 1500);
@@ -164,8 +189,9 @@ export class LearnActivity implements Activity {
     const others = this.rt.rng.sample(pool.filter((c) => c.itemId !== card.itemId && c.pt !== card.pt), 3);
     r.card = card;
     r.options = this.rt.rng.shuffle([card, ...others]);
-    // Pictures when every option has a distinct one, else the Portuguese words.
-    r.pictures = r.options.every((o) => o.emoji) && new Set(r.options.map((o) => o.emoji)).size === r.options.length;
+    // Pictures only for things a picture really shows (nouns, numbers…) — greetings and phrases are words.
+    r.pictures = r.options.every((o) => o.emoji && /^vocab\.(noun|number|adjective|colour|color)/.test(o.itemId)) && new Set(r.options.map((o) => o.emoji)).size === r.options.length;
+    r.settled = false;
     r.answers = new Map();
     r.asked++;
     r.wordEnd = gameNow() + RUSH_WORD_MS;
@@ -184,17 +210,47 @@ export class LearnActivity implements Activity {
     play(ok ? "pop" : "buzzer", ok ? 0.8 : 0.4, 1 + Math.min(r.combo, 8) * 0.05);
     if (this.players.every((x) => r.answers.has(x.playerId))) {
       const all = [...r.answers.values()].every(Boolean);
+      r.settled = true;
       if (all) {
         r.team++;
         r.combo++;
         play("star", 0.8, 1 + Math.min(r.combo, 8) * 0.06);
-        if (r.combo === 5) this.rt.say(SAY.perfect);
-      } else r.combo = 0;
-      r.last = { ok: all, seq: (r.last?.seq ?? 0) + 1 };
+        if (r.combo === 3) this.rt.petSay(PET.knew, 0.6);
+        r.last = { ok: true, seq: (r.last?.seq ?? 0) + 1 };
+        // Boss beaten!
+        if (r.team >= RUSH_GOAL) {
+          this.rt.view(p, this.viewFor(p));
+          setTimeout(() => this.rt.activity === this && this.finish(), 900);
+          r.wordEnd = gameNow() + 60_000;
+          this.rt.bump();
+          return;
+        }
+      } else {
+        r.combo = 0;
+        this.rushMiss();
+        if (this.finished) return;
+      }
       // A beat to see it, then the next word.
       r.wordEnd = Math.min(r.wordEnd, gameNow() + 600);
     }
     this.rt.view(p, this.viewFor(p));
+    this.rt.bump();
+  }
+
+  /** A word you didn't both get: one heart less. No hearts left → the lightning round is lost. */
+  private rushMiss() {
+    const r = this.rush;
+    if (!r) return;
+    r.settled = true;
+    r.combo = 0;
+    r.hearts--;
+    r.last = { ok: false, seq: (r.last?.seq ?? 0) + 1 };
+    play("buzzer", 0.5);
+    for (const p of this.players) this.rt.emote(p.playerId, "sad", 1200);
+    if (r.hearts <= 0) {
+      r.wordEnd = gameNow() + 60_000;
+      setTimeout(() => this.rt.activity === this && this.finish(), 900);
+    }
     this.rt.bump();
   }
 
@@ -326,10 +382,20 @@ export class LearnActivity implements Activity {
   private finish() {
     if (this.finished) return;
     this.finished = true;
-    play("success-jingle");
-    this.rt.celebrate();
+    const r = this.rush;
+    const won = !r || r.team >= RUSH_GOAL;
+    if (won) {
+      play("success-jingle");
+      this.rt.celebrate();
+      if (r) this.rt.say(SAY.lightningWon, { interrupt: true });
+    } else {
+      play("fail-jingle");
+      this.rt.say(SAY.lightningLost, { interrupt: true });
+      this.rt.petDo("oops", 2500);
+    }
     const stars = this.graded ? this.stars / this.graded : 1;
-    markLessonDone(this.lesson.id, stars >= 0.85 ? 3 : stars >= 0.6 ? 2 : 1);
+    // The lesson only counts as done once its lightning round is beaten.
+    if (won) markLessonDone(this.lesson.id, this.rushOnly ? 2 : stars >= 0.85 ? 3 : stars >= 0.6 ? 2 : 1);
     void this.rt.learner.sync().then(() => this.rt.learner.pushSnapshot());
     this.onDone({
       stars: this.stars,
@@ -337,7 +403,8 @@ export class LearnActivity implements Activity {
       perPlayer: [...this.perPlayer].map(([playerId, v]) => ({ playerId, ...v })),
       words: this.words,
       bestCombo: this.bestCombo,
-      rush: this.rush ? { team: this.rush.team, asked: this.rush.asked } : undefined,
+      rush: r ? { team: r.team, asked: r.asked, goal: RUSH_GOAL, won } : undefined,
+      rushOnly: this.rushOnly || undefined,
     });
   }
 
@@ -360,7 +427,7 @@ export class LearnActivity implements Activity {
         mode: "final",
         roundId: this.roundId,
         promptId: this.promptId,
-        label: `⚡ Relâmpago · ${r.team} ⭐`,
+        label: `⚡ ${r.team}/${RUSH_GOAL} ⭐ · ${"❤️".repeat(Math.max(0, r.hearts))}`,
         kind: "hear",
         index: r.asked - 1,
         total: Math.max(r.asked, 1),

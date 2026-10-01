@@ -3,10 +3,11 @@
  *
  * The potato sits on one phone with a quick question: hear a word and tap its picture, name a
  * picture, read a number, find the opposite. Right answer → the potato flies to the other phone.
- * Wrong → a short lock-out and a new question (you keep it). The fuse is hidden and the ticking
- * speeds up; whoever holds the potato when it blows loses the round. The safe player can press
- * "Despacha-te!" (three times a round) to burn the fuse a little faster — careful, it may come back.
- * Five potatoes, the last one counts double.
+ * Wrong → a short lock-out and a new question (you keep it). The fuse burns on the TV (its length
+ * is random) and the ticking speeds up; whoever holds the potato when it blows loses the round. A fast
+ * right answer (under 2.5 s) passes a hotter potato: the fuse loses a second. The safe player can
+ * press "Despacha-te!" (three times a round) to burn it faster too — careful, it may come back.
+ * Five potatoes, the last one counts double. A point for every potato that blows on the other side.
  */
 import { ALL_ITEMS, getItem } from "../../curriculum/index.ts";
 import { cardOf, type LearnCard } from "../../curriculum/learn.ts";
@@ -18,7 +19,7 @@ import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
+import { CUE, NAMED, PET, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { spectra } from "../wave/scale.ts";
 
@@ -28,6 +29,9 @@ const BOOM_MS = 3600;
 const LOCK_MS = 1300;
 export const HURRIES = 3;
 const HURRY_MS = 900;
+/** A right answer this fast burns this much off the fuse ("Rápido! A batata aquece"). */
+export const FAST_MS = 2500;
+const FAST_BURN_MS = 1000;
 
 /** Difficulty: hidden fuse range (ms) and how many options each question has. */
 export const LEVEL_RULES: Record<Level, { fuse: [number, number]; options: number }> = {
@@ -73,6 +77,9 @@ export class BatataQuente implements Activity {
   holderIndex = 0;
   q: Question | null = null;
   lockedUntil = 0;
+  askedAt = 0;
+  /** The last fast answer (TV flash "🔥 −1 s"). */
+  lastFast: { by: string; at: number } | null = null;
   hurryLeft = HURRIES;
   /** For the TV: the last pass ("whoosh" animation) and the last hurry press. */
   passSeq = 0;
@@ -91,6 +98,8 @@ export class BatataQuente implements Activity {
   private numbers: ItemOf<"number">[] = [];
   private recent: string[] = [];
   private missed = new Map<string, { pt: string; en?: string; pic?: string }>();
+  /** Every word asked, for the recap. */
+  private asked = new Map<string, { pt: string; en?: string; pic?: string }>();
   private tickAt = 0;
   private hurrySaid = false;
   private extra = false;
@@ -182,6 +191,10 @@ export class BatataQuente implements Activity {
     // With a unit or lesson chosen, its verbs and phrases come up too (heard on the TV, tapped on the phone).
     const phrase = this.phrases.length >= 4 && this.rt.rng.next() < 0.4;
     this.q = this.question(phrase ? "phrase" : this.rt.rng.pick(kinds));
+    this.askedAt = gameNow();
+    const it = this.q.itemId ? getItem(this.q.itemId) : undefined;
+    const card = it ? cardOf(it) : null;
+    if (card && this.q.kind !== "hearNumber" && this.q.kind !== "number") this.asked.set(card.itemId, { pt: card.pt, en: card.en, pic: card.emoji });
     this.promptId = randomId(6);
     if (this.q.say) this.rt.speakPt(this.q.say);
     this.rt.refreshViews();
@@ -265,6 +278,9 @@ export class BatataQuente implements Activity {
     this.q = null;
     setHurry(false);
     play("boom");
+    // The puppy hides its eyes at every bang (and Pipo sometimes says so).
+    this.rt.petDo("hide", 3200);
+    setTimeout(() => this.rt.activity === this && this.rt.petSay(PET.scared, 0.5), 2600);
     setTimeout(() => this.rt.activity === this && play(this.inPractice ? "reveal" : "crowd-ooh", 0.8), 500);
     this.rt.celebrate();
     if (loser) {
@@ -326,8 +342,13 @@ export class BatataQuente implements Activity {
       this.rt.bump();
       return;
     }
-    // Right: the potato flies to the other phone.
+    // Right: the potato flies to the other phone — hotter if you were fast.
     if (!this.inPractice) this.right.set(p.playerId, (this.right.get(p.playerId) ?? 0) + 1);
+    if (gameNow() - this.askedAt < FAST_MS) {
+      this.fuseEnd = Math.max(gameNow() + 1500, this.fuseEnd - FAST_BURN_MS);
+      this.lastFast = { by: p.playerId, at: gameNow() };
+      play("sparkle", 0.6, 1.3);
+    }
     this.passes++;
     this.passSeq++;
     this.holderIndex++;
@@ -358,11 +379,12 @@ export class BatataQuente implements Activity {
     this.onDone({
       score: answered,
       max: 36,
-      headline: tie ? `Empate! ${wa}–${wb}` : `${a?.name ?? ""} ganha! ${wa}–${wb}`,
-      headlineEn: tie ? "It's a tie!" : `${a?.name ?? ""} wins — never got burned as much!`,
-      sub: `${answered} respostas certas · ${this.passes} passes`,
+      headline: tie ? `Empate! ${wa}–${wb} pontos` : `${a?.name ?? ""} ganha! ${wa}–${wb} pontos`,
+      headlineEn: tie ? "It's a tie!" : `${a?.name ?? ""} wins — a point for every potato that blew up on the other side`,
+      sub: `Um ponto por batata (a última vale 2) · ${answered} respostas certas · ${this.passes} passes`,
       subEn: `${answered} right answers between you`,
-      words: [...this.missed.values()].slice(0, 8),
+      // Words you missed first, then the rest of what came up.
+      words: [...new Map([...this.missed, ...this.asked].map(([, w]) => [w.pt, w])).values()].slice(0, 12),
       perPlayer: Object.fromEntries(this.players.map((p) => [p.playerId, bombShare(this.wins.get(p.playerId) ?? 0, possible)])),
       highlight: tie || !a ? undefined : { pt: `${a.name} ganhou a Batata Quente ${wa}–${wb}`, en: `${a.name} won Hot Potato`, pic: "🥔" },
     });

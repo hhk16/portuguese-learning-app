@@ -122,6 +122,28 @@ export function editDistance(a: string, b: string): number {
 /** Every word in the Stop reference lists, normalised (to tell real words from typos). */
 const KNOWN_WORDS = new Set(Object.values(REFERENCE).flat().map((w) => normStop(w)));
 
+const STRICT = new Set(["pais", "animal", "profissao", "comida"]);
+const REF_SETS = Object.fromEntries(Object.entries(REFERENCE).map(([cat, ws]) => [cat, new Set(ws.map((w) => normStop(w)))])) as Record<string, Set<string>>;
+
+/** A common word of this category (from the reference lists): very likely fine. */
+export function inReference(category: string, typed: string): boolean {
+  return !!REF_SETS[category]?.has(normStop(typed));
+}
+
+/**
+ * The category a word really belongs to, when it's a known word of ANOTHER category and not of this
+ * one ("bola" as a country → "coisa"). Undefined when it could belong here or we don't know it.
+ */
+export function otherCategory(category: string, typed: string): string | undefined {
+  // Only for the strict categories: anything can be a "coisa", and many things are a "lugar".
+  if (!STRICT.has(category)) return undefined;
+  const n = normStop(typed);
+  if (!n || inReference(category, typed) || DICTIONARY.some((w) => w.category === category && w.forms.includes(n))) return undefined;
+  const dict = DICTIONARY.find((w) => w.forms.includes(n));
+  if (dict) return dict.category;
+  return Object.keys(REF_SETS).find((c) => REF_SETS[c]!.has(n));
+}
+
 export function nearMiss(category: string, typed: string): DictWord | undefined {
   const n = normStop(typed);
   if (n.length < 3) return undefined;

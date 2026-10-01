@@ -27,13 +27,19 @@ export const ROUNDS = 6;
 /** Points in the bullseye; outer bands give 3 and 2. */
 export const BULLSEYE = 4;
 /** The psychic's side bet, when it comes true. */
-export const SIDE_BET = 2;
+export const SIDE_BET = 3;
+/** Signals left at the end of the show are worth this much each. */
+export const SIGNAL_BONUS = 2;
 
 /** Difficulty: band half-widths (dial is 0..100), clue types, and timers. */
-export const LEVEL_RULES: Record<Level, { bands: [number, number, number]; chips: number; clueMs: number; guessMs: number }> = {
-  1: { bands: [5, 10, 15], chips: 8, clueMs: 45_000, guessMs: 40_000 },
-  2: { bands: [3, 7, 11], chips: 6, clueMs: 35_000, guessMs: 30_000 },
-  3: { bands: [3, 6, 10], chips: 4, clueMs: 30_000, guessMs: 25_000 },
+/**
+ * Signals ("sinais"): the radio show's lifeline. A dial that lands far off (0 points) loses one; a
+ * bullseye wins one back. No signal left → the show goes off-air and the game ends early.
+ */
+export const LEVEL_RULES: Record<Level, { bands: [number, number, number]; chips: number; clueMs: number; guessMs: number; signals: number }> = {
+  1: { bands: [5, 10, 15], chips: 8, clueMs: 45_000, guessMs: 40_000, signals: 3 },
+  2: { bands: [3, 7, 11], chips: 6, clueMs: 35_000, guessMs: 30_000, signals: 2 },
+  3: { bands: [3, 6, 10], chips: 4, clueMs: 30_000, guessMs: 25_000, signals: 2 },
 };
 
 export function pointsFor(target: number, value: number, bands: [number, number, number] = LEVEL_RULES[1].bands): number {
@@ -76,6 +82,11 @@ export class NaMesmaOnda implements Activity {
   /** This dial's points without the side bet (the bet gets its own card). */
   lastDial = 0;
   sure = false;
+  /** Signals left (see LEVEL_RULES); -1 until the game starts. */
+  signals = -1;
+  /** Last reveal: +1 / -1 signal, for the TV beat. */
+  signalDelta = 0;
+  offAir = false;
   /** The psychic's side bet while the partner turns the dial. */
   psychicBet: "cheio" | "perto" | "longe" | null = null;
   betWon = false;
@@ -101,7 +112,7 @@ export class NaMesmaOnda implements Activity {
   }
   /** The score ⭐⭐⭐ is measured against. */
   get maxScore() {
-    return 40;
+    return 40 + SIGNAL_BONUS * this.rules.signals;
   }
   get players() {
     return this.rt.activePlayers.slice(0, 2);
@@ -154,6 +165,7 @@ export class NaMesmaOnda implements Activity {
 
   start(rt: TvRuntime) {
     this.rt = rt;
+    this.signals = this.rules.signals;
     if (this.practice) this.round = -1;
     // Only the spectra with things spread over the dial (newer adjective pairs may not have any yet).
     this.deck = rt.rng.shuffle(dialSpectra());
@@ -274,6 +286,7 @@ export class NaMesmaOnda implements Activity {
     setHurry(false);
     play("lock");
     play("drumroll");
+    this.rt.petDo("think", 2000);
     this.rt.refreshViews();
     this.rt.bump();
     setTimeout(() => this.rt.activity === this && this.phase === "suspense" && this.reveal(), 2050);
@@ -292,6 +305,15 @@ export class NaMesmaOnda implements Activity {
     this.lastDial = dialPoints;
     if (this.betWon && !this.inPractice) this.lastPoints += SIDE_BET;
     if (!this.inPractice) this.score += this.lastPoints;
+    // Signals: far off (or a lost "Tenho a certeza!") loses one; a bullseye wins one back.
+    this.signalDelta = 0;
+    if (!this.inPractice) {
+      if (dialPoints === 0) this.signalDelta = -1;
+      else if (raw >= BULLSEYE && this.signals < this.rules.signals) this.signalDelta = 1;
+      this.signals += this.signalDelta;
+      if (this.signalDelta < 0) setTimeout(() => this.rt.activity === this && this.rt.say(this.signals > 0 ? SAY.signalLost : SAY.offAir), 2600);
+      else if (this.signalDelta > 0) setTimeout(() => this.rt.activity === this && this.rt.say(SAY.signalBack), 2600);
+    }
     const ps = this.psychic;
     const gs = this.guesser;
     if (!this.inPractice && ps && gs && ps !== gs) {
@@ -337,9 +359,12 @@ export class NaMesmaOnda implements Activity {
 
   private next() {
     this.round++;
-    if (this.round >= ROUNDS) {
+    this.offAir = !this.inPractice && this.signals <= 0 && this.round > 0;
+    if (this.round >= ROUNDS || this.offAir) {
       this.phase = "end";
       setHurry(false);
+      // Still on air at the end: every signal left is a bonus.
+      if (!this.offAir) this.score += SIGNAL_BONUS * this.signals;
       this.rt.bump();
       const bulls = this.history.filter((h) => h.points >= BULLSEYE).length;
       // Bets can double a bullseye, so ⭐⭐⭐ needs bullseyes *and* a brave bet or two.
@@ -349,10 +374,10 @@ export class NaMesmaOnda implements Activity {
       this.onDone({
         score: this.score,
         max,
-        headline: `${headline} ${this.score} pontos`,
-        headlineEn: `${headlineEn} ${this.score} points`,
-        sub: `${bulls} em cheio`,
-        subEn: `${bulls} bullseye${bulls === 1 ? "" : "s"}`,
+        headline: this.offAir ? `Sem sinal! 📻 ${this.score} pontos` : `${headline} ${this.score} pontos`,
+        headlineEn: this.offAir ? `Off the air! ${this.score} points` : `${headlineEn} ${this.score} points`,
+        sub: this.offAir ? `A rádio saiu do ar no mostrador ${this.history.length} · ${bulls} em cheio` : `${bulls} em cheio · ainda no ar com ${this.signals} sina${this.signals === 1 ? "l" : "is"}: +${SIGNAL_BONUS * this.signals}`,
+        subEn: this.offAir ? `The show went off-air after ${this.history.length} dials` : `${bulls} bullseye${bulls === 1 ? "" : "s"} · still on air: signal bonus`,
         words: this.history.map((h) => ({ pt: h.clue, en: h.clueEn, pic: h.cluePic })),
         contrib: Object.fromEntries(this.contrib),
         highlight: (() => {
@@ -395,6 +420,7 @@ export class NaMesmaOnda implements Activity {
       msLeft: !this.inPractice && (phase === "clue" || (phase === "guess" && this.phase !== "suspense")) ? this.msLeft : undefined,
       points: this.phase === "reveal" ? this.lastPoints : undefined,
       practice: this.inPractice || undefined,
+      signals: this.inPractice ? undefined : this.signals,
       debugAnswer: this.rt.testMode ? { target: this.target, ats: this.clues.map((c) => c.at ?? 50) } : undefined,
     };
   }

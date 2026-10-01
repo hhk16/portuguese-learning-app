@@ -12,9 +12,9 @@ describe("game night: MVP split of a co-op result", () => {
   it("keeps the team result when both did the same", () => {
     expect(splitTeam(70, { a: 5, b: 5 }, ["a", "b"])).toEqual({ a: 70, b: 70 });
   });
-  it("moves 80%–120% of the team result towards whoever did more, capped at 100", () => {
-    expect(splitTeam(50, { a: 10, b: 0 }, ["a", "b"])).toEqual({ a: 60, b: 40 });
-    expect(splitTeam(100, { a: 3, b: 1 }, ["a", "b"])).toEqual({ a: 100, b: 90 });
+  it("moves 70%–130% of the team result towards whoever did more, capped at 100", () => {
+    expect(splitTeam(50, { a: 10, b: 0 }, ["a", "b"])).toEqual({ a: 65, b: 35 });
+    expect(splitTeam(100, { a: 3, b: 1 }, ["a", "b"])).toEqual({ a: 100, b: 85 });
   });
   it("is the team result with no contributions at all", () => {
     expect(splitTeam(40, {}, ["a", "b"])).toEqual({ a: 40, b: 40 });

@@ -1,6 +1,6 @@
 /** Aprender juntos on the TV: the exercise everyone is answering, then everyone's answers together. */
 import { answerOf, isGraded } from "../../curriculum/learn.ts";
-import type { LearnActivity } from "../../games/learn/learn.ts";
+import { RUSH_GOAL, RUSH_HEARTS, type LearnActivity } from "../../games/learn/learn.ts";
 import { Face, PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
 import { GameTop } from "./Menus.tsx";
@@ -18,12 +18,20 @@ function RushView({ a }: { a: LearnActivity }) {
       <GameTop title={a.lesson.title} pic={lessonPic(a.lesson)}>
         <span className="pill twist-pill">⚡ Desafio relâmpago <i>Lightning round</i></span>
         <span className={`pill clock ${left < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}</span>
-        <span className="pill star-pill">{r.team} ⭐</span>
+        <span className="pill star-pill">
+          {r.team}/{RUSH_GOAL} ⭐
+        </span>
+        <span className="pill lives-pill">
+          {"❤️".repeat(Math.max(0, r.hearts))}
+          {"🖤".repeat(Math.max(0, RUSH_HEARTS - r.hearts))}
+        </span>
         {r.combo >= 2 && <span className="pill double-pill">Combo ×{r.combo}</span>}
       </GameTop>
       <div className={`card stage-card rush-card ${r.last ? (r.last.ok ? "ok" : "miss") : ""}`} key={r.asked}>
         {!r.wordEnd ? (
-          <h2 className="display">⚡ Ouçam e toquem — juntos! <i>Listen and tap — together!</i></h2>
+          <h2 className="display">
+            ⚡ {RUSH_GOAL} certas juntos para passar! <i>Get {RUSH_GOAL} right together to pass — {RUSH_HEARTS} hearts</i>
+          </h2>
         ) : (
           <>
             <Picture glyph="🔊" size="4em" />

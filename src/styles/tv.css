@@ -464,7 +464,7 @@ html.tv-root #root {
   align-items: center;
 }
 .results-card {
-  width: 58%;
+  width: 62%;
   max-height: 100%;
   overflow: hidden;
   padding: 1.8rem 2.2rem;
@@ -1976,8 +1976,16 @@ html.tv-root #root {
 }
 .results-card .next-list {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
+}
+.results-card .next-list.few {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.results-card .next-item small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .results-card .word-chips {
   max-height: 5.4em;
@@ -2830,11 +2838,14 @@ html.tv-root #root {
   color: var(--sky-p-d);
 }
 .xp-row {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 0.6rem;
 }
 .xp-card {
-  flex: 1;
+  flex: 1 1 18rem;
+  min-width: 0;
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
   gap: 0.5rem;
   padding: 0.3rem 0.7rem;
   font-size: 0.82em;
@@ -2869,4 +2880,89 @@ html.tv-root #root {
   font-style: normal;
   color: var(--ink-3);
   font-size: 0.85em;
+}
+
+/* Batata Quente: the burning wick under the arena (shorter = closer to BUM). */
+.wick {
+  position: relative;
+  width: min(56vw, 52rem);
+  height: 1.6rem;
+  margin: 0.4rem auto 0;
+  border-radius: 999px;
+  background: rgba(31, 42, 68, 0.18);
+}
+.wick-rope {
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: repeating-linear-gradient(135deg, #c98b4a 0 0.5rem, #a8692e 0.5rem 1rem);
+  transition: width 0.1s linear;
+}
+.wick-spark {
+  position: absolute;
+  top: -0.55rem;
+  font-size: 2rem;
+  transform: translateX(-50%);
+  animation: spark 0.25s steps(2) infinite;
+}
+.wick.short .wick-spark {
+  animation-duration: 0.12s;
+  filter: drop-shadow(0 0 0.6rem #ff6b3d);
+}
+.wick.short .wick-rope {
+  background: repeating-linear-gradient(135deg, #ff7a45 0 0.5rem, #d9472b 0.5rem 1rem);
+}
+@keyframes spark {
+  0% { transform: translateX(-50%) scale(1) rotate(0); }
+  100% { transform: translateX(-50%) scale(1.35) rotate(25deg); }
+}
+.wick-fast {
+  position: absolute;
+  left: 50%;
+  top: 2rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 0.2rem 1rem;
+  border-radius: 999px;
+  background: #fff1e0;
+  color: #d9472b;
+  font-size: 1.3em;
+  animation: pop-in 0.3s ease-out both;
+}
+.wick-fast i {
+  font-family: var(--body, inherit);
+  font-style: normal;
+  font-size: 0.6em;
+  color: var(--ink-2);
+}
+.score-pill small {
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+/* The goal line waits while a big command banner is up (they share the top of the screen). */
+:has(> .command) > .tv-overlay .goal-line {
+  visibility: hidden;
+}
+
+.signal-pill.loss {
+  animation: shake 0.5s ease-in-out 2;
+  background: #ffe1dc;
+}
+.signal-pill.gain {
+  animation: pop-in 0.4s ease-out both;
+  background: #dcf7ea;
+}
+.signal-note {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.9em;
+  margin-top: 0.2em;
+}
+.signal-note.loss {
+  color: var(--coral-d);
+}
+.signal-note.gain {
+  color: var(--mint-d);
 }

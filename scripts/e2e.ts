@@ -554,7 +554,7 @@ while (Date.now() - start < LIMIT) {
     await shoot(`results-${MODES[modeIndex]}`, bots[0]);
     const kicker = (await tv.textContent(".results-card .kicker"))?.trim() ?? "";
     resultsSeen++;
-    console.log(`results after ${NIGHT ? kicker : MODES[modeIndex]}: ${(await tv.textContent(".results-card h1"))?.trim()}`);
+    console.log(`results after ${NIGHT ? kicker : MODES[modeIndex]}: ${(await tv.textContent(".results-card h1"))?.trim()} · ${((await tv.textContent(".results-card > p.muted").catch(() => "")) ?? "").trim().slice(0, 160)}`);
     if (NIGHT) {
       if (kicker.startsWith("Fim da noite")) {
         await tv.waitForTimeout(6000 * PACE);
