@@ -2,5 +2,255 @@
 import type { AulaStep } from "../aulas.ts";
 import type { Lesson } from "../schema.ts";
 
-export const U04_LESSONS: Lesson[] = [];
-export const U04_AULAS: Record<string, AulaStep[]> = {};
+const pav = (unit: "u04" | "pds2" | "trab2" | "mundo2", pages: number[], concept: string) => ({ sourceId: "pav1-student" as const, unit, pages, concept });
+const P = ["eu", "tu", "ele", "nos", "eles"] as const;
+const verbIds = (slug: string) => P.map((p) => `grammar.${slug}.${p}`);
+const nouns = (...s: string[]) => s.map((x) => `vocab.noun.${x}`);
+const adjs = (...s: string[]) => s.map((x) => `vocab.adjective.${x}`);
+const fn = (unit: string, ...s: string[]) => s.map((x) => `function.${unit}.${x}`);
+const frames = (...s: string[]) => s.map((x) => `grammar.frame.${x}`);
+const errors = (...s: string[]) => s.map((x) => `grammar.error.${x}`);
+const nums = (...v: number[]) => v.map((x) => `vocab.number.n${x}`);
+
+export const U04_LESSONS: Lesson[] = [
+  {
+    id: "u04.transportes",
+    unit: "u04",
+    title: "Como é que vens? — transportes e bilhetes",
+    source: pav("u04", [86, 88, 89, 90], "transport-tickets"),
+    itemIds: [
+      ...verbIds("vir"),
+      ...nouns("autocarro", "comboio", "metro", "paragem", "bilhete"),
+      ...fn("u04", "como_vens", "venho_a_pe", "queriamos_bilhetes", "ida_e_volta", "a_que_horas_parte"),
+      ...frames("no_autocarro_24", "vai_a_pe", "eles_vem_comboio", "vou_para_casa"),
+      ...errors("de_bicicleta"),
+    ],
+    canDo: ["cd12.transport", "cd20.travel", "cd08.time"],
+  },
+  {
+    id: "u04.direcoes",
+    unit: "u04",
+    title: "Onde fica a estação? — direções na cidade",
+    source: pav("u04", [86, 90, 91, 102], "directions-ficar"),
+    itemIds: [
+      ...verbIds("ficar"),
+      ...nouns("rua", "praca", "semaforo", "passadeira"),
+      ...fn("u04", "podia_dizer_caminho", "segue_em_frente", "vira_esquerda", "vira_direita", "atravessa", "fica_longe"),
+      ...frames("onde_fica_estacao", "passa_pela_rua", "ate_ao_semaforo", "ficamos_em_casa"),
+      ...errors("pela_praca"),
+    ],
+    canDo: ["cd11.directions", "cd12.transport"],
+  },
+  {
+    id: "u04.casa",
+    unit: "u04",
+    title: "A minha casa tem dois quartos — a casa",
+    source: pav("u04", [91, 92, 93], "house-rooms-furniture"),
+    itemIds: [
+      ...nouns("cozinha", "sala", "quarto", "casa_de_banho", "varanda", "escritorio"),
+      ...nouns("sofa", "cama", "frigorifico", "candeeiro", "espelho"),
+      ...fn("u04", "segundo_andar", "arrenda_se", "mobilado"),
+      ...frames("ha_um_jardim", "no_terceiro_andar", "frigorifico_na_cozinha", "cama_no_quarto", "casa_tem_quartos"),
+      ...errors("ha_um_sofa"),
+    ],
+    canDo: ["cd13.home"],
+  },
+  {
+    id: "u04.comparativos",
+    unit: "u04",
+    title: "Mais caro do que o nosso — comparar casas",
+    source: pav("u04", [92, 94, 103], "comparatives"),
+    itemIds: [
+      ...adjs("moderno", "antigo", "claro", "escuro", "caro", "barato"),
+      ...nouns("predio", "apartamento", "jardim"),
+      ...fn("u04", "nao_achas"),
+      ...frames("mais_caro_do_que", "quarto_maior", "restaurante_melhor", "transito_pior", "menos_rapida"),
+      ...errors("maior_do_que"),
+    ],
+    canDo: ["cd13.home", "cd05.family-describe"],
+  },
+  {
+    id: "u04.lojas",
+    unit: "u04",
+    title: "Quanto custa? — lojas e números até 1000",
+    source: pav("u04", [94, 95, 96], "shops-prices-numbers"),
+    itemIds: [
+      ...nouns("livraria", "padaria", "talho", "banco", "papelaria"),
+      ...fn("u04", "quanto_custa", "posso_pagar_cartao", "queria_marcar"),
+      ...nums(200, 300, 400, 500, 600, 700, 800, 900, 1000),
+      ...frames("setecentos_euros", "duzentas_paginas", "carne_no_talho"),
+    ],
+    canDo: ["cd10.buy-pay", "cd07.numbers-prices"],
+  },
+  {
+    id: "u04.poder_querer_saber",
+    unit: "u04",
+    title: "Posso? Quero! Sei! — verbos irregulares",
+    source: pav("u04", [97, 101, 102], "irregular-poder-querer-saber"),
+    itemIds: [
+      ...verbIds("poder"),
+      ...verbIds("querer"),
+      ...verbIds("saber"),
+      ...frames("podes_vir_jantar", "eu_quero_cha", "vens_comigo", "nao_sei_se_vem"),
+      ...errors("eu_posso"),
+    ],
+    canDo: ["cd17.invitations", "cd10.buy-pay"],
+  },
+  {
+    id: "u04.estar_a",
+    unit: "u04",
+    title: "O que estás a fazer? — estar a + infinitivo e dizer",
+    source: pav("u04", [97, 98, 101], "estar-a-infinitive"),
+    itemIds: [
+      ...verbIds("fazer.estar_a"),
+      "grammar.preparar.estar_a.eu",
+      "grammar.ver.estar_a.tu",
+      "grammar.arrumar.estar_a.eles",
+      ...verbIds("dizer"),
+      ...frames("estou_a_preparar", "estao_a_arrumar", "estas_a_ver", "diz_que_vem"),
+      ...errors("estou_a_estudar"),
+    ],
+    canDo: ["cd06.routines", "cd23.speak-short"],
+  },
+  {
+    id: "pds2.revisao",
+    unit: "pds2",
+    title: "Ponto da Situação 2 — revisão das Unidades 3 e 4",
+    source: pav("pds2", [104, 105, 106, 107, 108, 109], "review-units-3-4"),
+    itemIds: [
+      "grammar.levantarse.eu",
+      "grammar.ir.eles",
+      "grammar.ver.nos",
+      "grammar.vir.eles",
+      "grammar.poder.eu",
+      "function.u03.que_horas",
+      "function.u03.a_conta",
+      "function.u04.vira_esquerda",
+      "function.u04.queres_vir",
+      ...nouns("quarto", "cozinha"),
+      ...frames("ao_meio_dia", "vou_ao_cinema", "quarto_maior", "com_quem_vais", "de_onde_vens"),
+      ...errors("nao_me_deito"),
+    ],
+    canDo: ["cd06.routines", "cd08.time", "cd09.order-food", "cd11.directions", "cd13.home"],
+  },
+  {
+    id: "trab2.agenda",
+    unit: "trab2",
+    title: "Tenho uma reunião às nove — a agenda de trabalho",
+    source: pav("trab2", [110, 111], "work-agenda-routines"),
+    itemIds: [
+      ...fn("trab2", "reuniao_as_nove", "responder_emails", "nao_tenho_de", "costumo_metro", "marcar_reuniao"),
+      ...nouns("reuniao", "agenda", "relatorio"),
+      "grammar.costumar.eu",
+      ...frames("tenho_de_entregar", "nao_costumo_sabado", "tens_de_telefonar"),
+      ...errors("tem_de_responder"),
+    ],
+    canDo: ["cd06.routines", "cd08.time", "cd02.personal-info"],
+  },
+  {
+    id: "mundo2.brasil",
+    unit: "mundo2",
+    title: "O Brasil — português dos dois lados do Atlântico",
+    source: pav("mundo2", [112, 113, 114], "brazil-pe-pb"),
+    itemIds: [
+      ...fn("mundo2", "maior_pais", "capital", "fronteira", "voce_gosta", "talho_acougue", "tshirt_camiseta", "aguardente_cachaca"),
+      ...nouns("papagaio", "samba", "carnaval"),
+      "vocab.nationality.brasil",
+      "grammar.origin.brasil",
+      ...frames("brasil_na_america", "banhado_pelo_atlantico", "voce_em_vez_de_tu"),
+    ],
+    canDo: ["cd22.listen-clear", "cd02.personal-info"],
+  },
+];
+
+export const U04_AULAS: Record<string, AulaStep[]> = {
+  "u04.transportes": [
+    { kind: "title", big: "Como é que vens?", small: "Transportes, vir e bilhetes", say: "Como é que vens para a universidade?", ms: 3800 },
+    { kind: "table", kicker: "COMO VAIS? COMO VENS?", rows: [["de autocarro · de comboio · de metro", "qualquer um (by bus…)"], ["no autocarro 24 · no comboio das 17h", "um específico"], ["a pé", "on foot"]], say: "Vou de autocarro. Vou no autocarro vinte e quatro. Vou a pé.", ms: 8500 },
+    { kind: "table", kicker: "VIR", rows: [["eu", "venho"], ["tu", "vens"], ["ele · ela · você", "vem"], ["nós", "vimos"], ["eles · elas · vocês", "vêm"]], note: "vir = para onde EU estou · ir = para outro lado", say: "Venho, vens, vem, vimos, vêm.", ms: 8000 },
+    { kind: "rule", kicker: "PARA OU A?", big: "Vou para casa. · Vou a casa almoçar.", note: "para = para ficar · a = vou e volto depressa", say: "Vou para casa. Vou a casa almoçar.", ms: 7000 },
+    { kind: "example", kicker: "NA ESTAÇÃO", big: "Só de ida ou de ida e volta?", note: "Queríamos dois bilhetes para o Porto, de ida e volta.", emoji: "🎫", say: "Queríamos dois bilhetes para o Porto. De ida e volta.", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.vai_a_pe", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.eles_vem_comboio", ms: 7000 },
+    { kind: "summary", rows: [["qualquer", "de autocarro"], ["específico", "no autocarro 24"], ["andar", "a pé"], ["vir", "venho · vêm"]], ms: 5000 },
+  ],
+  "u04.direcoes": [
+    { kind: "title", big: "Onde fica a estação?", small: "Pedir e dar direções", say: "Desculpe, onde fica a estação?", ms: 3800 },
+    { kind: "table", kicker: "DIREÇÕES", rows: [["Segue em frente.", "go straight on"], ["Vira à esquerda.", "turn left"], ["Vira na primeira rua à direita.", "first street on the right"], ["Atravessa a rua.", "cross the street"], ["Vai até ao semáforo.", "go as far as the lights"]], say: "Segue em frente. Vira à esquerda. Vira à direita.", ms: 9000 },
+    { kind: "rule", kicker: "PERGUNTAR COM DELICADEZA", big: "Desculpe, podia dizer-me o caminho para…?", note: "“Podia…?” é mais educado do que “pode…?”", say: "Desculpe, podia dizer-me o caminho para a estação?", ms: 7000 },
+    { kind: "merge", a: "por", b: "a", result: "pela", example: "a praça → Passa pela praça.", emoji: "🚌", say: "O autocarro passa pela praça.", ms: 5500 },
+    { kind: "merge", a: "por", b: "o", result: "pelo", example: "o centro → Passamos pelo centro.", emoji: "🏙️", say: "Passamos pelo centro.", ms: 5500 },
+    { kind: "rule", kicker: "FICAR", big: "Onde fica o museu?", note: "Para lugares e edifícios: fica (= é / está). Fica perto? Fica longe?", say: "Onde fica o museu? Fica perto.", ms: 6000 },
+    { kind: "check", itemId: "grammar.frame.passa_pela_rua", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.ate_ao_semaforo", ms: 7000 },
+    { kind: "summary", rows: [["→ ← ↑", "à direita · à esquerda · em frente"], ["por + o / a", "pelo / pela"], ["lugares", "Onde fica…?"]], ms: 5000 },
+  ],
+  "u04.casa": [
+    { kind: "title", big: "A minha casa", small: "Divisões e móveis", say: "A minha casa tem dois quartos.", ms: 3800 },
+    { kind: "table", kicker: "AS DIVISÕES", rows: [["a sala", "living room · o sofá"], ["a cozinha", "kitchen · o frigorífico, o fogão"], ["o quarto", "bedroom · a cama, o roupeiro"], ["a casa de banho", "bathroom · o chuveiro, o espelho"], ["o escritório · a varanda", "study · balcony"]], say: "A sala, a cozinha, o quarto, a casa de banho.", ms: 9000 },
+    { kind: "rule", kicker: "HÁ · TEM", big: "Na sala há um sofá. A casa tem uma varanda.", note: "há = existe (there is / are) · tem = a casa possui", say: "Na sala há um sofá. A casa tem uma varanda.", ms: 7000 },
+    { kind: "example", kicker: "ANÚNCIOS", big: "Arrenda-se T2 mobilado.", note: "T1 = 1 quarto · T2 = 2 quartos · mobilado = com móveis", emoji: "🔑", say: "Arrenda-se apartamento T2 mobilado.", ms: 6500 },
+    { kind: "check", itemId: "grammar.frame.ha_um_jardim", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.frigorifico_na_cozinha", ms: 7000 },
+    { kind: "summary", rows: [["existe", "há"], ["andar", "no segundo andar"], ["onde", "na cozinha · no quarto"]], ms: 5000 },
+  ],
+  "u04.comparativos": [
+    { kind: "title", big: "Mais caro do que…", small: "Comparar casas e lugares", say: "Este apartamento é mais caro do que o nosso.", ms: 3800 },
+    { kind: "table", kicker: "COMPARAR", rows: [["mais … do que", "more … than"], ["menos … do que", "less … than"]], note: "O centro é mais caro do que os arredores.", say: "Mais caro do que. Menos caro do que.", ms: 7000 },
+    { kind: "table", kicker: "IRREGULARES", rows: [["grande", "maior do que"], ["bom / boa", "melhor do que"], ["mau / má", "pior do que"]], note: "Nunca “mais grande” nem “mais bom”.", say: "Maior. Melhor. Pior.", ms: 7500 },
+    { kind: "example", big: "O prédio é antigo, mas a casa é moderna.", note: "antigo ↔ moderno · claro ↔ escuro · caro ↔ barato", emoji: "🏢", say: "O prédio é antigo, mas a casa é moderna.", ms: 6500 },
+    { kind: "check", itemId: "grammar.frame.quarto_maior", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.restaurante_melhor", ms: 7000 },
+    { kind: "summary", rows: [["+", "mais … do que"], ["−", "menos … do que"], ["grande · bom · mau", "maior · melhor · pior"]], ms: 5000 },
+  ],
+  "u04.lojas": [
+    { kind: "title", big: "Quanto custa?", small: "Lojas, serviços e preços", say: "Quanto custa?", ms: 3800 },
+    { kind: "table", kicker: "ONDE COMPRO?", rows: [["o pão", "na padaria"], ["a carne", "no talho"], ["os livros", "na livraria"], ["o jornal · as canetas", "na papelaria"], ["o dinheiro", "no banco"]], say: "Compro pão na padaria e carne no talho.", ms: 8500 },
+    { kind: "table", kicker: "CENTENAS", rows: [["200 · 300", "duzentos · trezentos"], ["400 · 500", "quatrocentos · quinhentos"], ["600 · 700", "seiscentos · setecentos"], ["800 · 900", "oitocentos · novecentos"], ["1000", "mil"]], note: "Concordam: duzentos euros, duzentas pessoas.", say: "Duzentos, trezentos, quatrocentos, quinhentos.", ms: 9000 },
+    { kind: "table", kicker: "NA LOJA", rows: [["Quanto custa?", "how much is it?"], ["Posso pagar com cartão?", "can I pay by card?"], ["Queria marcar uma hora.", "I'd like an appointment"]], say: "Quanto custa? Posso pagar com cartão?", ms: 7500 },
+    { kind: "check", itemId: "grammar.frame.carne_no_talho", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.duzentas_paginas", ms: 7000 },
+    { kind: "summary", rows: [["500", "quinhentos"], ["1000", "mil"], ["pagar", "Posso pagar com cartão?"]], ms: 5000 },
+  ],
+  "u04.poder_querer_saber": [
+    { kind: "title", big: "Posso? Quero! Sei!", small: "Poder, querer, saber", say: "Posso ir contigo?", ms: 3800 },
+    { kind: "table", kicker: "PODER · QUERER · SABER", rows: [["eu", "posso · quero · sei"], ["tu", "podes · queres · sabes"], ["ele · ela", "pode · quer · sabe"], ["nós", "podemos · queremos · sabemos"], ["eles · elas", "podem · querem · sabem"]], say: "Posso, quero, sei.", ms: 9000 },
+    { kind: "table", kicker: "COM + PRONOME", rows: [["com + eu", "comigo"], ["com + tu", "contigo"], ["com + nós", "connosco"], ["com ele · com ela", "(não muda)"]], say: "Comigo, contigo, connosco.", ms: 7500 },
+    { kind: "rule", kicker: "RESPOSTA CURTA", big: "Vens comigo? — Vou!", note: "Para dizer sim, repete-se o verbo: Queres? — Quero.", say: "Queres vir? Quero!", ms: 6000 },
+    { kind: "check", itemId: "grammar.frame.vens_comigo", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.nao_sei_se_vem", ms: 7000 },
+    { kind: "summary", rows: [["poder", "posso"], ["querer", "quero · ele quer"], ["saber", "sei"], ["com + eu / nós", "comigo / connosco"]], ms: 5000 },
+  ],
+  "u04.estar_a": [
+    { kind: "title", big: "O que estás a fazer?", small: "Estar a + infinitivo", say: "O que estás a fazer?", ms: 3800 },
+    { kind: "table", kicker: "AGORA MESMO", rows: [["eu", "estou a fazer"], ["tu", "estás a fazer"], ["ele · ela", "está a fazer"], ["nós", "estamos a fazer"], ["eles · elas", "estão a fazer"]], note: "Em Portugal: estar + a + infinitivo.", say: "Estou a fazer o jantar.", ms: 8500 },
+    { kind: "rule", kicker: "HÁBITO vs AGORA", big: "Vejo televisão à noite. · Agora estou a ver um filme.", note: "presente = costume · estar a = neste momento", say: "Agora estou a ver um filme.", ms: 7000 },
+    { kind: "table", kicker: "DIZER", rows: [["eu", "digo"], ["tu", "dizes"], ["ele · ela", "diz"], ["nós", "dizemos"], ["eles · elas", "dizem"]], say: "Digo, dizes, diz, dizemos, dizem.", ms: 7500 },
+    { kind: "check", itemId: "grammar.frame.estou_a_preparar", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.diz_que_vem", ms: 7000 },
+    { kind: "summary", rows: [["agora", "estou a + infinitivo"], ["dizer", "digo · diz"]], ms: 5000 },
+  ],
+  "pds2.revisao": [
+    { kind: "title", big: "Ponto da Situação 2", small: "Revisão das Unidades 3 e 4", say: "Vamos rever!", ms: 3800 },
+    { kind: "table", kicker: "LEMBRA-TE", rows: [["rotina", "levanto-me · não me levanto"], ["horas", "à uma · às duas · ao meio-dia"], ["ir + a", "ao cinema · à praia"], ["transportes", "de autocarro · a pé"], ["comparar", "maior · melhor · pior do que"], ["perguntas", "com quem? · de onde?"]], say: "Levanto-me às sete. Vou ao cinema. Venho de autocarro.", ms: 9500 },
+    { kind: "check", itemId: "grammar.frame.com_quem_vais", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.vou_ao_cinema", ms: 7000 },
+    { kind: "summary", rows: [["a + o / a", "ao / à"], ["por + o / a", "pelo / pela"], ["com + eu / nós", "comigo / connosco"]], ms: 5000 },
+  ],
+  "trab2.agenda": [
+    { kind: "title", big: "A minha agenda", small: "Rotinas e obrigações no trabalho", say: "Na segunda-feira tenho uma reunião às nove.", ms: 3800 },
+    { kind: "table", kicker: "OBRIGAÇÃO · HÁBITO", rows: [["tenho de + infinitivo", "I have to…"], ["não tenho de…", "I don't have to…"], ["costumo + infinitivo", "I usually…"], ["não costumo…", "I don't usually…"]], say: "Tenho de responder aos e-mails. Costumo ir de metro.", ms: 8500 },
+    { kind: "example", kicker: "NA AGENDA", big: "Terça-feira, 12h30 — almoço com clientes", note: "uma reunião · uma videochamada · entregar o relatório", emoji: "📅", say: "Terça-feira, ao meio-dia e meia, almoço com clientes.", ms: 6500 },
+    { kind: "check", itemId: "grammar.frame.tenho_de_entregar", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.nao_costumo_sabado", ms: 7000 },
+    { kind: "summary", rows: [["obrigação", "tenho de"], ["hábito", "costumo"]], ms: 5000 },
+  ],
+  "mundo2.brasil": [
+    { kind: "title", big: "O Brasil", small: "O português do outro lado do Atlântico", say: "O Brasil é o maior país da América do Sul.", ms: 3800 },
+    { kind: "table", kicker: "PORTUGAL · BRASIL", rows: [["o talho", "o açougue"], ["a T-shirt", "a camiseta"], ["a aguardente", "a cachaça"], ["Tu gostas de dançar?", "Você gosta de dançar?"]], note: "Neste jogo falamos português europeu: aprende a reconhecer o do Brasil.", say: "Em Portugal, tu gostas. No Brasil, você gosta.", ms: 9000 },
+    { kind: "example", kicker: "GEOGRAFIA", big: "A capital do Brasil é Brasília.", note: "O Brasil faz fronteira com dez países e é banhado pelo oceano Atlântico.", emoji: "🇧🇷", say: "A capital do Brasil é Brasília.", ms: 6500 },
+    { kind: "check", itemId: "grammar.frame.voce_em_vez_de_tu", ms: 7000 },
+    { kind: "check", itemId: "grammar.frame.banhado_pelo_atlantico", ms: 7000 },
+    { kind: "summary", rows: [["capital", "Brasília"], ["tu (PT)", "você (BR)"], ["por + o", "pelo"]], ms: 5000 },
+  ],
+};
