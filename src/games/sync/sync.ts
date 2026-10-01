@@ -451,15 +451,16 @@ export class EmSintonia implements Activity {
 
   private finish() {
     this.phase = "end";
-    play("success-jingle");
     this.rt.bump();
     const n = this.matches.length;
     const out = this.lives <= 0;
+    play(out ? "sad-trombone" : "success-jingle");
     const en = (w: string) => {
       const node = nodeOf(w);
       return node ? nodeWord(node) : undefined;
     };
     this.onDone({
+      failed: out,
       score: this.score,
       // Every pair first try (the last one doubled) and a couple of predictions right.
       max: this.maxScore,

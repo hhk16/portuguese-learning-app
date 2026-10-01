@@ -49,8 +49,8 @@ interface Rush {
   hearts: number;
   /** Whether the current word was already settled (both answered). */
   settled: boolean;
-  /** Last word's result, for the TV flash. */
-  last: { ok: boolean; seq: number } | null;
+  /** Last word's result, for the TV flash (and the word that was said). */
+  last: { ok: boolean; seq: number; pt?: string } | null;
   recent: string[];
 }
 
@@ -156,8 +156,12 @@ export class LearnActivity implements Activity {
     if (!r || this.finished) return;
     if (now >= r.endAt) return this.finish();
     if (now >= r.wordEnd) {
-      // Nobody (or only one of you) answered in time: that costs a heart.
-      if (r.wordEnd && !r.settled) this.rushMiss();
+      // Nobody (or only one of you) answered in time: that costs a heart — and a beat to see the word.
+      if (r.wordEnd && !r.settled) {
+        this.rushMiss();
+        if (r.hearts > 0) r.wordEnd = now + 1300;
+        return;
+      }
       if (!this.finished) this.nextRushWord();
     }
   }
@@ -216,7 +220,7 @@ export class LearnActivity implements Activity {
         r.combo++;
         play("star", 0.8, 1 + Math.min(r.combo, 8) * 0.06);
         if (r.combo === 3) this.rt.petSay(PET.knew, 0.6);
-        r.last = { ok: true, seq: (r.last?.seq ?? 0) + 1 };
+        r.last = { ok: true, seq: (r.last?.seq ?? 0) + 1, pt: r.card.pt };
         // Boss beaten!
         if (r.team >= RUSH_GOAL) {
           this.rt.view(p, this.viewFor(p));
@@ -231,7 +235,7 @@ export class LearnActivity implements Activity {
         if (this.finished) return;
       }
       // A beat to see it, then the next word.
-      r.wordEnd = Math.min(r.wordEnd, gameNow() + 600);
+      r.wordEnd = Math.min(r.wordEnd, gameNow() + 1300);
     }
     this.rt.view(p, this.viewFor(p));
     this.rt.bump();
@@ -244,7 +248,7 @@ export class LearnActivity implements Activity {
     r.settled = true;
     r.combo = 0;
     r.hearts--;
-    r.last = { ok: false, seq: (r.last?.seq ?? 0) + 1 };
+    r.last = { ok: false, seq: (r.last?.seq ?? 0) + 1, pt: r.card.pt };
     play("buzzer", 0.5);
     for (const p of this.players) this.rt.emote(p.playerId, "sad", 1200);
     if (r.hearts <= 0) {

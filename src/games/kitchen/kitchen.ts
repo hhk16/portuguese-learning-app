@@ -375,6 +375,7 @@ export class Cozinha implements Activity {
     const closedEarly = this.hearts <= 0;
     this.rt.bump();
     this.onDone({
+      failed: closedEarly,
       score: this.score,
       max: TARGETS[this.level],
       headline: `${this.score} pontos · ${this.served} pedidos`,

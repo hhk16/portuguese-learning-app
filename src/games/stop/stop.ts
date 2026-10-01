@@ -292,7 +292,8 @@ export class Stop implements Activity {
         if (!cell) continue;
         cell.points = cellPoints(cell, other ? this.cells.get(other.playerId)?.[c.id] : undefined) * (this.double ? 2 : 1);
         sum += cell.points;
-        if (cell.status === "voted-yes") this.words.set(normStop(cell.word), { pt: cell.word });
+        // Voted-in words join the recap only when they're real words we know (not "fola").
+        if (cell.status === "voted-yes" && inReference(c.id, cell.word)) this.words.set(normStop(cell.word), { pt: cell.word });
       }
       // Shouting STOP pays — only if every word holds up.
       const good = this.categories.filter((c) => (row[c.id]?.points ?? 0) > 0).length;

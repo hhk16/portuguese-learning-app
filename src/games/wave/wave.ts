@@ -372,6 +372,7 @@ export class NaMesmaOnda implements Activity {
       const headline = this.score >= max * 0.85 ? "Telepatia! 🔮" : this.score >= max * 0.6 ? "Na mesma onda!" : this.score >= max * 0.35 ? "Boa onda!" : "Quase… outra vez?";
       const headlineEn = this.score >= max * 0.85 ? "Telepathy!" : this.score >= max * 0.6 ? "On the same wavelength!" : this.score >= max * 0.35 ? "Good vibes!" : "Almost… again?";
       this.onDone({
+        failed: this.offAir,
         score: this.score,
         max,
         headline: this.offAir ? `Sem sinal! 📻 ${this.score} pontos` : `${headline} ${this.score} pontos`,

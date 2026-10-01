@@ -287,6 +287,9 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
   const info = a.info;
   useTick(500, !!info.autoGo);
   const per = info.lesson?.perPlayer;
+  // Words to review: the ones not already listed as this game's words, so the card stays short.
+  const shownPt = new Set((info.gallery?.length ? [] : (info.practiced ?? [])).map((w) => w.pt.replace(/^(o|a|os|as) /, "")));
+  const review = [...new Map(rt.activePlayers.flatMap((p) => p.missed).map((m) => [m.itemId, m])).values()].filter((m) => !shownPt.has(m.pt.replace(/^(o|a|os|as) /, ""))).slice(0, 6);
   return (
     <div className="tv-overlay results-screen">
       <div className="card results-card">
@@ -395,11 +398,11 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             </div>
           </div>
         )}
-        {!info.lesson && rt.activePlayers.some((p) => p.missed.length) && (
+        {!info.lesson && review.length > 0 && (
           <div className="words">
             <div className="kicker">Para rever · To review</div>
             <div className="word-chips">
-              {[...new Map(rt.activePlayers.flatMap((p) => p.missed).map((m) => [m.itemId, m])).values()].slice(0, 6).map((m) => (
+              {review.map((m) => (
                 <span key={m.itemId} className="word-chip">
                   <b>{m.pt}</b>
                   {m.en && <i>{m.en}</i>}

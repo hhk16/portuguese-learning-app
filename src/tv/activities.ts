@@ -436,6 +436,8 @@ export interface ResultOption {
 
 /** What every game reports at the end (the results screen, stars and records are built from it). */
 export interface GameOutcome {
+  /** The team lost (out of turns, lives, signals or customers): no win jingle, at most one star. */
+  failed?: boolean;
   score: number;
   max: number;
   headline: string;
@@ -666,7 +668,7 @@ export class ResultsActivity implements Activity {
     const stars = this.info.stars;
     // Versus results already had their winner line; co-op gets praise or encouragement.
     if (this.record?.isNew && this.record.previous !== null) rt.say(SAY.record);
-    else if (!VERSUS.includes(spec.mode) && spec.mode !== "final") rt.say(stars === undefined || stars >= 2 ? SAY.youDidIt : SAY.nextTime);
+    else if (!VERSUS.includes(spec.mode) && spec.mode !== "final") rt.say(this.info.win !== false && (stars === undefined || stars >= 2) ? SAY.youDidIt : SAY.nextTime);
     if (this.info.mvp) rt.say(NAMED.mvpGame, { name: this.info.mvp });
     // Recap: the TV says the words you met, so the round ends on listening.
     const words = (this.info.practiced ?? []).slice(0, 4);
@@ -860,7 +862,8 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
   const gameDone = (title: string, o: GameOutcome) => {
     // Versus games have a winner, not team stars.
     const versus = !!o.perPlayer;
-    const stars = versus ? undefined : starsFor(o.score, o.max);
+    // A lost game is never praised like a win: one star at most.
+    const stars = versus ? undefined : o.failed ? (Math.min(1, starsFor(o.score, o.max)) as 0 | 1) : starsFor(o.score, o.max);
     if (night) {
       night.words.push(...(o.words ?? []));
       const gained = addNightPoints(rt, o, title, GAMES.find((g) => g.mode === spec.mode)?.pic ?? "🎲");
@@ -879,7 +882,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
           headlineEn: o.headlineEn,
           sub: o.sub,
           subEn: o.subEn,
-          win: versus || (stars ?? 0) > 0,
+          win: versus || (!o.failed && (stars ?? 0) > 0),
           score: o.score,
           max: o.max,
           stars,
@@ -906,7 +909,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
         headlineEn: o.headlineEn,
         sub: o.sub,
         subEn: o.subEn,
-        win: versus || (stars ?? 0) > 0,
+        win: versus || (!o.failed && (stars ?? 0) > 0),
         score: o.score,
         max: o.max,
         stars,

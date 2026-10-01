@@ -42,9 +42,14 @@ function RushView({ a }: { a: LearnActivity }) {
                 </span>
               ))}
             </div>
+            {r.settled && r.last?.pt && (
+              <div className={`rush-said display ${r.last.ok ? "ok" : "miss"}`}>
+                {r.last.ok ? "✓" : "✗"} {r.last.pt} {!r.last.ok && <i>era esta · that was it</i>}
+              </div>
+            )}
             <div className="rush-players">
               {a.players.map((p) => (
-                <PlayerChip key={p.playerId} p={p} size="1.8em" extra={<b>{r.answers.has(p.playerId) ? "✓" : "…"}</b>} />
+                <PlayerChip key={p.playerId} p={p} size="1.8em" extra={<b>{!r.answers.has(p.playerId) ? (r.settled ? "✗" : "…") : r.settled ? (r.answers.get(p.playerId) ? "✓" : "✗") : "🔒"}</b>} />
               ))}
             </div>
           </>

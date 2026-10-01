@@ -400,7 +400,18 @@ export class ParesSecretos implements Activity {
       pause = 2900;
     } else this.lastBet = null;
     if (this.found >= this.goal) return this.finish(true);
-    if (this.turnsLeft <= 0) return this.rules.bombEnds ? this.finish(false) : this.toSuddenDeath();
+    if (this.turnsLeft <= 0) {
+      if (this.rules.bombEnds) return this.finish(false);
+      // Let the bet card have its beat before sudden death takes the stage.
+      if (pause > 900) {
+        // Stale taps during the bet card are ignored.
+        this.promptId = randomId(6);
+        this.rt.refreshViews();
+        setTimeout(() => this.rt.activity === this && this.phase !== "end" && this.toSuddenDeath(), pause);
+        return;
+      }
+      return this.toSuddenDeath();
+    }
     this.giverIndex++;
     // If the new giver has nothing left for the partner to find, skip to the other.
     const g = this.giver;
@@ -449,12 +460,13 @@ export class ParesSecretos implements Activity {
     setTimeout(
       () =>
         this.onDone({
+          failed: !won,
           score,
           max,
           headline: won ? `Conseguiram! ${this.found}/${this.goal} em ${this.turnsUsed} turno${this.turnsUsed === 1 ? "" : "s"}` : `${this.found} de ${this.goal} pares`,
           headlineEn: won ? `You did it — ${this.turnsUsed} turns used` : `${this.found} of ${this.goal} found`,
-          sub: won ? `${spare} turno${spare === 1 ? "" : "s"} de sobra: +${spare * 5}` : this.lives <= 0 ? "A bomba ganhou desta vez." : "Acabaram-se os turnos.",
-          subEn: won ? "Bonus for turns to spare" : this.lives <= 0 ? "The bomb got you this time." : "Out of turns.",
+          sub: won ? (spare ? `${spare} turno${spare === 1 ? "" : "s"} de sobra: +${spare * 5}` : "Mesmo à justa — no último turno!") : this.lives <= 0 ? "A bomba ganhou desta vez." : "Acabaram-se os turnos.",
+          subEn: won ? (spare ? "Bonus for turns to spare" : "Just in time — on the last turn!") : this.lives <= 0 ? "The bomb got you this time." : "Out of turns.",
           words: this.cards.filter((c) => c.state === "found").map((c) => ({ pt: c.card.pt, en: c.card.en, pic: c.card.emoji })),
           contrib: Object.fromEntries(this.contrib),
           highlight: won ? { pt: `Todos os pares em ${this.turnsUsed} turno${this.turnsUsed === 1 ? "" : "s"}!`, en: `Every pair in ${this.turnsUsed} turns`, pic: "🕵️" } : undefined,

@@ -2966,3 +2966,25 @@ html.tv-root #root {
 .signal-note.gain {
   color: var(--mint-d);
 }
+
+/* Lightning round: the word that was said, after each one. */
+.rush-said {
+  font-size: 1.6em;
+  padding: 0.2em 0.9em;
+  border-radius: 999px;
+  animation: pop-in 0.25s ease-out both;
+}
+.rush-said.ok {
+  background: #dcf7ea;
+  color: var(--mint-d);
+}
+.rush-said.miss {
+  background: #ffe1dc;
+  color: var(--coral-d);
+}
+.rush-said i {
+  font-family: var(--body, inherit);
+  font-style: normal;
+  font-size: 0.5em;
+  color: var(--ink-2);
+}

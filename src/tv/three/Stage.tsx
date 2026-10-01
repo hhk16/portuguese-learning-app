@@ -209,7 +209,8 @@ function useNameTag(name: string | undefined): { tex: THREE.CanvasTexture; aspec
     if (!name || typeof document === "undefined") return null;
     const c = document.createElement("canvas");
     const g = c.getContext("2d")!;
-    const font = "800 44px Nunito, 'Baloo 2', system-ui, sans-serif";
+    // A system font: a web font still loading would be measured narrower than it draws.
+    const font = "800 44px system-ui, sans-serif";
     g.font = font;
     const tw = Math.ceil(g.measureText(name).width);
     c.width = tw + 64;
@@ -455,6 +456,15 @@ function Scene() {
         const centre = spots.reduce((sum, p) => sum + p.x, 0) / Math.max(1, spots.length);
         const side = onStage ? (spot.x >= centre ? 1 : -1) : spot.x > 0 ? -1 : 1;
         const h = spot.height * 0.42;
+        // Results: the card fills the right of the screen, so the puppy sits close in, just before it.
+        if (id === "results") {
+          const right = Math.max(...spots.map((s) => s.x));
+          return (
+            <Suspense fallback={null}>
+              <Pet rt={rt} x={right + spot.height * 0.26} y={spot.y} height={h} flip={false} />
+            </Suspense>
+          );
+        }
         if (champ && !champ.tie && (champ.stage === 0 || champ.stage === 1)) {
           // Centre stage, next to where the star will stand: crown in its mouth, then hopping for joy.
           return (
