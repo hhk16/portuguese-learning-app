@@ -20,6 +20,7 @@ export interface LearnSummary {
   graded: number;
   perPlayer: { playerId: string; correct: number; graded: number }[];
   words: LearnCard[];
+  bestCombo: number;
 }
 
 interface Answer {
@@ -42,6 +43,9 @@ export class LearnActivity implements Activity {
   speakerId: string | null = null;
   stars = 0;
   graded = 0;
+  /** Exercises in a row that you both got right. */
+  combo = 0;
+  bestCombo = 0;
   readonly words: LearnCard[] = [];
   readonly perPlayer = new Map<string, { correct: number; graded: number }>();
   promptId = randomId(6);
@@ -191,9 +195,18 @@ export class LearnActivity implements Activity {
     this.graded++;
     if (allRight) {
       this.stars++;
-      play("star");
+      // Team combo: both right again and again — each star a note higher, a cheer from ×3.
+      this.combo++;
+      this.bestCombo = Math.max(this.bestCombo, this.combo);
+      play("star", 1, 1 + Math.min(this.combo - 1, 6) * 0.06);
+      if (this.combo >= 3) {
+        play("crowd-cheer", 0.5);
+        this.rt.cue({ pt: `Combo ×${this.combo}!`, en: "Both right again — keep going!" });
+      }
       this.rt.celebrate();
     } else {
+      if (this.combo >= 3) play("sad-trombone", 0.5);
+      this.combo = 0;
       play("wrong");
       // Bring it back once at the end.
       if (!this.retried.has(this.index) && ex.kind !== "speak") {
@@ -230,6 +243,7 @@ export class LearnActivity implements Activity {
       graded: this.graded,
       perPlayer: [...this.perPlayer].map(([playerId, v]) => ({ playerId, ...v })),
       words: this.words,
+      bestCombo: this.bestCombo,
     });
   }
 

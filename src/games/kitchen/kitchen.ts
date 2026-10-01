@@ -373,6 +373,7 @@ export class Cozinha implements Activity {
         : `${this.menu.name} · ${this.missed === 0 ? "Nenhum cliente se foi embora!" : this.missed === 1 ? "1 cliente foi-se embora" : `${this.missed} clientes foram-se embora`}`,
       subEn: closedEarly ? "The kitchen closed: too many customers left!" : this.missed === 1 ? "1 customer left" : `${this.missed} customers left`,
       words: [...this.words].map((id) => ({ pt: DISHES[id]!.sing, pic: DISHES[id]!.pic })),
+      highlight: this.served ? { pt: `${this.served} pedidos servidos na cozinha!`, en: `${this.served} orders served`, pic: "🧑‍🍳" } : undefined,
     });
   }
 

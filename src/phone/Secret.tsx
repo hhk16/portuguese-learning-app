@@ -117,6 +117,18 @@ export function Secret({ v, send }: { v: V; send: Send }) {
           {v.clue ? `${v.partner} está a adivinhar… · ${v.partner} is guessing` : `${v.partner} está a escolher uma pista… · ${v.partner} is choosing a clue`}
         </div>
       )}
+      {v.role === "watch" && v.clue && (
+        <div className="side-bet">
+          <span className="kicker">Aposta · Bet: how many will {v.partner} find? (+5 if exact)</span>
+          <div className="row3">
+            {Array.from({ length: Math.min(4, v.clue.count + 2) }, (_, n) => (
+              <button key={n} className={`btn ${v.bet === n ? "mint" : "white"}`} disabled={v.bet !== undefined} onClick={() => act({ a: "bet", n })}>
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {board}
       <div className="p-grow" />
       {v.role === "guess" && !v.sudden && (

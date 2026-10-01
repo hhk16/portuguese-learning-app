@@ -120,6 +120,15 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
           stroke.current = null;
         }}
       />
+      <div className="warm-row">
+        <span className="guesses">{v.guesses && v.guesses.length ? v.guesses.map((g) => `${g}?`).join(" · ") : "… à espera de palpites · waiting for guesses"}</span>
+        <button className="btn mini white" onClick={() => send({ mode: "draw", action: { a: "warm", hot: true } })}>
+          🔥 Quente
+        </button>
+        <button className="btn mini white" onClick={() => send({ mode: "draw", action: { a: "warm", hot: false } })}>
+          ❄️ Frio
+        </button>
+      </div>
       <div className="palette">
         <button className={`ink size ${thick ? "sel" : ""}`} aria-label="Pincel grosso · Thick brush" onClick={() => setThick(!thick)}>
           {thick ? "⬤" : "•"}

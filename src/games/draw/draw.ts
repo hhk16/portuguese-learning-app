@@ -75,6 +75,8 @@ export class Desenha implements Activity {
   tried = new Set<string>();
   /** Typed/said guesses that weren't it (shown on the TV), newest last. */
   wrongGuesses: { text: string; seq: number }[] = [];
+  /** The drawer's last "quente/frio" hint. */
+  warmth: { hot: boolean; seq: number; at: number } | null = null;
   /** Strokes by id, in drawing order. */
   strokes = new Map<number, Stroke>();
   /** Bumped on every stroke change so the TV canvas knows to redraw. */
@@ -259,6 +261,11 @@ export class Desenha implements Activity {
         this.strokes.set(act.s, s);
         this.ink++;
         this.rt.bump();
+      } else if (act.a === "warm") {
+        // 🔥 quente / ❄️ frio — the drawer steers the guesser (on the TV, in Portuguese).
+        this.warmth = { hot: act.hot, seq: ++this.guessSeq, at: gameNow() };
+        play(act.hot ? "sparkle" : "tap", 0.7);
+        this.rt.bump();
       } else if (act.a === "undo") {
         const last = Math.max(-1, ...this.strokes.keys());
         if (last >= 0) this.strokes.delete(last);
@@ -290,6 +297,8 @@ export class Desenha implements Activity {
       }
       const shown = (tries[0] ?? "").trim().slice(0, 24);
       if (shown) this.wrongGuesses = [...this.wrongGuesses, { text: shown, seq: ++this.guessSeq }].slice(-4);
+      // The drawer sees the guesses live (so they can say quente/frio).
+      if (this.drawer) this.rt.view(this.drawer, this.viewFor(this.drawer));
       play("buzzer", 0.5);
       this.rt.emote(p.playerId, "think", 1000);
       this.rt.bump();
@@ -385,6 +394,7 @@ export class Desenha implements Activity {
       options: role === "guess" && this.optionsOpen ? this.options : undefined,
       optionsInMs: role === "guess" && this.rules.optionsAt !== null && !this.optionsOpen ? Math.max(0, this.phaseStart + this.rules.optionsAt - gameNow()) : undefined,
       hint: role === "guess" ? this.hint : undefined,
+      guesses: role === "draw" ? this.wrongGuesses.map((g) => g.text) : undefined,
       tried: role === "guess" ? [...this.tried] : undefined,
       canPass: role === "draw" ? this.passesLeft > 0 : undefined,
       practice: this.inPractice || undefined,

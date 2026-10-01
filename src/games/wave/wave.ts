@@ -64,6 +64,9 @@ export class NaMesmaOnda implements Activity {
   score = 0;
   lastPoints = 0;
   sure = false;
+  /** The psychic's side bet while the partner turns the dial. */
+  psychicBet: "cheio" | "perto" | "longe" | null = null;
+  betWon = false;
   clue: Clue | null = null;
   phaseEnd = 0;
   history: { spectrum: Spectrum; clue: string; clueEn?: string; cluePic?: string; target: number; value: number; points: number }[] = [];
@@ -144,6 +147,7 @@ export class NaMesmaOnda implements Activity {
     this.target = 8 + this.rt.rng.int(85);
     this.value = 50;
     this.sure = false;
+    this.psychicBet = null;
     this.clue = null;
     this.phase = "clue";
     this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.clueMs);
@@ -228,6 +232,14 @@ export class NaMesmaOnda implements Activity {
       return;
     }
     if (a.a === "lock" && this.phase === "guess" && p === this.guesser && promptId === this.promptId) return this.lock(!!a.sure);
+    // While the partner turns, the psychic secretly bets how close they'll get.
+    if (a.a === "bet" && this.phase === "guess" && p === this.psychic && p !== this.guesser && !this.psychicBet) {
+      this.psychicBet = a.bet;
+      play("lock");
+      this.rt.view(p, this.viewFor(p));
+      this.rt.bump();
+      return;
+    }
     if (a.a === "next" && this.phase === "reveal" && promptId === this.promptId) return this.next();
   }
 
@@ -254,6 +266,10 @@ export class NaMesmaOnda implements Activity {
     this.promptId = randomId(6);
     const raw = pointsFor(this.target, this.value, this.rules.bands);
     this.lastPoints = betPoints(raw, this.sure) * (this.final ? 2 : 1);
+    // The psychic's side bet: +1 when they called it (bullseye / close / far).
+    const called = raw >= BULLSEYE ? "cheio" : raw > 0 ? "perto" : "longe";
+    this.betWon = !!this.psychicBet && this.psychicBet === called;
+    if (this.betWon && !this.inPractice) this.lastPoints += 1;
     if (!this.inPractice) this.score += this.lastPoints;
     if (!this.inPractice) this.history.push({ spectrum: this.spectrum, clue: this.clue?.pt ?? "", clueEn: this.clue?.en, cluePic: this.clue?.pic, target: this.target, value: this.value, points: this.lastPoints });
     play("cymbal");
@@ -263,10 +279,10 @@ export class NaMesmaOnda implements Activity {
       this.rt.say(SAY.perfect, { interrupt: true });
     } else if (raw > 0 && !(this.sure && this.lastPoints === 0)) {
       play("correct");
-      this.rt.say(raw >= 3 ? SAY.good : SAY.close, { interrupt: true });
+      this.rt.say(raw >= 3 ? SAY.near : SAY.close, { interrupt: true });
     } else {
       play(this.sure ? "sad-trombone" : "wrong");
-      this.rt.say(SAY.ohNo, { interrupt: true });
+      this.rt.say(raw > 0 ? SAY.ohNo : SAY.farOff, { interrupt: true });
     }
     for (const p of this.players) {
       this.rt.emote(p.playerId, raw >= 3 ? "cheer" : "sad", 2400);
@@ -299,6 +315,10 @@ export class NaMesmaOnda implements Activity {
         sub: `${bulls} em cheio`,
         subEn: `${bulls} bullseye${bulls === 1 ? "" : "s"}`,
         words: this.history.map((h) => ({ pt: h.clue, en: h.clueEn, pic: h.cluePic })),
+        highlight: (() => {
+          const best = [...this.history].sort((x, y) => y.points - x.points)[0];
+          return best && best.points >= BULLSEYE ? { pt: `Em cheio com “${best.clue}”!`, en: `Bullseye with “${best.clueEn ?? best.clue}”`, pic: best.cluePic } : undefined;
+        })(),
       });
       return;
     }
@@ -330,6 +350,8 @@ export class NaMesmaOnda implements Activity {
       locked: this.phase === "suspense",
       final: this.final,
       sure: this.phase === "reveal" ? this.sure : undefined,
+      psychicBet: isPsychic || this.phase === "reveal" ? (this.psychicBet ?? undefined) : undefined,
+      betWon: this.phase === "reveal" && this.psychicBet ? this.betWon : undefined,
       msLeft: !this.inPractice && (phase === "clue" || (phase === "guess" && this.phase !== "suspense")) ? this.msLeft : undefined,
       points: this.phase === "reveal" ? this.lastPoints : undefined,
       practice: this.inPractice || undefined,

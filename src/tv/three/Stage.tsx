@@ -31,6 +31,7 @@ const setUrl = (id: SetId) => (id === "menu" ? "/art/backdrop.webp" : `/art/sets
 /** Which set an activity plays in (lobby and results use their game's set). */
 export function setOf(a: { id: string } | null | undefined): SetId {
   if (!a || a.id === "title") return "menu";
+  if (a.id === "champion") return "stop";
   const spec = (a as { spec?: { mode?: string } }).spec ?? (a as { info?: { spec?: { mode?: string } } }).info?.spec;
   const mode = a.id === "lobby" || a.id === "results" ? (spec?.mode ?? "menu") : a.id;
   if (mode === "lesson" || mode === "learn") return "learn";
@@ -214,11 +215,16 @@ function Confetti({ burst, count }: { burst: number; count: number }) {
 
 /** Where characters stand for each activity (in CSS px relative to the screen centre). */
 function layout(activityId: string | undefined, n: number, w: number, h: number): { x: number; y: number; height: number }[] {
-  const onStage = activityId === "title" || activityId === "lobby" || activityId === "results";
+  const onStage = activityId === "title" || activityId === "lobby" || activityId === "results" || activityId === "champion";
+  if (activityId === "champion") {
+    // The crowning: players stand either side of the podium, big.
+    const height = h * 0.46;
+    return Array.from({ length: n }, (_, i) => ({ x: (i % 2 === 0 ? -1 : 1) * (w * 0.36 + Math.floor(i / 2) * height * 0.4), y: -h * 0.5 + h * 0.03, height }));
+  }
   if (onStage) {
     const height = h * 0.42;
     const gap = Math.min(w * 0.14, height * 0.62);
-    const cx = activityId === "title" ? w * 0.26 : activityId === "results" ? -w * 0.3 : w * 0.24;
+    const cx = activityId === "title" ? w * 0.26 : activityId === "results" ? -w * 0.3 : activityId === "champion" ? 0 : w * 0.24;
     return Array.from({ length: n }, (_, i) => ({ x: cx + (i - (n - 1) / 2) * gap, y: -h * 0.5 + h * 0.06, height }));
   }
   const height = h * 0.34;

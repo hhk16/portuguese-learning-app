@@ -215,6 +215,12 @@ async function botStep(b: Bot, seen: Set<string>) {
     case "learn":
       return learnStep(b, v, seen);
     case "secret": {
+      // The clue-giver bets how many their partner will find.
+      if (v.role === "watch" && v.clue && v.bet === undefined && !seen.has(`bet:${v.promptId}`)) {
+        seen.add(`bet:${v.promptId}`);
+        await nap(pg, 1200);
+        return pg.locator(".side-bet .btn").nth(1 + Math.floor(Math.random() * 2)).click({ timeout: 2000 }).catch(() => {});
+      }
       const key = `secret:${v.promptId}:${v.role}:${v.found}`;
       if (seen.has(key)) return;
       seen.add(key);
@@ -242,6 +248,12 @@ async function botStep(b: Bot, seen: Set<string>) {
       return;
     }
     case "dial": {
+      // The psychic's side bet while the partner turns the dial.
+      if (v.role === "psychic" && v.phase === "guess" && !v.locked && !v.psychicBet && !seen.has(`bet:${v.promptId}`)) {
+        seen.add(`bet:${v.promptId}`);
+        await nap(pg, 1500);
+        return pg.locator(".side-bet .btn").nth(Math.floor(Math.random() * 3)).click({ timeout: 2000 }).catch(() => {});
+      }
       const key = `dial:${v.promptId}:${v.role}:${v.phase}`;
       if (seen.has(key)) return;
       if (v.phase === "reveal") {
@@ -315,6 +327,12 @@ async function botStep(b: Bot, seen: Set<string>) {
         return click(pg, ".btn", Math.random() < 0.8 ? "Sim" : "Não");
       }
       const key = `sync:${v.promptId}`;
+      // Locked in: "Vamos coincidir?"
+      if (v.submitted && v.predicted === undefined && !v.sense && !seen.has(`${key}:predict`)) {
+        seen.add(`${key}:predict`);
+        await nap(pg, 900);
+        return click(pg, ".side-bet .btn", Math.random() < 0.6 ? "Sim" : "Não");
+      }
       if (v.submitted || seen.has(key)) return;
       seen.add(key);
       await nap(pg, 800 + Math.random() * 1500);
@@ -335,6 +353,13 @@ const cooldown = new Map<string, number>();
 async function drawStep(b: Bot, v: View, seen: Set<string>) {
   const pg = b.page;
   if (v.role === "draw") {
+    // The drawer steers with 🔥 quente / ❄️ frio once guesses come in.
+    const guesses = (v.guesses as string[] | undefined) ?? [];
+    if (guesses.length && !seen.has(`warm:${v.promptId}:${guesses.length}`)) {
+      seen.add(`warm:${v.promptId}:${guesses.length}`);
+      await nap(pg, 700);
+      return click(pg, ".warm-row .btn", Math.random() < 0.5 ? "Frio" : "Quente");
+    }
     const key = `draw:${v.promptId}:d`;
     if (seen.has(key)) return;
     seen.add(key);

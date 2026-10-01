@@ -191,3 +191,11 @@ describe("Host lines", () => {
     for (const l of Object.values(NAMED)) for (const n of ["Hadi", "Ana"]) expect(spoken.has(l.pt.replace("{name}", n))).toBe(true);
   });
 });
+
+import { kindAt } from "../src/games/final/final.ts";
+
+describe("Grande Final shape", () => {
+  it("goes see → hear → sentences → one last see", () => {
+    expect([...Array(10).keys()].map(kindAt)).toEqual(["see", "see", "see", "see", "hear", "hear", "hear", "frase", "frase", "see"]);
+  });
+});

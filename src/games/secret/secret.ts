@@ -73,6 +73,11 @@ export class ParesSecretos implements Activity {
   private flashSeq = 0;
   private ended = false;
   private streak = 0;
+  /** The giver's bet this turn, finds this turn, and bets won (+5 each at the end). */
+  giverBet: number | null = null;
+  turnFinds = 0;
+  betsWon = 0;
+  lastBet: { n: number; won: boolean } | null = null;
   /** This turn's clue chips (dealt once per turn). */
   private turnClues: Link[] = [];
   private heartbeat: ReturnType<typeof setInterval> | null = null;
@@ -194,6 +199,8 @@ export class ParesSecretos implements Activity {
     this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.clueMs);
     this.clueCount = 0;
     this.clueWord = null;
+    this.giverBet = null;
+    this.turnFinds = 0;
     this.guessesLeft = 0;
     this.promptId = randomId(6);
     play("whoosh");
@@ -246,6 +253,13 @@ export class ParesSecretos implements Activity {
       return;
     }
     if (this.phase === "sudden" && act.a === "tap") return this.suddenTap(p, act.cardId);
+    if (act.a === "bet" && this.phase === "guess" && p === this.giver && this.giverBet === null) {
+      this.giverBet = Math.min(act.n, this.clueCount + 1);
+      play("lock");
+      this.rt.view(p, this.viewFor(p));
+      this.rt.bump();
+      return;
+    }
     if (this.phase !== "guess" || p !== this.guesser) return;
     if (act.a === "stop") return this.endTurn();
     if (act.a !== "tap") return;
@@ -278,6 +292,7 @@ export class ParesSecretos implements Activity {
     }
     if (c.targetOf) {
       c.state = "found";
+      this.turnFinds++;
       this.flash = { id: c.id, kind: "found", seq: ++this.flashSeq };
       this.rt.evidence(p, c.card.itemId, "secret.guess", "correct");
       if (!this.inPractice) {
@@ -343,6 +358,12 @@ export class ParesSecretos implements Activity {
       return;
     }
     this.turnsUsed++;
+    if (this.giverBet !== null) {
+      const won = this.giverBet === this.turnFinds;
+      if (won) this.betsWon++;
+      this.lastBet = { n: this.giverBet, won };
+      play(won ? "sparkle" : "tap");
+    } else this.lastBet = null;
     if (this.found >= this.goal) return this.finish(true);
     if (this.turnsLeft <= 0) return this.rules.bombEnds ? this.finish(false) : this.toSuddenDeath();
     this.giverIndex++;
@@ -383,7 +404,7 @@ export class ParesSecretos implements Activity {
     this.rt.bump();
     // Score: every pair found, plus a bonus for each turn to spare when you win.
     const spare = won ? this.turnsLeft : 0;
-    const score = this.found * 10 + spare * 5 + (won ? 20 : 0);
+    const score = this.found * 10 + spare * 5 + (won ? 20 : 0) + this.betsWon * 5;
     const max = this.goal * 10 + 20 + 5 * Math.max(1, this.rules.turns - Math.ceil(this.goal / 2));
     setTimeout(
       () =>
@@ -395,6 +416,7 @@ export class ParesSecretos implements Activity {
           sub: won ? `${spare} turnos de sobra: +${spare * 5}` : this.lives <= 0 ? "A bomba ganhou desta vez." : "Acabaram-se os turnos.",
           subEn: won ? "Bonus for turns to spare" : this.lives <= 0 ? "The bomb got you this time." : "Out of turns.",
           words: this.cards.filter((c) => c.state === "found").map((c) => ({ pt: c.card.pt, en: c.card.en, pic: c.card.emoji })),
+          highlight: won ? { pt: `Todos os pares em ${this.turnsUsed} turnos!`, en: `Every pair in ${this.turnsUsed} turns`, pic: "🕵️" } : undefined,
         }),
       2600,
     );
@@ -435,6 +457,7 @@ export class ParesSecretos implements Activity {
       found: this.found,
       goal: this.goal,
       sudden: sudden || undefined,
+      bet: p === this.giver && this.phase === "guess" ? (this.giverBet ?? undefined) : undefined,
       practice: this.inPractice || undefined,
       debugAnswer: this.rt.testMode
         ? {

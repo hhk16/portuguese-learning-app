@@ -104,6 +104,11 @@ export class Stop implements Activity {
   get double() {
     return this.round === ROUNDS - 1 || this.suddenDeath;
   }
+  /** First plays: letter -1 is a short unscored practice ("Ensaio") with two categories. */
+  practice = false;
+  get inPractice() {
+    return this.round < 0;
+  }
 
   start(rt: TvRuntime) {
     this.rt = rt;
@@ -111,18 +116,20 @@ export class Stop implements Activity {
       CATEGORIES.map((c) => c.id),
       4,
     );
-    this.letters = rt.rng.sample(fair, ROUNDS + 1);
+    this.letters = rt.rng.sample(fair, ROUNDS + 2);
     for (const p of this.players) this.totals.set(p.playerId, 0);
+    if (this.practice) this.round = -1;
     this.newRound();
   }
 
   private newRound() {
-    this.letter = this.letters[this.round % this.letters.length] ?? "P";
+    // Letters: [0..ROUNDS-1] the game, [ROUNDS] sudden death, [ROUNDS+1] the practice letter.
+    this.letter = this.letters[this.inPractice ? ROUNDS + 1 : this.round % this.letters.length] ?? "P";
     // Categories, preferring ones where this letter has known words.
     const cover = CATEGORIES.filter((c) => examples(c.id, this.letter).length > 0);
     const rest = CATEGORIES.filter((c) => !cover.includes(c));
     // The final letter adds a category: a twist, not just double points.
-    this.categories = [...this.rt.rng.shuffle(cover), ...rest].slice(0, this.rules.cats + (this.double ? 1 : 0));
+    this.categories = [...this.rt.rng.shuffle(cover), ...rest].slice(0, this.inPractice ? 2 : this.rules.cats + (this.double ? 1 : 0));
     this.answers.clear();
     this.cells.clear();
     this.voted.clear();
@@ -131,7 +138,7 @@ export class Stop implements Activity {
     this.stoppedBy = null;
     this.phase = "write";
     // Each letter gives a little less time (−12%, then −24%): the game speeds up.
-    this.phaseEnd = gameNow() + this.rules.writeMs * (1 - 0.12 * Math.min(this.round, 2));
+    this.phaseEnd = gameNow() + (this.inPractice ? 45_000 : this.rules.writeMs * (1 - 0.12 * Math.min(this.round, 2)));
     this.promptId = randomId(6);
     play("whoosh");
     if (this.double && !this.suddenDeath) this.rt.say(SAY.finalRound);
@@ -177,6 +184,10 @@ export class Stop implements Activity {
   }
 
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
+    if (value.mode === "skip" && this.inPractice && (this.phase === "write" || this.phase === "hurry")) {
+      this.round = 0;
+      return this.newRound();
+    }
     if (value.mode !== "stop" || promptId !== this.promptId) return;
     const act = value.action;
     if (act.a === "save" && (this.phase === "write" || this.phase === "hurry" || this.phase === "lock")) {
@@ -279,8 +290,10 @@ export class Stop implements Activity {
       const good = this.categories.filter((c) => (row[c.id]?.points ?? 0) > 0).length;
       if (this.stoppedBy === p && good === this.categories.length) sum += STOP_BONUS;
       this.roundTotals.set(p.playerId, sum);
-      this.totals.set(p.playerId, (this.totals.get(p.playerId) ?? 0) + sum);
-      this.rt.addScore(p, sum * 10, "stop");
+      if (!this.inPractice) {
+        this.totals.set(p.playerId, (this.totals.get(p.playerId) ?? 0) + sum);
+        this.rt.addScore(p, sum * 10, "stop");
+      }
     }
     const sums = this.players.map((p) => this.roundTotals.get(p.playerId) ?? 0);
     const best = Math.max(...sums);
@@ -301,7 +314,10 @@ export class Stop implements Activity {
     play("fanfare");
     this.rt.celebrate();
     const winner = this.players.find((p) => p.name === a?.name);
-    if (!tie && winner) this.rt.say(NAMED.wins, { name: winner.name });
+    if (!tie && winner) {
+      this.rt.say(NAMED.wins, { name: winner.name });
+      this.rt.say(SAY.revenge);
+    }
     this.rt.bump();
     // Records and stars count the couple's total; the headline is the rivalry.
     const total = scores.reduce((s, x) => s + x.points, 0);
@@ -315,6 +331,9 @@ export class Stop implements Activity {
       subEn: `Together: ${total} points`,
       // Newest first, so the last letter's words make the recap.
       words: [...this.words.values()].reverse(),
+      // Each player's share for the night: a strong solo game is worth 100.
+      perPlayer: Object.fromEntries(this.players.map((p) => [p.playerId, Math.round(Math.min(100, ((this.totals.get(p.playerId) ?? 0) / (perfect * 0.375)) * 100))])),
+      highlight: tie ? undefined : { pt: `${a!.name} ganhou o Stop! ${a!.points}–${b?.points ?? 0}`, en: `${a!.name} won Stop!`, pic: "⏱️" },
     });
   }
 
@@ -354,6 +373,7 @@ export class Stop implements Activity {
       categories: this.categories.map((c) => ({ id: c.id, label: c.label, en: CAT_EN[c.id], pic: c.pic })),
       msLeft: this.msLeft,
       double: this.double || undefined,
+      practice: this.inPractice || undefined,
     };
     if (this.phase === "vote") {
       const partner = this.rt.partnerOf(p);

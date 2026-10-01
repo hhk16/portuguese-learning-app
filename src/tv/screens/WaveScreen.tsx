@@ -58,6 +58,11 @@ export function WaveScreen({ a }: { a: NaMesmaOnda }) {
         {reveal && (
           <span className="bi-line">
             <b className="display big-points">{a.lastPoints ? `+${a.lastPoints} pontos!` : a.sure ? "Aposta perdida!" : "Longe… 0 pontos"}</b>
+            {a.psychicBet && psychic && (
+              <small className={`bet-line ${a.betWon ? "ok" : ""}`}>
+                {psychic.name} apostou “{{ cheio: "Em cheio", perto: "Perto", longe: "Longe" }[a.psychicBet]}” {a.betWon ? "✓ +1" : "✗"}
+              </small>
+            )}
             <i>{a.lastPoints ? (a.sure ? "Bullseye — the bet paid off!" : a.lastPoints >= 4 * (a.final ? 2 : 1) ? "Em cheio! · Bullseye!" : `+${a.lastPoints} points`) : a.sure ? "Bet lost — bullseye or nothing" : "Far off — no points"}</i>
           </span>
         )}

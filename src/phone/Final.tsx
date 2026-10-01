@@ -33,7 +33,12 @@ export function Final({ v, send }: { v: V; send: Send }) {
         </span>
         <span className={`pill ${left < 4000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>
       </div>
-      {v.kind === "see" ? (
+      {v.kind === "frase" ? (
+        <div className="p-callout">
+          <b className="display">🔊 Ouve o pedido!</b>
+          <span>Listen to the order on the TV: what did the customer ask for? Be the first!</span>
+        </div>
+      ) : v.kind === "see" ? (
         <div className="p-callout">
           <b className="display">Como se diz? {v.prompt?.pic && <Picture glyph={v.prompt.pic} size="36px" />}</b>
           <span>How do you say “{v.prompt?.en}” in Portuguese? Look at the TV — first right answer wins!</span>
@@ -48,6 +53,7 @@ export function Final({ v, send }: { v: V; send: Send }) {
         <div className={v.pictures ? "final-pics" : "draw-options"}>
           {v.options.map((o) => (
             <button key={o.pt} className={v.pictures ? "final-pic card" : "lopt card"} onClick={() => answer(o.pt)}>
+              {v.kind === "frase" && <b className="display frase-n">{o.en}×</b>}
               {v.pictures ? <Picture glyph={o.pic} size="64px" /> : <span>{o.pt}</span>}
             </button>
           ))}

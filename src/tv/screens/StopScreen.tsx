@@ -25,7 +25,7 @@ export function StopScreen({ a }: { a: Stop }) {
   return (
     <div className="tv-overlay game-screen centered">
       <GameTop title="Stop!" pic="⏱️">
-        <span className="pill">{a.suddenDeath ? "Desempate! · Tie-breaker" : `Letra ${Math.min(a.round + 1, ROUNDS)}/${ROUNDS}`}</span>
+        {!a.inPractice && <span className="pill">{a.suddenDeath ? "Desempate! · Tie-breaker" : `Letra ${Math.min(a.round + 1, ROUNDS)}/${ROUNDS}`}</span>}
         {a.double && <span className="pill double-pill">×2</span>}
         {a.players.map((p) => (
           <span key={p.playerId} className="pill">
@@ -35,7 +35,7 @@ export function StopScreen({ a }: { a: Stop }) {
       </GameTop>
       {!table && (
         <div className="stop-stage">
-          <div className={`card stop-letter ${a.phase === "hurry" ? "hurry" : ""}`}>
+          <div key={a.letter + a.round} className={`card stop-letter spin-in ${a.phase === "hurry" ? "hurry" : ""}`}>
             <span className="display">{a.letter}</span>
             <div className="stop-ring" style={{ ["--p" as string]: `${(a.msLeft / total) * 100}` }} />
             <b className="display secs">{secs}</b>

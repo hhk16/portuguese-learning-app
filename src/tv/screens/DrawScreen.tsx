@@ -6,6 +6,7 @@ import { Picture } from "../../ui/Picture.tsx";
 import { paintStrokes } from "../../ui/Sketch.tsx";
 import { GameTop } from "./Menus.tsx";
 import { useTick } from "./useTick.ts";
+import { gameNow } from "../clock.ts";
 
 function LiveCanvas({ a }: { a: Desenha }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -73,6 +74,12 @@ export function DrawScreen({ a }: { a: Desenha }) {
         <div className="card draw-board">
           <LiveCanvas a={a} />
           {a.phase === "draw" && a.hint && <div className="draw-hint-tv display">{a.hint}</div>}
+          {a.phase === "draw" && a.warmth && gameNow() - a.warmth.at < 2200 && (
+            <div key={a.warmth.seq} className={`warm-bubble display ${a.warmth.hot ? "hot" : "cold"}`}>
+              {a.warmth.hot ? "🔥 Quente!" : "❄️ Frio!"}
+              <i>{a.warmth.hot ? "Warm — you're close!" : "Cold — not that!"}</i>
+            </div>
+          )}
           {a.phase === "draw" && (
             <div className="guess-bubbles">
               {a.wrongGuesses.map((g) => (

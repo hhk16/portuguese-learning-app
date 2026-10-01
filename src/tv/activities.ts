@@ -20,7 +20,7 @@ import { Cozinha } from "../games/kitchen/kitchen.ts";
 import { randomId } from "../shared/ids.ts";
 import type { ControllerView, InputValue, NavDir } from "../shared/protocol.ts";
 import { play } from "../audio/sfx.ts";
-import { RULES, SAY } from "./host-lines.ts";
+import { NAMED, RULES, SAY } from "./host-lines.ts";
 import { bestScore, countPlay, lastLevel, LEVELS, recordScore, rememberLevel, wantsPractice, type Level } from "./progress.ts";
 import { lessonsDone, lessonStars, nextLessonId, playableLessons } from "./progress.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "./runtime.ts";
@@ -351,6 +351,10 @@ export interface GameOutcome {
   words?: { pt: string; en?: string; pic?: string }[];
   /** Desenha!: the drawings, replayed on the results screen. */
   gallery?: GalleryItem[];
+  /** Versus games: each player's share, 0–100 (co-op games give everyone score/max). */
+  perPlayer?: Record<string, number>;
+  /** A moment worth remembering at the end of the night ("Em cheio com “o café”!"). */
+  highlight?: { pt: string; en: string; pic?: string };
 }
 
 export interface GalleryItem {
@@ -389,10 +393,112 @@ export interface ResultsInfo {
   autoGo?: number;
   /** The end of a game night: crown the champion. */
   champion?: boolean;
+  /** Game night: "pontos da noite" each player just gained, and everyone's total so far. */
+  nightGain?: Record<string, number>;
+  nightTotals?: Record<string, number>;
   win: boolean;
   lesson?: LearnSummary;
   words?: LearnCard[];
   options: ResultOption[];
+}
+
+/* -------------------------------------------------------------------------- */
+/* End of a game night: the crowning                                           */
+/* -------------------------------------------------------------------------- */
+
+type Night = NonNullable<TvRuntime["night"]>;
+
+/**
+ * The show's ending (~17 s): drumroll and lights down, the star of the night on the podium with
+ * the crown, then "Melhores momentos" — the best drawing, the night's highlights and the word
+ * of the night (spoken). OK on the remote skips it.
+ */
+export class ChampionActivity implements Activity {
+  readonly id = "champion";
+  rt!: TvRuntime;
+  stage: 0 | 1 | 2 = 0;
+  startAt = 0;
+  readonly night: Night;
+  private readonly onDone: () => void;
+  private done = false;
+  private wordSaid = false;
+
+  constructor(night: Night, onDone: () => void) {
+    this.night = night;
+    this.onDone = onDone;
+  }
+
+  /** Players by pontos da noite, best first. */
+  get standings(): { p: RuntimePlayer; pts: number }[] {
+    return this.rt.activePlayers.map((p) => ({ p, pts: this.night.points[p.playerId] ?? 0 })).sort((a, b) => b.pts - a.pts);
+  }
+  get tie() {
+    const [a, b] = this.standings;
+    return !!a && !!b && a.pts === b.pts;
+  }
+  /** A word someone missed tonight (or one of tonight's words): it comes back tomorrow. */
+  get wordOfNight(): { pt: string; en?: string; pic?: string } | undefined {
+    const missed = this.rt.activePlayers.flatMap((p) => p.missed)[0];
+    if (missed) return { pt: missed.pt, en: missed.en };
+    return this.night.words.find((w) => w.pic) ?? this.night.words[0];
+  }
+  get drawing(): GalleryItem | undefined {
+    return this.night.drawing as GalleryItem | undefined;
+  }
+
+  start(rt: TvRuntime) {
+    this.rt = rt;
+    this.startAt = gameNow();
+    play("drumroll");
+    rt.say(SAY.champion, { interrupt: true });
+  }
+
+  tick(now: number) {
+    const t = now - this.startAt;
+    if (this.stage === 0 && t > 2100) {
+      this.stage = 1;
+      play("cymbal");
+      play("fanfare");
+      setTimeout(() => this.rt.activity === this && play("crowd-cheer"), 900);
+      this.rt.celebrate();
+      const [top, second] = this.standings;
+      if (this.tie) this.rt.say(SAY.twoChampions);
+      else if (top) this.rt.say(NAMED.mvp, { name: top.p.name });
+      if (top) this.rt.emote(top.p.playerId, "cheer", 6000);
+      if (second) this.rt.emote(second.p.playerId, this.tie ? "cheer" : "wave", 6000);
+      this.rt.refreshViews();
+      this.rt.bump();
+    }
+    if (this.stage === 1 && t > 6500) {
+      this.stage = 2;
+      play("sparkle");
+      this.rt.bump();
+    }
+    if (this.stage === 2 && !this.wordSaid && t > 10_500) {
+      this.wordSaid = true;
+      const w = this.wordOfNight;
+      if (w) this.rt.speakPt(w.pt);
+    }
+    if (t > 17_500) this.finish();
+  }
+
+  onNav(dir: NavDir) {
+    if (dir === "ok" && this.stage > 0) this.finish();
+  }
+
+  private finish() {
+    if (this.done) return;
+    this.done = true;
+    this.onDone();
+  }
+
+  viewFor(p: RuntimePlayer): ControllerView {
+    if (this.stage === 0) return { mode: "wait", title: "E a estrela da noite é…", subtitle: "And tonight's star is… 🥁", pic: "🥁" };
+    const [top] = this.standings;
+    const me = this.night.points[p.playerId] ?? 0;
+    const star = this.tie || top?.p === p;
+    return { mode: "wait", title: star ? "👑 És a estrela da noite!" : `👑 ${top?.p.name ?? ""}!`, subtitle: `${me} pontos da noite · tonight's points`, pic: star ? "👑" : "👏" };
+  }
 }
 
 /** How long phones show "Olha para a TV!" while the TV reveals the results. */
@@ -422,7 +528,9 @@ export class ResultsActivity implements Activity {
       countPlay(spec.mode);
     }
     const stars = this.info.stars;
-    rt.say(this.record?.isNew && this.record.previous !== null ? SAY.record : stars === undefined || stars >= 2 ? SAY.youDidIt : SAY.nextTime);
+    // Versus results already had their winner line; co-op gets praise or encouragement.
+    if (this.record?.isNew && this.record.previous !== null) rt.say(SAY.record);
+    else if (spec.mode !== "stop" && spec.mode !== "final") rt.say(stars === undefined || stars >= 2 ? SAY.youDidIt : SAY.nextTime);
     // Recap: the TV says the words you met, so the round ends on listening.
     const words = (this.info.practiced ?? []).slice(0, 4);
     if (words.length) setTimeout(() => rt.activity === this && words.forEach((w, i) => setTimeout(() => rt.activity === this && rt.speakPt(w.pt), i * 1600)), 2600);
@@ -496,8 +604,22 @@ function lessonsFor(spec: ModeSpec): Lesson[] {
 export function startNight(rt: TvRuntime) {
   rt.resetSession();
   const coop = rt.rng.shuffle(GAMES.filter((g) => g.mode !== "stop").map((g) => g.mode));
-  rt.night = { games: rt.rng.shuffle(["stop", coop[0]!, coop[1]!]), index: 0, words: [] };
+  rt.night = { games: rt.rng.shuffle(["stop", coop[0]!, coop[1]!]), index: 0, words: [], points: {}, moments: [] };
   rt.run(new LobbyActivity({ mode: rt.night.games[0] as Mode }));
+}
+
+/** Adds a game's "pontos da noite" (0–100 each) and returns what everyone gained. */
+function addNightPoints(rt: TvRuntime, o: GameOutcome): Record<string, number> {
+  const n = rt.night;
+  const gained: Record<string, number> = {};
+  if (!n) return gained;
+  const team = Math.round(Math.min(100, (o.score / Math.max(1, o.max)) * 100));
+  for (const p of rt.activePlayers) {
+    const g = o.perPlayer?.[p.playerId] ?? team;
+    gained[p.playerId] = g;
+    n.points[p.playerId] = (n.points[p.playerId] ?? 0) + g;
+  }
+  return gained;
 }
 
 /** Next game of the night, or the final. Session points are kept between games. */
@@ -537,6 +659,9 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
     const stars = starsFor(o.score, o.max);
     if (night) {
       night.words.push(...(o.words ?? []));
+      const gained = addNightPoints(rt, o);
+      if (o.highlight) night.moments.push(o.highlight);
+      if (o.gallery?.length) night.drawing = o.gallery.find((g) => g.guessed) ?? o.gallery[0];
       const nextMode = night.games[night.index + 1];
       const nextGame = GAMES.find((g) => g.mode === nextMode);
       const advance: ResultOption = nextGame
@@ -555,7 +680,9 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
           max: o.max,
           stars,
           practiced: o.words,
-        gallery: o.gallery,
+          gallery: o.gallery,
+          nightGain: gained,
+          nightTotals: { ...night.points },
           options: [advance, { ...menu, label: "Terminar a noite", sub: "End the night" }],
           autoGo: 15_000,
         }),
@@ -594,7 +721,8 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
               spec,
               title: lesson.title,
               headline: `${s.stars} ⭐ de ${s.graded}`,
-              sub: s.stars === s.graded ? "Perfeito! Os dois acertaram tudo." : "Estrelas de equipa: quando os dois acertam.",
+              sub: `${s.stars === s.graded ? "Perfeito! Os dois acertaram tudo." : "Estrelas de equipa: quando os dois acertam."}${s.bestCombo >= 3 ? ` Melhor combo: ×${s.bestCombo}!` : ""}`,
+              subEn: s.stars === s.graded ? "Perfect — you both got everything right." : `Team stars: when you're both right.${s.bestCombo >= 3 ? ` Best combo ×${s.bestCombo}!` : ""}`,
               win: true,
               lesson: s,
               words: s.words,
@@ -641,8 +769,12 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
     case "final": {
       const words = rt.night?.words ?? [];
       const g = new GrandeFinal(words, (o) => {
-        rt.night = null;
-        rt.run(
+        const night = rt.night;
+        if (night) addNightPoints(rt, o);
+        const totals = night ? { ...night.points } : undefined;
+        const results = () => {
+          rt.night = null;
+          rt.run(
           new ResultsActivity({
             spec,
             title: "Grande Final · Noite de jogos",
@@ -657,13 +789,18 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
             practiced: o.words,
         gallery: o.gallery,
             champion: true,
+            nightTotals: totals,
             options: [
               { id: "night", label: "Outra noite!", sub: "Another game night", pic: "🎉", go: () => startNight(rt) },
               ...games(),
               menu,
             ],
           }),
-        );
+          );
+        };
+        // The crowning ceremony first, then the results card.
+        if (night) rt.run(new ChampionActivity(night, results));
+        else results();
       });
       g.level = level;
       rt.run(g);

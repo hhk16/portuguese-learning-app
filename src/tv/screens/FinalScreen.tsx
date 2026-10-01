@@ -10,7 +10,8 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
   const q = a.q;
   if (!q) return null;
   const secs = Math.ceil(a.msLeft / 1000);
-  const top = Math.max(1, ...a.players.map((p) => p.score));
+  const pts = (id: string) => a.points.get(id) ?? 0;
+  const top = Math.max(1, ...a.players.map((p) => pts(p.playerId)));
   return (
     <div className="tv-overlay game-screen centered final-screen">
       <GameTop title="Grande Final" pic="🏆">
@@ -28,6 +29,11 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
               <Picture glyph={q.word.emoji} size="7em" />
               <i className="final-en">{q.word.en}</i>
             </>
+          ) : q.kind === "frase" ? (
+            <>
+              <span className="kicker">Frase · Sentence — o que pediu o cliente? · what was ordered?</span>
+              <span className="final-ear">🔊☕</span>
+            </>
           ) : (
             <>
               <span className="kicker">Ouve · Listen — toca na imagem · tap the picture</span>
@@ -36,9 +42,20 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
           )}
           {a.phase === "reveal" && (
             <div className="final-answer">
-              {q.kind === "hear" && <Picture glyph={q.word.emoji} size="3em" />}
-              <b className="display">{q.word.pt}</b>
-              <i>{q.word.en}</i>
+              {q.frase ? (
+                <>
+                  <b className="display">
+                    {q.frase.answer.split("×")[0]} × <Picture glyph={q.frase.options.find((o) => o.id === q.frase!.answer)?.pic} size="1em" />
+                  </b>
+                  <i>“{q.frase.text}”</i>
+                </>
+              ) : (
+                <>
+                  {q.kind === "hear" && <Picture glyph={q.word.emoji} size="3em" />}
+                  <b className="display">{q.word.pt}</b>
+                  <i>{q.word.en}</i>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -50,9 +67,9 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
               <div key={p.playerId} className="race-row">
                 <PlayerChip p={p} size="2.2em" />
                 <div className="race-bar">
-                  <div data-color={p.color} style={{ width: `${(p.score / top) * 100}%` }} />
+                  <div data-color={p.color} style={{ width: `${(pts(p.playerId) / top) * 100}%` }} />
                 </div>
-                <b className="pp-score">{p.score}</b>
+                <b className="pp-score">{pts(p.playerId)}</b>
                 <span className={`race-tag ${ans ? (a.phase === "reveal" ? (ans.ok ? "ok" : "bad") : "in") : ""}`}>
                   {ans ? (a.phase === "reveal" ? (ans.ok ? (first ? "1.º ⚡" : "✓") : "✗") : "🔒") : "…"}
                 </span>

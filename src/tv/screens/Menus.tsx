@@ -5,7 +5,7 @@ import { paintStrokes } from "../../ui/Sketch.tsx";
 import { publicBaseUrl } from "../../net/socket.ts";
 import { Picture } from "../../ui/Picture.tsx";
 import { PlayerChip } from "../../ui/Face.tsx";
-import { GAMES, HOW_TO, specPic, toNextStar, type GalleryItem, type LobbyActivity, type ResultsActivity, type TitleActivity } from "../activities.ts";
+import { GAMES, HOW_TO, specPic, toNextStar, type ChampionActivity, type GalleryItem, type LobbyActivity, type ResultsActivity, type TitleActivity } from "../activities.ts";
 import { gameNow } from "../clock.ts";
 import { useRuntime } from "../runtime.ts";
 import { LEVELS } from "../progress.ts";
@@ -284,23 +284,38 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             </div>
           </div>
         )}
-        {rt.activePlayers.length >= 2 && (() => {
+        {info.nightTotals && rt.activePlayers.length >= 2 && (
+          <div className={`tonight ${info.champion ? "champion" : ""}`}>
+            <span className="kicker">{info.champion ? "Estrela da noite · Tonight's star" : "Pontos da noite · Tonight's points"}</span>
+            <div className="tonight-row">
+              {[...rt.activePlayers]
+                .sort((x, y) => (info.nightTotals![y.playerId] ?? 0) - (info.nightTotals![x.playerId] ?? 0))
+                .map((p, i, all) => {
+                  const total = info.nightTotals![p.playerId] ?? 0;
+                  const lead = i === 0 && total > (info.nightTotals![all[1]?.playerId ?? ""] ?? -1);
+                  const gain = info.nightGain?.[p.playerId];
+                  return <PlayerChip key={p.playerId} p={p} size="2em" extra={<b className="pp-score">{lead ? "👑 " : ""}{total}{gain !== undefined && <small className="gain"> +{gain}</small>}</b>} />;
+                })}
+            </div>
+          </div>
+        )}
+        {!info.nightTotals && rt.activePlayers.length >= 2 && (() => {
           const ps = [...rt.activePlayers].sort((x, y) => y.score - x.score);
           const tied = ps.every((p) => p.score === ps[0]!.score);
           // Co-op games give both the same points: show the team total instead of a fake rivalry.
-          if (tied && !info.champion)
+          if (tied)
             return (
               <div className="tonight">
-                <span className="kicker">Equipa · Team tonight</span>
+                <span className="kicker">Equipa · Team</span>
                 <b className="pp-score">{ps[0]!.score} pontos</b>
               </div>
             );
           return (
-            <div className={`tonight ${info.champion ? "champion" : ""}`}>
-              <span className="kicker">{info.champion ? "Estrela da noite · Tonight's star" : "Quem manda hoje? · Tonight's points"}</span>
+            <div className="tonight">
+              <span className="kicker">Quem manda hoje? · Who's winning?</span>
               <div className="tonight-row">
                 {ps.map((p, i) => (
-                  <PlayerChip key={p.playerId} p={p} size={info.champion && i === 0 ? "3em" : "2em"} extra={<b className="pp-score">{i === 0 && !tied ? "👑 " : ""}{p.score}</b>} />
+                  <PlayerChip key={p.playerId} p={p} size="2em" extra={<b className="pp-score">{i === 0 ? "👑 " : ""}{p.score}</b>} />
                 ))}
               </div>
             </div>
@@ -470,5 +485,63 @@ function GalleryThumb({ g, delay }: { g: GalleryItem; delay: number }) {
         <b>{g.pt}</b> {g.guessed ? "✓" : "✗"}
       </figcaption>
     </figure>
+  );
+}
+
+/** The end of a game night: drumroll, the star of the night crowned, then the best moments. */
+export function ChampionScreen({ a }: { a: ChampionActivity }) {
+  const [top, second] = a.standings;
+  const word = a.wordOfNight;
+  const drawing = a.drawing;
+  return (
+    <div className={`tv-overlay champion-screen stage-${a.stage}`}>
+      <div className="champion-lights" />
+      <div className="champion-title display">
+        {a.stage === 0 ? "E a estrela da noite é… 🥁" : a.tie ? "Dois campeões! 👑👑" : `👑 ${top?.p.name ?? ""}!`}
+        <i>{a.stage === 0 ? "And tonight's star is…" : a.tie ? "A tie — two champions!" : "Estrela da noite · Tonight's star"}</i>
+      </div>
+      {a.stage > 0 && (
+        <div className="podium">
+          {[second, top].filter(Boolean).map((s) => {
+            const first = s === top || a.tie;
+            return (
+              <div key={s!.p.playerId} className={`podium-step ${first ? "first" : "second"}`}>
+                {first && <span className="crown">👑</span>}
+                <PlayerChip p={s!.p} size={first ? "3.2em" : "2.4em"} />
+                <b className="display">{s!.pts}</b>
+                <small>pontos da noite</small>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {a.stage === 2 && (
+        <div className="moments">
+          <span className="kicker">Melhores momentos · Best moments</span>
+          <div className="moment-row">
+            {drawing && (
+              <div className="moment card">
+                <GalleryThumb g={drawing} delay={-1200} />
+                <small>O melhor desenho · Best drawing</small>
+              </div>
+            )}
+            {a.night.moments.slice(0, 2).map((m, i) => (
+              <div key={i} className="moment card" style={{ animationDelay: `${0.3 + i * 0.3}s` }}>
+                {m.pic && <Picture glyph={m.pic} size="2.4em" />}
+                <b>{m.pt}</b>
+                <small>{m.en}</small>
+              </div>
+            ))}
+            {word && (
+              <div className="moment card word" style={{ animationDelay: "0.9s" }}>
+                {word.pic && <Picture glyph={word.pic} size="2.4em" />}
+                <b className="display">{word.pt}</b>
+                <small>Palavra da noite · Word of the night{word.en ? ` — ${word.en}` : ""}</small>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

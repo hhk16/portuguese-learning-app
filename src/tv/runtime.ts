@@ -67,7 +67,7 @@ export interface Settings {
 const SETTINGS_KEY = "pp.tv.settings.v3";
 
 /** Background music per activity (menus, lobby and results share the menu theme). */
-const MUSIC: Record<string, Track> = { lesson: "learn", learn: "learn", secret: "secret", wave: "wave", sync: "sync", draw: "draw", stop: "versus", kitchen: "rush", final: "final" };
+const MUSIC: Record<string, Track> = { lesson: "learn", learn: "learn", secret: "secret", wave: "wave", sync: "sync", draw: "draw", stop: "versus", kitchen: "rush", final: "final", champion: "final" };
 
 export class TvRuntime {
   readonly conn: HostConnection;
@@ -85,7 +85,16 @@ export class TvRuntime {
   onRestart: (() => void) | null = null;
   onQuit: (() => void) | null = null;
   /** A game night in progress: the playlist, where we are, and the words met so far. */
-  night: { games: string[]; index: number; words: { pt: string; en?: string; pic?: string }[] } | null = null;
+  night: {
+    games: string[];
+    index: number;
+    words: { pt: string; en?: string; pic?: string }[];
+    /** "Pontos da noite": every game is worth 0–100 per player. */
+    points: Record<string, number>;
+    /** Highlights for "Melhores momentos", and the best drawing. */
+    moments: { pt: string; en: string; pic?: string }[];
+    drawing?: unknown;
+  } | null = null;
   /** Emoji reactions flying up the TV (performance.now ms). */
   reactions: { id: number; playerId: string; emoji: string; at: number; x: number }[] = [];
   private reactSeq = 0;

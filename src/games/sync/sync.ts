@@ -89,6 +89,9 @@ export class EmSintonia implements Activity {
   /** Previous attempt's words, shown as a nudge. */
   previous: { name: string; word: string }[] = [];
   senseVotes = new Map<string, boolean>();
+  /** "Vamos coincidir?" predictions, and who got theirs right at the last reveal. */
+  predictions = new Map<string, boolean>();
+  rightPredictions: RuntimePlayer[] = [];
   lastMatch = false;
   score = 0;
   matches: { words: [string, string]; word: string; attempt: number }[] = [];
@@ -206,6 +209,7 @@ export class EmSintonia implements Activity {
     this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.writeMs);
     this.submitted.clear();
     this.senseVotes.clear();
+    this.predictions.clear();
     this.promptId = randomId(6);
     this.dealBanks();
     play("whoosh");
@@ -249,6 +253,14 @@ export class EmSintonia implements Activity {
       play("lock");
       if (this.players.every((x) => this.senseVotes.has(x.playerId))) this.resolveSense();
       else this.rt.bump();
+      return;
+    }
+    // After locking in: "Vamos coincidir?" — a correct prediction is worth a point.
+    if (value.predict !== undefined && (this.phase === "write" || this.phase === "countdown") && this.submitted.has(p.playerId) && !this.predictions.has(p.playerId)) {
+      this.predictions.set(p.playerId, value.predict);
+      play("tap");
+      this.rt.view(p, this.viewFor(p));
+      this.rt.bump();
       return;
     }
     if (this.phase !== "write" || !value.word || this.submitted.has(p.playerId)) return;
@@ -305,6 +317,9 @@ export class EmSintonia implements Activity {
 
   private settle(match: boolean) {
     this.lastMatch = match;
+    // Predictions that came true: +1 each.
+    this.rightPredictions = this.players.filter((p) => this.predictions.get(p.playerId) === match);
+    if (!this.inPractice) this.score += this.rightPredictions.length;
     const words = this.players.map((p) => this.submitted.get(p.playerId) ?? "");
     if (match) {
       const pts = this.inPractice ? 0 : matchPoints(this.attempt, this.final);
@@ -352,6 +367,7 @@ export class EmSintonia implements Activity {
       sub: n ? `Palavras: ${this.matches.map((m) => m.word).join(", ")}` : "Continuem a tentar!",
       subEn: n ? "Your shared words" : "Keep trying!",
       words: this.matches.map((m) => ({ pt: m.word })),
+      highlight: this.matches[0] ? { pt: `Os dois pensaram “${this.matches[0].word}”!`, en: `You both thought “${this.matches[0].word}”`, pic: "🤝" } : undefined,
     });
   }
 
@@ -363,7 +379,9 @@ export class EmSintonia implements Activity {
   viewFor(p: RuntimePlayer): ControllerView {
     if (this.players.length < 2) return { mode: "wait", title: "Em Sintonia precisa de 2", subtitle: "Chama o teu par para jogar! · Needs two players", pic: "🤝" };
     if (this.phase === "end") return { mode: "wait", title: "Fim!", subtitle: `${this.score} pontos`, pic: "🔮" };
-    if (this.phase === "countdown") return { mode: "wait", title: "3… 2… 1…", subtitle: "Olha para a TV! · Look at the TV!", pic: "👀" };
+    // During the 3-2-1 you can still make your prediction; after that, eyes on the TV.
+    if (this.phase === "countdown" && (this.predictions.has(p.playerId) || this.inPractice || this.players.length < 2))
+      return { mode: "wait", title: "3… 2… 1…", subtitle: "Olha para a TV! · Look at the TV!", pic: "👀" };
     if (this.phase === "reveal")
       return {
         mode: "wait",
@@ -390,6 +408,7 @@ export class EmSintonia implements Activity {
       bank: this.banks.get(p.playerId) ?? [],
       submitted: this.submitted.has(p.playerId),
       mine: this.submitted.get(p.playerId) || undefined,
+      predicted: this.predictions.get(p.playerId),
       debugAnswer: this.rt.testMode ? { word: this.link.pt } : undefined,
     };
   }

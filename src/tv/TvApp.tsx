@@ -10,10 +10,10 @@ import { Desenha } from "../games/draw/draw.ts";
 import { Stop } from "../games/stop/stop.ts";
 import { Cozinha } from "../games/kitchen/kitchen.ts";
 import type { NavDir } from "../shared/protocol.ts";
-import { LobbyActivity, ResultsActivity, TitleActivity } from "./activities.ts";
+import { ChampionActivity, LobbyActivity, ResultsActivity, TitleActivity } from "./activities.ts";
 import { useRuntime } from "./runtime.ts";
 import { LearnScreen } from "./screens/LearnScreen.tsx";
-import { Command, HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
+import { ChampionScreen, Command, HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
 import { SecretScreen } from "./screens/SecretScreen.tsx";
 import { SyncScreen } from "./screens/SyncScreen.tsx";
 import { WaveScreen } from "./screens/WaveScreen.tsx";
@@ -82,6 +82,7 @@ export function TvApp() {
       {a instanceof Stop && <StopScreen a={a} />}
       {a instanceof Cozinha && <KitchenScreen a={a} />}
       {a instanceof GrandeFinal && <FinalScreen a={a} />}
+      {a instanceof ChampionActivity && <ChampionScreen a={a} />}
       <HostBubble />
       <Command />
       <Reactions />

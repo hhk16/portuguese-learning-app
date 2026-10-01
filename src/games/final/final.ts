@@ -19,6 +19,7 @@ import type { GameOutcome } from "../../tv/activities.ts";
 import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { guessMatches } from "../draw/draw.ts";
+import { DISHES, MENUS, orderBook } from "../kitchen/menu.ts";
 
 export const QUESTIONS = 10;
 const REVEAL_MS = 2600;
@@ -36,9 +37,16 @@ export interface FinalWord {
 }
 
 interface Question {
-  kind: "see" | "hear";
+  kind: "see" | "hear" | "frase";
   word: LearnCard;
   options: LearnCard[];
+  /** "frase": hear a café order, tap what was ordered ("2 × ☕"). */
+  frase?: { text: string; answer: string; options: { id: string; n: number; pic: string }[] };
+}
+
+/** The shape of the final: see → hear → whole sentences → one last "see" worth double. */
+export function kindAt(i: number): Question["kind"] {
+  return i < 4 ? "see" : i < 7 ? "hear" : i < 9 ? "frase" : "see";
 }
 
 /** Points for a right answer: 3 for the first, 1 after; doubled on the last question. */
@@ -102,12 +110,30 @@ export class GrandeFinal implements Activity {
     const pool = [...new Map([...rt.rng.shuffle(tonight), ...rt.rng.shuffle(nouns)].map((c) => [c.itemId, c])).values()];
     const picked = pool.slice(0, QUESTIONS);
     this.spare = nouns;
+    // Sentences: single-dish café orders ("Queria dois cafés, por favor.").
+    const orders = rt.rng.shuffle(MENUS.flatMap((m) => orderBook(m)).filter((o) => Object.keys(o.items).length === 1));
     this.questions = picked.map((word, i) => {
+      const kind = kindAt(i);
+      if (kind === "frase") {
+        const o = orders[i]!;
+        const [id, n] = Object.entries(o.items)[0]!;
+        const dish = DISHES[id]!;
+        const other = rt.rng.pick(Object.values(DISHES).filter((d) => d.id !== id));
+        const m = n === 1 ? 2 : 1;
+        const opts = rt.rng.shuffle([
+          { id: `${n}×${id}`, n, pic: dish.pic },
+          { id: `${m}×${id}`, n: m, pic: dish.pic },
+          { id: `${n}×${other.id}`, n, pic: other.pic },
+          { id: `${m}×${other.id}`, n: m, pic: other.pic },
+        ]);
+        const dishCard = nouns.find((c) => c.itemId === `vocab.noun.${id}`) ?? word;
+        return { kind, word: dishCard, options: [], frase: { text: o.text, answer: `${n}×${id}`, options: opts } };
+      }
       const others = rt.rng.sample(
         nouns.filter((c) => c.itemId !== word.itemId && c.pt !== word.pt),
         this.rules.options - 1,
       );
-      return { kind: i % 2 === 0 ? "see" : "hear", word, options: rt.rng.shuffle([word, ...others]) };
+      return { kind, word, options: rt.rng.shuffle([word, ...others]) };
     });
     for (const p of this.players) this.points.set(p.playerId, 0);
     this.ask();
@@ -130,8 +156,12 @@ export class GrandeFinal implements Activity {
     play("whoosh");
     if (this.last) this.rt.say(SAY.finalRound, { interrupt: true });
     const q = this.q!;
-    if (q.kind === "hear") setTimeout(() => this.rt.activity === this && this.q === q && this.rt.speakPt(q.word.say), this.last ? 1800 : 400);
-    this.rt.cue(q.kind === "hear" ? { pt: "Ouve e toca!", en: "Listen and tap!" } : this.rules.typeSee ? CUE.fill : { pt: "Escolhe!", en: "Pick!" });
+    const sayIt = q.frase?.text ?? q.word.say;
+    if (q.kind !== "see") setTimeout(() => this.rt.activity === this && this.q === q && this.rt.speakPt(sayIt), this.last ? 1800 : 400);
+    // Pipo announces each new stage of the final.
+    if (this.index === 4) this.rt.say(SAY.listenNow);
+    if (this.index === 7) this.rt.say(SAY.sentencesNow);
+    this.rt.cue(q.kind === "frase" ? { pt: "Ouve o pedido!", en: "Listen to the order!" } : q.kind === "hear" ? { pt: "Ouve e toca!", en: "Listen and tap!" } : this.rules.typeSee ? CUE.fill : { pt: "Escolhe!", en: "Pick!" });
     this.rt.refreshViews();
     this.rt.bump();
   }
@@ -148,7 +178,7 @@ export class GrandeFinal implements Activity {
       if (this.index >= this.questions.length) {
         // Level at the top after the last question: one sudden-death question (at most three).
         const [a, b] = this.ranking();
-        if (a && b && a.score === b.score && this.questions.length < QUESTIONS + 3) {
+        if (a && b && this.points.get(a.playerId) === this.points.get(b.playerId) && this.questions.length < QUESTIONS + 3) {
           this.questions.push(this.extraQuestion());
           this.rt.say(SAY.tieBreak, { interrupt: true });
           play("heartbeat");
@@ -162,7 +192,7 @@ export class GrandeFinal implements Activity {
 
   repeat() {
     const q = this.q;
-    if (q) this.rt.speakPt(q.word.say);
+    if (q) this.rt.speakPt(q.frase?.text ?? q.word.say);
   }
 
   onPlayersChanged() {
@@ -173,7 +203,7 @@ export class GrandeFinal implements Activity {
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue, at?: number) {
     if (value.mode !== "final" || this.phase !== "ask" || promptId !== this.promptId || this.answers.has(p.playerId)) return;
     const q = this.q!;
-    const ok = guessMatches(value.answer, q.word.pt) !== "no";
+    const ok = q.frase ? value.answer === q.frase.answer : guessMatches(value.answer, q.word.pt) !== "no";
     this.answers.set(p.playerId, { ok, at: at ?? gameNow(), text: value.answer });
     play(ok ? "lock" : "buzzer", ok ? 1 : 0.5);
     this.rt.evidence(p, q.word.itemId, `final.${q.kind}`, ok ? "correct" : "wrong");
@@ -204,39 +234,37 @@ export class GrandeFinal implements Activity {
     const first = this.firstRight ? this.rt.players.get(this.firstRight) : undefined;
     play(anyRight ? "correct" : "wrong");
     if (first) this.rt.say(NAMED.wellDone, { name: first.name, interrupt: true });
-    this.rt.speakPt(q.word.say);
+    this.rt.speakPt(q.frase?.text ?? q.word.say);
     this.rt.refreshViews();
     this.rt.bump();
   }
 
-  /** Ranking by tonight's points (session score). */
+  /** Ranking by Grand Final points. */
   ranking(): RuntimePlayer[] {
-    return [...this.players].sort((a, b) => b.score - a.score);
+    return [...this.players].sort((a, b) => (this.points.get(b.playerId) ?? 0) - (this.points.get(a.playerId) ?? 0));
   }
 
   private finish() {
     this.phase = "end";
     setHurry(false);
-    const [top, second] = this.ranking();
-    const tie = !!second && top!.score === second.score;
-    play("fanfare");
-    setTimeout(() => this.rt.activity === this && play("crowd-cheer"), 1200);
-    this.rt.celebrate();
-    if (top && !tie) this.rt.say(NAMED.mvp, { name: top.name, interrupt: true });
+    play("cymbal");
     this.rt.bump();
     const total = [...this.points.values()].reduce((a, b) => a + b, 0);
+    const max = QUESTIONS * 3 + 3;
+    const line = this.ranking()
+      .map((p) => `${p.name} ${this.points.get(p.playerId) ?? 0}`)
+      .join(" · ");
     setTimeout(
       () =>
         this.onDone({
           score: total,
-          max: QUESTIONS * 3 + 3,
-          headline: tie ? `Empate! ${top!.score}–${second!.score}` : `👑 ${top?.name ?? ""} é a estrela da noite!`,
-          headlineEn: tie ? "A tie — you're both champions!" : `${top?.name ?? ""} is tonight's champion!`,
-          sub: `Final: ${this.players.map((p) => `${p.name} ${this.points.get(p.playerId) ?? 0}`).join(" · ")}`,
-          subEn: "Grand Final points",
+          max: max * 2,
+          headline: `Grande Final: ${line}`,
+          headlineEn: `Grand Final: ${line}`,
           words: this.questions.map((q) => ({ pt: q.word.pt, en: q.word.en, pic: q.word.emoji })),
+          perPlayer: Object.fromEntries(this.players.map((p) => [p.playerId, Math.round(Math.min(100, ((this.points.get(p.playerId) ?? 0) / max) * 100))])),
         }),
-      2800,
+      1600,
     );
   }
 
@@ -247,8 +275,8 @@ export class GrandeFinal implements Activity {
       const a = this.answers.get(p.playerId);
       return {
         mode: "wait",
-        title: a?.ok ? (this.firstRight === p.playerId ? "Primeiro! +3" : "Certo! +1") : `Era: ${q.word.pt}`,
-        subtitle: a?.ok ? `${q.word.pt} · ${q.word.en}` : `It was: ${q.word.en}`,
+        title: a?.ok ? (this.firstRight === p.playerId ? "Primeiro! +3" : "Certo! +1") : q.frase ? "Não era isso!" : `Era: ${q.word.pt}`,
+        subtitle: q.frase ? `“${q.frase.text}”` : a?.ok ? `${q.word.pt} · ${q.word.en}` : `It was: ${q.word.en}`,
         pic: q.word.emoji,
       };
     }
@@ -264,11 +292,11 @@ export class GrandeFinal implements Activity {
       double: this.last || undefined,
       msLeft: this.msLeft,
       prompt: q.kind === "see" ? { pt: "", en: q.word.en, pic: q.word.emoji } : undefined,
-      // See: Portuguese words to pick (no pictures); hear: pictures to tap (no words).
-      options: typing ? undefined : q.options.map((c) => (q.kind === "see" ? { pt: c.pt } : { ...toWord(c), pt: c.pt })),
-      pictures: q.kind === "hear" || undefined,
+      // See: Portuguese words to pick (no pictures); hear: pictures to tap (no words); frase: "2 × ☕".
+      options: q.frase ? q.frase.options.map((o) => ({ pt: o.id, en: String(o.n), pic: o.pic })) : typing ? undefined : q.options.map((c) => (q.kind === "see" ? { pt: c.pt } : { ...toWord(c), pt: c.pt })),
+      pictures: q.kind !== "see" || undefined,
       answered: this.answers.has(p.playerId),
-      debugAnswer: this.rt.testMode ? { answer: q.word.pt } : undefined,
+      debugAnswer: this.rt.testMode ? { answer: q.frase?.answer ?? q.word.pt } : undefined,
     };
   }
 }

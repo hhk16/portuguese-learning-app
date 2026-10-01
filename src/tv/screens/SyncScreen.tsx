@@ -77,6 +77,7 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
         <div className={`sync-verdict display ${a.lastMatch ? "match" : ""}`}>
           {a.lastMatch ? "Em sintonia!" : `${a.closeMiss ? "Quase!" : "Nada disso!"} ${a.attempt < a.rules.tries ? "Outra vez…" : "Próximo par!"}`}
           <i>{a.lastMatch ? "In sync!" : `${a.closeMiss ? "So close" : "Not quite"} — ${a.attempt < a.rules.tries ? "same pair again" : "next pair"}`}</i>
+          {a.rightPredictions.length > 0 && <small className="bet-line ok">🔮 {a.rightPredictions.map((p) => p.name).join(" e ")} previu bem! +{a.rightPredictions.length}</small>}
         </div>
       )}
     </div>

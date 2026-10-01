@@ -130,12 +130,14 @@ export const ControllerView = z.discriminatedUnion("mode", [
     goal: z.number().int().positive(),
     /** Out of turns: no clues, everyone taps; one miss ends it. */
     sudden: z.boolean().optional(),
+    /** The giver's bet on this turn (how many the partner finds). */
+    bet: z.number().int().nonnegative().optional(),
   }),
   /** Grande Final: quick questions, first right answer wins. */
   z.object({
     mode: z.literal("final"),
     ...round,
-    kind: z.enum(["see", "hear"]),
+    kind: z.enum(["see", "hear", "frase"]),
     index: z.number().int().nonnegative(),
     total: z.number().int().positive(),
     double: z.boolean().optional(),
@@ -170,6 +172,9 @@ export const ControllerView = z.discriminatedUnion("mode", [
     final: z.boolean().optional(),
     /** Whether the guesser bet "Tenho a certeza!" (shown at the reveal). */
     sure: z.boolean().optional(),
+    /** The psychic's side bet on how close the guess lands, and whether it came true. */
+    psychicBet: z.enum(["cheio", "perto", "longe"]).optional(),
+    betWon: z.boolean().optional(),
     msLeft: z.number().nonnegative().optional(),
     points: z.number().int().optional(),
   }),
@@ -184,6 +189,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
     submitted: z.boolean(),
     /** Your locked-in word. */
     mine: shortText.optional(),
+    /** Your prediction ("Vamos coincidir?"), once made. */
+    predicted: z.boolean().optional(),
     final: z.boolean().optional(),
     msLeft: z.number().nonnegative().optional(),
     /** What each of you chose last try (same pair again). */
@@ -210,6 +217,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
     optionsInMs: z.number().nonnegative().optional(),
     /** Letter hint, e.g. "g _ _ _". */
     hint: shortText.optional(),
+    /** Drawer: the partner's guesses so far (newest last). */
+    guesses: z.array(shortText).max(6).optional(),
     tried: z.array(id).max(8).optional(),
     canPass: z.boolean().optional(),
   }),
@@ -280,6 +289,8 @@ export const InputValue = z.discriminatedUnion("mode", [
       z.object({ a: z.literal("clue"), count: z.number().int().min(1).max(9), word: shortText.optional() }),
       z.object({ a: z.literal("tap"), cardId: id }),
       z.object({ a: z.literal("stop") }),
+      /** The clue-giver bets how many cards the partner will find this turn. */
+      z.object({ a: z.literal("bet"), n: z.number().int().min(0).max(9) }),
     ]),
   }),
   z.object({
@@ -288,10 +299,11 @@ export const InputValue = z.discriminatedUnion("mode", [
       z.object({ a: z.literal("move"), value: z.number().min(0).max(100) }),
       z.object({ a: z.literal("clue"), text: shortText }),
       z.object({ a: z.literal("lock"), sure: z.boolean().optional() }),
+      z.object({ a: z.literal("bet"), bet: z.enum(["cheio", "perto", "longe"]) }),
       z.object({ a: z.literal("next") }),
     ]),
   }),
-  z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40).optional(), sense: z.boolean().optional() }),
+  z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40).optional(), sense: z.boolean().optional(), predict: z.boolean().optional() }),
   z.object({
     mode: z.literal("draw"),
     action: z.discriminatedUnion("a", [
@@ -299,6 +311,8 @@ export const InputValue = z.discriminatedUnion("mode", [
       z.object({ a: z.literal("stroke"), s: z.number().int().nonnegative(), seg: z.number().int().nonnegative(), c: z.number().int().min(0).max(5), w: z.number().int().min(1).max(4), pts: z.array(z.number().int().min(0).max(1000)).max(400) }),
       z.object({ a: z.literal("clear") }),
       z.object({ a: z.literal("undo") }),
+      /** Drawer's hint while the partner guesses: 🔥 quente / ❄️ frio. */
+      z.object({ a: z.literal("warm"), hot: z.boolean() }),
       z.object({ a: z.literal("guess"), id }),
       /** Typed guess, or what speech recognition heard (alternatives). */
       z.object({ a: z.literal("type"), text: z.string().max(40) }),

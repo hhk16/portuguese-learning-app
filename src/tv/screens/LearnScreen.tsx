@@ -132,6 +132,7 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
             <span key={i} className={i < a.index ? "done" : i === a.index ? "now" : ""} />
           ))}
         </div>
+        {a.combo >= 2 && <span className="pill double-pill">Combo ×{a.combo}</span>}
         <span className="pill star-pill">★ {a.stars}</span>
       </GameTop>
       <div className={`card stage-card ex-${ex.kind}`} key={`${a.index}-${a.phase}`}>

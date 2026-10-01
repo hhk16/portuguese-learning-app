@@ -65,6 +65,13 @@ export const SAY = {
   perfect: { pt: "Perfeito!", en: "Perfect!" },
   close: { pt: "Quase!", en: "So close!" },
   notQuite: { pt: "Nada disso!", en: "Not quite!" },
+  near: { pt: "Perto!", en: "Close!" },
+  farOff: { pt: "Estão em ondas diferentes…", en: "You're on different wavelengths…" },
+  revenge: { pt: "Vingança na próxima?", en: "Revenge next time?" },
+  listenNow: { pt: "Agora, ouçam!", en: "Now, listen!" },
+  sentencesNow: { pt: "Agora, frases!", en: "Now, sentences!" },
+  champion: { pt: "E a estrela da noite é…", en: "And tonight's star is…" },
+  twoChampions: { pt: "Empate! Dois campeões!", en: "A tie! Two champions!" },
   ohNo: { pt: "Oh, não!", en: "Oh no!" },
   bomb: { pt: "Ai, a bomba!", en: "Oops, the bomb!" },
   timeUp: { pt: "Acabou o tempo!", en: "Time's up!" },
@@ -93,11 +100,11 @@ export const VARIANTS: Partial<Record<keyof typeof SAY, Line[]>> = {
   good: [
     { pt: "Boa!", en: "Nice!" },
     { pt: "Isso mesmo!", en: "That's it!" },
-    { pt: "Excelente!", en: "Excellent!" },
   ],
   perfect: [
     { pt: "Em cheio!", en: "Spot on!" },
     { pt: "Fantástico!", en: "Fantastic!" },
+    { pt: "Excelente!", en: "Excellent!" },
   ],
   close: [
     { pt: "Foi por pouco!", en: "That was close!" },
@@ -148,8 +155,8 @@ export const CUE = {
   vote: { pt: "Vota!", en: "Vote!" },
 } satisfies Record<string, Line>;
 
-const CHEER = new Set<Line>([SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
-const OOPS = new Set<Line>([SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
+const CHEER = new Set<Line>([SAY.near, SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
+const OOPS = new Set<Line>([SAY.farOff, SAY.revenge, SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
 export function moodOf(l: Line): Mood {
   return CHEER.has(l) ? "cheer" : OOPS.has(l) ? "oops" : "talk";
 }

@@ -5,6 +5,8 @@ import { gameNow } from "../clock.ts";
 import { GameTop } from "./Menus.tsx";
 import { useTick } from "./useTick.ts";
 
+const CUSTOMERS = ["👩", "👨", "👵", "👴", "🧑", "👧", "👦", "👱"];
+
 export function KitchenScreen({ a }: { a: Cozinha }) {
   useTick(200, a.phase === "shift");
   if (a.players.length < 2)
@@ -46,6 +48,11 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
           const p = t.done ? 0 : Math.max(0, (t.deadline - now) / total);
           return (
             <div key={t.id} className={`card ticket ${t.done ?? ""} ${i === 0 && !t.done ? "first" : ""}`}>
+              {/* The customer waiting at the table: happy → impatient → cross. */}
+              <div className={`customer ${t.done === "served" ? "happy" : t.done === "left" ? "gone" : p < 0.3 ? "cross" : ""}`}>
+                <Picture glyph={CUSTOMERS[t.id.charCodeAt(0) % CUSTOMERS.length]} size="2.6em" />
+                <span className="mood">{t.done === "served" ? "😋" : t.done === "left" ? "😤" : p > 0.6 ? "🙂" : p > 0.3 ? "😐" : "😠"}</span>
+              </div>
               <div className="ticket-no display">
                 {a.rules.tables ? `Mesa ${t.table}` : `#${i + 1}`}
                 {t.done === "served" && t.points ? <b className="ticket-pts">+{t.points}</b> : null}
