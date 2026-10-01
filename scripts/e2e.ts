@@ -337,7 +337,9 @@ async function botStep(b: Bot, seen: Set<string>) {
       if (v.answered || seen.has(key)) return;
       seen.add(key);
       // Race: whoever "knows" it answers after a human-ish pause; sometimes a wrong pick.
-      await nap(pg, 1200 + Math.random() * 2600);
+      // The lesson's lightning round gives 6 s a word: real players tap within a couple of seconds.
+      if (v.label) await pg.waitForTimeout(900 + Math.random() * 1600);
+      else await nap(pg, 1200 + Math.random() * 2600);
       await shoot(`final-${v.kind}`, b);
       const answer = (v.debugAnswer as { answer: string }).answer;
       const right = Math.random() < b.skill;
