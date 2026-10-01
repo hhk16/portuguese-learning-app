@@ -107,7 +107,7 @@ export function StopScreen({ a }: { a: Stop }) {
               {a.players.map((p) => (
                 <span key={p.playerId} className="pill">
                   {p.name} +{a.roundPoints(p)}
-                  {a.stoppedBy === p ? " (STOP +5)" : ""}
+                  {a.stopBonusTo === p ? " (STOP +5)" : a.stoppedBy === p ? " (STOP ✗ — not every word held up)" : ""}
                 </span>
               ))}
             </div>

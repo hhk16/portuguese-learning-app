@@ -69,6 +69,8 @@ export class Stop implements Activity {
   letter = "A";
   categories: StopCategory[] = [];
   stoppedBy: RuntimePlayer | null = null;
+  /** Who actually got the STOP bonus this letter (every word held up). */
+  stopBonusTo: RuntimePlayer | null = null;
   /** playerId → category id → typed word. */
   answers = new Map<string, Record<string, string>>();
   /** playerId → category id → judged cell (after the round). */
@@ -136,6 +138,7 @@ export class Stop implements Activity {
     this.help.clear();
     this.roundTotals.clear();
     this.stoppedBy = null;
+    this.stopBonusTo = null;
     this.phase = "write";
     // Each letter gives a little less time (−12%, then −24%): the game speeds up.
     this.phaseEnd = gameNow() + (this.inPractice ? 45_000 : this.rules.writeMs * (1 - 0.12 * Math.min(this.round, 2)));
@@ -288,7 +291,10 @@ export class Stop implements Activity {
       }
       // Shouting STOP pays — only if every word holds up.
       const good = this.categories.filter((c) => (row[c.id]?.points ?? 0) > 0).length;
-      if (this.stoppedBy === p && good === this.categories.length) sum += STOP_BONUS;
+      if (this.stoppedBy === p && good === this.categories.length) {
+        sum += STOP_BONUS;
+        this.stopBonusTo = p;
+      }
       this.roundTotals.set(p.playerId, sum);
       if (!this.inPractice) {
         this.totals.set(p.playerId, (this.totals.get(p.playerId) ?? 0) + sum);

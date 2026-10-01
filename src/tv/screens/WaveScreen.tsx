@@ -63,7 +63,7 @@ export function WaveScreen({ a }: { a: NaMesmaOnda }) {
                 {psychic.name} apostou “{{ cheio: "Em cheio", perto: "Perto", longe: "Longe" }[a.psychicBet]}” {a.betWon ? "✓ +1" : "✗"}
               </small>
             )}
-            <i>{a.lastPoints ? (a.sure ? "Bullseye — the bet paid off!" : a.lastPoints >= 4 * (a.final ? 2 : 1) ? "Em cheio! · Bullseye!" : `+${a.lastPoints} points`) : a.sure ? "Bet lost — bullseye or nothing" : "Far off — no points"}</i>
+            <i>{a.lastPoints ? (a.sure ? "Bullseye — “Tenho a certeza” paid off: ×2!" : a.lastPoints >= 4 * (a.final ? 2 : 1) ? "Em cheio! · Bullseye!" : `+${a.lastPoints} points`) : a.sure ? "Bet lost — bullseye or nothing" : "Far off — no points"}</i>
           </span>
         )}
       </div>
