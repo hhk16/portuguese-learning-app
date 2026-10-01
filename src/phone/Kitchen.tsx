@@ -28,7 +28,7 @@ function TipCard({ tip, onSend }: { tip: NonNullable<V["tip"]>; onSend: (text: s
         <span className={`pill ${left < 4000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>
       </span>
       <span className="muted">
-        Tip +{tip.bonus}: type it in Portuguese{tip.en ? ` (${tip.en})` : ""}, with o / a
+        Tip +{tip.bonus}: type it in Portuguese{tip.en ? ` (${tip.en})` : ""}, with its o / a
       </span>
       <span className="sync-form">
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder="o … / a …" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} autoFocus />

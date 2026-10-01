@@ -369,6 +369,7 @@ export class ParesSecretos implements Activity {
     this.flash = { id: c.id, kind: c.bomb ? "boom" : "neutral", seq: ++this.flashSeq };
     play(c.bomb ? "boom" : "buzzer");
     this.rt.say(c.bomb ? SAY.bomb : SAY.ohNo, { interrupt: true });
+    this.boomed = c.bomb;
     return this.finish(false);
   }
 
@@ -449,6 +450,9 @@ export class ParesSecretos implements Activity {
     if (this.heartbeat) clearInterval(this.heartbeat);
   }
 
+  /** The game ended on a bomb (sudden death included). */
+  private boomed = false;
+
   private finish(won: boolean) {
     if (this.heartbeat) clearInterval(this.heartbeat);
     setHurry(false);
@@ -461,7 +465,7 @@ export class ParesSecretos implements Activity {
     if (won) this.rt.celebrate();
     this.rt.petStar(won ? "cheer" : "oops", 2600);
     this.rt.bigMoment(
-      won ? { pt: "🕵️ Todos os pares!", en: "Every secret picture found!" } : this.lives <= 0 ? { pt: "💣 A bomba ganhou!", en: "The bomb got you — the missed ones are lit up" } : { pt: "⏰ Acabaram-se os turnos!", en: "Out of turns — the missed ones are lit up" },
+      won ? { pt: "🕵️ Todos os pares!", en: "Every secret picture found!" } : this.lives <= 0 || this.boomed ? { pt: "💣 A bomba ganhou!", en: "The bomb got you — the missed ones are lit up" } : { pt: "⏰ Acabaram-se os turnos!", en: "Out of turns — the missed ones are lit up" },
       won ? "won" : "lost",
       2600,
       // On a loss the card goes up top, so the lit-up missed pictures stay in view.

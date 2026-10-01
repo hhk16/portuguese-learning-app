@@ -1583,3 +1583,7 @@ body,
 .kitchen-pad.tipping .pantry-item b {
   font-size: 17px;
 }
+/* The tip asks you to remember the name: your pantry shows pictures only meanwhile. */
+.kitchen-pad.tipping .pantry-item b {
+  visibility: hidden;
+}

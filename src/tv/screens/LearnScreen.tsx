@@ -60,7 +60,7 @@ function RushView({ a }: { a: LearnActivity }) {
                       .replace(/^(o|a|os|as) /, "")
                       .replace(/[?!.,¿¡]/g, "")
                       .split("")
-                      .map((ch, i) => (ch === " " ? <span key={i} className="gap" /> : <span key={i}>_</span>))}
+                      .map((ch, i) => (ch === " " ? <span key={i} className="slot-gap" /> : <span key={i}>_</span>))}
                   </div>
                 )}
               </div>

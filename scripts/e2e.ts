@@ -581,7 +581,7 @@ async function kitchenStep(b: Bot, v: View) {
     tipsAnswered.add(`${b.name}:${v.served}`);
     await nap(pg, 1800 + Math.random() * 2500);
     const r = Math.random();
-    const text = r < b.skill - 0.15 ? d.tip : r < b.skill + 0.1 ? d.tip.replace(/^(o|a) /, "") : "o queijo";
+    const text = r < b.skill ? d.tip : r < b.skill + 0.1 ? d.tip.replace(/^(o|a) /, "") : "o queijo";
     await pg.fill(".tip-card input", text).catch(() => {});
     await shoot("kitchen-tip", b);
     return click(pg, ".tip-card .btn", "OK");

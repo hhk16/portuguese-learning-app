@@ -388,7 +388,7 @@ export class Cozinha implements Activity {
     const tip = this.tip;
     if (!tip || tip.result) return;
     const w = dishWord(tip.dish);
-    const ok = !!text && ["correct", "accent-slip", "close"].includes(matchAnswer(text.toLowerCase(), [w.pt, DISHES[tip.dish]!.sing]));
+    const ok = !!text && ["correct", "accent-slip", "close"].includes(matchAnswer(text.toLowerCase(), [w.pt]));
     tip.result = { ok, wrote: text.slice(0, 24) };
     const p = this.rt.players.get(tip.playerId);
     if (p && text) this.rt.evidence(p, `vocab.noun.${tip.dish}`, "kitchen.say", ok ? "correct" : "wrong", 2);
@@ -422,11 +422,19 @@ export class Cozinha implements Activity {
     // A perfect shift (nobody left) earns a bonus: it should never feel like a 1★ day.
     const perfect = !closedEarly && this.missed === 0 && this.served >= 4;
     if (perfect) this.score += Math.round(TARGETS[this.level] * 0.25);
+    // Below the first star the shift wasn't a win: no trophy for it.
+    const starred = perfect || this.score >= TARGETS[this.level] * 0.35;
     this.rt.bigMoment(
-      closedEarly ? { pt: "🚪 A cozinha fechou!", en: "Too many customers left" } : perfect ? { pt: "⭐ Turno perfeito!", en: "Nobody left hungry — perfect shift bonus!" } : { pt: "🔔 Fim do turno!", en: `${this.served} orders served` },
-      closedEarly ? "lost" : "won",
+      closedEarly
+        ? { pt: "🚪 A cozinha fechou!", en: "Too many customers left" }
+        : perfect
+          ? { pt: "⭐ Turno perfeito!", en: "Nobody left hungry — perfect shift bonus!" }
+          : starred
+            ? { pt: "🔔 Fim do turno!", en: `${this.served} orders served` }
+            : { pt: "🔔 Fim do turno…", en: `${this.served} orders — not enough for a star yet` },
+      closedEarly || !starred ? "lost" : "won",
     );
-    this.rt.petStar(closedEarly ? "oops" : "cheer", 2600);
+    this.rt.petStar(closedEarly || !starred ? "oops" : "cheer", 2600);
     this.rt.bump();
     setTimeout(() => this.rt.activity === this && this.report(closedEarly, perfect), 2700);
   }
