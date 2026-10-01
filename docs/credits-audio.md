@@ -4,9 +4,9 @@ Pre-rendered European Portuguese (pt-PT) speech in `public/audio/`, built by
 `scripts/audio/render.py` (see `scripts/audio/README.md`). This file is generated; re-run the
 script instead of editing it by hand.
 
-- **37** clips are native recordings from Lingua Libre (Wikimedia Commons).
+- **48** clips are native recordings from Lingua Libre (Wikimedia Commons).
 - **0** clips are synthesised with Google Gemini TTS (`gemini-3.8-flash-tts`, voice -, language pt-PT).
-- **677** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
+- **673** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
 
 ## Gemini TTS
 
@@ -72,6 +72,17 @@ Wikimedia Commons. Licence per file as stated on its Commons page.
 | oito | [LL-Q5146 (por)-Santamarcanda-oito.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-oito.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Olá! | [LL-Q5146 (por)-Santamarcanda-olá.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-ol%C3%A1.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Perfeito! | [LL-Q5146 (por)-Santamarcanda-perfeito.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-perfeito.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| Perto! | [LL-Q5146 (por)-Santamarcanda-perto.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-perto.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| piloto | [LL-Q5146 (por)-Santamarcanda-piloto.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-piloto.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| professor | [LL-Q5146 (por)-Santamarcanda-professor.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-professor.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Quase! | [LL-Q5146 (por)-Santamarcanda-quase.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quase.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| quatro | [LL-Q5146 (por)-Santamarcanda-quatro.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quatro.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| quente | [LL-Q5146 (por)-Santamarcanda-quente.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quente.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| seis | [LL-Q5146 (por)-Santamarcanda-seis.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-seis.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| sete | [LL-Q5146 (por)-Santamarcanda-sete.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-sete.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Tempo! | [LL-Q5146 (por)-Santamarcanda-tempo.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-tempo.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| triste | [LL-Q5146 (por)-Santamarcanda-triste.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-triste.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | Troca! | [LL-Q5146 (por)-Santamarcanda-troca.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-troca.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| três | [LL-Q5146 (por)-Santamarcanda-três.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-tr%C3%AAs.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| um | [LL-Q5146 (por)-Santamarcanda-um.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-um.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| vinte | [LL-Q5146 (por)-Santamarcanda-vinte.wav](https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-vinte.wav) | Santamarcanda | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |

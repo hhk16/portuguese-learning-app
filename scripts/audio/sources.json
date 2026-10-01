@@ -635,6 +635,22 @@
   "text": "Agora adivinha!",
   "voice": "pt_PT-tugão-medium"
  },
+ "agora, frases!": {
+  "file": "afe779d3ee.mp3",
+  "lengthScale": 1.12,
+  "say": "Agora, frases!",
+  "source": "piper",
+  "text": "Agora, frases!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "agora, ouçam!": {
+  "file": "edf130becb.mp3",
+  "lengthScale": 1.12,
+  "say": "Agora, ouçam!",
+  "source": "piper",
+  "text": "Agora, ouçam!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "ai, a bomba!": {
   "file": "cd3110105a.mp3",
   "lengthScale": 1.12,
@@ -1369,6 +1385,14 @@
   "text": "Duas águas, um gelado e um café, se faz favor.",
   "voice": "pt_PT-tugão-medium"
  },
+ "e a estrela da noite é…": {
+  "file": "a05e765eb5.mp3",
+  "lengthScale": 1.12,
+  "say": "E a estrela da noite é, .",
+  "source": "piper",
+  "text": "E a estrela da noite é…",
+  "voice": "pt_PT-tugão-medium"
+ },
  "economista": {
   "file": "9076be2d5e.mp3",
   "lengthScale": 1.12,
@@ -1665,6 +1689,14 @@
   "text": "Em sintonia!",
   "voice": "pt_PT-tugão-medium"
  },
+ "empate! dois campeões!": {
+  "file": "5f36eda81e.mp3",
+  "lengthScale": 1.12,
+  "say": "Empate! Dois campeões!",
+  "source": "piper",
+  "text": "Empate! Dois campeões!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "empate! mais uma letra!": {
   "file": "aa49b5168e.mp3",
   "lengthScale": 1.12,
@@ -1828,6 +1860,14 @@
   "text": "estudante",
   "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+ },
+ "estão em ondas diferentes…": {
+  "file": "1dc7303f22.mp3",
+  "lengthScale": 1.12,
+  "say": "Estão em ondas diferentes, .",
+  "source": "piper",
+  "text": "Estão em ondas diferentes…",
+  "voice": "pt_PT-tugão-medium"
  },
  "eu chamo-me": {
   "file": "33b5d79385.mp3",
@@ -4107,6 +4147,17 @@
   "title": "File:LL-Q5146 (por)-Santamarcanda-perfeito.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-perfeito.wav"
  },
+ "perto!": {
+  "downloaded": "transcode.ogg",
+  "file": "4b3b4d9c20.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
+  "text": "Perto!",
+  "title": "File:LL-Q5146 (por)-Santamarcanda-perto.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-perto.wav"
+ },
  "pesado, pesada": {
   "file": "383f699864.mp3",
   "lengthScale": 1.12,
@@ -4124,12 +4175,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "piloto": {
-  "file": "a952bee23b.mp3",
-  "lengthScale": 1.12,
-  "say": "piloto.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "fb3e4ea32a.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "piloto",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-piloto.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-piloto.wav"
  },
  "pode repetir, por favor?": {
   "file": "2b5b4e4014.mp3",
@@ -4180,12 +4234,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "professor": {
-  "file": "27304fea9e.mp3",
-  "lengthScale": 1.12,
-  "say": "professor.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "bae947bfb0.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "professor",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-professor.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-professor.wav"
  },
  "professor, professora": {
   "file": "b4418836ba.mp3",
@@ -4222,12 +4279,15 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quase.wav"
  },
  "quatro": {
-  "file": "dca1419a54.mp3",
-  "lengthScale": 1.12,
-  "say": "quatro.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "0b0a1c6be4.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "quatro",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-quatro.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quatro.wav"
  },
  "que pena!": {
   "file": "9fc00dd94b.mp3",
@@ -4246,12 +4306,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "quente": {
-  "file": "3fc301dee8.mp3",
-  "lengthScale": 1.12,
-  "say": "quente.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "d32a8118e3.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "quente",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-quente.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quente.wav"
  },
  "queria dois bolos, um gelado e um chocolate, por favor.": {
   "file": "69025cbd88.mp3",
@@ -4886,20 +4949,26 @@
   "voice": "pt_PT-tugão-medium"
  },
  "seis": {
-  "file": "a2726bbebf.mp3",
-  "lengthScale": 1.12,
-  "say": "seis.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "37104396c0.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "seis",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-seis.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-seis.wav"
  },
  "sete": {
-  "file": "e9d630f532.mp3",
-  "lengthScale": 1.12,
-  "say": "sete.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "e9e58f8fd5.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "sete",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-sete.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-sete.wav"
  },
  "sou da alemanha.": {
   "file": "24a405cb23.mp3",
@@ -5136,12 +5205,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "triste": {
-  "file": "f0f5dead4d.mp3",
-  "lengthScale": 1.12,
-  "say": "triste.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "4cce96afac.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "triste",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-triste.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-triste.wav"
  },
  "troca!": {
   "file": "5876c754f2.mp3",
@@ -5154,12 +5226,15 @@
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-troca.wav"
  },
  "três": {
-  "file": "c78915c9f8.mp3",
-  "lengthScale": 1.12,
-  "say": "três.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "f66d7c7e96.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "três",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-três.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-tr%C3%AAs.wav"
  },
  "três morangos, dois cafés e três águas, se faz favor.": {
   "file": "835c771ccc.mp3",
@@ -5282,12 +5357,15 @@
   "voice": "pt_PT-tugão-medium"
  },
  "um": {
-  "file": "eb1bbae6ec.mp3",
-  "lengthScale": 1.12,
-  "say": "um.",
-  "source": "piper",
+  "downloaded": "transcode.ogg",
+  "file": "4eb682cc2c.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
   "text": "um",
-  "voice": "pt_PT-tugão-medium"
+  "title": "File:LL-Q5146 (por)-Santamarcanda-um.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-um.wav"
  },
  "um bolo e um café, se faz favor.": {
   "file": "067d44e4c3.mp3",
@@ -5737,13 +5815,24 @@
   "text": "velho, velha",
   "voice": "pt_PT-tugão-medium"
  },
- "vinte": {
-  "file": "10ee162901.mp3",
+ "vingança na próxima?": {
+  "file": "6eade5b6b6.mp3",
   "lengthScale": 1.12,
-  "say": "vinte.",
+  "say": "Vingança na próxima?",
   "source": "piper",
-  "text": "vinte",
+  "text": "Vingança na próxima?",
   "voice": "pt_PT-tugão-medium"
+ },
+ "vinte": {
+  "downloaded": "transcode.ogg",
+  "file": "acde03520b.mp3",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source": "lingua-libre",
+  "speaker": "Santamarcanda",
+  "text": "vinte",
+  "title": "File:LL-Q5146 (por)-Santamarcanda-vinte.wav",
+  "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-vinte.wav"
  },
  "vão conseguir da próxima vez!": {
   "file": "cd96ff4649.mp3",
