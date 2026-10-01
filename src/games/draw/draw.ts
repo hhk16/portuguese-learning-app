@@ -318,7 +318,6 @@ export class Desenha implements Activity {
     this.phaseEnd = now + VOTE_MS;
     this.promptId = randomId(6);
     this.rt.say(SAY.bestDrawing);
-    this.rt.cue(CUE.pickBest);
     this.rt.refreshViews();
     this.rt.bump();
   }
