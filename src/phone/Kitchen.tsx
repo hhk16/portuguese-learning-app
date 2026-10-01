@@ -58,7 +58,7 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
         )}
       </div>
       {v.tip && <TipCard key={v.tip.bonus + ":" + v.served} tip={v.tip} onSend={(text) => act({ a: "tip", text })} />}
-      {v.swapped && (
+      {v.swapped && !v.tip && (
         <div className="p-warn">
           Troca! 🔄 Tens comida nova. · Swap! You have new food.
         </div>
@@ -111,7 +111,7 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
       <div className="p-grow" />
       {/* Always on screen, even in rush hour: the actions are pinned to the bottom. */}
       <div className="kitchen-actions">
-        {v.replay && v.replay.length > 0 && (
+        {v.replay && v.replay.length > 0 && !v.tip && (
           <div className="replay-row">
             <span className="kicker">
               🔊 Ouvir outra vez · Hear again (−3 s)
