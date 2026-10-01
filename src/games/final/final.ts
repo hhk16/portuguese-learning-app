@@ -20,6 +20,10 @@ import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { guessMatches } from "../draw/draw.ts";
 import { DISHES, MENUS, orderBook } from "../kitchen/menu.ts";
+import { CATEGORIES, examples, inReference, lookup, startsWith } from "../stop/dictionary.ts";
+import { judgeForm, PERSON_LABEL, VERB_PICS, verbTable, type Person } from "../verbs/verbs.ts";
+import { spectra } from "../wave/scale.ts";
+import { matchAnswer } from "../../shared/answer-check.ts";
 
 export const QUESTIONS = 10;
 const REVEAL_MS = 2600;
@@ -36,12 +40,44 @@ export interface FinalWord {
   pic?: string;
 }
 
+export type FinalKind = "see" | "hear" | "frase" | "stop" | "verbs" | "opposite";
+
 interface Question {
-  kind: "see" | "hear" | "frase";
+  kind: FinalKind;
   word: LearnCard;
   options: LearnCard[];
   /** "frase": hear a café order, tap what was ordered ("2 × ☕"). */
   frase?: { text: string; answer: string; options: { id: string; n: number; pic: string }[] };
+  /** Remix: which of tonight's games this question comes from. */
+  remix?: string;
+  /** "stop": a letter and a category — write any word that fits. */
+  stop?: { letter: string; cat: string; label: string; pic: string; example: string };
+  /** "verbs": a person and an action — write the verb. */
+  verb?: { person: Person; verb: string; form: string; itemId: string };
+  /** "opposite": write the opposite. */
+  opp?: { from: string; fromEn: string; pic?: string; to: string; itemId: string };
+}
+
+/** The remix: each of tonight's games gives the Final its own kind of question (most of them written). */
+export const REMIX: Record<string, { kind: FinalKind; name: string }> = {
+  stop: { kind: "stop", name: "Stop!" },
+  verbs: { kind: "verbs", name: "Quem faz o quê?" },
+  wave: { kind: "opposite", name: "Na Mesma Onda" },
+  bomb: { kind: "opposite", name: "Batata Quente" },
+  kitchen: { kind: "frase", name: "Cozinha Caótica" },
+  secret: { kind: "see", name: "Pares Secretos" },
+  sync: { kind: "see", name: "Em Sintonia" },
+  draw: { kind: "see", name: "Desenha!" },
+};
+
+/** The Final's plan for a night: three questions from each game played (in order), then a double "see". */
+export function remixPlan(games: readonly string[]): { kind: FinalKind; remix?: string }[] {
+  const out: { kind: FinalKind; remix?: string }[] = [];
+  for (const g of games.slice(0, 3)) for (let i = 0; i < 3; i++) out.push(REMIX[g] ? { kind: REMIX[g]!.kind, remix: REMIX[g]!.name } : { kind: kindAt(out.length) });
+  while (out.length < QUESTIONS - 1) out.push({ kind: kindAt(out.length) });
+  out.length = QUESTIONS - 1;
+  out.push({ kind: "see" });
+  return out;
 }
 
 /** The shape of the final: see → hear → whole sentences → one last "see" worth double. */
@@ -110,10 +146,33 @@ export class GrandeFinal implements Activity {
     const pool = [...new Map([...rt.rng.shuffle(tonight), ...rt.rng.shuffle(nouns)].map((c) => [c.itemId, c])).values()];
     const picked = pool.slice(0, QUESTIONS);
     this.spare = nouns;
+    // Tonight's games decide the questions (a plain night shape when the Final is played on its own).
+    const plan: { kind: FinalKind; remix?: string }[] = rt.night?.games?.length ? remixPlan(rt.night.games) : picked.map((_, i) => ({ kind: kindAt(i) }));
+    const verbs = verbTable();
+    const opps = rt.rng.shuffle(spectra());
+    const cats = rt.rng.shuffle(CATEGORIES.filter((c) => c.id !== "coisa"));
     // Sentences: single-dish café orders ("Queria dois cafés, por favor.").
     const orders = rt.rng.shuffle(MENUS.flatMap((m) => orderBook(m)).filter((o) => Object.keys(o.items).length === 1));
     this.questions = picked.map((word, i) => {
-      const kind = kindAt(i);
+      const { kind, remix } = plan[i] ?? { kind: kindAt(i) };
+      if (kind === "stop") {
+        const cat = cats[i % cats.length]!;
+        const letters = "ABCDEFGILMPRST".split("").filter((l) => examples(cat.id, l).length >= 2);
+        const letter = rt.rng.pick(letters.length ? letters : ["C"]);
+        const ex = examples(cat.id, letter)[0];
+        return { kind, remix, word, options: [], stop: { letter, cat: cat.id, label: cat.label, pic: cat.pic, example: ex?.pt ?? "" } };
+      }
+      if (kind === "verbs") {
+        const v = rt.rng.pick([...verbs.keys()].filter((x) => !VERB_PICS[x]!.hard));
+        const person = rt.rng.pick<Person>(["eu", "tu", "ele", "nos", "eles"]);
+        const it = verbs.get(v)!.get(person)!;
+        return { kind, remix, word, options: [], verb: { person, verb: v, form: it.form, itemId: it.id } };
+      }
+      if (kind === "opposite") {
+        const s = opps[i % opps.length]!;
+        const [from, to] = rt.rng.int(2) ? [s.left, s.right] : [s.right, s.left];
+        return { kind, remix, word, options: [], opp: { from: from.m, fromEn: from.en, pic: from.emoji, to: to.m, itemId: to.id } };
+      }
       if (kind === "frase") {
         const o = orders[i]!;
         const [id, n] = Object.entries(o.items)[0]!;
@@ -127,13 +186,13 @@ export class GrandeFinal implements Activity {
           { id: `${m}×${other.id}`, n: m, pic: other.pic },
         ]);
         const dishCard = nouns.find((c) => c.itemId === `vocab.noun.${id}`) ?? word;
-        return { kind, word: dishCard, options: [], frase: { text: o.text, answer: `${n}×${id}`, options: opts } };
+        return { kind, remix, word: dishCard, options: [], frase: { text: o.text, answer: `${n}×${id}`, options: opts } };
       }
       const others = rt.rng.sample(
         nouns.filter((c) => c.itemId !== word.itemId && c.pt !== word.pt),
         this.rules.options - 1,
       );
-      return { kind, word, options: rt.rng.shuffle([word, ...others]) };
+      return { kind, remix, word, options: rt.rng.shuffle([word, ...others]) };
     });
     for (const p of this.players) this.points.set(p.playerId, 0);
     this.ask();
@@ -159,9 +218,15 @@ export class GrandeFinal implements Activity {
     const sayIt = q.frase?.text ?? q.word.say;
     if (q.kind !== "see") setTimeout(() => this.rt.activity === this && this.q === q && this.rt.speakPt(sayIt), this.last ? 1800 : 400);
     // Pipo announces each new stage of the final.
-    if (this.index === 4) this.rt.say(SAY.listenNow);
-    if (this.index === 7) this.rt.say(SAY.sentencesNow);
-    this.rt.cue(q.kind === "frase" ? { pt: "Ouve o pedido!", en: "Listen to the order!" } : q.kind === "hear" ? { pt: "Ouve e toca!", en: "Listen and tap!" } : this.rules.typeSee ? CUE.fill : { pt: "Escolhe!", en: "Pick!" });
+    const prev = this.questions[this.index - 1];
+    if (q.kind === "hear" && prev?.kind !== "hear") this.rt.say(SAY.listenNow);
+    if (q.kind === "frase" && prev?.kind !== "frase") this.rt.say(SAY.sentencesNow);
+    // A new game in the remix gets its own banner.
+    if (q.remix && q.remix !== prev?.remix) this.rt.cue({ pt: `🔁 Remix: ${q.remix}`, en: "A round from tonight's game" });
+    else
+      this.rt.cue(
+        q.kind === "frase" ? { pt: "Ouve o pedido!", en: "Listen to the order!" } : q.kind === "hear" ? { pt: "Ouve e toca!", en: "Listen and tap!" } : q.kind !== "see" || this.rules.typeSee ? CUE.fill : { pt: "Escolhe!", en: "Pick!" },
+      );
     this.rt.refreshViews();
     this.rt.bump();
   }
@@ -203,10 +268,10 @@ export class GrandeFinal implements Activity {
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue, at?: number) {
     if (value.mode !== "final" || this.phase !== "ask" || promptId !== this.promptId || this.answers.has(p.playerId)) return;
     const q = this.q!;
-    const ok = q.frase ? value.answer === q.frase.answer : guessMatches(value.answer, q.word.pt) !== "no";
+    const ok = answerOk(q, value.answer);
     this.answers.set(p.playerId, { ok, at: at ?? gameNow(), text: value.answer });
     play(ok ? "lock" : "buzzer", ok ? 1 : 0.5);
-    this.rt.evidence(p, q.word.itemId, `final.${q.kind}`, ok ? "correct" : "wrong");
+    this.rt.evidence(p, q.verb?.itemId ?? q.opp?.itemId ?? q.word.itemId, `final.${q.kind}`, ok ? "correct" : "wrong", q.kind === "see" || q.kind === "hear" || q.kind === "frase" ? undefined : 2);
     if (ok && !this.firstRight) this.firstRight = p.playerId;
     if (this.players.every((x) => this.answers.has(x.playerId))) return this.reveal();
     this.rt.refreshViews();
@@ -278,13 +343,14 @@ export class GrandeFinal implements Activity {
       const a = this.answers.get(p.playerId);
       return {
         mode: "wait",
-        title: a?.ok ? (this.firstRight === p.playerId ? "Primeiro! +3" : "Certo! +1") : q.frase ? "Não era isso!" : `Era: ${q.word.pt}`,
-        subtitle: q.frase ? `“${q.frase.text}”` : a?.ok ? `${q.word.pt} · ${q.word.en}` : `It was: ${q.word.en}`,
-        pic: q.word.emoji,
+        title: a?.ok ? (this.firstRight === p.playerId ? "Primeiro! +3" : "Certo! +1") : q.frase ? "Não era isso!" : `Era: ${answerText(q)}`,
+        subtitle: q.frase ? `“${q.frase.text}”` : q.stop || q.verb || q.opp ? `${a?.ok ? "✓" : "✗"} ${a?.text ?? "—"}` : a?.ok ? `${q.word.pt} · ${q.word.en}` : `It was: ${q.word.en}`,
+        pic: q.verb ? VERB_PICS[q.verb.verb]!.pic : q.stop ? q.stop.pic : q.opp?.pic ?? q.word.emoji,
       };
     }
     const toWord = (c: LearnCard): Word => ({ pt: c.pt, en: undefined, pic: c.emoji });
-    const typing = q.kind === "see" && this.rules.typeSee;
+    const written = !!(q.stop || q.verb || q.opp);
+    const typing = written || (q.kind === "see" && this.rules.typeSee);
     return {
       mode: "final",
       roundId: this.roundId,
@@ -294,12 +360,41 @@ export class GrandeFinal implements Activity {
       total: Math.max(QUESTIONS, this.questions.length),
       double: this.last || undefined,
       msLeft: this.msLeft,
-      prompt: q.kind === "see" ? { pt: "", en: q.word.en, pic: q.word.emoji } : undefined,
+      label: q.remix ? `🔁 ${q.remix} · ${Math.min(this.index + 1, QUESTIONS)}/${QUESTIONS}` : undefined,
+      prompt: q.stop
+        ? { pt: `${q.stop.letter} · ${q.stop.label}`, en: `a word starting with ${q.stop.letter}`, pic: q.stop.pic }
+        : q.verb
+          ? { pt: PERSON_LABEL[q.verb.person].pt, en: VERB_PICS[q.verb.verb]!.en, pic: VERB_PICS[q.verb.verb]!.pic }
+          : q.opp
+            ? { pt: q.opp.from, en: `the opposite of “${q.opp.fromEn}”`, pic: q.opp.pic }
+            : q.kind === "see"
+              ? { pt: "", en: q.word.en, pic: q.word.emoji }
+              : undefined,
       // See: Portuguese words to pick (no pictures); hear: pictures to tap (no words); frase: "2 × ☕".
       options: q.frase ? q.frase.options.map((o) => ({ pt: o.id, en: String(o.n), pic: o.pic })) : typing ? undefined : q.options.map((c) => (q.kind === "see" ? { pt: c.pt } : { ...toWord(c), pt: c.pt })),
       pictures: q.kind !== "see" || undefined,
       answered: this.answers.has(p.playerId),
-      debugAnswer: this.rt.testMode ? { answer: q.frase?.answer ?? q.word.pt } : undefined,
+      debugAnswer: this.rt.testMode ? { answer: q.frase?.answer ?? (q.stop ? q.stop.example : q.verb ? q.verb.form : q.opp ? q.opp.to : q.word.pt) } : undefined,
     };
   }
+}
+
+/** Is this answer right for the question? (Written answers are accent- and article-tolerant.) */
+export function answerOk(q: Question, answer: string): boolean {
+  if (q.frase) return answer === q.frase.answer;
+  if (q.stop) {
+    const w = answer.trim();
+    return startsWith(w, q.stop.letter) && (!!lookup(q.stop.cat, w) || inReference(q.stop.cat, w));
+  }
+  if (q.verb) return judgeForm(answer, q.verb.form).ok;
+  if (q.opp) return ["correct", "accent-slip", "close"].includes(matchAnswer(answer.toLowerCase(), [q.opp.to]));
+  return guessMatches(answer, q.word.pt) !== "no";
+}
+
+/** The right answer, for the reveal and the phones. */
+export function answerText(q: Question): string {
+  if (q.stop) return `${q.stop.example} (…)`;
+  if (q.verb) return `${PERSON_LABEL[q.verb.person].pt.split(" / ")[0]} ${q.verb.form}`;
+  if (q.opp) return q.opp.to;
+  return q.frase?.text ?? q.word.pt;
 }

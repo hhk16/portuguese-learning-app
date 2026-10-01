@@ -12,6 +12,8 @@ export function Secret({ v, send }: { v: V; send: Send }) {
   const [word, setWord] = useState<string | null>(null);
   const [showBoard, setShowBoard] = useState(false);
   const left = useCountdown(v.msLeft ?? 0);
+  const [typed, setTyped] = useState("");
+  const listLeft = useCountdown(v.listInMs ?? 0);
   const act = (a: Extract<Parameters<Send>[0], { mode: "secret" }>["action"]) => {
     navigator.vibrate?.(12);
     send({ mode: "secret", action: a });
@@ -64,14 +66,35 @@ export function Secret({ v, send }: { v: V; send: Send }) {
           {showBoard ? "Esconder o tabuleiro · Hide board" : "Ver o meu tabuleiro · Show my board"}
         </button>
         {showBoard && board}
-        <div className="kicker">1. Pista · Clue word</div>
-        <div className="clue-words">
+        {v.typeClue && (
+          <>
+            <div className="kicker">1. Escreve a pista · Write your clue (an adjective or a category: frio, fruta, praia…)</div>
+            <input
+              className="clue-input"
+              value={typed}
+              onChange={(e) => {
+                setTyped(e.target.value);
+                setWord(null);
+              }}
+              placeholder="frio, fruta, grande…"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              maxLength={30}
+            />
+            {v.clueError && <div className="p-warn">“{v.clueError}”? Pipo não conhece essa pista — tenta outra. · Not a clue we know — try another.</div>}
+            {listLeft > 0 ? <div className="p-sub">🆘 A lista abre em {Math.ceil(listLeft / 1000)} s · The clue list opens as a lifeline</div> : <div className="kicker">🆘 Ou escolhe da lista · Or pick from the list</div>}
+          </>
+        )}
+        {!v.typeClue && <div className="kicker">1. Pista · Clue word</div>}
+        <div className="clue-words" style={v.typeClue && listLeft > 0 ? { display: "none" } : undefined}>
           {words.map((w) => (
             <button
               key={w.pt}
               className={`bank-word card ${word === w.pt ? "sel" : ""}`}
               onClick={() => {
                 setWord(w.pt);
+                setTyped("");
                 play("tap");
               }}
             >
@@ -84,7 +107,7 @@ export function Secret({ v, send }: { v: V; send: Send }) {
         <div className="kicker">2. Quantas imagens? · How many pictures?</div>
         <div className="row3">
           {[1, 2, 3].map((n) => (
-            <button key={n} className="btn player" disabled={!word || n > Math.max(1, mine)} onClick={() => word && act({ a: "clue", count: n, word })}>
+            <button key={n} className="btn player" disabled={(!word && !typed.trim()) || n > Math.max(1, mine)} onClick={() => (word ? act({ a: "clue", count: n, word }) : typed.trim() && act({ a: "clue", count: n, word: typed.trim(), typed: true }))}>
               {n}
             </button>
           ))}

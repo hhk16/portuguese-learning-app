@@ -10,7 +10,7 @@ export interface Line {
 /** Pipo's pose while saying a line. */
 export type Mood = "talk" | "cheer" | "oops";
 
-export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "bomb" | "kitchen" | "final";
+export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "bomb" | "kitchen" | "verbs" | "final";
 
 /** Rules, spoken one by one in the lobby. */
 export const RULES: Record<Mode, Line[]> = {
@@ -54,6 +54,11 @@ export const RULES: Record<Mode, Line[]> = {
     { pt: "A Grande Final! Um contra o outro.", en: "The Grand Final! Head to head." },
     { pt: "Vês uma imagem ou ouves uma palavra.", en: "You see a picture or hear a word." },
     { pt: "Responde primeiro no telemóvel e ganha a coroa!", en: "Answer first on your phone and win the crown!" },
+  ],
+  verbs: [
+    { pt: "Um de vocês vê uma pessoa e uma ação, e escreve o verbo.", en: "One of you sees a person and an action, and writes the verb." },
+    { pt: "O outro só vê a palavra escrita: quem é, e o que faz?", en: "The other only sees the written word: who is it, and what are they doing?" },
+    { pt: "A terminação diz quem é! Três corações, cuidado.", en: "The ending tells you who! Three hearts — careful." },
   ],
   kitchen: [
     { pt: "Os clientes pedem em português. Ouçam bem!", en: "Customers order in Portuguese. Listen carefully!" },

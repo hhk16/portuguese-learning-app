@@ -123,6 +123,11 @@ export const ControllerView = z.discriminatedUnion("mode", [
     clue: z.object({ count: z.number().int().min(1).max(9), word: Word.optional() }).optional(),
     /** Clue words the giver can choose from (never a word on the board). */
     clueWords: z.array(Word).max(40).optional(),
+    /** Médio+: write the clue; the list opens after `listInMs` as a lifeline. */
+    typeClue: z.boolean().optional(),
+    listInMs: z.number().nonnegative().optional(),
+    /** A written clue we don't know. */
+    clueError: z.string().max(40).optional(),
     guessesLeft: z.number().int().nonnegative().optional(),
     turnsUsed: z.number().int().nonnegative(),
     turns: z.number().int().positive(),
@@ -141,7 +146,7 @@ export const ControllerView = z.discriminatedUnion("mode", [
     ...round,
     /** Header label (default "Grande Final"); the lesson's lightning round reuses this view. */
     label: shortText.optional(),
-    kind: z.enum(["see", "hear", "frase"]),
+    kind: z.enum(["see", "hear", "frase", "stop", "verbs", "opposite"]),
     index: z.number().int().nonnegative(),
     total: z.number().int().positive(),
     double: z.boolean().optional(),
@@ -166,6 +171,10 @@ export const ControllerView = z.discriminatedUnion("mode", [
     value: z.number().min(0).max(100),
     /** Clue options for the psychic: intensifiers ("muito frio") and things, with pictures. */
     clues: z.array(Word).max(16).optional(),
+    /** Médio+: write a thing as the clue; the chips open after `listInMs` as a lifeline. */
+    typeClue: z.boolean().optional(),
+    listInMs: z.number().nonnegative().optional(),
+    clueError: z.string().max(40).optional(),
     /** The clue given (the TV says it). */
     clue: Word.optional(),
     phase: z.enum(["clue", "guess", "reveal"]),
@@ -322,6 +331,29 @@ export const ControllerView = z.discriminatedUnion("mode", [
     /** "📞 Pedido por telefone": write the order for these pictures as a sentence (your partner cooks from it). */
     call: z.object({ items: z.array(z.object({ pic: emojiField, n: z.number().int().min(1).max(3) })).max(4), msLeft: z.number().nonnegative() }).optional(),
   }),
+  /** Quem faz o quê?: one writes the verb for a person + action, the other reads who and what. */
+  z.object({
+    mode: z.literal("verbs"),
+    ...round,
+    role: z.enum(["write", "read", "wait"]),
+    round: z.number().int().nonnegative(),
+    rounds: z.number().int().positive(),
+    hearts: z.number().int().min(0).max(5),
+    msLeft: z.number().nonnegative().optional(),
+    practice: z.boolean().optional(),
+    final: z.boolean().optional(),
+    /** Writer: who does it and the action (with a hint on Fácil/Médio). */
+    person: z.object({ pt: shortText, pic: emojiField }).optional(),
+    action: z.object({ pic: emojiField, hint: shortText.optional() }).optional(),
+    /** Reader: the written verb, the five persons and the action pictures. */
+    written: z.string().max(40).optional(),
+    persons: z.array(z.object({ id, pt: shortText, pic: emojiField })).max(5).optional(),
+    actions: z.array(z.object({ id: shortText, pic: emojiField, label: shortText.optional() })).max(6).optional(),
+    /** Fácil: the endings cheat sheet. */
+    endings: z.boolean().optional(),
+    /** Waiting: who's on. */
+    other: shortText.optional(),
+  }),
 ]);
 export type ControllerView = z.infer<typeof ControllerView>;
 export type ControllerMode = ControllerView["mode"];
@@ -334,6 +366,7 @@ export const InputValue = z.discriminatedUnion("mode", [
   /** Skip the practice round. */
   z.object({ mode: z.literal("skip") }),
   z.object({ mode: z.literal("final"), answer: z.string().trim().min(1).max(40) }),
+  z.object({ mode: z.literal("verbs"), write: z.string().trim().min(1).max(30).optional(), pick: z.object({ person: id, verb: z.string().max(30) }).optional() }),
   z.object({
     mode: z.literal("learn"),
     answer: z.discriminatedUnion("t", [
@@ -349,7 +382,7 @@ export const InputValue = z.discriminatedUnion("mode", [
   z.object({
     mode: z.literal("secret"),
     action: z.discriminatedUnion("a", [
-      z.object({ a: z.literal("clue"), count: z.number().int().min(1).max(9), word: shortText.optional() }),
+      z.object({ a: z.literal("clue"), count: z.number().int().min(1).max(9), word: shortText.optional(), typed: z.boolean().optional() }),
       z.object({ a: z.literal("tap"), cardId: id }),
       z.object({ a: z.literal("stop") }),
       /** The clue-giver bets how many cards the partner will find this turn. */
@@ -360,7 +393,7 @@ export const InputValue = z.discriminatedUnion("mode", [
     mode: z.literal("dial"),
     action: z.discriminatedUnion("a", [
       z.object({ a: z.literal("move"), value: z.number().min(0).max(100) }),
-      z.object({ a: z.literal("clue"), text: shortText }),
+      z.object({ a: z.literal("clue"), text: shortText, typed: z.boolean().optional() }),
       z.object({ a: z.literal("lock"), sure: z.boolean().optional() }),
       z.object({ a: z.literal("bet"), bet: z.enum(["cheio", "perto", "longe"]) }),
       z.object({ a: z.literal("next") }),

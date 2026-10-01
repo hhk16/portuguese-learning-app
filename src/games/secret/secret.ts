@@ -20,6 +20,7 @@ import type { GameOutcome } from "../../tv/activities.ts";
 import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { CATEGORY_LINKS, LINKS, linksOf, type Link } from "../sync/links.ts";
+import { normWord } from "../sync/sync.ts";
 
 /**
  * Difficulty: board size, targets per player, bombs, turns, lives, clue timer, and the clue menu:
@@ -31,6 +32,9 @@ export const LEVEL_RULES: Record<Level, { board: number; targets: number; bombs:
   2: { board: 16, targets: 4, bombs: 3, turns: 5, lives: 2, clueMs: 45_000, bombEnds: false, categories: false, useful: 4 },
   3: { board: 20, targets: 4, bombs: 3, turns: 4, lives: 1, clueMs: 35_000, bombEnds: true, categories: false, useful: 3 },
 };
+
+/** Médio+: how long the giver writes before the clue list opens as a lifeline. */
+export const LIST_AFTER_MS = 15_000;
 
 /** How many clue chips the giver chooses from. */
 const CLUE_CHIPS = 12;
@@ -92,6 +96,15 @@ export class ParesSecretos implements Activity {
   boardSeq = 0;
   /** This turn's clue chips (dealt once per turn). */
   private turnClues: Link[] = [];
+  /** Médio+: the giver WRITES the clue; the clue list only opens after a while, as a lifeline. */
+  get typedClues() {
+    return this.level >= 2 && !this.inPractice;
+  }
+  private clueStart = 0;
+  /** The last typed clue that isn't one we know (shown on the giver's phone). */
+  clueError: string | null = null;
+  /** This turn's clue was written, not picked. */
+  clueTyped = false;
   private heartbeat: ReturnType<typeof setInterval> | null = null;
 
   constructor(lessons: Lesson[], onDone: (r: GameOutcome) => void) {
@@ -211,6 +224,9 @@ export class ParesSecretos implements Activity {
   private newTurn() {
     this.phase = "clue";
     this.turnClues = this.giver ? this.dealClues(this.giver) : [];
+    this.clueStart = gameNow();
+    this.clueError = null;
+    this.clueTyped = false;
     this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.clueMs);
     this.clueCount = 0;
     this.clueWord = null;
@@ -251,8 +267,17 @@ export class ParesSecretos implements Activity {
     if (value.mode !== "secret" || this.phase === "end" || promptId !== this.promptId) return;
     const act = value.action;
     if (this.phase === "clue" && act.a === "clue" && p === this.giver) {
-      const word = act.word ? LINKS.find((l) => l.pt === act.word) : undefined;
-      if (!word) return;
+      // A written clue: any link word we know (accents and articles don't matter).
+      const word = act.word ? (LINKS.find((l) => l.pt === act.word) ?? LINKS.find((l) => normWord(l.pt) === normWord(act.word!))) : undefined;
+      if (!word) {
+        this.clueError = act.word ?? null;
+        play("buzzer", 0.4);
+        this.rt.view(p, this.viewFor(p));
+        return;
+      }
+      this.clueTyped = !!act.typed;
+      this.clueError = null;
+      if (this.clueTyped && word.itemId) this.rt.evidence(p, word.itemId, "secret.clue.typed", "correct", 2);
       this.clueWord = word;
       this.clueCount = act.count;
       this.guessesLeft = act.count + 1;
@@ -533,6 +558,9 @@ export class ParesSecretos implements Activity {
       cards,
       clue: this.phase === "guess" && this.clueWord ? { count: this.clueCount, word: toWord(this.clueWord) } : undefined,
       clueWords: role === "clue" ? this.clueWords(p).map(toWord) : undefined,
+      typeClue: (role === "clue" && this.typedClues) || undefined,
+      listInMs: role === "clue" && this.typedClues ? Math.max(0, this.clueStart + LIST_AFTER_MS - gameNow()) : undefined,
+      clueError: role === "clue" && this.clueError ? this.clueError : undefined,
       guessesLeft: this.phase === "guess" ? this.guessesLeft : undefined,
       turnsUsed: this.turnsUsed,
       turns: this.rules.turns,

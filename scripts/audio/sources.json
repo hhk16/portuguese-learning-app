@@ -1247,6 +1247,14 @@
   "text": "a televisão",
   "voice": "pt_PT-tugão-medium"
  },
+ "a terminação diz quem é! três corações, cuidado.": {
+  "file": "7b3cf62285.mp3",
+  "lengthScale": 1.12,
+  "say": "A terminação diz quem é! Três corações, cuidado.",
+  "source": "piper",
+  "text": "A terminação diz quem é! Três corações, cuidado.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a tia": {
   "file": "92504a6234.mp3",
   "lengthScale": 1.12,
@@ -9963,6 +9971,14 @@
   "text": "O outro roda o mostrador. Mais perto, mais pontos!",
   "voice": "pt_PT-tugão-medium"
  },
+ "o outro só vê a palavra escrita: quem é, e o que faz?": {
+  "file": "076fa2702a.mp3",
+  "lengthScale": 1.12,
+  "say": "O outro só vê a palavra escrita: quem é, e o que faz?",
+  "source": "piper",
+  "text": "O outro só vê a palavra escrita: quem é, e o que faz?",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o ovo": {
   "file": "085dc74bb7.mp3",
   "lengthScale": 1.12,
@@ -14459,6 +14475,14 @@
   "say": "Um croissant, dois queijos e um pão, se faz favor.",
   "source": "piper",
   "text": "Um croissant, dois queijos e um pão, se faz favor.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "um de vocês vê uma pessoa e uma ação, e escreve o verbo.": {
+  "file": "74def33c23.mp3",
+  "lengthScale": 1.12,
+  "say": "Um de vocês vê uma pessoa e uma ação, e escreve o verbo.",
+  "source": "piper",
+  "text": "Um de vocês vê uma pessoa e uma ação, e escreve o verbo.",
   "voice": "pt_PT-tugão-medium"
  },
  "um desenha a palavra secreta, sem falar.": {

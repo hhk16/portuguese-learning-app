@@ -1992,8 +1992,8 @@ html.tv-root #root {
   overflow: hidden;
 }
 .results-card .gallery-item canvas {
-  width: 4.4rem;
-  height: 4.4rem;
+  width: 6.2rem;
+  height: 6.2rem;
 }
 .result-stars {
   font-size: 3.2em;
@@ -3429,6 +3429,8 @@ html.tv-root #root {
 
 /* Batata Quente: the safe player's "Aquece!" duel, visible to the room. */
 .bomb-steal {
+  position: relative;
+  z-index: 8;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3489,4 +3491,158 @@ html.tv-root #root {
 .phone-marks b.miss {
   background: #ffe1dc;
   color: var(--coral-d);
+}
+
+/* Quem faz o quê? */
+.verbs-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.verbs-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.4rem 2.4rem;
+  min-width: 44vw;
+  animation: pop-in 0.3s ease-out both;
+}
+.verbs-card .kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.verbs-card > i {
+  font-style: normal;
+  color: var(--ink-2);
+}
+.verbs-written {
+  font-size: 4.2em;
+  color: var(--sky-p-d);
+}
+.verbs-written.pending {
+  color: var(--ink-3);
+  animation: pulse-soft 1.2s ease-in-out infinite;
+}
+.verbs-target {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-size: 1.4em;
+}
+.verbs-target i {
+  font-style: normal;
+  color: var(--ink-2);
+  font-size: 0.7em;
+}
+.verbs-marks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 1.1em;
+}
+.verbs-marks span {
+  padding: 0.15em 0.8em;
+  border-radius: 999px;
+}
+.verbs-marks .ok {
+  background: #dcf7ea;
+  color: var(--mint-d);
+}
+.verbs-marks .miss {
+  background: #ffe1dc;
+  color: var(--coral-d);
+}
+.verbs-marks i {
+  font-style: normal;
+  font-size: 0.85em;
+}
+.verbs-points {
+  font-size: 1.3em;
+  color: var(--sun-d);
+}
+.verbs-row {
+  display: flex;
+  gap: 0.5em;
+}
+.verbs-row span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.35em 0.9em;
+  border-radius: 0.8em;
+  background: #f3f1ea;
+}
+.verbs-row span small {
+  color: var(--ink-3);
+}
+.verbs-row span b {
+  font-size: 1.5em;
+}
+.verbs-row span.on {
+  background: var(--sun);
+  transform: scale(1.12);
+  box-shadow: 0 0.2em 0 var(--sun-d);
+}
+.verbs-endings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.2em;
+  padding: 0.6rem 1.4rem;
+  font-size: 0.95em;
+  max-width: 60vw;
+  justify-content: center;
+}
+.verbs-endings .kicker {
+  flex-basis: 100%;
+  text-align: center;
+}
+.verbs-endings small {
+  color: var(--ink-3);
+}
+.verbs-persons {
+  display: flex;
+  gap: 0.6em;
+}
+.verbs-person {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.3em 0.8em;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  font-weight: 700;
+}
+
+/* Grande Final: the remix of tonight's games. */
+.final-remix {
+  font-size: 1.1em;
+  padding: 0.15em 0.9em;
+  border-radius: 999px;
+  background: var(--sun);
+  box-shadow: 0 0.12em 0 var(--sun-d);
+}
+.final-stop {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 3em;
+}
+.final-stop b {
+  font-size: 1.3em;
+  color: var(--coral-d);
+}
+/* A multi-line sub (Sync's lost chain): one link per line. */
+.results-card > p.muted {
+  white-space: pre-line;
+}
+.phone-model {
+  font-style: normal;
+  font-size: 0.75em;
+  color: var(--mint-d);
 }

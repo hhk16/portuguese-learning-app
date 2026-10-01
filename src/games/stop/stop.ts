@@ -350,7 +350,9 @@ export class Stop implements Activity {
     }
     // The winner's moment on the stage, with the puppy cheering beside it.
     this.rt.bigMoment(tie ? { pt: "🏁 Empate!", en: `${a!.points}–${b!.points} — a tie!` } : { pt: `🏁 ${a!.name} ganha o Stop!`, en: `${a!.points}–${b?.points ?? 0}` }, "won", 3200, true);
-    this.rt.petStar("cheer", 2600);
+    // The puppy runs over to the winner and jumps around them (on a tie, its big moment).
+    if (!tie && winner) this.rt.petRunTo(winner, 3200);
+    else this.rt.petStar("cheer", 2600);
     this.rt.bump();
     // Records and stars count the couple's total; the headline is the rivalry.
     const total = scores.reduce((s, x) => s + x.points, 0);

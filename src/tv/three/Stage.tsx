@@ -55,7 +55,8 @@ export function setOf(a: { id: string } | null | undefined): SetId {
   if (a.id === "champion") return "final";
   const spec = (a as { spec?: { mode?: string } }).spec ?? (a as { info?: { spec?: { mode?: string } } }).info?.spec;
   const mode = a.id === "lobby" || a.id === "results" ? (spec?.mode ?? "menu") : a.id;
-  if (mode === "lesson" || mode === "learn") return "learn";
+  // Grammar lives in the classroom too.
+  if (mode === "lesson" || mode === "learn" || mode === "verbs") return "learn";
   return (SETS as readonly string[]).includes(mode) ? (mode as SetId) : "menu";
 }
 
@@ -498,8 +499,10 @@ function Scene() {
         </Suspense>
       ))}
       {(() => {
-        // The puppy sits next to its person, on the side towards the middle of the screen.
-        const owner = rt.petOwner();
+        // The puppy sits next to its person, on the side towards the middle of the screen —
+        // except when a winner is celebrated: then it runs over and jumps around them.
+        const run = rt.petRun && performance.now() < rt.petRun.until ? players.find((p) => p.playerId === rt.petRun!.to) : undefined;
+        const owner = run ?? rt.petOwner();
         const i = owner ? players.indexOf(owner) : -1;
         const spot = spots[i];
         if (!spot) return null;

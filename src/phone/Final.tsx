@@ -33,7 +33,20 @@ export function Final({ v, send }: { v: V; send: Send }) {
         </span>
         <span className={`pill ${left < 4000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>
       </div>
-      {v.kind === "frase" ? (
+      {v.kind === "stop" || v.kind === "verbs" || v.kind === "opposite" ? (
+        <div className="p-callout">
+          <b className="display">
+            {v.prompt?.pic && <Picture glyph={v.prompt.pic} size="36px" />} {v.prompt?.pt}
+          </b>
+          <span>
+            {v.kind === "stop"
+              ? `Write any word for this category starting with this letter — first valid one wins!`
+              : v.kind === "verbs"
+                ? `Write the verb for “${v.prompt?.pt}” (${v.prompt?.en}) — first right one wins!`
+                : `Write the opposite of “${v.prompt?.pt}” in Portuguese — first right one wins!`}
+          </span>
+        </div>
+      ) : v.kind === "frase" ? (
         <div className="p-callout">
           <b className="display">🔊 Ouve o pedido!</b>
           <span>Listen to the order on the TV: what did the customer ask for? Be the first!</span>

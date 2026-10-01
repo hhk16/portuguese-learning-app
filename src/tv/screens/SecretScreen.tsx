@@ -51,6 +51,7 @@ export function SecretScreen({ a }: { a: ParesSecretos }) {
           <>
             <span className="clue-big display">
               <Picture glyph={a.clueWord.pic} size="1.6em" /> {a.clueWord.pt} · {a.clueCount}
+              {a.clueTyped && <small className="typed-badge"> ✍️</small>}
             </span>
             <span className="arrow">→</span>
             {guesser && <PlayerChip p={guesser} size="2em" />}

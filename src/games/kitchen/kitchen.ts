@@ -31,7 +31,7 @@ const MAX_TICKETS = 3;
 export const TIP_EVERY = 3;
 export const TIP_MS = 11_000;
 /** "📞 Pedido por telefone": twice a shift, one of you writes an order from pictures; the other cooks from it. */
-export const CALLS = 2;
+export const CALLS: Record<Level, number> = { 1: 1, 2: 3, 3: 4 };
 export const CALL_MS = 25_000;
 /** Points per item written right (number + gender + plural), and for a polite order. */
 export const CALL_ITEM = 10;
@@ -224,8 +224,8 @@ export class Cozinha implements Activity {
 
   /** Who writes the next order on the phone (undefined: an ordinary customer). */
   private callerNow(order: Order): RuntimePlayer | undefined {
-    if (this.inPractice || this.calls >= CALLS || this.players.length < 2 || this.rush) return undefined;
-    if (this.served < (this.calls === 0 ? 2 : 6) || order.with || order.without || this.open.some((t) => t.phone)) return undefined;
+    if (this.inPractice || this.calls >= CALLS[this.level] || this.players.length < 2 || this.rush) return undefined;
+    if (this.served < 2 + this.calls * 3 || order.with || order.without || this.open.some((t) => t.phone)) return undefined;
     const p = this.players[this.callTurn++ % 2]!;
     // Not the one who's busy with a tip.
     return this.tip?.playerId === p.playerId ? this.players.find((x) => x !== p) : p;
@@ -430,7 +430,8 @@ export class Cozinha implements Activity {
     play("cash");
     this.clearTray();
     // Every third plate: "Como se diz?" — the one who served names a dish of it (typed) for a tip.
-    if (!this.tip && this.served % TIP_EVERY === 2) {
+    // (Not while a phone order is being written: one writing job at a time.)
+    if (!this.tip && this.served % TIP_EVERY === 2 && !this.open.some((x) => x.phone && x.phone.wrote === undefined)) {
       const dish = this.rt.rng.pick(Object.keys(t.order.items));
       this.tip = { playerId: by.playerId, name: by.name, dish, until: now + TIP_MS, bonus: Math.max(10, t.points) };
       play("ding", 0.6, 1.3);

@@ -1,5 +1,6 @@
 /** Grande Final on the TV: the question (picture or 🔊), who answered, and the race for the crown. */
-import { QUESTIONS, type GrandeFinal } from "../../games/final/final.ts";
+import { answerText, QUESTIONS, type GrandeFinal } from "../../games/final/final.ts";
+import { PERSON_LABEL, VERB_PICS } from "../../games/verbs/verbs.ts";
 import { PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
 import { GameTop } from "./Menus.tsx";
@@ -23,7 +24,31 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
       </GameTop>
       <div className="final-stage">
         <div className={`card final-q ${a.phase}`}>
-          {q.kind === "see" ? (
+          {q.remix && <span className="final-remix display">🔁 {q.remix}</span>}
+          {q.stop ? (
+            <>
+              <span className="kicker">Stop! Uma palavra com… · a word starting with…</span>
+              <span className="final-stop display">
+                <b>{q.stop.letter}</b> <Picture glyph={q.stop.pic} size="1.2em" /> {q.stop.label}
+              </span>
+            </>
+          ) : q.verb ? (
+            <>
+              <span className="kicker">Escreve o verbo · write the verb</span>
+              <span className="final-stop display">
+                <Picture glyph={PERSON_LABEL[q.verb.person].pic} size="1.4em" /> {PERSON_LABEL[q.verb.person].pt} + <Picture glyph={VERB_PICS[q.verb.verb]!.pic} size="1.4em" />
+              </span>
+              <i className="final-en">{VERB_PICS[q.verb.verb]!.en}</i>
+            </>
+          ) : q.opp ? (
+            <>
+              <span className="kicker">O contrário de… · the opposite of…</span>
+              <span className="final-stop display">
+                <Picture glyph={q.opp.pic} size="1.4em" /> {q.opp.from} ↔ ?
+              </span>
+              <i className="final-en">{q.opp.fromEn}</i>
+            </>
+          ) : q.kind === "see" ? (
             <>
               <span className="kicker">Vê · See — como se diz? · how do you say it?</span>
               <Picture glyph={q.word.emoji} size="7em" />
@@ -48,6 +73,11 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
                     {q.frase.answer.split("×")[0]} × <Picture glyph={q.frase.options.find((o) => o.id === q.frase!.answer)?.pic} size="1em" />
                   </b>
                   <i>“{q.frase.text}”</i>
+                </>
+              ) : q.stop || q.verb || q.opp ? (
+                <>
+                  <b className="display">{answerText(q)}</b>
+                  <i>{[...a.answers.values()].filter((x) => x.ok).map((x) => x.text).join(" · ") || "ninguém · nobody"}</i>
                 </>
               ) : (
                 <>

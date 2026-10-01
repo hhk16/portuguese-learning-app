@@ -1,6 +1,6 @@
 /** Cozinha Caótica on the TV: order tickets with patience bars, the shared tray, the clock. */
 import { dishWord, HEARTS, SHIFT_MS, TARGETS, type Cozinha } from "../../games/kitchen/kitchen.ts";
-import { DISHES } from "../../games/kitchen/menu.ts";
+import { DISHES, orderSentence } from "../../games/kitchen/menu.ts";
 import { Picture } from "../../ui/Picture.tsx";
 import { gameNow } from "../clock.ts";
 import { GameTop, MetaBar } from "./Menus.tsx";
@@ -75,6 +75,7 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
                     ))}
                     {t.phone.polite && <b className="ok">✓ educado</b>}
                   </span>
+                  {t.phone.marks?.some((m) => !m.ok) && <i className="phone-model">✓ {orderSentence(t.order.items)}</i>}
                 </div>
               ) : a.ticketShows(t).text ? (
                 <div className="ticket-text">“{t.order.text}”</div>

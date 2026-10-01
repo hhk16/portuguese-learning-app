@@ -13,6 +13,7 @@ export function Dial({ v, send }: { v: V; send: Send }) {
   const [value, setValue] = useState(v.value);
   const [sure, setSure] = useState(false);
   const left = useCountdown(v.msLeft ?? 0);
+  const listLeft = useCountdown(v.listInMs ?? 0);
   const last = useRef(0);
   const move = (x: number) => {
     setValue(x);
@@ -101,7 +102,8 @@ export function Dial({ v, send }: { v: V; send: Send }) {
             </div>
           </div>
         )}
-        {v.clues && (
+        {v.typeClue && <TypedClue v={v} send={send} />}
+        {v.clues && (!v.typeClue || listLeft <= 0) && (
           <div className="clue-words">
             {v.clues.map((w) => (
               <button
@@ -167,6 +169,33 @@ export function Dial({ v, send }: { v: V; send: Send }) {
     <div className="p-center">
       <div className="p-big">{v.partner} está a pensar…</div>
       <div className="p-sub">{v.partner} is thinking… Look at the TV.</div>
+    </div>
+  );
+}
+
+/** Médio+: write a thing for the clue (any noun you know); the chips open later as a lifeline. */
+function TypedClue({ v, send }: { v: V; send: Send }) {
+  const [text, setText] = useState("");
+  const listLeft = useCountdown(v.listInMs ?? 0);
+  return (
+    <div className="typed-clue">
+      <div className="kicker">✍️ Escreve uma coisa · Write a thing (o café, a neve, o sol…) for where the target is</div>
+      <form
+        className="sync-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!text.trim()) return;
+          play("lock");
+          send({ mode: "dial", action: { a: "clue", text: text.trim(), typed: true } });
+        }}
+      >
+        <input className="clue-input" value={text} onChange={(e) => setText(e.target.value)} placeholder="o café, a neve…" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={30} />
+        <button className="btn player" type="submit" disabled={!text.trim()}>
+          OK
+        </button>
+      </form>
+      {v.clueError && <div className="p-warn">“{v.clueError}”? Pipo não conhece essa coisa — tenta outra. · Try another thing.</div>}
+      {listLeft > 0 ? <div className="p-sub">🆘 A lista abre em {Math.ceil(listLeft / 1000)} s · The list opens as a lifeline</div> : <div className="kicker">🆘 Ou escolhe da lista · Or pick from the list</div>}
     </div>
   );
 }

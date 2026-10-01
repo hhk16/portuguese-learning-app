@@ -7,6 +7,8 @@ import { ParesSecretos } from "../games/secret/secret.ts";
 import { EmSintonia } from "../games/sync/sync.ts";
 import { NaMesmaOnda } from "../games/wave/wave.ts";
 import { Desenha } from "../games/draw/draw.ts";
+import { QuemFazOQue } from "../games/verbs/verbs.ts";
+import { VerbsScreen } from "./screens/VerbsScreen.tsx";
 import { Stop } from "../games/stop/stop.ts";
 import { Cozinha } from "../games/kitchen/kitchen.ts";
 import { BatataQuente } from "../games/bomb/bomb.ts";
@@ -82,6 +84,7 @@ export function TvApp() {
       {a instanceof NaMesmaOnda && <WaveScreen a={a} />}
       {a instanceof EmSintonia && <SyncScreen a={a} />}
       {a instanceof Desenha && <DrawScreen a={a} />}
+      {a instanceof QuemFazOQue && <VerbsScreen a={a} />}
       {a instanceof Stop && <StopScreen a={a} />}
       {a instanceof Cozinha && <KitchenScreen a={a} />}
       {a instanceof BatataQuente && <BombScreen a={a} />}

@@ -12,6 +12,7 @@ import { Learn } from "./Learn.tsx";
 import { Secret } from "./Secret.tsx";
 import { Sync } from "./Sync.tsx";
 import { Draw } from "./Draw.tsx";
+import { Verbs } from "./Verbs.tsx";
 import { StopPad } from "./Stop.tsx";
 import { Kitchen } from "./Kitchen.tsx";
 import { Final } from "./Final.tsx";
@@ -70,6 +71,8 @@ function Body({ view, conn, send }: { view: ControllerView; conn: PhoneConnectio
       return <Sync v={view} send={send} />;
     case "draw":
       return <Draw v={view} send={send} />;
+    case "verbs":
+      return <Verbs key={view.promptId} v={view} send={send} />;
     case "stop":
       return <StopPad v={view} send={send} />;
     case "kitchen":

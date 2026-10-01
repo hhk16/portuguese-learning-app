@@ -422,6 +422,8 @@ export class EmSintonia implements Activity {
         play("boom", 0.5);
         this.rt.say(this.lives <= 0 ? SAY.livesOut : SAY.lifeLost);
         this.rt.petDo("oops", 2400);
+        // The last life: straight on to the ending beat (no dead air on the stage).
+        if (this.lives <= 0) this.phaseEnd = Math.min(this.phaseEnd, gameNow() + 2200);
       }
     }
     this.rt.refreshViews();
@@ -477,7 +479,7 @@ export class EmSintonia implements Activity {
         headline: `${n} de ${ROUNDS} em sintonia · ${this.score} pontos`,
         headlineEn: `In sync on ${n} of ${ROUNDS} pairs`,
         // A loss recaps the last chain: where your words went apart.
-        sub: out ? `Acabaram-se as vidas! A última corrente: ${this.chain.slice(-3).map((c) => `${c.pair[0]} + ${c.pair[1]} → ${c.picks.join(" | ")}`).join(" · ") || "—"}` : n ? `Palavras: ${[...new Set(this.matches.map((m) => m.word))].join(", ")}` : "Continuem a tentar!",
+        sub: out ? `Acabaram-se as vidas! A última corrente:\n${this.chain.slice(-3).map((c) => `${c.pair[0]} + ${c.pair[1]} → ${c.picks.join(" | ")}`).join("\n") || "—"}` : n ? `Palavras: ${[...new Set(this.matches.map((m) => m.word))].join(", ")}` : "Continuem a tentar!",
         subEn: out ? "Out of lives — the telepathy broke down." : n ? "Your shared words" : "Keep trying!",
         words: this.matches.map((m) => ({ pt: m.word, en: en(m.word)?.en, pic: en(m.word)?.pic })),
         contrib: Object.fromEntries(this.contrib),

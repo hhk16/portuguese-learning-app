@@ -10,6 +10,8 @@ export interface Clue {
   at?: number;
   /** What the TV says (when it differs from the label). */
   say?: string;
+  /** The curriculum item (a written clue's noun), for evidence. */
+  itemId?: string;
 }
 
 /** The seven intensifier clues along a spectrum ("muito frio" … "muito quente"). */

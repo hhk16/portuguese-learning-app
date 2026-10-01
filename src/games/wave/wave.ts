@@ -9,7 +9,8 @@
  * double. Harder levels: narrower bands, fewer clue chips, less time.
  */
 import { glossOf } from "../../curriculum/gloss.ts";
-import { getItem } from "../../curriculum/index.ts";
+import { ALL_ITEMS, getItem } from "../../curriculum/index.ts";
+import { normWord } from "../sync/sync.ts";
 import { cardOf, type LearnCard } from "../../curriculum/learn.ts";
 import type { ItemOf } from "../../curriculum/schema.ts";
 import { randomId } from "../../shared/ids.ts";
@@ -31,6 +32,9 @@ export const BULLSEYE = 4;
 export const SIDE_BET = 3;
 /** Signals left at the end of the show are worth this much each. */
 export const SIGNAL_BONUS = 2;
+
+/** Médio+: how long the psychic writes before the chips open as a lifeline. */
+export const LIST_AFTER_MS = 15_000;
 
 /** Difficulty: band half-widths (dial is 0..100), clue types, and timers. */
 /**
@@ -162,6 +166,13 @@ export class NaMesmaOnda implements Activity {
     }
     return this.rt.rng.shuffle(out);
   }
+  /** Médio+: the psychic WRITES a thing (any noun they know); the chips open later, as a lifeline. */
+  get typedClues() {
+    return this.level >= 2 && !this.inPractice;
+  }
+  clueStart = 0;
+  clueError: string | null = null;
+  clueTyped = false;
   /** Things already used as a clue this game (never offered again). */
   private usedNouns = new Set<string>();
 
@@ -186,6 +197,9 @@ export class NaMesmaOnda implements Activity {
     this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.clueMs);
     this.promptId = randomId(6);
     this.chips = this.dealChips();
+    this.clueStart = gameNow();
+    this.clueError = null;
+    this.clueTyped = false;
     this.hurried = false;
     setHurry(false);
     play("whoosh");
@@ -247,8 +261,17 @@ export class NaMesmaOnda implements Activity {
     if (value.mode !== "dial" || this.phase === "end") return;
     const a = value.action;
     if (a.a === "clue" && this.phase === "clue" && p === this.psychic && promptId === this.promptId) {
-      const c = this.clues.find((x) => x.pt === a.text);
-      if (c) this.giveClue(c);
+      const c = this.clues.find((x) => x.pt === a.text) ?? (a.typed ? typedThing(a.text) : undefined);
+      if (!c) {
+        this.clueError = a.text;
+        play("buzzer", 0.4);
+        this.rt.view(p, this.viewFor(p));
+        return;
+      }
+      this.clueTyped = !!a.typed;
+      this.clueError = null;
+      if (this.clueTyped && c.itemId) this.rt.evidence(p, c.itemId, "wave.clue.typed", "correct", 2);
+      this.giveClue(c);
       return;
     }
     if (a.a === "move" && this.phase === "guess" && p === this.guesser) {
@@ -420,6 +443,9 @@ export class NaMesmaOnda implements Activity {
       target: showTarget ? this.target : undefined,
       value: this.value,
       clues: phase === "clue" && (isPsychic || solo) ? this.clues.map(({ pt, en, pic }) => ({ pt, en, pic })) : undefined,
+      typeClue: (phase === "clue" && isPsychic && this.typedClues) || undefined,
+      listInMs: phase === "clue" && isPsychic && this.typedClues ? Math.max(0, this.clueStart + LIST_AFTER_MS - gameNow()) : undefined,
+      clueError: phase === "clue" && isPsychic && this.clueError ? this.clueError : undefined,
       clue: this.clue ? { pt: this.clue.pt, en: this.clue.en, pic: this.clue.pic } : undefined,
       phase,
       bands: this.rules.bands,
@@ -436,4 +462,16 @@ export class NaMesmaOnda implements Activity {
       debugAnswer: this.rt.testMode ? { target: this.target, ats: this.clues.map((c) => c.at ?? 50) } : undefined,
     };
   }
+}
+
+/** A thing the psychic wrote: any noun the curriculum knows ("café", "o mar"), with its article and picture. */
+export function typedThing(text: string): (Clue & { itemId?: string }) | undefined {
+  const k = normWord(text);
+  if (!k) return undefined;
+  for (const it of ALL_ITEMS) {
+    if (it.kind !== "noun" || normWord(it.pt) !== k) continue;
+    const card = cardOf(it);
+    if (card) return { pt: card.pt, en: card.en, pic: card.emoji, say: card.say, itemId: card.itemId };
+  }
+  return undefined;
 }

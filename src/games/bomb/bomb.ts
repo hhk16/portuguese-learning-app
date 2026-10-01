@@ -444,10 +444,18 @@ export class BatataQuente implements Activity {
     if (a && !tie) {
       this.rt.say(NAMED.wins, { name: a.name });
       this.rt.say(SAY.revenge);
+      // The puppy runs over to the winner.
+      this.rt.petRunTo(a, 3000);
     }
+    // The winner's beat on the stage before the results.
+    this.rt.bigMoment(tie ? { pt: "🥔 Empate!", en: `${wa}–${wb} — a tie!` } : { pt: `🥔 ${a?.name ?? ""} ganha a Batata Quente!`, en: `${wa}–${wb}` }, "won", 2800, true);
     this.rt.bump();
     const possible = ROUNDS + 1 + (this.extra ? 2 : 0);
     const answered = [...this.right.values()].reduce((s, x) => s + x, 0);
+    setTimeout(() => this.rt.activity === this && this.report(tie, a, wa, wb, possible, answered), 3000);
+  }
+
+  private report(tie: boolean, a: RuntimePlayer | undefined, wa: number, wb: number, possible: number, answered: number) {
     this.onDone({
       score: answered,
       max: 36,

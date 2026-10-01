@@ -16,6 +16,7 @@ import { ParesSecretos } from "../games/secret/secret.ts";
 import { EmSintonia } from "../games/sync/sync.ts";
 import { NaMesmaOnda } from "../games/wave/wave.ts";
 import { Desenha } from "../games/draw/draw.ts";
+import { QuemFazOQue } from "../games/verbs/verbs.ts";
 import { Stop } from "../games/stop/stop.ts";
 import { Cozinha } from "../games/kitchen/kitchen.ts";
 import { BatataQuente } from "../games/bomb/bomb.ts";
@@ -29,7 +30,7 @@ import type { Activity, RuntimePlayer, TvRuntime } from "./runtime.ts";
 import { award, levelOf, type Award } from "./stats.ts";
 import { BOTTOMS, bottomsFor, DEFAULT_LOOK, hasLook, TOPS } from "../art/wardrobe.ts";
 
-export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "bomb" | "kitchen" | "final";
+export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "bomb" | "kitchen" | "verbs" | "final";
 
 /** Head-to-head games (the rest are co-op). A game night has one of them. */
 export const VERSUS: readonly Mode[] = ["stop", "bomb"];
@@ -69,6 +70,7 @@ export const GAMES: GameInfo[] = [
   { mode: "draw", name: "Desenha!", pic: "🎨", kind: "Juntos · desenhar", how: "Um desenha no telemóvel, o outro adivinha a palavra.", howEn: "One draws on the phone, the other guesses the word." },
   { mode: "stop", name: "Stop!", pic: "⏱️", kind: "Um contra o outro · escrever", how: "Uma letra, quatro categorias. Quem acaba grita STOP!", howEn: "One letter, four categories. First to finish shouts STOP!" },
   { mode: "kitchen", name: "Cozinha Caótica", pic: "🧑‍🍳", kind: "Juntos · correria", how: "Os clientes pedem em português. Sirvam depressa!", howEn: "Customers order in Portuguese. Serve fast!" },
+  { mode: "verbs", name: "Quem faz o quê?", pic: "🧩", kind: "Juntos · verbos", how: "Um escreve o verbo, o outro lê quem o faz.", howEn: "One writes the verb, the other reads who's doing it." },
   { mode: "bomb", name: "Batata Quente", pic: "🥔", kind: "Um contra o outro · rapidez", how: "Responde certo e passa a batata. Quando explodir, não a queiras na mão!", howEn: "Answer right to pass the potato. Don't be holding it when it blows!" },
 ];
 
@@ -222,6 +224,7 @@ export class TitleActivity implements Activity {
       case "stop":
       case "bomb":
       case "kitchen":
+      case "verbs":
         return this.rt.run(new LobbyActivity({ mode: item.id }));
       case "night":
         return startNight(this.rt);
@@ -1101,6 +1104,13 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
       const g = new EmSintonia(lessonsFor(spec), (o) => gameDone("Em Sintonia", o));
       g.level = level;
       if ("practice" in g) g.practice = wantsPractice(spec.mode, !!night);
+      rt.run(g);
+      return;
+    }
+    case "verbs": {
+      const g = new QuemFazOQue((o) => gameDone("Quem faz o quê?", o));
+      g.level = level;
+      g.practice = wantsPractice(spec.mode, !!night);
       rt.run(g);
       return;
     }

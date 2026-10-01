@@ -17,10 +17,10 @@ const PORT = 8799;
 const REMOTE = process.env.E2E_BASE;
 const BASE = REMOTE ?? `http://localhost:${PORT}`;
 const OUT = "e2e-output";
-type M = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen" | "bomb" | "night";
+type M = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "kitchen" | "bomb" | "verbs" | "night";
 const MODES = (process.env.E2E_MODES ?? "lesson,secret,wave,sync,draw,stop,kitchen,bomb").split(",") as M[];
 /** Position of each game in the Jogar menu. */
-const MENU_INDEX: Record<string, number> = { secret: 0, wave: 1, sync: 2, draw: 3, stop: 4, kitchen: 5, bomb: 6 };
+const MENU_INDEX: Record<string, number> = { secret: 0, wave: 1, sync: 2, draw: 3, stop: 4, kitchen: 5, verbs: 6, bomb: 7 };
 /** E2E_MODES=night: a whole game night (three games + the Grande Final) from the main menu. */
 const NIGHT = MODES[0] === "night";
 const LESSON_INDEX = Number(process.env.E2E_LESSON ?? 0);
@@ -307,7 +307,9 @@ async function botStep(b: Bot, seen: Set<string>) {
         // Pick the best clue word chip, then how many pictures it covers.
         const words = (v.clueWords as { pt: string }[] | undefined) ?? [];
         const wi = Math.max(0, words.findIndex((w) => w.pt === d?.clueWord));
-        await pg.locator(".clue-words .bank-word").nth(wi).click({ timeout: 2500 }).catch(() => {});
+        // Médio+: write the clue (the list is only a lifeline).
+        if (v.typeClue) await pg.fill(".clue-input", d?.clueWord ?? words[0]?.pt ?? "frio", { timeout: 2500 }).catch(() => {});
+        else await pg.locator(".clue-words .bank-word").nth(wi).click({ timeout: 2500 }).catch(() => {});
         await nap(pg, 700);
         await shoot("secret-clue-picked", b);
         const n = Math.max(1, Math.min(3, d?.targets ?? 1));
@@ -349,6 +351,12 @@ async function botStep(b: Bot, seen: Set<string>) {
         const { target, ats } = v.debugAnswer as { target: number; ats: number[] };
         const near = ats.reduce((best, at, k) => (Math.abs(at - target) < Math.abs(ats[best]! - target) ? k : best), 0);
         const i = Math.random() < b.skill ? near : Math.floor(Math.random() * ats.length);
+        // Médio+: write the thing (the chips are only a lifeline).
+        if (v.typeClue) {
+          const things = (v.clues as { pt: string }[] | undefined) ?? [];
+          await pg.fill(".typed-clue .clue-input", things[i]?.pt ?? "o café", { timeout: 2500 }).catch(() => {});
+          return click(pg, ".typed-clue .btn", "OK");
+        }
         return pg.locator(".clue-words .bank-word").nth(i).click({ timeout: 2500 }).catch(() => {});
       }
       if (v.role === "guess" && v.phase === "guess") {
@@ -392,6 +400,32 @@ async function botStep(b: Bot, seen: Set<string>) {
     }
     case "draw":
       return drawStep(b, v, seen);
+    case "verbs": {
+      const key = `verbs:${v.promptId}`;
+      if (v.role === "wait" || seen.has(key)) return;
+      seen.add(key);
+      const d = v.debugAnswer as { form?: string; wrong?: string; person?: string; verb?: string } | undefined;
+      await nap(pg, 2500 + Math.random() * 3000);
+      if (v.role === "write") {
+        const r = Math.random();
+        // Usually right; sometimes the wrong person's form (a classic nós/eles mix-up).
+        const text = LOSE ? (r < 0.4 ? d!.form! : d!.wrong!) : r < b.skill + 0.1 ? d!.form! : d!.wrong!;
+        await pg.fill(".verbs-pad .sync-form input", text, { timeout: 2000 }).catch(() => {});
+        await shoot("verbs-write", b);
+        return click(pg, ".verbs-pad .sync-form .btn");
+      }
+      // Read: who (from the ending) and what.
+      const persons = v.persons as { id: string }[];
+      const actions = v.actions as { id: string }[];
+      const okP = Math.random() < (LOSE ? 0.4 : b.skill + 0.1);
+      const okV = Math.random() < (LOSE ? 0.6 : b.skill + 0.15);
+      const pi = okP ? persons.findIndex((x) => x.id === d?.person) : (persons.findIndex((x) => x.id === d?.person) + 1) % persons.length;
+      const vi = okV ? actions.findIndex((x) => x.id === d?.verb) : (actions.findIndex((x) => x.id === d?.verb) + 1) % actions.length;
+      await pg.locator(".verbs-person-grid .verbs-opt").nth(Math.max(0, pi)).click({ timeout: 2000 }).catch(() => {});
+      await pg.locator(".verbs-action-grid .verbs-opt").nth(Math.max(0, vi)).click({ timeout: 2000 }).catch(() => {});
+      await shoot("verbs-read", b);
+      return click(pg, ".verbs-pad > .btn", "OK");
+    }
     case "bomb":
       return bombStep(b, v, seen);
     case "stop":

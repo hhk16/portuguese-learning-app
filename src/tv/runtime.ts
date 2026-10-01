@@ -77,7 +77,7 @@ export type PetAct = "hide" | "sniff" | "crown" | "cheer" | "oops" | "think" | "
 const SETTINGS_KEY = "pp.tv.settings.v3";
 
 /** Background music per activity (menus, lobby and results share the menu theme). */
-const MUSIC: Record<string, Track> = { lesson: "learn", learn: "learn", secret: "secret", wave: "wave", sync: "sync", draw: "draw", stop: "versus", bomb: "versus", kitchen: "rush", final: "final", champion: "final" };
+const MUSIC: Record<string, Track> = { lesson: "learn", learn: "learn", secret: "secret", wave: "wave", sync: "sync", draw: "draw", stop: "versus", bomb: "versus", kitchen: "rush", verbs: "sync", final: "final", champion: "final" };
 
 export class TvRuntime {
   readonly conn: HostConnection;
@@ -274,6 +274,15 @@ export class TvRuntime {
   petStar(pose: PetAct, ms = 2200, line?: Line, chance = 0.7, anchor: "left" | "right" | "center" = "right") {
     this.petAct = { pose, until: performance.now() + ms, seq: ++this.petActSeq, spotlight: true, anchor };
     if (line) this.petSay(line, chance);
+    this.bump();
+  }
+
+  /** The puppy runs across the stage to the winner and jumps around them (versus endings). */
+  petRun: { to: string; until: number } | null = null;
+  petRunTo(p: RuntimePlayer, ms = 3200) {
+    this.petRun = { to: p.playerId, until: performance.now() + ms };
+    this.petAct = { pose: "cheer", until: performance.now() + ms, seq: ++this.petActSeq };
+    this.emote(p.playerId, "cheer", ms);
     this.bump();
   }
 
