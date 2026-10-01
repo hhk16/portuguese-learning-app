@@ -258,6 +258,15 @@ export const ControllerView = z.discriminatedUnion("mode", [
   }),
   /** Name the puppy (asked once on Ana's phone; renamed from the TV's settings). */
   z.object({ mode: z.literal("petName"), ...round, current: shortText.optional(), suggestions: z.array(shortText).max(8) }),
+  /** Ana's wardrobe: pick a top and a bottom; the TV shows her wearing them. */
+  z.object({
+    mode: z.literal("wardrobe"),
+    ...round,
+    tops: z.array(z.object({ id, pt: shortText, en: shortText, pic: emojiField, available: z.boolean() })).max(12),
+    bottoms: z.array(z.object({ id, pt: shortText, en: shortText, pic: emojiField, available: z.boolean() })).max(12),
+    top: id,
+    bottom: id,
+  }),
   /** Batata Quente — answer right to pass the hot potato; whoever holds it when it blows loses the round. */
   z.object({
     mode: z.literal("bomb"),
@@ -352,6 +361,7 @@ export const InputValue = z.discriminatedUnion("mode", [
     ]),
   }),
   z.object({ mode: z.literal("petName"), name: z.string().trim().min(1).max(16).optional(), skip: z.boolean().optional() }),
+  z.object({ mode: z.literal("wardrobe"), top: z.string().max(32).optional(), bottom: z.string().max(32).optional(), done: z.boolean().optional() }),
   z.object({ mode: z.literal("bomb"), answer: z.string().trim().min(1).max(40).optional(), hurry: z.boolean().optional(), steal: z.string().trim().min(1).max(40).optional() }),
   z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40).optional(), sense: z.boolean().optional(), predict: z.boolean().optional() }),
   z.object({

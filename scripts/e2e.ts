@@ -106,6 +106,32 @@ const press = async (key: string, n = 1) => {
   }
 }
 
+// E2E_MODES=wardrobe: Ana dresses up (Guarda-roupa is the 5th item of the main menu), then the run ends.
+if (process.env.E2E_MODES === "wardrobe") {
+  await press("ArrowDown", 4);
+  await tv.waitForTimeout(400);
+  await press("Enter");
+  const ana = bots[1]!.page;
+  await ana.waitForSelector(".wardrobe-opt", { timeout: 8000 });
+  await tv.waitForTimeout(2500 * PACE);
+  await tv.screenshot({ path: `${OUT}/w0-tv.png` });
+  await ana.screenshot({ path: `${OUT}/w0-phone.png` });
+  const picks: [string, string][] = [["top", "a t-shirt branca"], ["bottom", "a saia"], ["top", "a camisa branca"], ["top", "a camisola preta"], ["bottom", "os calções pretos"], ["top", "o casaco de aviador"], ["top", "a t-shirt preta"]];
+  for (const [i, [, label]] of picks.entries()) {
+    await ana.locator(".wardrobe-opt:not([disabled])", { hasText: label }).first().click({ timeout: 2500 }).catch(() => console.log("not available:", label));
+    await tv.waitForTimeout(2600 * PACE);
+    await tv.screenshot({ path: `${OUT}/w${i + 1}-tv.png` });
+    await ana.screenshot({ path: `${OUT}/w${i + 1}-phone.png` });
+  }
+  await ana.locator(".btn", { hasText: "Pronto" }).click();
+  await tv.waitForTimeout(1500 * PACE);
+  console.log(errors.length ? errors.join("\n") : "no page errors");
+  console.log("PLAYED wardrobe ✓");
+  await browser.close();
+  server?.kill();
+  process.exit(errors.length ? 1 : 0);
+}
+
 // Main menu: Noite de jogos · Aprender juntos · Jogar · Definições
 const first = MODES[0]!;
 if (first === "night") {

@@ -8,6 +8,7 @@ import { cardOf } from "./learn.ts";
 import { kitchenSpoken } from "../games/kitchen/menu.ts";
 import { stopSpoken } from "../games/stop/dictionary.ts";
 import { hostSpoken } from "../tv/host-lines.ts";
+import { wardrobeSpoken } from "../art/wardrobe.ts";
 
 const extra = new Set<string>();
 
@@ -30,7 +31,7 @@ export function allSpokenTexts(): string[] {
       out.add(it.fs);
     }
   }
-  for (const t of [...kitchenSpoken(), ...stopSpoken(), ...hostSpoken()]) out.add(t);
+  for (const t of [...kitchenSpoken(), ...stopSpoken(), ...hostSpoken(), ...wardrobeSpoken()]) out.add(t);
   for (const t of extra) out.add(t);
   return [...out].filter((t) => t.trim().length > 0).sort();
 }

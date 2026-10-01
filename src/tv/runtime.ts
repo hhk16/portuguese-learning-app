@@ -65,6 +65,8 @@ export interface Settings {
   /** The puppy's name (Ana picks it), and whether she was asked already. */
   petName?: string;
   petAsked?: boolean;
+  /** Ana's look from the wardrobe (top + bottom ids, see art/wardrobe.ts). */
+  look?: { top: string; bottom: string };
 }
 
 /** Name ideas for the puppy (Portuguese pet names). */

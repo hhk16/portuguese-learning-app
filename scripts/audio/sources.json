@@ -271,6 +271,14 @@
   "text": "a camisa",
   "voice": "pt_PT-tugão-medium"
  },
+ "a camisa branca e a gola alta": {
+  "file": "3954a6e022.mp3",
+  "lengthScale": 1.12,
+  "say": "a camisa branca e a gola alta.",
+  "source": "piper",
+  "text": "a camisa branca e a gola alta",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a camisa é branca.": {
   "file": "e6936f94ec.mp3",
   "lengthScale": 1.12,
@@ -285,6 +293,14 @@
   "say": "a camisola.",
   "source": "piper",
   "text": "a camisola",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a camisola preta com fecho": {
+  "file": "eee3439942.mp3",
+  "lengthScale": 1.12,
+  "say": "a camisola preta com fecho.",
+  "source": "piper",
+  "text": "a camisola preta com fecho",
   "voice": "pt_PT-tugão-medium"
  },
  "a caneta": {
@@ -1111,6 +1127,14 @@
   "text": "a saia",
   "voice": "pt_PT-tugão-medium"
  },
+ "a saia cinzenta e as botas": {
+  "file": "c7bbf97e36.mp3",
+  "lengthScale": 1.12,
+  "say": "a saia cinzenta e as botas.",
+  "source": "piper",
+  "text": "a saia cinzenta e as botas",
+  "voice": "pt_PT-tugão-medium"
+ },
  "a saia é vermelha.": {
   "file": "887c4835b9.mp3",
   "lengthScale": 1.12,
@@ -1181,6 +1205,22 @@
   "say": "a sopa.",
   "source": "piper",
   "text": "a sopa",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a t-shirt branca": {
+  "file": "6e0b6c2f74.mp3",
+  "lengthScale": 1.12,
+  "say": "a t-shirt branca.",
+  "source": "piper",
+  "text": "a t-shirt branca",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "a t-shirt preta": {
+  "file": "d2aa0da5fb.mp3",
+  "lengthScale": 1.12,
+  "say": "a t-shirt preta.",
+  "source": "piper",
+  "text": "a t-shirt preta",
   "voice": "pt_PT-tugão-medium"
  },
  "a t-shirt · a camiseta (br)": {
@@ -6339,6 +6379,14 @@
   "text": "Fica!",
   "voice": "pt_PT-tugão-medium"
  },
+ "fica-te tão bem!": {
+  "file": "d3e93c9ccb.mp3",
+  "lengthScale": 1.12,
+  "say": "Fica-te tão bem!",
+  "source": "piper",
+  "text": "Fica-te tão bem!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "fico a aguardar, então. obrigado!": {
   "file": "f1d12ce6a2.mp3",
   "lengthScale": 1.12,
@@ -8995,6 +9043,14 @@
   "text": "o biquíni",
   "voice": "pt_PT-tugão-medium"
  },
+ "o blazer preto": {
+  "file": "8f0eeaff7f.mp3",
+  "lengthScale": 1.12,
+  "say": "o blazer preto.",
+  "source": "piper",
+  "text": "o blazer preto",
+  "voice": "pt_PT-tugão-medium"
+ },
  "o bolo": {
   "file": "644049550f.mp3",
   "lengthScale": 1.12,
@@ -9153,6 +9209,14 @@
   "say": "o casaco.",
   "source": "piper",
   "text": "o casaco",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o casaco de aviador": {
+  "file": "ba20fd3287.mp3",
+  "lengthScale": 1.12,
+  "say": "o casaco de aviador.",
+  "source": "piper",
+  "text": "o casaco de aviador",
   "voice": "pt_PT-tugão-medium"
  },
  "o casamento": {
@@ -9545,6 +9609,14 @@
   "say": "o guarda-chuva.",
   "source": "piper",
   "text": "o guarda-chuva",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "o guarda-roupa! escolhe a tua roupa.": {
+  "file": "3bba277565.mp3",
+  "lengthScale": 1.12,
+  "say": "O guarda-roupa! Escolhe a tua roupa.",
+  "source": "piper",
+  "text": "O guarda-roupa! Escolhe a tua roupa.",
   "voice": "pt_PT-tugão-medium"
  },
  "o hadi está com febre.": {
@@ -10671,6 +10743,22 @@
   "say": "organizado, organizada.",
   "source": "piper",
   "text": "organizado, organizada",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "os calções de couro e as botas": {
+  "file": "51644518fd.mp3",
+  "lengthScale": 1.12,
+  "say": "os calções de couro e as botas.",
+  "source": "piper",
+  "text": "os calções de couro e as botas",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "os calções pretos e as sapatilhas": {
+  "file": "044cdcdc66.mp3",
+  "lengthScale": 1.12,
+  "say": "os calções pretos e as sapatilhas.",
+  "source": "piper",
+  "text": "os calções pretos e as sapatilhas",
   "voice": "pt_PT-tugão-medium"
  },
  "os clientes pedem em português. ouçam bem!": {

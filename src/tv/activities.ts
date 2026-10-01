@@ -27,6 +27,7 @@ import { bestScore, countPlay, lastLevel, lastTopic, LEVELS, recordScore, rememb
 import { lessonsDone, lessonStars, nextLessonId, playableLessons } from "./progress.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "./runtime.ts";
 import { award, levelOf, type Award } from "./stats.ts";
+import { BOTTOMS, bottomsFor, DEFAULT_LOOK, hasLook, TOPS } from "../art/wardrobe.ts";
 
 export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "bomb" | "kitchen" | "final";
 
@@ -163,6 +164,7 @@ export class TitleActivity implements Activity {
       { id: "learn", label: "Aprender juntos", sub: `Lições do livro · ${done}/${LESSONS.length} feitas`, subEn: "Learn together: lessons from the book", pic: "📖" },
       { id: "play", label: "Jogar", sub: "Jogos a dois com as palavras que aprenderam", subEn: "Play: party games with your new words", pic: "🎲" },
       { id: "progress", label: "Progresso", sub: "Níveis, dias seguidos e medalhas", subEn: "Progress: levels, streaks and badges", pic: "📈" },
+      { id: "wardrobe", label: "Guarda-roupa", sub: "A Ana escolhe a roupa no telemóvel", subEn: "Wardrobe: Ana picks her outfit on her phone", pic: "👗", badge: "Novo" },
       { id: "settings", label: "Definições", subEn: "Settings", pic: "⚙️" },
     ];
   }
@@ -192,7 +194,7 @@ export class TitleActivity implements Activity {
         play("back");
         this.rt.bump();
       } else if (this.menu !== "main") {
-        this.focus = { learn: 1, play: 2, progress: 3, settings: 4, main: 0 }[this.menu];
+        this.focus = { learn: 1, play: 2, progress: 3, settings: 5, main: 0 }[this.menu];
         this.menu = "main";
         play("back");
         this.rt.bump();
@@ -223,6 +225,8 @@ export class TitleActivity implements Activity {
         return this.rt.run(new LobbyActivity({ mode: item.id }));
       case "night":
         return startNight(this.rt);
+      case "wardrobe":
+        return this.rt.run(new WardrobeActivity());
       case "learn":
         this.menu = "learn";
         this.focusNextUnit();
@@ -248,6 +252,95 @@ export class TitleActivity implements Activity {
 
   viewFor(): ControllerView {
     return { mode: "remote", title: "Comando", hint: "Usa as setas para escolher na TV · Use the arrows to choose on the TV" };
+  }
+}
+
+/**
+ * Guarda-roupa: Ana picks a top and a bottom on her phone and sees herself in them, big on the TV.
+ * The TV says each piece in Portuguese (clothes vocabulary). The TV remote works too: ◀ ▶ tops, ▲ ▼ bottoms.
+ */
+export class WardrobeActivity implements Activity {
+  readonly id = "wardrobe";
+  rt!: TvRuntime;
+  top = DEFAULT_LOOK.top;
+  bottom = DEFAULT_LOOK.bottom;
+  /** Bumped on every change (the TV pops the new look). */
+  seq = 0;
+  private changes = 0;
+
+  /** Who's dressing up: whoever plays Ana's character, else the puppy's person. */
+  get dresser(): RuntimePlayer | undefined {
+    return this.rt.activePlayers.find((p) => p.avatar === "ana") ?? this.rt.petOwner();
+  }
+
+  start(rt: TvRuntime) {
+    this.rt = rt;
+    const l = rt.settings.look ?? DEFAULT_LOOK;
+    if (hasLook(l.top, l.bottom)) [this.top, this.bottom] = [l.top, l.bottom];
+    rt.say(SAY.wardrobe);
+    const d = this.dresser;
+    if (d) rt.emote(d.playerId, "wave", 2500);
+    rt.refreshViews();
+  }
+
+  tick() {}
+
+  onPlayersChanged() {
+    this.rt.refreshViews();
+  }
+
+  private set(top: string, bottom: string) {
+    if (!hasLook(top, bottom)) bottom = bottomsFor(top)[0] ?? bottom;
+    if (!hasLook(top, bottom) || (top === this.top && bottom === this.bottom)) return;
+    const said = top !== this.top ? TOPS.find((t) => t.id === top) : BOTTOMS.find((b) => b.id === bottom);
+    this.top = top;
+    this.bottom = bottom;
+    this.seq++;
+    this.changes++;
+    this.rt.setSettings({ look: { top, bottom } });
+    play("pop", 0.9, 1.1);
+    if (said) this.rt.speakPt(said.pt);
+    const d = this.dresser;
+    if (d) this.rt.emote(d.playerId, "cheer", 1400);
+    this.rt.petDo("cheer", 1600);
+    if (this.changes % 4 === 2) setTimeout(() => this.rt.activity === this && this.rt.say(SAY.suitsYou), 1400);
+    this.rt.refreshViews();
+    this.rt.bump();
+  }
+
+  onInput(p: RuntimePlayer, _promptId: string, _roundId: string, value: InputValue) {
+    if (value.mode !== "wardrobe" || p !== this.dresser) return;
+    if (value.done) return this.close();
+    if (value.top) this.set(value.top, this.bottom);
+    if (value.bottom) this.set(this.top, value.bottom);
+  }
+
+  onNav(dir: NavDir) {
+    const tops = TOPS.filter((t) => bottomsFor(t.id).length);
+    const bottoms = bottomsFor(this.top);
+    const ti = tops.findIndex((t) => t.id === this.top);
+    const bi = bottoms.indexOf(this.bottom);
+    if (dir === "left" || dir === "right") this.set(tops[(ti + (dir === "right" ? 1 : -1) + tops.length) % tops.length]!.id, this.bottom);
+    else if (dir === "up" || dir === "down") this.set(this.top, bottoms[(bi + (dir === "down" ? 1 : -1) + bottoms.length) % bottoms.length]!);
+    else if (dir === "ok" || dir === "back") this.close();
+  }
+
+  private close() {
+    play("select");
+    this.rt.run(new TitleActivity());
+  }
+
+  viewFor(p: RuntimePlayer): ControllerView {
+    if (p !== this.dresser) return { mode: "wait", title: `${this.dresser?.name ?? "A Ana"} está a escolher a roupa`, subtitle: "Picking an outfit — olha para a TV! 👗", pic: "👗" };
+    return {
+      mode: "wardrobe",
+      roundId: "wardrobe",
+      promptId: "wardrobe",
+      tops: TOPS.map((t) => ({ ...t, available: bottomsFor(t.id).length > 0 })),
+      bottoms: BOTTOMS.map((b) => ({ ...b, available: hasLook(this.top, b.id) })),
+      top: this.top,
+      bottom: this.bottom,
+    };
   }
 }
 

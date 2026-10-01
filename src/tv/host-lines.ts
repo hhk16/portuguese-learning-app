@@ -118,6 +118,8 @@ export const SAY = {
   lightningGoal: { pt: "Cinco certas para passar!", en: "Five right to pass!" },
   lightningWon: { pt: "Relâmpago superado! Lição completa!", en: "Lightning round beaten! Lesson complete!" },
   lightningLost: { pt: "Quase! Repitam o relâmpago.", en: "Almost! Try the lightning round again." },
+  wardrobe: { pt: "O guarda-roupa! Escolhe a tua roupa.", en: "The wardrobe! Pick your clothes." },
+  suitsYou: { pt: "Fica-te tão bem!", en: "That looks so good on you!" },
 } satisfies Record<string, Line>;
 
 /** Other ways Pipo says the same thing, so the host doesn't repeat itself. */

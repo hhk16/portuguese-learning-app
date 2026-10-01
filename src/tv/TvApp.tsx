@@ -12,7 +12,8 @@ import { Cozinha } from "../games/kitchen/kitchen.ts";
 import { BatataQuente } from "../games/bomb/bomb.ts";
 import { BombScreen } from "./screens/BombScreen.tsx";
 import type { NavDir } from "../shared/protocol.ts";
-import { ChampionActivity, LobbyActivity, ResultsActivity, TitleActivity } from "./activities.ts";
+import { ChampionActivity, LobbyActivity, ResultsActivity, TitleActivity, WardrobeActivity } from "./activities.ts";
+import { WardrobeScreen } from "./screens/WardrobeScreen.tsx";
 import { useRuntime } from "./runtime.ts";
 import { LearnScreen } from "./screens/LearnScreen.tsx";
 import { BetCard, ChampionScreen, Command, HostBubble, LobbyScreen, Reactions, PauseScreen, ResultsScreen, TitleScreen } from "./screens/Menus.tsx";
@@ -86,6 +87,7 @@ export function TvApp() {
       {a instanceof BatataQuente && <BombScreen a={a} />}
       {a instanceof GrandeFinal && <FinalScreen a={a} />}
       {a instanceof ChampionActivity && <ChampionScreen a={a} />}
+      {a instanceof WardrobeActivity && <WardrobeScreen a={a} />}
       <HostBubble />
       <Command />
       <BetCard />

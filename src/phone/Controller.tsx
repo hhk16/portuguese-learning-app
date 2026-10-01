@@ -16,6 +16,7 @@ import { StopPad } from "./Stop.tsx";
 import { Kitchen } from "./Kitchen.tsx";
 import { Final } from "./Final.tsx";
 import { Bomb } from "./Bomb.tsx";
+import { Wardrobe } from "./Wardrobe.tsx";
 import { PetName } from "./PetName.tsx";
 
 export type ViewOf<M extends ControllerView["mode"]> = Extract<ControllerView, { mode: M }>;
@@ -79,6 +80,8 @@ function Body({ view, conn, send }: { view: ControllerView; conn: PhoneConnectio
       return <Bomb v={view} send={send} />;
     case "petName":
       return <PetName v={view} send={send} />;
+    case "wardrobe":
+      return <Wardrobe v={view} send={send} />;
   }
 }
 

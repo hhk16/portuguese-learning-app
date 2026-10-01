@@ -382,6 +382,9 @@ export class ParesSecretos implements Activity {
       return;
     }
     this.turnsUsed++;
+    // The turn is over on every phone too (no taps on a finished turn).
+    this.promptId = randomId(6);
+    this.rt.refreshViews();
     let pause = 900;
     const giver = this.giver;
     if (this.giverBet !== null && giver) {

@@ -1061,7 +1061,7 @@ html.tv-root #root {
 }
 .sync-verdict {
   position: absolute;
-  top: 83%;
+  top: 93%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 2.2em;
@@ -1992,8 +1992,8 @@ html.tv-root #root {
   overflow: hidden;
 }
 .results-card .gallery-item canvas {
-  width: 5.2rem;
-  height: 5.2rem;
+  width: 4.4rem;
+  height: 4.4rem;
 }
 .result-stars {
   font-size: 3.2em;
@@ -3009,4 +3009,81 @@ html.tv-root #root {
 @keyframes wick-pulse {
   from { transform: scale(1); }
   to { transform: scale(1.25); }
+}
+
+/* Guarda-roupa: Ana in the middle, the pieces either side. */
+.wardrobe-screen {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 7vh 3vw 0;
+  pointer-events: none;
+}
+.wardrobe-card {
+  width: 27vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.2rem 1.4rem;
+  animation: pop-in 0.4s ease-out both;
+}
+.wardrobe-card h2 {
+  font-size: 1.6em;
+}
+.wardrobe-piece {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 1rem;
+  background: var(--cream);
+  animation: pop-in 0.35s ease-out both;
+}
+.wardrobe-piece small {
+  font-size: 0.7em;
+  color: var(--ink-3);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.wardrobe-piece span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.15em;
+}
+.wardrobe-piece i {
+  font-style: normal;
+  color: var(--ink-2);
+  font-size: 0.85em;
+}
+.wardrobe-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.wardrobe-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: var(--cream);
+  font-size: 0.78em;
+  font-weight: 700;
+  border: 0.14rem solid transparent;
+}
+.wardrobe-chip.on {
+  background: var(--white);
+  border-color: var(--coral);
+  box-shadow: 0 0.2em 0 var(--coral-d);
+}
+.wardrobe-chip.off {
+  opacity: 0.35;
+}
+
+/* Em Sintonia: the verdict is a slim strip under the players' words, never over them. */
+.sync-verdict {
+  font-size: 1.5em;
+  padding: 0.25em 1em;
 }

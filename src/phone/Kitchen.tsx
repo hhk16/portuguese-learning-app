@@ -57,7 +57,7 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
               act({ a: "add", id: d.id });
             }}
           >
-            <Picture glyph={d.pic} size="64px" />
+            <Picture glyph={d.pic} size="48px" />
             <b className="display">{d.pt}</b>
           </button>
         ))}

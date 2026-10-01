@@ -10,6 +10,7 @@ import { useFrame, useLoader, useThree, Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { poseUrl, type Pose } from "../../art/avatars.ts";
+import { lookUrl } from "../../art/wardrobe.ts";
 import type { Avatar } from "../../shared/protocol.ts";
 import { useRuntime, type Emote, type RuntimePlayer, type TvRuntime } from "../runtime.ts";
 
@@ -109,7 +110,9 @@ const shadowTex = (() => {
 type CrownFrom = { x: number; y: number } | null;
 
 function Character({ rt, p, x, y, height, flip, crown = null }: { rt: TvRuntime; p: RuntimePlayer; x: number; y: number; height: number; flip: boolean; crown?: CrownFrom }) {
-  const textures = POSES.map((pose) => useTex(poseUrl(p.avatar as Avatar, pose))); // eslint-disable-line react-hooks/rules-of-hooks
+  // Ana's character wears the look she picked in the wardrobe.
+  const look = p.avatar === "ana" ? rt.settings.look : undefined;
+  const textures = POSES.map((pose) => useTex(lookUrl(look, pose) ?? poseUrl(p.avatar as Avatar, pose))); // eslint-disable-line react-hooks/rules-of-hooks
   const crownTex = useTex("/art/pet/crown.webp");
   const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
@@ -393,6 +396,11 @@ function Confetti({ burst, count }: { burst: number; count: number }) {
 
 /** Where characters stand for each activity (in CSS px relative to the screen centre). */
 function layout(activityId: string | undefined, n: number, w: number, h: number, star = -1): { x: number; y: number; height: number }[] {
+  if (activityId === "wardrobe") {
+    // The wardrobe: whoever is dressing up stands big in the middle; the others watch from the side.
+    let k = 0;
+    return Array.from({ length: n }, (_, i) => (i === star ? { x: 0, y: -h * 0.5 + h * 0.03, height: h * 0.78 } : { x: (k++ % 2 === 0 ? 1 : -1) * w * 0.38, y: -h * 0.5 + h * 0.03, height: h * 0.42 }));
+  }
   const onStage = activityId === "title" || activityId === "lobby" || activityId === "results" || activityId === "champion";
   if (activityId === "champion") {
     // The crowning: players stand either side of the podium, big — and the star walks to centre stage for the crown.
@@ -421,7 +429,8 @@ function Scene() {
   const players = rt.activePlayers;
   // The crowning: the star of the night (not on a tie) takes centre stage while the crown drops.
   const champ = rt.activity?.id === "champion" ? (rt.activity as unknown as { stage: number; tie: boolean; standings: { p: RuntimePlayer }[] }) : null;
-  const star = champ && champ.stage === 1 && !champ.tie ? players.indexOf(champ.standings[0]!.p) : -1;
+  const dresser = rt.activity?.id === "wardrobe" ? (rt.activity as unknown as { dresser?: RuntimePlayer }).dresser : undefined;
+  const star = dresser ? players.indexOf(dresser) : champ && champ.stage === 1 && !champ.tie ? players.indexOf(champ.standings[0]!.p) : -1;
   const spots = layout(rt.activity?.id, players.length, size.width, size.height, star);
   // The puppy brings the crown: it trots to centre stage during the drumroll and the crown flies to the star's head.
   const crowned = champ && champ.stage >= 1 && !champ.tie ? players.indexOf(champ.standings[0]!.p) : -1;
@@ -439,7 +448,7 @@ function Scene() {
             x={spots[i]!.x}
             y={spots[i]!.y}
             height={spots[i]!.height}
-            flip={rt.activity?.id !== "title" && rt.activity?.id !== "lobby" && rt.activity?.id !== "results" && i % 2 === 1}
+            flip={!["title", "lobby", "results", "wardrobe"].includes(rt.activity?.id ?? "") && i % 2 === 1}
             crown={i === crowned ? crownFrom : null}
           />
         </Suspense>
@@ -454,7 +463,7 @@ function Scene() {
         const id = rt.activity?.id;
         const onStage = id === "title" || id === "lobby" || id === "results";
         const centre = spots.reduce((sum, p) => sum + p.x, 0) / Math.max(1, spots.length);
-        const side = onStage ? (spot.x >= centre ? 1 : -1) : spot.x > 0 ? -1 : 1;
+        const side = id === "wardrobe" ? -1 : onStage ? (spot.x >= centre ? 1 : -1) : spot.x > 0 ? -1 : 1;
         const h = spot.height * 0.42;
         // Results: the card fills the right of the screen, so the puppy sits close in, just before it.
         if (id === "results") {

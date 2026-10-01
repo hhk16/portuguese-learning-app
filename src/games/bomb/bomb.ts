@@ -20,7 +20,7 @@ import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { CUE, NAMED, PET, SAY } from "../../tv/host-lines.ts";
+import { NAMED, PET, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { spectra } from "../wave/scale.ts";
 
@@ -177,7 +177,6 @@ export class BatataQuente implements Activity {
     play("whoosh");
     if (this.final && !this.inPractice) this.rt.say(this.extra ? SAY.tie : SAY.finalRound);
     else this.rt.say(SAY.hotPotato);
-    if (this.holder) this.rt.cue(CUE.answer, this.holder);
     this.rt.refreshViews();
     this.rt.bump();
   }
