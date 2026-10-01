@@ -59,7 +59,7 @@ export function Sync({ v, send }: { v: V; send: Send }) {
         <div className="p-big">“{v.mine ?? word}”</div>
         <div className="p-sub">Segredo guardado! À espera do teu par… · Locked in! Waiting for your partner…</div>
         <div className="side-bet">
-          <span className="kicker">Vamos coincidir? · Will you match? (+2 if right)</span>
+          <span className="kicker">Vamos coincidir? · Will you match? (+1 if right)</span>
           <div className="row2">
             <button className={`btn ${v.predicted === true ? "mint" : "white"}`} disabled={v.predicted !== undefined} onClick={() => send({ mode: "sync", predict: true })}>
               <span className="bi">

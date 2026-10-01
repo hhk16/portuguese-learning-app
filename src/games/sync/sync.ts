@@ -40,7 +40,7 @@ export const LEVEL_RULES: Record<Level, { writeMs: number; options: number; trie
 };
 
 /** A prediction ("Vamos coincidir?") that comes true. */
-export const PREDICT_POINTS = 2;
+export const PREDICT_POINTS = 1;
 
 /** Normalise a typed word: lower-case, no accents, no article, no punctuation. */
 export function normWord(s: string): string {
@@ -334,7 +334,7 @@ export class EmSintonia implements Activity {
     this.rightPredictions = this.players.filter((p) => this.predictions.get(p.playerId) === match);
     if (!this.inPractice) {
       this.score += this.rightPredictions.length * PREDICT_POINTS;
-      for (const p of this.rightPredictions) this.contrib.set(p.playerId, (this.contrib.get(p.playerId) ?? 0) + 2);
+      for (const p of this.rightPredictions) this.contrib.set(p.playerId, (this.contrib.get(p.playerId) ?? 0) + 1);
     }
     const predicted = this.players.filter((p) => this.predictions.has(p.playerId));
     if (predicted.length)
@@ -398,7 +398,7 @@ export class EmSintonia implements Activity {
     this.onDone({
       score: this.score,
       // Every pair first try (the last one doubled) and a couple of predictions right.
-      max: 3 * (ROUNDS - 1) + 6 + 2 * PREDICT_POINTS,
+      max: 3 * (ROUNDS - 1) + 6 + ROUNDS * PREDICT_POINTS,
       headline: `${n} de ${ROUNDS} em sintonia · ${this.score} pontos`,
       headlineEn: `In sync on ${n} of ${ROUNDS} pairs`,
       sub: out ? "Acabaram-se as vidas!" : n ? `Palavras: ${this.matches.map((m) => m.word).join(", ")}` : "Continuem a tentar!",
