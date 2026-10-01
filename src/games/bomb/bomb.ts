@@ -5,8 +5,9 @@
  * picture, read a number, find the opposite. Right answer → the potato flies to the other phone.
  * Wrong → a short lock-out and a new question (you keep it). The fuse burns on the TV (its length
  * is random) and the ticking speeds up; whoever holds the potato when it blows loses the round. A fast
- * right answer (under 2.5 s) passes a hotter potato: the fuse loses a second. The safe player can
- * press "Despacha-te!" (three times a round) to burn it faster too — careful, it may come back.
+ * right answer (under 2.5 s) passes a hotter potato: the fuse loses a second. The safe player isn't
+ * idle: "Aquece!" — their phone has its own quick question, and each right answer (three a potato)
+ * burns the fuse shorter — careful, it may come back. Wrong answers lock you out for a moment.
  * Five potatoes, the last one counts double. A point for every potato that blows on the other side.
  */
 import { ALL_ITEMS, getItem } from "../../curriculum/index.ts";
@@ -28,7 +29,9 @@ const INTRO_MS = 1800;
 const BOOM_MS = 3600;
 const LOCK_MS = 1300;
 export const HURRIES = 3;
-const HURRY_MS = 900;
+const HURRY_MS = 1200;
+/** The safe player's question: a wrong answer locks it this long. */
+const STEAL_LOCK_MS = 2000;
 /** A right answer this fast burns this much off the fuse ("Rápido! A batata aquece"). */
 export const FAST_MS = 2500;
 const FAST_BURN_MS = 1000;
@@ -85,6 +88,10 @@ export class BatataQuente implements Activity {
   passSeq = 0;
   hurrySeq = 0;
   lastHurry: { by: string; at: number } | null = null;
+  /** "Aquece!": the safe player's own question (no audio — the TV speaks for the holder). */
+  stealQ: Question | null = null;
+  stealPromptId = randomId(6);
+  stealLockedUntil = 0;
   /** Who got burned at the last boom. */
   burned: RuntimePlayer | null = null;
   wins = new Map<string, number>();
@@ -183,6 +190,7 @@ export class BatataQuente implements Activity {
     this.tickAt = now;
     setHurry(true);
     this.ask();
+    this.newSteal();
   }
 
   /** A fresh question for the holder. */
@@ -199,6 +207,15 @@ export class BatataQuente implements Activity {
     if (this.q.say) this.rt.speakPt(this.q.say);
     this.rt.refreshViews();
     this.rt.bump();
+  }
+
+  /** A fresh "Aquece!" question for the safe player: something to read, not to hear. */
+  private newSteal() {
+    const kinds = kindsFor(Math.max(0, this.round)).filter((k) => k === "see" || k === "number" || k === "opposite");
+    this.stealQ = this.question(this.rt.rng.pick(kinds.length ? kinds : (["see", "number", "opposite"] as BombKind[])));
+    this.stealPromptId = randomId(6);
+    const o = this.other;
+    if (o) this.rt.view(o, this.viewFor(o));
   }
 
   private question(kind: BombKind): Question {
@@ -312,6 +329,33 @@ export class BatataQuente implements Activity {
       return this.newRound();
     }
     if (value.mode !== "bomb" || this.phase !== "play") return;
+    // "Aquece!": the safe player answers their own question to burn the fuse.
+    if (value.steal && p === this.other && this.hurryLeft > 0 && this.stealQ && promptId === this.stealPromptId) {
+      if (gameNow() < this.stealLockedUntil) return;
+      const sq = this.stealQ;
+      const right = value.steal === sq.answer;
+      if (sq.itemId) this.rt.evidence(p, sq.itemId, `bomb.${sq.kind}`, right ? "correct" : "wrong");
+      if (!right) {
+        play("buzzer", 0.4);
+        this.stealLockedUntil = gameNow() + STEAL_LOCK_MS;
+        setTimeout(() => this.rt.activity === this && this.phase === "play" && this.other === p && this.newSteal(), STEAL_LOCK_MS);
+        this.rt.view(p, this.viewFor(p));
+        return;
+      }
+      this.hurryLeft--;
+      this.fuseEnd = Math.max(gameNow() + 900, this.fuseEnd - HURRY_MS);
+      this.lastHurry = { by: p.playerId, at: gameNow() };
+      this.hurrySeq++;
+      play("whistle", 0.5, 1.2);
+      if (!this.hurrySaid && this.holder) {
+        this.hurrySaid = true;
+        this.rt.say(NAMED.hurryUp, { name: this.holder.name });
+      }
+      if (this.hurryLeft > 0) this.newSteal();
+      else this.rt.view(p, this.viewFor(p));
+      this.rt.bump();
+      return;
+    }
     if (value.hurry && p === this.other && this.hurryLeft > 0) {
       // "Despacha-te!": the fuse burns a little faster.
       this.hurryLeft--;
@@ -357,6 +401,9 @@ export class BatataQuente implements Activity {
     navigatorBuzz(this.rt, this.holder);
     this.rt.emote(p.playerId, "cheer", 900);
     this.ask();
+    // The one who just got rid of it is the safe player now: their own question to heat it up.
+    this.stealLockedUntil = 0;
+    this.newSteal();
   }
 
   private finish() {
@@ -400,10 +447,12 @@ export class BatataQuente implements Activity {
     const holding = p === this.holder;
     const score = this.players.map((x) => ({ name: x.name, wins: this.wins.get(x.playerId) ?? 0 }));
     const q = this.q;
+    const sq = !holding && this.phase === "play" && this.hurryLeft > 0 ? this.stealQ : null;
     return {
       mode: "bomb",
       roundId: this.roundId,
-      promptId: this.promptId,
+      promptId: holding ? this.promptId : this.stealPromptId,
+      steal: sq ? { kind: sq.kind, prompt: sq.prompt, options: sq.options, lockedMs: Math.max(0, this.stealLockedUntil - gameNow()) || undefined } : undefined,
       holding: holding && this.phase === "play",
       holder: this.holder?.name ?? "",
       kind: q?.kind ?? "hear",
@@ -417,7 +466,7 @@ export class BatataQuente implements Activity {
       hurryLeft: !holding && this.phase === "play" ? this.hurryLeft : undefined,
       score,
       practice: this.inPractice || undefined,
-      debugAnswer: this.rt.testMode && holding ? { answer: q?.answer } : undefined,
+      debugAnswer: this.rt.testMode ? (holding ? { answer: q?.answer } : sq ? { steal: sq.answer } : undefined) : undefined,
     };
   }
 }

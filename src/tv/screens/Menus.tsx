@@ -709,7 +709,7 @@ export function ChampionScreen({ a }: { a: ChampionActivity }) {
         {a.stage === 0 ? "E a estrela da noite é… 🥁" : a.tie ? "Dois campeões! 👑👑" : `👑 ${top?.p.name ?? ""}!`}
         <i>{a.stage === 0 ? "And tonight's star is…" : a.tie ? "A tie — two champions!" : "Estrela da noite · Tonight's star"}</i>
       </div>
-      {a.stage > 0 && (
+      {(a.stage === 2 || (a.stage > 0 && a.tie)) && (
         <div className="podium">
           {[top, second].filter(Boolean).map((s) => {
             const first = s === top || a.tie;

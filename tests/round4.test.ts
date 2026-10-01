@@ -91,7 +91,7 @@ describe("harder co-op levels", () => {
 
 describe("host lines for the new bits", () => {
   it("has rules for Batata Quente and pre-records the named lines", () => {
-    expect(RULES.bomb.length).toBe(3);
+    expect(RULES.bomb.length).toBe(4);
     const spoken = hostSpoken();
     expect(spoken).toContain(NAMED.burned.pt.replace("{name}", "Ana"));
     expect(spoken).toContain(NAMED.hurryUp.pt.replace("{name}", "Hadi"));

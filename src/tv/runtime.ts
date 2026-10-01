@@ -70,7 +70,7 @@ export interface Settings {
 /** Name ideas for the puppy (Portuguese pet names). */
 export { PET_NAMES, PET };
 /** Things the puppy acts out on cue (on top of following the players' moods). */
-export type PetAct = "hide" | "sniff" | "crown" | "cheer" | "oops" | "think";
+export type PetAct = "hide" | "sniff" | "crown" | "cheer" | "oops" | "think" | "wave";
 
 const SETTINGS_KEY = "pp.tv.settings.v3";
 

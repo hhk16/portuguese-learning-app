@@ -72,8 +72,8 @@ function Gallery({ a }: { a: Desenha }) {
         <GameTop title="Desenha!" pic="🎨">
           <span className="pill">🖼️ Galeria {i + 1}/{a.gallery.length}</span>
         </GameTop>
-        <div className="gallery-big card" key={i}>
-          <ReplayCanvas strokes={g.strokes} ms={1700} />
+        <div className="gallery-big card">
+          <ReplayCanvas key={i} strokes={g.strokes} ms={1700} />
           <div className="gallery-caption">
             <Picture glyph={g.pic} size="2.4em" />
             <b className="display">{g.pt}</b>

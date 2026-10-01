@@ -1,4 +1,4 @@
-/** Batata Quente on the phone: answer fast to pass the potato — or, while it's not yours, tell them to hurry. */
+/** Batata Quente on the phone: answer fast to pass the potato — or, while it's not yours, answer your own question to heat it up. */
 import { useEffect } from "react";
 import type { ControllerView } from "../shared/protocol.ts";
 import { play } from "../audio/sfx.ts";
@@ -35,35 +35,57 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
       ))}
     </div>
   );
-  if (!v.holding)
+  if (!v.holding) {
+    const sq = v.steal;
+    const sLocked = sq?.lockedMs ?? 0;
     return (
       <div className="p-col bomb-safe">
         {score}
-        <div className="p-center">
-          <div className="p-bob">
-            <Picture glyph="🥔" size="96px" />
-          </div>
-          <div className="p-big">A batata está com {v.holder}!</div>
-          <div className="p-sub">The potato is with {v.holder}. When it comes back, answer fast!</div>
+        <div className="p-callout">
+          <b className="display">🥔 A batata está com {v.holder}!</b>
+          <span>The potato is with {v.holder}. When it comes back, answer fast!</span>
         </div>
-        {v.hurryLeft !== undefined && (
-          <button
-            className="btn block coral p-hero-btn"
-            disabled={v.hurryLeft <= 0}
-            onClick={() => {
-              play("tap");
-              navigator.vibrate?.(25);
-              send({ mode: "bomb", hurry: true });
-            }}
-          >
-            <span className="bi">
-              Despacha-te! 🔥 ({v.hurryLeft})
-              <small>Hurry them up — the fuse burns faster (it might come back to you!)</small>
-            </span>
-          </button>
+        {sq ? (
+          <>
+            <div className="p-callout hot">
+              <b className="display">🔥 Aquece a batata! ({v.hurryLeft ?? 0})</b>
+              <span>Right answer = the fuse burns shorter for {v.holder}. {ASK[sq.kind].en}</span>
+            </div>
+            {sq.prompt && (
+              <div className="bomb-prompt card">
+                {sq.prompt.pic && <Picture glyph={sq.prompt.pic} size="56px" />}
+                {sq.kind === "opposite" && <b className="display">{sq.prompt.pt}</b>}
+              </div>
+            )}
+            <div className="draw-options">
+              {sq.options.map((o) => (
+                <button
+                  key={o.pt}
+                  className="lopt card"
+                  disabled={sLocked > 0}
+                  onClick={() => {
+                    play("tap");
+                    navigator.vibrate?.(20);
+                    send({ mode: "bomb", steal: o.pt });
+                  }}
+                >
+                  <span>{o.pt}</span>
+                </button>
+              ))}
+            </div>
+            {sLocked > 0 && <div className="bomb-locked display">✗ Errado! Espera… · Wrong — wait a moment</div>}
+          </>
+        ) : (
+          <div className="p-center">
+            <div className="p-bob">
+              <Picture glyph="🥔" size="96px" />
+            </div>
+            <div className="p-sub">{v.hurryLeft === 0 ? "Já aqueceste três vezes! Agora espera. · You've heated it three times — now wait." : "Olha para a TV! · Watch the TV!"}</div>
+          </div>
         )}
       </div>
     );
+  }
   const ask = ASK[v.kind];
   const answer = (a: string) => {
     if (locked > 0) return;

@@ -56,7 +56,7 @@ export function BombScreen({ a }: { a: BatataQuente }) {
             <PlayerChip p={p} size="2.4em" />
             {hurrier && hurrier === p && (
               <span className="hurry-bubble display" key={a.hurrySeq}>
-                Despacha-te! 🔥
+                Aquece! 🔥 −1s
               </span>
             )}
           </div>
@@ -79,6 +79,7 @@ export function BombScreen({ a }: { a: BatataQuente }) {
           <span className="wick-spark" style={{ left: `${Math.max(0, (1 - heat) * 100)}%` }}>
             ✨
           </span>
+          {a.fuseEnd - gameNow() < 5000 && <span className="wick-secs display">{Math.max(0, Math.ceil((a.fuseEnd - gameNow()) / 1000))}</span>}
           {fast && (
             <span className="wick-fast display" key={fast.at}>
               🔥 Rápido! −1s <i>Fast answer: hotter potato!</i>

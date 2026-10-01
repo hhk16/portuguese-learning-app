@@ -19,7 +19,7 @@ import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
+import { CUE, NAMED, PET, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { normWord } from "../sync/sync.ts";
 import { selectItem } from "../../learner/selector.ts";
@@ -348,6 +348,8 @@ export class Desenha implements Activity {
     if (drawer) {
       this.contrib.set(drawer.playerId, (this.contrib.get(drawer.playerId) ?? 0) + 3);
       this.rt.say(NAMED.bestBy, { name: drawer.name, interrupt: true });
+      // The puppy waves its paws at the winning drawing.
+      this.rt.petDo("wave", 3500, PET.loves, 0.5);
       this.rt.emote(drawer.playerId, "cheer", 3500);
     }
     this.phase = "best";
@@ -488,6 +490,7 @@ export class Desenha implements Activity {
     } else {
       play("fail-jingle");
       this.rt.say(SAY.timeUp, { interrupt: true });
+      this.rt.petDo("think", 2200);
       for (const p of this.players) this.rt.emote(p.playerId, "sad", 2000);
     }
     this.rt.speakPt(this.word.say);

@@ -207,6 +207,8 @@ export class Stop implements Activity {
         this.phaseEnd = gameNow() + HURRY_MS;
         play("buzzer");
         this.rt.say(SAY.stop, { interrupt: true });
+        // "STOP!" is loud: the puppy covers up.
+        this.rt.petDo("hide", 2000);
         this.rt.emote(p.playerId, "cheer", 2000);
         for (const o of this.players) if (o !== p) this.rt.emote(o.playerId, "sad", 1500);
         this.rt.refreshViews();

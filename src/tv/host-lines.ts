@@ -48,6 +48,7 @@ export const RULES: Record<Mode, Line[]> = {
     { pt: "A batata está quente! Responde no telemóvel.", en: "The potato is hot! Answer on your phone." },
     { pt: "Acertaste? A batata passa para o outro.", en: "Got it right? The potato goes to the other player." },
     { pt: "Quando explodir, quem a tiver perde!", en: "When it blows up, whoever is holding it loses!" },
+    { pt: "Sem a batata? Acerta na tua pergunta e aquece-a!", en: "Not holding it? Answer your own question to heat it up!" },
   ],
   final: [
     { pt: "A Grande Final! Um contra o outro.", en: "The Grand Final! Head to head." },

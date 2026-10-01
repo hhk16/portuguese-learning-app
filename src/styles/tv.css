@@ -1061,7 +1061,7 @@ html.tv-root #root {
 }
 .sync-verdict {
   position: absolute;
-  top: 42%;
+  top: 83%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 2.2em;
@@ -2987,4 +2987,26 @@ html.tv-root #root {
   font-style: normal;
   font-size: 0.5em;
   color: var(--ink-2);
+}
+
+.rush-opt.right {
+  outline: 0.3rem solid var(--mint);
+  background: #dcf7ea;
+  transform: scale(1.08);
+}
+.rush-opt.dim {
+  opacity: 0.4;
+}
+
+.wick-secs {
+  position: absolute;
+  right: -3.2rem;
+  top: -0.9rem;
+  font-size: 2.4rem;
+  color: #d9472b;
+  animation: wick-pulse 0.5s ease-in-out infinite alternate;
+}
+@keyframes wick-pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.25); }
 }

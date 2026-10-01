@@ -37,7 +37,7 @@ function RushView({ a }: { a: LearnActivity }) {
             <Picture glyph="🔊" size="4em" />
             <div className="rush-options">
               {r.options.map((o) => (
-                <span key={o.itemId} className="rush-opt">
+                <span key={o.itemId} className={`rush-opt ${r.settled ? (o.itemId === r.card.itemId ? "right" : "dim") : ""}`}>
                   {r.pictures ? <Picture glyph={o.emoji} size="3.4em" /> : <b className="display">{o.pt}</b>}
                 </span>
               ))}

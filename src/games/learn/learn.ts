@@ -249,6 +249,8 @@ export class LearnActivity implements Activity {
     r.combo = 0;
     r.hearts--;
     r.last = { ok: false, seq: (r.last?.seq ?? 0) + 1, pt: r.card.pt };
+    // Hear it once more, now that you know which one it was.
+    setTimeout(() => this.rt.activity === this && this.rt.speakPt(r.card.say), 350);
     play("buzzer", 0.5);
     for (const p of this.players) this.rt.emote(p.playerId, "sad", 1200);
     if (r.hearts <= 0) {
@@ -401,7 +403,7 @@ export class LearnActivity implements Activity {
     // The lesson only counts as done once its lightning round is beaten.
     if (won) markLessonDone(this.lesson.id, this.rushOnly ? 2 : stars >= 0.85 ? 3 : stars >= 0.6 ? 2 : 1);
     void this.rt.learner.sync().then(() => this.rt.learner.pushSnapshot());
-    this.onDone({
+    const summary: LearnSummary = {
       stars: this.stars,
       graded: this.graded,
       perPlayer: [...this.perPlayer].map(([playerId, v]) => ({ playerId, ...v })),
@@ -409,7 +411,12 @@ export class LearnActivity implements Activity {
       bestCombo: this.bestCombo,
       rush: r ? { team: r.team, asked: r.asked, goal: RUSH_GOAL, won } : undefined,
       rushOnly: this.rushOnly || undefined,
-    });
+    };
+    if (!r) return this.onDone(summary);
+    // The boss's outcome gets its own beat on the TV before the results.
+    this.rt.cue(won ? { pt: "⚡ Relâmpago superado!", en: "Lightning round beaten — lesson complete!" } : { pt: "⚡ Relâmpago perdido!", en: "Lightning round lost — try it again!" });
+    this.rt.bump();
+    setTimeout(() => this.rt.activity === this && this.onDone(summary), 2200);
   }
 
   /* --------------------------------- views --------------------------------- */

@@ -12905,6 +12905,14 @@
   "text": "seiscentos",
   "voice": "pt_PT-tugão-medium"
  },
+ "sem a batata? acerta na tua pergunta e aquece-a!": {
+  "file": "0269dc2067.mp3",
+  "lengthScale": 1.12,
+  "say": "Sem a batata? Acerta na tua pergunta e aquece-a!",
+  "source": "piper",
+  "text": "Sem a batata? Acerta na tua pergunta e aquece-a!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "sem sinal! a rádio saiu do ar!": {
   "file": "1c7eb770a0.mp3",
   "lengthScale": 1.12,

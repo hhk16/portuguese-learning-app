@@ -697,7 +697,11 @@ export class ResultsActivity implements Activity {
     const champs = nightTop.filter(([, v]) => v === nightTop[0]?.[1]).map(([id]) => id);
     for (const p of rt.activePlayers) {
       let gain: number;
-      if (xp === "lesson") gain = 20 + 10 * (lesson ? Math.round((3 * lesson.stars) / Math.max(1, lesson.graded)) : 1) + 2 * (lesson?.rush?.team ?? 0);
+      if (xp === "lesson") {
+        gain = 20 + 10 * (lesson ? Math.round((3 * lesson.stars) / Math.max(1, lesson.graded)) : 1) + 2 * (lesson?.rush?.team ?? 0);
+        // A lesson isn't complete until its lightning round is beaten: less XP until then.
+        if (lesson?.rush && !lesson.rush.won) gain = Math.round(gain * 0.6);
+      }
       else if (xp === "game") gain = 15 + 10 * (stars ?? 0) + (winner === p.playerId ? 15 : 0);
       else gain = 40 + (champs.includes(p.playerId) ? 40 : 0);
       this.awards.set(p.playerId, award(p.profile, gain, { lesson: xp === "lesson", game: xp === "game", win: winner === p.playerId, crown: xp === "night" && champs.includes(p.playerId) }));
@@ -938,7 +942,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
               new ResultsActivity({
                 spec,
                 title: lesson.title,
-                headline: s.rushOnly ? (lost ? `Quase! ${s.rush!.team}/${s.rush!.goal} ⚡` : "Relâmpago superado! ⚡") : lost ? `Quase! ${s.stars} ⭐ de ${s.graded}` : `${s.stars} ⭐ de ${s.graded}`,
+                headline: s.rushOnly ? (lost ? `Quase! ${s.rush!.team}/${s.rush!.goal} ⚡` : "Relâmpago superado! ⚡") : lost ? `Lição por completar ⚡ ${s.rush!.team}/${s.rush!.goal}` : `${s.stars} ⭐ de ${s.graded}`,
                 headlineEn: lost ? "So close — beat the lightning round to complete the lesson" : s.rushOnly ? "Lesson complete!" : undefined,
                 sub: s.rushOnly ? rushLine.trim() : `${s.stars === s.graded ? "Perfeito! Os dois acertaram tudo." : "Estrelas de equipa: quando os dois acertam."}${s.bestCombo >= 3 ? ` Melhor combo: ×${s.bestCombo}!` : ""}${rushLine}`,
                 subEn: s.rushOnly ? rushLineEn.trim() : `${s.stars === s.graded ? "Perfect — you both got everything right." : "Team stars: when you're both right."}${s.bestCombo >= 3 ? ` Best combo ×${s.bestCombo}!` : ""}${rushLineEn}`,

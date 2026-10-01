@@ -18,7 +18,7 @@ import { play } from "../../audio/sfx.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { CUE, SAY } from "../../tv/host-lines.ts";
+import { CUE, PET, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { LINKS, linksOf, type Link } from "./links.ts";
 import { selectItem } from "../../learner/selector.ts";
@@ -409,6 +409,8 @@ export class EmSintonia implements Activity {
         this.rt.addScore(p, pts * 50, "sync");
       }
       this.rt.say(this.attempt === 1 ? SAY.perfect : SAY.inSync);
+      // The puppy jumps for joy when you think the same word.
+      this.rt.petDo("cheer", 2600, PET.loves, 0.4);
       this.rt.speakPt(words[0]);
     } else {
       play("sad-trombone", 0.6);
@@ -419,6 +421,7 @@ export class EmSintonia implements Activity {
         this.lives--;
         play("boom", 0.5);
         this.rt.say(this.lives <= 0 ? SAY.livesOut : SAY.lifeLost);
+        this.rt.petDo("oops", 2400);
       }
     }
     this.rt.refreshViews();
@@ -489,7 +492,7 @@ export class EmSintonia implements Activity {
       return {
         mode: "wait",
         title: this.lastMatch ? "Em sintonia! 🎉" : this.closeMiss ? "Quase!" : "Nada disso!",
-        subtitle: this.lastMatch ? "In sync!" : `${this.closeMiss ? "So close" : "Not quite"} — ${this.attempt < this.rules.tries ? "same pair again. Olha para a TV!" : "next pair. Olha para a TV!"}`,
+        subtitle: this.lastMatch ? "In sync!" : `${this.closeMiss ? "So close" : "Not quite"} — ${this.attempt < this.rules.tries ? "now link your two words. Olha para a TV!" : "next pair. Olha para a TV!"}`,
         pic: this.lastMatch ? "🥳" : "🤔",
       };
     const base = {

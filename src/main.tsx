@@ -29,6 +29,14 @@ const App = isPhone
       return { default: (await import("./tv/TvApp.tsx")).TvApp };
     });
 
+// Walkthrough recordings (?clock=1): a shared wall clock in the corner, so the TV and phone videos can be lined up.
+if (new URLSearchParams(location.search).get("clock") === "1") {
+  const el = Object.assign(document.createElement("div"), { id: "rec-clock" });
+  el.style.cssText = "position:fixed;right:6px;bottom:4px;z-index:99999;font:700 13px monospace;color:#fff;background:rgba(0,0,0,.55);padding:1px 6px;border-radius:6px;pointer-events:none";
+  document.body.appendChild(el);
+  setInterval(() => (el.textContent = `⏱ ${((Date.now() / 1000) % 10000).toFixed(1)}`), 100);
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Suspense fallback={null}>

@@ -275,8 +275,17 @@ export const ControllerView = z.discriminatedUnion("mode", [
     round: z.number().int().nonnegative(),
     rounds: z.number().int().positive(),
     double: z.boolean().optional(),
-    /** The waiting player's "Despacha-te!" presses left (each shortens the fuse a little). */
+    /** The waiting player's "Aquece!" answers left (each right one shortens the fuse). */
     hurryLeft: z.number().int().nonnegative().optional(),
+    /** "Aquece!": the safe player's own quick question (read, not heard). */
+    steal: z
+      .object({
+        kind: z.enum(["hear", "see", "opposite", "number", "hearNumber", "phrase"]),
+        prompt: Word.optional(),
+        options: z.array(Word).max(6),
+        lockedMs: z.number().nonnegative().optional(),
+      })
+      .optional(),
     score: z.array(z.object({ name: shortText, wins: z.number().int().nonnegative() })).max(4),
   }),
   /** Cozinha Caótica — your half of the pantry; the orders are on the TV. */
@@ -343,7 +352,7 @@ export const InputValue = z.discriminatedUnion("mode", [
     ]),
   }),
   z.object({ mode: z.literal("petName"), name: z.string().trim().min(1).max(16).optional(), skip: z.boolean().optional() }),
-  z.object({ mode: z.literal("bomb"), answer: z.string().trim().min(1).max(40).optional(), hurry: z.boolean().optional() }),
+  z.object({ mode: z.literal("bomb"), answer: z.string().trim().min(1).max(40).optional(), hurry: z.boolean().optional(), steal: z.string().trim().min(1).max(40).optional() }),
   z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40).optional(), sense: z.boolean().optional(), predict: z.boolean().optional() }),
   z.object({
     mode: z.literal("draw"),

@@ -54,7 +54,7 @@ const tvCtx = await browser.newContext({ viewport: { width: 1920, height: 1080 }
 const tv = await tvCtx.newPage();
 starts.tv = Date.now();
 watch(tv, "tv");
-await tv.goto(`${BASE}/tv?test=1`);
+await tv.goto(`${BASE}/tv?test=1${VIDEO ? "&clock=1" : ""}`);
 await tv.waitForSelector(".room-code", { timeout: 20000 });
 const code = (await tv.textContent(".room-code"))!.trim();
 console.log("room", code);
@@ -67,7 +67,7 @@ async function makePhone(name: string, avatarIdx: number, colorIdx: number, skil
   const page = await ctx.newPage();
   starts[name] = Date.now();
   watch(page, name);
-  await page.goto(`${BASE}/play?room=${code}`);
+  await page.goto(`${BASE}/play?room=${code}${VIDEO ? "&clock=1" : ""}`);
   await page.fill('input[autocomplete="nickname"]', name);
   await page.locator(".avatar-grid button").nth(avatarIdx).click();
   await page.locator(".color-row button").nth(colorIdx).click();
@@ -342,7 +342,8 @@ async function botStep(b: Bot, seen: Set<string>) {
       else await nap(pg, 1200 + Math.random() * 2600);
       await shoot(`final-${v.kind}`, b);
       const answer = (v.debugAnswer as { answer: string }).answer;
-      const right = Math.random() < b.skill;
+      // Lightning-round words were just taught in the lesson: a little easier than the Final.
+      const right = Math.random() < b.skill + (v.label ? 0.15 : 0);
       const opts = (v.options as { pt: string }[] | undefined) ?? [];
       if (opts.length) {
         const pick = right ? opts.find((o) => o.pt === answer) : opts.find((o) => o.pt !== answer);
@@ -493,14 +494,17 @@ async function stopStep(b: Bot, v: View, seen: Set<string>) {
 async function bombStep(b: Bot, v: View, seen: Set<string>) {
   const pg = b.page;
   if (!v.holding) {
-    // The safe player sometimes tells the other one to hurry up (it burns the fuse faster).
-    const key = `bomb:hurry:${v.promptId}`;
-    if (typeof v.hurryLeft === "number" && v.hurryLeft > 0 && !seen.has(key) && Math.random() < 0.35) {
-      seen.add(key);
-      await nap(pg, 500);
-      await shoot("bomb-safe", b);
-      return click(pg, ".btn", "Despacha-te");
-    }
+    // "Aquece!": the safe player answers their own question (usually right) to burn the fuse.
+    const steal = v.steal as { options: { pt: string }[]; lockedMs?: number } | undefined;
+    const key = `bomb:steal:${v.promptId}`;
+    if (!steal || steal.lockedMs || seen.has(key)) return;
+    seen.add(key);
+    await nap(pg, 900 + Math.random() * 1500);
+    await shoot("bomb-safe", b);
+    const want = (v.debugAnswer as { steal?: string } | undefined)?.steal;
+    const pick = Math.random() < b.skill ? steal.options.find((o) => o.pt === want) : steal.options.find((o) => o.pt !== want);
+    const i = steal.options.indexOf(pick ?? steal.options[0]!);
+    if (i >= 0) await pg.locator(".bomb-safe .draw-options .lopt").nth(i).click({ timeout: 2500 }).catch(() => {});
     return;
   }
   const key = `bomb:${v.promptId}:${v.lockedMs ? "l" : ""}`;
