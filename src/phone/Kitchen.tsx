@@ -40,13 +40,50 @@ function TipCard({ tip, onSend }: { tip: NonNullable<V["tip"]>; onSend: (text: s
   );
 }
 
+/** "📞 Pedido por telefone": write the order for these pictures; your partner cooks from your sentence. */
+function CallCard({ call, onSend }: { call: NonNullable<V["call"]>; onSend: (text: string) => void }) {
+  const [text, setText] = useState("");
+  const left = useCountdown(call.msLeft);
+  return (
+    <form
+      className="p-callout hot tip-card call-card"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!text.trim()) return;
+        play("lock");
+        onSend(text.trim());
+      }}
+    >
+      <span className="tip-ask">
+        <b className="display">📞 Pedido por telefone!</b>
+        <span className={`pill ${left < 6000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>
+      </span>
+      <span className="call-items">
+        {call.items.map((it, i) => (
+          <span key={i} className="call-item">
+            <Picture glyph={it.pic} size="40px" />
+            <b>×{it.n}</b>
+          </span>
+        ))}
+      </span>
+      <span className="muted">Write this order in Portuguese — your partner cooks from what you write! (um/uma, dois/duas…)</span>
+      <span className="sync-form">
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Queria … , por favor." autoCapitalize="sentences" autoCorrect="off" spellCheck={false} maxLength={120} autoFocus />
+        <button className="btn player" type="submit" disabled={!text.trim()}>
+          OK
+        </button>
+      </span>
+    </form>
+  );
+}
+
 export function Kitchen({ v, send }: { v: V; send: Send }) {
   const left = useCountdown(v.msLeft);
   const act = (
     a: Extract<Parameters<Send>[0], { mode: "kitchen" }>["action"],
   ) => send({ mode: "kitchen", action: a });
   return (
-    <div className={`p-col kitchen-pad ${v.tip ? "tipping" : ""}`}>
+    <div className={`p-col kitchen-pad ${v.tip || v.call ? "tipping" : ""}`}>
       <div className="kitchen-head">
         <span className="pill">⭐ {v.score}</span>
         <span className="pill hearts-mini">{"♥".repeat(v.hearts)}</span>
@@ -57,8 +94,9 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
           </span>
         )}
       </div>
-      {v.tip && <TipCard key={v.tip.bonus + ":" + v.served} tip={v.tip} onSend={(text) => act({ a: "tip", text })} />}
-      {v.swapped && !v.tip && (
+      {v.call && <CallCard key={`call-${v.served}`} call={v.call} onSend={(text) => act({ a: "call", text })} />}
+      {v.tip && !v.call && <TipCard key={v.tip.bonus + ":" + v.served} tip={v.tip} onSend={(text) => act({ a: "tip", text })} />}
+      {v.swapped && !v.tip && !v.call && (
         <div className="p-warn">
           Troca! 🔄 Tens comida nova. · Swap! You have new food.
         </div>
@@ -111,7 +149,7 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
       <div className="p-grow" />
       {/* Always on screen, even in rush hour: the actions are pinned to the bottom. */}
       <div className="kitchen-actions">
-        {v.replay && v.replay.length > 0 && !v.tip && (
+        {v.replay && v.replay.length > 0 && !v.tip && !v.call && (
           <div className="replay-row">
             <span className="kicker">
               🔊 Ouvir outra vez · Hear again (−3 s)

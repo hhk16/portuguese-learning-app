@@ -99,6 +99,8 @@ export class BatataQuente implements Activity {
   passSeq = 0;
   hurrySeq = 0;
   lastHurry: { by: string; at: number } | null = null;
+  /** The safe player's last "Aquece!" answer, shown on the TV for a moment (the duel is visible to the room). */
+  lastSteal: { ok: boolean; wrote: string; answer: string; at: number } | null = null;
   /** "Aquece!": the safe player's own question (no audio — the TV speaks for the holder). */
   stealQ: Question | null = null;
   stealPromptId = randomId(6);
@@ -352,6 +354,8 @@ export class BatataQuente implements Activity {
       const typedOk = sq.typed && ["correct", "accent-slip", "close"].includes(matchAnswer(value.steal.toLowerCase(), [sq.answer, sq.answer.replace(/^(o|a|os|as) /, "")]));
       const right = sq.typed ? typedOk : value.steal === sq.answer;
       if (sq.itemId) this.rt.evidence(p, sq.itemId, `bomb.${sq.kind}${sq.typed ? ".typed" : ""}`, right ? "correct" : "wrong", sq.typed ? 2 : 1);
+      this.lastSteal = { ok: !!right, wrote: value.steal.slice(0, 24), answer: sq.answer, at: gameNow() };
+      this.rt.bump();
       if (!right) {
         play("buzzer", 0.4);
         this.stealLockedUntil = gameNow() + STEAL_LOCK_MS;

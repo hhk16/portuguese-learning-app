@@ -1,4 +1,6 @@
 /** Title menu, lobby, results and pause — calm white cards on the toy-world stage. */
+import { clipOf, frameAt } from "../../art/anim.ts";
+import { glossOf } from "../../curriculum/gloss.ts";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 import { paintStrokes } from "../../ui/Sketch.tsx";
@@ -372,7 +374,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
                 <span key={`${w.pt}-${i}`} className="word-chip">
                   {w.pic && <Picture glyph={w.pic} size="1.6em" />}
                   <b>{w.pt}</b>
-                  {w.en && <i>{w.en}</i>}
+                  {(w.en ?? glossOf(w.pt)) && <i>{w.en ?? glossOf(w.pt)}</i>}
                 </span>
               ))}
             </div>
@@ -579,10 +581,32 @@ export function PetStar() {
   if (!act?.spotlight || left <= 0) return null;
   const pose = act.pose === "think" ? "think" : act.pose;
   return (
-    <div className={`pet-star ${pose} at-${act.anchor ?? "right"}`} key={act.seq}>
-      <img src={`/art/pet/pup-${pose}.webp`} alt="" />
+    <div className={`pet-star ${pose} at-${act.anchor ?? "right"} ${clipOf("pup", pose) ? "framed" : ""}`} key={act.seq}>
+      <PupFrames pose={pose} />
       {rt.settings.petName && <span className="pet-star-tag display">{rt.settings.petName}</span>}
     </div>
+  );
+}
+
+/** The puppy acting out a clip in frames (falls back to its pose picture). */
+function PupFrames({ pose }: { pose: string }) {
+  const clip = clipOf("pup", pose);
+  const [t0] = useState(() => performance.now());
+  const [, force] = useState(0);
+  useEffect(() => {
+    if (!clip) return;
+    const id = setInterval(() => force((x) => x + 1), Math.max(60, 1000 / clip.spec.fps / 2));
+    return () => clearInterval(id);
+  }, [clip]);
+  if (!clip) return <img src={`/art/pet/pup-${pose}.webp`} alt="" />;
+  const fi = frameAt(clip.spec, (performance.now() - t0) / 1000);
+  return (
+    <>
+      {/* Every frame stays mounted (no flicker while one loads); only the current one shows. */}
+      {clip.urls.map((u, i) => (
+        <img key={u} src={u} alt="" style={i === fi ? undefined : { display: "none" }} />
+      ))}
+    </>
   );
 }
 

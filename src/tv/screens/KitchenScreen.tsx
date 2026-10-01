@@ -59,7 +59,24 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
                 {a.rules.tables ? `Mesa ${t.table}` : `#${i + 1}`}
                 {t.done === "served" && t.points ? <b className="ticket-pts">+{t.points}</b> : null}
               </div>
-              {a.ticketShows(t).text ? (
+              {t.phone && t.phone.wrote === undefined ? (
+                <div className="ticket-text phone">
+                  📞 <span>{t.phone.name} está a escrever o pedido…</span>
+                  <i>Phone order: {t.phone.name} writes it on the phone — then cook it!</i>
+                </div>
+              ) : t.phone?.wrote ? (
+                <div className="ticket-text phone-wrote">
+                  <span>📞 “{t.phone.wrote}”</span>
+                  <span className="phone-marks">
+                    {t.phone.marks?.map((m) => (
+                      <b key={m.want} className={m.ok ? "ok" : "miss"}>
+                        {m.ok ? "✓" : "✗"} {m.want}
+                      </b>
+                    ))}
+                    {t.phone.polite && <b className="ok">✓ educado</b>}
+                  </span>
+                </div>
+              ) : a.ticketShows(t).text ? (
                 <div className="ticket-text">“{t.order.text}”</div>
               ) : (
                 <div className="ticket-text listen">

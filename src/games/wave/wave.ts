@@ -8,6 +8,7 @@
  * double-or-nothing, then locks it. Drumroll, reveal. Closer = more points; the last dial counts
  * double. Harder levels: narrower bands, fewer clue chips, less time.
  */
+import { glossOf } from "../../curriculum/gloss.ts";
 import { getItem } from "../../curriculum/index.ts";
 import { cardOf, type LearnCard } from "../../curriculum/learn.ts";
 import type { ItemOf } from "../../curriculum/schema.ts";
@@ -387,7 +388,7 @@ export class NaMesmaOnda implements Activity {
           headlineEn: this.offAir ? `Off the air! ${this.score} points` : `${headlineEn} ${this.score} points`,
           sub: this.offAir ? `A rádio saiu do ar no mostrador ${this.history.length} · ${bulls} em cheio` : `${bulls} em cheio · ainda no ar com ${this.signals} sina${this.signals === 1 ? "l" : "is"}: +${SIGNAL_BONUS * this.signals}`,
           subEn: this.offAir ? `The show went off-air after ${this.history.length} dials` : `${bulls} bullseye${bulls === 1 ? "" : "s"} · still on air: signal bonus`,
-          words: this.history.map((h) => ({ pt: h.clue, en: h.clueEn, pic: h.cluePic })),
+          words: this.history.map((h) => ({ pt: h.clue, en: h.clueEn ?? glossOf(h.clue), pic: h.cluePic })),
           contrib: Object.fromEntries(this.contrib),
           highlight: (() => {
             const best = [...this.history].sort((x, y) => y.points - x.points)[0];

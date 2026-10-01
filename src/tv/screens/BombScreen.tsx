@@ -54,6 +54,7 @@ export function BombScreen({ a }: { a: BatataQuente }) {
         {players.map((p, i) => (
           <div key={p.playerId} className={`bomb-seat ${i === 0 ? "left" : "right"} ${p === holder && a.phase !== "boom" ? "hot" : ""} ${a.burned === p ? "burned" : ""}`}>
             <PlayerChip p={p} size="2.4em" />
+            {a.phase === "play" && p === a.other && a.stealQ && a.hurryLeft > 0 && <StealCard a={a} />}
             {hurrier && hurrier === p && (
               <span className="hurry-bubble display" key={a.hurrySeq}>
                 Aquece! 🔥 −1s
@@ -126,6 +127,28 @@ export function BombScreen({ a }: { a: BatataQuente }) {
             {a.burned.name} queimou-se! · {a.burned.name} got burned{a.inPractice ? " (Ensaio — doesn't count)" : ""}
           </i>
         </div>
+      )}
+    </div>
+  );
+}
+
+/** The safe player's "Aquece!" question on the TV, so the room sees the duel (and the answer after a try). */
+function StealCard({ a }: { a: BatataQuente }) {
+  const sq = a.stealQ!;
+  const last = a.lastSteal && gameNow() - a.lastSteal.at < 1800 ? a.lastSteal : null;
+  return (
+    <div className={`card bomb-steal ${last ? (last.ok ? "ok" : "miss") : ""}`}>
+      <span className="kicker">
+        🔥 Aquece! ({a.hurryLeft}) {sq.typed ? "✍️" : ""}
+      </span>
+      <span className="bs-q">
+        {sq.prompt?.pic && <Picture glyph={sq.prompt.pic} size="1.8em" />}
+        {sq.kind === "opposite" && sq.prompt && <b>≠ {sq.prompt.pt}</b>}
+      </span>
+      {last && (
+        <b className="bs-res">
+          {last.ok ? "✓" : "✗"} “{last.wrote}”{!last.ok && <i> → {last.answer}</i>}
+        </b>
       )}
     </div>
   );

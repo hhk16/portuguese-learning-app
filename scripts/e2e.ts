@@ -576,6 +576,16 @@ async function kitchenStep(b: Bot, v: View) {
   await shoot(`kitchen-${b.name}`, b);
   const d = v.debugAnswer as { add: string[]; wrongTray: boolean; serve: boolean; table?: number; tip?: string };
   const pantry = v.pantry as { id: string; pt: string }[];
+  // "📞 Pedido por telefone": write the order (usually right; sometimes a gender slip: "um sopa").
+  const dc = v.debugAnswer as { call?: string };
+  if (v.call && dc.call && !tipsAnswered.has(`call:${b.name}:${v.served}`)) {
+    tipsAnswered.add(`call:${b.name}:${v.served}`);
+    await nap(pg, 3000 + Math.random() * 4000);
+    const text = Math.random() < b.skill ? dc.call : dc.call.replace(/\buma\b/, "um").replace(/\bduas\b/, "dois");
+    await pg.fill(".call-card input", text).catch(() => {});
+    await shoot("kitchen-call", b);
+    return click(pg, ".call-card .btn", "OK");
+  }
   // "Gorjeta!": type the dish (usually right; sometimes without the article, sometimes wrong).
   if (v.tip && d.tip && !tipsAnswered.has(`${b.name}:${v.served}`)) {
     tipsAnswered.add(`${b.name}:${v.served}`);

@@ -169,7 +169,7 @@ export class LearnActivity implements Activity {
       // Nobody (or only one of you) answered in time: that costs a heart — and a beat to see the word.
       if (r.wordEnd && !r.settled) {
         this.rushMiss();
-        if (r.hearts > 0) r.wordEnd = now + 1300;
+        if (r.hearts > 0) r.wordEnd = now + (r.typed ? 2800 : 1300);
         return;
       }
       if (!this.finished) this.nextRushWord();
@@ -260,7 +260,7 @@ export class LearnActivity implements Activity {
         if (this.finished) return;
       }
       // A beat to see it, then the next word.
-      r.wordEnd = Math.min(r.wordEnd, gameNow() + 1300);
+      r.wordEnd = Math.min(r.wordEnd, gameNow() + (r.typed ? 2800 : 1300));
     }
     this.rt.view(p, this.viewFor(p));
     this.rt.bump();

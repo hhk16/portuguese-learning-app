@@ -18,7 +18,7 @@ import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
 import { CUE, PET, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
-import { amount, DISHES, MENUS, orderBook, TABLE_SAY, type Dish, type Menu, type Order } from "./menu.ts";
+import { amount, DISHES, gradeOrder, MENUS, orderBook, orderSentence, TABLE_SAY, type Dish, type Menu, type Order } from "./menu.ts";
 
 export const SHIFT_MS = 150_000;
 /** The last stretch: customers come faster and every order is worth double. */
@@ -30,6 +30,12 @@ const MAX_TICKETS = 3;
 /** "Gorjeta!": every third plate, whoever served it types the dish's name for a tip (that order's points again). */
 export const TIP_EVERY = 3;
 export const TIP_MS = 11_000;
+/** "📞 Pedido por telefone": twice a shift, one of you writes an order from pictures; the other cooks from it. */
+export const CALLS = 2;
+export const CALL_MS = 25_000;
+/** Points per item written right (number + gender + plural), and for a polite order. */
+export const CALL_ITEM = 10;
+export const CALL_POLITE = 5;
 
 /**
  * Difficulty: what the ticket shows, whether you must serve the right table, patience, swaps.
@@ -61,6 +67,8 @@ export interface Ticket {
   table: number;
   /** Replayed on Médio: the text shows now. */
   revealed?: boolean;
+  /** A phone order: who writes it, what they wrote, and how each item came out. */
+  phone?: { by: string; name: string; until: number; wrote?: string; marks?: { want: string; ok: boolean }[]; polite?: boolean };
 }
 
 /** Points for an order: 10 per item plus a speed bonus (up to 10), doubled in rush hour. */
@@ -111,6 +119,8 @@ export class Cozinha implements Activity {
   private semAnnounced = false;
   /** The tip question for whoever served (null when none); `result` shows on the TV for a moment. */
   tip: { playerId: string; name: string; dish: string; until: number; bonus: number; result?: { ok: boolean; wrote: string } } | null = null;
+  private calls = 0;
+  private callTurn = 0;
   /** Items each player put on trays that were served (the MVP split on game night). */
   contrib = new Map<string, number>();
   private readonly onDone: (r: GameOutcome) => void;
@@ -140,6 +150,8 @@ export class Cozinha implements Activity {
   }
   ticketShows(t: Ticket): { text: boolean; pictures: boolean } {
     if (this.inPractice) return { text: true, pictures: true };
+    // A phone order: the partner cooks from what was written (the order shows only if nothing was).
+    if (t.phone) return { text: t.phone.wrote === "", pictures: !!t.hinted };
     const show = this.rules.show;
     if (show === "text") return { text: true, pictures: !!t.hinted };
     if (show === "audio") return { text: !!t.revealed || !!t.hinted, pictures: false };
@@ -185,9 +197,20 @@ export class Cozinha implements Activity {
     const pool = this.book.filter((o) => o.level === lvl && !openTexts.has(o.text));
     const order = this.rt.rng.pick(pool.length ? pool : this.book);
     const n = Object.values(order.items).reduce((s, x) => s + x, 0);
-    const patience = (this.rules.patience + this.rules.perItem * (n - 1)) * (this.rush ? 0.85 : 1);
     const used = new Set(this.open.map((t) => t.table));
     const table = [1, 2, 3].find((n) => !used.has(n)) ?? 1;
+    // A phone order: no extras ("com/sem"), and only one at a time.
+    const caller = this.callerNow(order);
+    const patience = (this.rules.patience + this.rules.perItem * (n - 1) + (caller ? CALL_MS : 0)) * (this.rush ? 0.85 : 1);
+    if (caller) {
+      this.calls++;
+      this.tickets.push({ id: randomId(5), order, arrived: now, deadline: now + patience, table, phone: { by: caller.playerId, name: caller.name, until: now + CALL_MS } });
+      play("ding", 0.8, 1.4);
+      this.rt.say(SAY.phoneOrder, { interrupt: true });
+      this.rt.view(caller, this.viewFor(caller));
+      this.rt.bump();
+      return;
+    }
     this.tickets.push({ id: randomId(5), order, arrived: now, deadline: now + patience, table });
     play("ding");
     if (order.level === 4 && !this.semAnnounced) {
@@ -196,6 +219,33 @@ export class Cozinha implements Activity {
     }
     if (this.rules.tables) void this.rt.speakSeq([order.text, TABLE_SAY[table]!]);
     else this.rt.speakPt(order.text);
+    this.rt.bump();
+  }
+
+  /** Who writes the next order on the phone (undefined: an ordinary customer). */
+  private callerNow(order: Order): RuntimePlayer | undefined {
+    if (this.inPractice || this.calls >= CALLS || this.players.length < 2 || this.rush) return undefined;
+    if (this.served < (this.calls === 0 ? 2 : 6) || order.with || order.without || this.open.some((t) => t.phone)) return undefined;
+    const p = this.players[this.callTurn++ % 2]!;
+    // Not the one who's busy with a tip.
+    return this.tip?.playerId === p.playerId ? this.players.find((x) => x !== p) : p;
+  }
+
+  /** The phone order was written (or ran out of time: ""). */
+  private callDone(t: Ticket, text: string) {
+    const ph = t.phone!;
+    if (ph.wrote !== undefined) return;
+    ph.wrote = text.slice(0, 120);
+    if (text) {
+      const g = gradeOrder(text, t.order.items);
+      ph.marks = g.marks;
+      ph.polite = g.polite;
+      const p = this.rt.players.get(ph.by);
+      if (p) for (const [id, n] of Object.entries(t.order.items)) this.rt.evidence(p, `vocab.noun.${id}`, "kitchen.write", g.marks.find((m) => m.want === amount(DISHES[id]!, n))?.ok ? "correct" : "wrong", 2);
+      play(g.allOk ? "star" : "pop", 0.8);
+      if (p) this.rt.emote(p.playerId, g.allOk ? "cheer" : "think", 1500);
+    }
+    this.rt.refreshViews();
     this.rt.bump();
   }
 
@@ -223,6 +273,7 @@ export class Cozinha implements Activity {
     setHurry(this.shiftEnd - now < 20_000);
     if (now >= this.shiftEnd) return this.finish();
     if (this.tip && !this.tip.result && now >= this.tip.until) this.tipDone("");
+    for (const t of this.open) if (t.phone && t.phone.wrote === undefined && now >= t.phone.until) this.callDone(t, "");
     if (this.rush && !this.rushAnnounced) {
       this.rushAnnounced = true;
       play("whistle");
@@ -300,6 +351,10 @@ export class Cozinha implements Activity {
       t.deadline = Math.max(gameNow() + 2000, t.deadline - REPLAY_COST);
       if (this.rules.show === "audio") t.revealed = true;
       void this.rt.speakSeq(this.rules.tables ? [t.order.text, TABLE_SAY[t.table]!] : [t.order.text]);
+    } else if (act.a === "call") {
+      const t = this.open.find((x) => x.phone && x.phone.by === p.playerId && x.phone.wrote === undefined);
+      if (t) this.callDone(t, act.text);
+      return;
     } else if (act.a === "tip") {
       if (this.tip && !this.tip.result && this.tip.playerId === p.playerId) this.tipDone(act.text);
       return;
@@ -342,6 +397,8 @@ export class Cozinha implements Activity {
     this.served++;
     const items = Object.values(t.order.items).reduce((a, b) => a + b, 0);
     t.points = this.inPractice ? 0 : orderPoints(items, (t.deadline - now) / (t.deadline - t.arrived), this.rush);
+    // A phone order pays for every item written right, and for asking nicely.
+    if (t.phone?.marks) t.points += t.phone.marks.filter((m) => m.ok).length * CALL_ITEM + (t.phone.polite ? CALL_POLITE : 0);
     this.score += t.points;
     if (this.inPractice) {
       this.served--;
@@ -491,6 +548,10 @@ export class Cozinha implements Activity {
       rush: this.rush || undefined,
       swapped: this.swapped || undefined,
       practice: this.inPractice || undefined,
+      call: (() => {
+        const t = this.open.find((x) => x.phone && x.phone.by === p.playerId && x.phone.wrote === undefined);
+        return t ? { items: Object.entries(t.order.items).map(([id, n]) => ({ pic: DISHES[id]!.pic, n })), msLeft: Math.max(0, t.phone!.until - gameNow()) } : undefined;
+      })(),
       tip:
         this.tip && !this.tip.result && this.tip.playerId === p.playerId
           ? { pic: DISHES[this.tip.dish]!.pic, en: dishWord(this.tip.dish).en, msLeft: Math.max(0, this.tip.until - gameNow()), bonus: this.tip.bonus }
@@ -502,6 +563,10 @@ export class Cozinha implements Activity {
             serve: !!target && trayMatches(this.tray, target.order),
             table: target?.table,
             tip: this.tip && this.tip.playerId === p.playerId ? dishWord(this.tip.dish).pt : undefined,
+            call: (() => {
+              const t = this.open.find((x) => x.phone && x.phone.by === p.playerId && x.phone.wrote === undefined);
+              return t ? orderSentence(t.order.items) : undefined;
+            })(),
           }
         : undefined,
     };

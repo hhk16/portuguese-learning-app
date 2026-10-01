@@ -1953,8 +1953,8 @@ html.tv-root #root {
   animation: pop-in 0.4s ease-out both;
 }
 .gallery-item canvas {
-  width: 6.5rem;
-  height: 6.5rem;
+  width: 9rem;
+  height: 9rem;
   border-radius: 0.7rem;
   border: 0.15rem solid var(--line);
   background: #fff;
@@ -3338,9 +3338,9 @@ html.tv-root #root {
 /* Cozinha: "Gorjeta!" — the one who served names a dish on the phone. */
 .kitchen-tip {
   position: absolute;
-  right: 10.5vw;
-  top: 59vh;
-  max-width: 23vw;
+  left: 48vw;
+  bottom: 1.5vh;
+  max-width: 30vw;
   display: flex;
   align-items: center;
   gap: 0.6em;
@@ -3425,4 +3425,68 @@ html.tv-root #root {
 }
 @keyframes card-step-back {
   to { opacity: 0; transform: scale(0.94); }
+}
+
+/* Batata Quente: the safe player's "Aquece!" duel, visible to the room. */
+.bomb-steal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2em;
+  padding: 0.5em 0.9em;
+  margin-top: 0.5em;
+  border: 0.2rem solid var(--sun);
+  animation: pop-in 0.25s ease-out both;
+}
+.bomb-steal .bs-q {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 1.2em;
+}
+.bomb-steal .bs-res {
+  font-size: 1em;
+}
+.bomb-steal .bs-res i {
+  font-style: normal;
+  color: var(--ink-2);
+}
+.bomb-steal.ok {
+  border-color: var(--mint-d);
+  background: #dcf7ea;
+}
+.bomb-steal.miss {
+  border-color: var(--coral-d);
+  background: #ffe1dc;
+}
+
+/* Cozinha: a phone order — the partner cooks from what was written. */
+.ticket-text.phone {
+  color: var(--sky-p-d);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+.ticket-text.phone-wrote {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+.phone-marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  font-size: 0.8em;
+}
+.phone-marks b {
+  padding: 0.05em 0.5em;
+  border-radius: 999px;
+}
+.phone-marks b.ok {
+  background: #dcf7ea;
+  color: var(--mint-d);
+}
+.phone-marks b.miss {
+  background: #ffe1dc;
+  color: var(--coral-d);
 }

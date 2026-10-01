@@ -319,6 +319,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
     swapped: z.boolean().optional(),
     /** "Gorjeta!": the customer asks the one who served to name a dish (typed) for a tip. */
     tip: z.object({ pic: emojiField, en: shortText.optional(), msLeft: z.number().nonnegative(), bonus: z.number().int().nonnegative() }).optional(),
+    /** "📞 Pedido por telefone": write the order for these pictures as a sentence (your partner cooks from it). */
+    call: z.object({ items: z.array(z.object({ pic: emojiField, n: z.number().int().min(1).max(3) })).max(4), msLeft: z.number().nonnegative() }).optional(),
   }),
 ]);
 export type ControllerView = z.infer<typeof ControllerView>;
@@ -402,6 +404,7 @@ export const InputValue = z.discriminatedUnion("mode", [
       z.object({ a: z.literal("trash") }),
       z.object({ a: z.literal("replay"), table: z.number().int().min(1).max(3) }),
       z.object({ a: z.literal("tip"), text: z.string().trim().min(1).max(40) }),
+      z.object({ a: z.literal("call"), text: z.string().trim().min(1).max(120) }),
     ]),
   }),
 ]);

@@ -145,3 +145,32 @@ export function kitchenSpoken(): string[] {
 
 /** How the TV announces a table ("Mesa dois."), index = table number. */
 export const TABLE_SAY = ["", "Mesa um.", "Mesa dois.", "Mesa três."];
+
+const normOrder = (s: string) =>
+  s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[.,!?;:]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/**
+ * "📞 Pedido por telefone": a player writes the order for the pictures. Each item must be said with the
+ * right number and gender and plural ("dois cafés", "uma sopa"); accents don't count against you here.
+ * Polite = it opens like a real order ("Queria…", "Para mim…") or says "por favor" / "se faz favor".
+ */
+export function gradeOrder(text: string, items: Record<string, number>): { marks: { want: string; ok: boolean }[]; polite: boolean; allOk: boolean } {
+  const t = ` ${normOrder(text)} `;
+  const marks = Object.entries(items).map(([id, n]) => {
+    const want = amount(DISHES[id]!, n);
+    return { want, ok: t.includes(` ${normOrder(want)} `) };
+  });
+  const polite = /^ (queria|quero|queriamos|para mim|eu queria)\b/.test(t) || /(por favor|se faz favor)/.test(t);
+  return { marks, polite, allOk: marks.every((m) => m.ok) };
+}
+
+/** The model sentence for a phone order. */
+export function orderSentence(items: Record<string, number>): string {
+  return `Queria ${list(Object.entries(items).map(([id, n]) => amount(DISHES[id]!, n)))}, por favor.`;
+}

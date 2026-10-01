@@ -11433,6 +11433,14 @@
   "text": "pediatra",
   "voice": "pt_PT-tugão-medium"
  },
+ "pedido por telefone! escrevam o pedido.": {
+  "file": "5868d2a5c6.mp3",
+  "lengthScale": 1.12,
+  "say": "Pedido por telefone! Escrevam o pedido.",
+  "source": "piper",
+  "text": "Pedido por telefone! Escrevam o pedido.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "pedido servido!": {
   "file": "4bea412eb6.mp3",
   "lengthScale": 1.12,

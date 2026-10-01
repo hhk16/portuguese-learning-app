@@ -115,6 +115,7 @@ export const SAY = {
   signalLost: { pt: "Perderam um sinal!", en: "You lost a signal!" },
   offAir: { pt: "Sem sinal! A rádio saiu do ar!", en: "No signal! The show is off the air!" },
   signalBack: { pt: "Recuperaram um sinal!", en: "You got a signal back!" },
+  phoneOrder: { pt: "Pedido por telefone! Escrevam o pedido.", en: "A phone order! Write the order down." },
   lightningType: { pt: "A última! Ouçam bem e escrevam.", en: "The last one! Listen carefully and write it." },
   lightningGoal: { pt: "Cinco certas para passar!", en: "Five right to pass!" },
   lightningWon: { pt: "Relâmpago superado! Lição completa!", en: "Lightning round beaten! Lesson complete!" },

@@ -11,11 +11,31 @@ import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { poseUrl, type Pose } from "../../art/avatars.ts";
 import { lookUrl } from "../../art/wardrobe.ts";
+import { clipsOf, frameAt, LIFT, type AnimWho, type Clip } from "../../art/anim.ts";
 import type { Avatar } from "../../shared/protocol.ts";
 import { useRuntime, type Emote, type RuntimePlayer, type TvRuntime } from "../runtime.ts";
 
 const POSES: Pose[] = ["stand", "wave", "cheer", "oops", "think"];
 const EMOTE_POSE: Record<Emote, Pose> = { idle: "stand", wave: "wave", cheer: "cheer", sad: "oops", think: "think" };
+
+/** A character's frame-animation clips with their textures (loaded once, always the same hook). */
+function useClips(who: AnimWho | null): { clip: Clip; tex: THREE.Texture[] }[] {
+  const clips = useMemo(() => (who ? clipsOf(who) : []), [who]);
+  const urls = clips.flatMap((c) => c.urls);
+  const all = useLoader(THREE.TextureLoader, urls.length ? urls : ["/art/pet/crown.webp"]);
+  return useMemo(() => {
+    let k = 0;
+    return clips.map((clip) => ({
+      clip,
+      tex: clip.urls.map(() => {
+        const t = all[k++]!;
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = 4;
+        return t;
+      }),
+    }));
+  }, [clips, all]);
+}
 
 function useTex(url: string): THREE.Texture {
   const t = useLoader(THREE.TextureLoader, url);
@@ -113,6 +133,10 @@ function Character({ rt, p, x, y, height, flip, crown = null }: { rt: TvRuntime;
   // Ana's character wears the look she picked in the wardrobe.
   const look = p.avatar === "ana" ? rt.settings.look : undefined;
   const textures = POSES.map((pose) => useTex(lookUrl(look, pose) ?? poseUrl(p.avatar as Avatar, pose))); // eslint-disable-line react-hooks/rules-of-hooks
+  // Hadi and Ana move in frames (Ana only in her own clothes: the other looks are drawn as poses).
+  const clips = useClips(p.avatar === "hadi" || p.avatar === "ana" ? p.avatar : null);
+  const animated = !lookUrl(look, "stand");
+  const playing = useRef<{ pose: Pose; t0: number }>({ pose: "stand", t0: 0 });
   const crownTex = useTex("/art/pet/crown.webp");
   const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
@@ -127,7 +151,10 @@ function Character({ rt, p, x, y, height, flip, crown = null }: { rt: TvRuntime;
     const t = clock.elapsedTime + seed;
     const emote = rt.emoteOf(p.playerId);
     const pose = EMOTE_POSE[emote];
-    const tex = textures[POSES.indexOf(pose)]!;
+    if (playing.current.pose !== pose) playing.current = { pose, t0: clock.elapsedTime };
+    const anim = animated ? clips.find((c) => c.clip.name === pose) : undefined;
+    const fi = anim ? frameAt(anim.clip.spec, clock.elapsedTime - playing.current.t0) : 0;
+    const tex = anim ? anim.tex[fi]! : textures[POSES.indexOf(pose)]!;
     if (mat.current && mat.current.map !== tex) {
       mat.current.map = tex;
       mat.current.needsUpdate = true;
@@ -136,7 +163,8 @@ function Character({ rt, p, x, y, height, flip, crown = null }: { rt: TvRuntime;
     pos.current.x += (x - pos.current.x) * Math.min(1, dt * 4);
     pos.current.y += (y - pos.current.y) * Math.min(1, dt * 4);
     pos.current.h += (height - pos.current.h) * Math.min(1, dt * 3);
-    const hh = pos.current.h;
+    // A clip's canvas is drawn at the static art's scale (720 px = standing height).
+    const hh = pos.current.h * (anim ? anim.clip.h / 720 : 1);
     const img = tex.image as { width: number; height: number } | undefined;
     const w = img ? (hh * img.width) / img.height : hh * 0.5;
     if (!group.current || !body.current) return;
@@ -144,7 +172,10 @@ function Character({ rt, p, x, y, height, flip, crown = null }: { rt: TvRuntime;
     let rot = 0;
     let sx = 1;
     let sy = 1 + Math.sin(t * 2.2) * 0.008;
-    if (emote === "cheer") {
+    if (anim) {
+      // The frames do the acting; the jump frames get a little lift off the ground.
+      dy += (LIFT[`person:${anim.clip.name}`]?.[fi] ?? 0) * pos.current.h;
+    } else if (emote === "cheer") {
       const j = Math.abs(Math.sin(t * 6));
       dy = j * hh * 0.08;
       sy = 1 + (1 - j) * 0.03;
@@ -238,6 +269,8 @@ function useNameTag(name: string | undefined): { tex: THREE.CanvasTexture; aspec
 
 function Pet({ rt, x, y, height, flip, force }: { rt: TvRuntime; x: number; y: number; height: number; flip: boolean; force?: PetPose }) {
   const textures = PET_POSES.map((p) => useTex(`/art/pet/pup-${p}.webp`)); // eslint-disable-line react-hooks/rules-of-hooks
+  const clips = useClips("pup");
+  const playing = useRef<{ pose: PetPose; t0: number }>({ pose: "idle", t0: 0 });
   const tag = useNameTag(rt.settings.petName);
   const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
@@ -270,7 +303,10 @@ function Pet({ rt, x, y, height, flip, force }: { rt: TvRuntime; x: number; y: n
               : sleepy
                 ? "sleep"
                 : "idle";
-    const tex = textures[PET_POSES.indexOf(pose)]!;
+    if (playing.current.pose !== pose) playing.current = { pose, t0: t };
+    const anim = clips.find((c) => c.clip.name === pose);
+    const fi = anim ? frameAt(anim.clip.spec, t - playing.current.t0) : 0;
+    const tex = anim ? anim.tex[fi]! : textures[PET_POSES.indexOf(pose)]!;
     if (mat.current && mat.current.map !== tex) {
       mat.current.map = tex;
       mat.current.needsUpdate = true;
@@ -279,7 +315,8 @@ function Pet({ rt, x, y, height, flip, force }: { rt: TvRuntime; x: number; y: n
     pos.current.x += (x - pos.current.x) * Math.min(1, dt * 3);
     pos.current.y += (y - pos.current.y) * Math.min(1, dt * 3);
     pos.current.h += (height - pos.current.h) * Math.min(1, dt * 3);
-    const h = pos.current.h * PET_HEIGHT[pose];
+    // A clip's canvas is at the static art's scale (480 px = sitting height).
+    const h = pos.current.h * (anim ? anim.clip.h / 480 : PET_HEIGHT[pose]);
     const img = tex.image as { width: number; height: number } | undefined;
     const w = img ? (h * img.width) / img.height : h;
     if (!group.current || !body.current) return;
@@ -287,7 +324,12 @@ function Pet({ rt, x, y, height, flip, force }: { rt: TvRuntime; x: number; y: n
     let rot = 0;
     let sx = 1;
     let sy = 1;
-    if (pose === "cheer") {
+    if (anim) {
+      // The frames do the acting: a little lift for the jump, a breath otherwise.
+      dy = (LIFT[`pup:${anim.clip.name}`]?.[fi] ?? 0) * pos.current.h;
+      if (pose === "hide") rot = Math.sin(t * 40) * 0.015;
+      else if (pose !== "cheer") sy = 1 + Math.sin(t * 2.6) * 0.01;
+    } else if (pose === "cheer") {
       // Bouncy hops.
       const j = Math.abs(Math.sin(t * 7));
       dy = j * h * 0.22;

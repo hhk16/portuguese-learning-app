@@ -21,3 +21,15 @@ describe("round 10", () => {
     }
   });
 });
+
+import { gradeOrder, orderSentence } from "../src/games/kitchen/menu.ts";
+describe("round 11: phone orders", () => {
+  it("grades number, gender and plural per item; accents don't count against you", () => {
+    const items = { cafe: 2, sopa: 1 };
+    expect(orderSentence(items)).toBe("Queria dois cafés e uma sopa, por favor.");
+    expect(gradeOrder("Queria dois cafes e uma sopa, por favor", items)).toMatchObject({ allOk: true, polite: true });
+    const g = gradeOrder("dois café e um sopa", items);
+    expect(g.marks.map((m) => m.ok)).toEqual([false, false]);
+    expect(g.polite).toBe(false);
+  });
+});
