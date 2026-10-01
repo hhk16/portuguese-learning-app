@@ -149,6 +149,10 @@ export class Desenha implements Activity {
   get rules() {
     return LEVEL_RULES[this.level];
   }
+  /** The score ⭐⭐⭐ is measured against. */
+  get maxScore() {
+    return (ROUNDS - 1) * 3 + 6;
+  }
   get players() {
     return this.rt.activePlayers.slice(0, 2);
   }
@@ -492,7 +496,7 @@ export class Desenha implements Activity {
     const bestBy = best?.drawer ? this.rt.players.get(best.drawer) : undefined;
     this.onDone({
       score: this.score,
-      max: (ROUNDS - 1) * 3 + 6,
+      max: this.maxScore,
       headline: `${n} de ${ROUNDS} desenhos adivinhados`,
       headlineEn: `${n} of ${ROUNDS} drawings guessed`,
       sub: n ? `Mais rápido: ${[...this.guessed].sort((a, b) => a.secs - b.secs)[0]!.pt}` : "Desenhem maior e mais simples!",

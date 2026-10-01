@@ -16,6 +16,7 @@ import { StopPad } from "./Stop.tsx";
 import { Kitchen } from "./Kitchen.tsx";
 import { Final } from "./Final.tsx";
 import { Bomb } from "./Bomb.tsx";
+import { PetName } from "./PetName.tsx";
 
 export type ViewOf<M extends ControllerView["mode"]> = Extract<ControllerView, { mode: M }>;
 export type Send = (value: InputValue) => void;
@@ -76,6 +77,8 @@ function Body({ view, conn, send }: { view: ControllerView; conn: PhoneConnectio
       return <Final v={view} send={send} />;
     case "bomb":
       return <Bomb v={view} send={send} />;
+    case "petName":
+      return <PetName v={view} send={send} />;
   }
 }
 
@@ -111,6 +114,20 @@ function Lobby({ v, conn }: { v: ViewOf<"lobby">; conn: PhoneConnection }) {
           </span>
           <button className="btn white" disabled={v.level >= 3} onClick={() => conn.nav("right")} aria-label="Mais difícil">
             ▶
+          </button>
+        </div>
+      )}
+      {v.topic !== undefined && (
+        <div className="level-picker topic-picker">
+          <button className="btn white" onClick={() => conn.nav("up")} aria-label="Anterior">
+            ▲
+          </button>
+          <span className="bi">
+            <small>Palavras · Words</small>
+            <b>{v.topic}</b>
+          </span>
+          <button className="btn white" onClick={() => conn.nav("down")} aria-label="Seguinte">
+            ▼
           </button>
         </div>
       )}

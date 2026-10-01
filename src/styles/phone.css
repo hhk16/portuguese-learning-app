@@ -1422,3 +1422,23 @@ body,
   60% { transform: scale(1.03) rotate(1deg); }
   100% { transform: scale(1) rotate(0); }
 }
+.pet-name-pic {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  animation: bob 2s ease-in-out infinite;
+}
+.pet-ideas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.topic-picker .bi b {
+  font-size: 0.95em;
+  line-height: 1.15;
+}
+.topic-picker .bi {
+  max-width: 15rem;
+  font-size: 1.05rem;
+  text-align: center;
+}

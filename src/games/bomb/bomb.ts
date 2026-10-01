@@ -8,7 +8,7 @@
  * "Despacha-te!" (three times a round) to burn the fuse a little faster — careful, it may come back.
  * Five potatoes, the last one counts double.
  */
-import { ALL_ITEMS } from "../../curriculum/index.ts";
+import { ALL_ITEMS, getItem } from "../../curriculum/index.ts";
 import { cardOf, type LearnCard } from "../../curriculum/learn.ts";
 import type { ItemOf, Lesson } from "../../curriculum/schema.ts";
 import { randomId } from "../../shared/ids.ts";
@@ -36,7 +36,7 @@ export const LEVEL_RULES: Record<Level, { fuse: [number, number]; options: numbe
   3: { fuse: [12_000, 20_000], options: 6 },
 };
 
-export type BombKind = "hear" | "see" | "opposite" | "number" | "hearNumber";
+export type BombKind = "hear" | "see" | "opposite" | "number" | "hearNumber" | "phrase";
 
 /** The questions get harder potato by potato; the last one mixes everything. */
 export function kindsFor(round: number): BombKind[] {
@@ -86,6 +86,8 @@ export class BatataQuente implements Activity {
   promptId = randomId(6);
   private readonly roundId = randomId(6);
   private nouns: LearnCard[] = [];
+  /** The chosen lessons' verbs and phrases ("nós comemos", "Queria um café"): heard, then tapped. */
+  private phrases: LearnCard[] = [];
   private numbers: ItemOf<"number">[] = [];
   private recent: string[] = [];
   private missed = new Map<string, { pt: string; en?: string; pic?: string }>();
@@ -133,6 +135,12 @@ export class BatataQuente implements Activity {
       .map(cardOf)
       .filter((c): c is LearnCard => !!c && !!c.emoji);
     this.nouns = [...rt.rng.shuffle(nouns.filter((c) => fromLessons.has(c.itemId))), ...rt.rng.shuffle(nouns.filter((c) => !fromLessons.has(c.itemId)))];
+    this.phrases = this.lessons
+      .flatMap((l) => l.itemIds)
+      .map((id) => getItem(id))
+      .filter((i) => !!i && i.kind !== "noun" && i.kind !== "number")
+      .map((i) => cardOf(i!))
+      .filter((c): c is LearnCard => !!c && !!c.say && c.pt.length <= 32);
     this.numbers = ALL_ITEMS.filter((i): i is ItemOf<"number"> => i.kind === "number" && i.value >= 1 && i.value <= 20);
     for (const p of this.players) {
       this.wins.set(p.playerId, 0);
@@ -171,7 +179,9 @@ export class BatataQuente implements Activity {
   /** A fresh question for the holder. */
   private ask() {
     const kinds = kindsFor(Math.max(0, this.round));
-    this.q = this.question(this.rt.rng.pick(kinds));
+    // With a unit or lesson chosen, its verbs and phrases come up too (heard on the TV, tapped on the phone).
+    const phrase = this.phrases.length >= 4 && this.rt.rng.next() < 0.4;
+    this.q = this.question(phrase ? "phrase" : this.rt.rng.pick(kinds));
     this.promptId = randomId(6);
     if (this.q.say) this.rt.speakPt(this.q.say);
     this.rt.refreshViews();
@@ -186,6 +196,13 @@ export class BatataQuente implements Activity {
       const [from, to] = rng.int(2) ? [s.left, s.right] : [s.right, s.left];
       const others = rng.sample(spectra().flatMap((x) => [x.left, x.right]).filter((x) => x.id !== to.id && x.id !== from.id), n - 1);
       return { kind, answer: to.m, prompt: { pt: from.m, en: from.en, pic: from.emoji }, options: rng.shuffle([to, ...others]).map((x) => ({ pt: x.m })), itemId: to.id };
+    }
+    if (kind === "phrase") {
+      const fresh = this.phrases.filter((c) => !this.recent.includes(c.itemId));
+      const t = rng.pick(fresh.length ? fresh : this.phrases);
+      this.remember(t.itemId);
+      const others = rng.sample(this.phrases.filter((c) => c.pt !== t.pt), n - 1);
+      return { kind, answer: t.pt, say: t.say, options: rng.shuffle([t, ...others]).map((c) => ({ pt: c.pt })), itemId: t.itemId };
     }
     if (kind === "number" || kind === "hearNumber") {
       const pool = rng.shuffle(this.numbers.filter((x) => !this.recent.includes(x.id)));

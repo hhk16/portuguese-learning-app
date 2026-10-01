@@ -92,6 +92,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
     hint: shortText.optional(),
     /** Games: difficulty 1–3 (either phone can change it with ◀ ▶). */
     level: z.number().int().min(1).max(3).optional(),
+    /** Games that use your words: which words (the whole book so far, or one unit) — ▲ ▼. */
+    topic: shortText.optional(),
   }),
   z.object({ mode: z.literal("paused"), title: shortText }),
   z.object({ mode: z.literal("remote"), title: shortText, hint: shortText.optional() }),
@@ -250,13 +252,15 @@ export const ControllerView = z.discriminatedUnion("mode", [
     votes: z.array(z.object({ id, category: shortText, word: shortText })).max(6).optional(),
     voted: z.boolean().optional(),
   }),
+  /** Name the puppy (asked once on Ana's phone; renamed from the TV's settings). */
+  z.object({ mode: z.literal("petName"), ...round, current: shortText.optional(), suggestions: z.array(shortText).max(8) }),
   /** Batata Quente — answer right to pass the hot potato; whoever holds it when it blows loses the round. */
   z.object({
     mode: z.literal("bomb"),
     ...round,
     holding: z.boolean(),
     holder: shortText,
-    kind: z.enum(["hear", "see", "opposite", "number", "hearNumber"]),
+    kind: z.enum(["hear", "see", "opposite", "number", "hearNumber", "phrase"]),
     /** What to answer: a picture (see), a word (opposite), a digit (number); hear = the TV says it. */
     prompt: Word.optional(),
     options: z.array(Word).max(6).optional(),
@@ -334,6 +338,7 @@ export const InputValue = z.discriminatedUnion("mode", [
       z.object({ a: z.literal("next") }),
     ]),
   }),
+  z.object({ mode: z.literal("petName"), name: z.string().trim().min(1).max(16).optional(), skip: z.boolean().optional() }),
   z.object({ mode: z.literal("bomb"), answer: z.string().trim().min(1).max(40).optional(), hurry: z.boolean().optional() }),
   z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40).optional(), sense: z.boolean().optional(), predict: z.boolean().optional() }),
   z.object({

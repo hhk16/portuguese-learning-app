@@ -1,8 +1,8 @@
 /** Cozinha Caótica on the TV: order tickets with patience bars, the shared tray, the clock. */
-import { HEARTS, SHIFT_MS, type Cozinha } from "../../games/kitchen/kitchen.ts";
+import { HEARTS, SHIFT_MS, TARGETS, type Cozinha } from "../../games/kitchen/kitchen.ts";
 import { Picture } from "../../ui/Picture.tsx";
 import { gameNow } from "../clock.ts";
-import { GameTop } from "./Menus.tsx";
+import { GameTop, MetaBar } from "./Menus.tsx";
 import { useTick } from "./useTick.ts";
 
 const CUSTOMERS = ["👩", "👨", "👵", "👴", "🧑", "👧", "👦", "👱"];
@@ -41,6 +41,7 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
           ))}
         </span>
         <span className="pill star-pill">{a.score} pontos</span>
+        {!a.inPractice && <MetaBar score={a.score} max={TARGETS[a.level]} />}
       </GameTop>
       <div className="kitchen-tickets">
         {a.tickets.map((t, i) => {

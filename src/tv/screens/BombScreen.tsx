@@ -12,6 +12,7 @@ const KIND: Record<string, { pt: string; en: string }> = {
   number: { pt: "Que número é?", en: "Read the number" },
   hearNumber: { pt: "Ouve o número!", en: "Listen: which number?" },
   opposite: { pt: "O contrário de…", en: "The opposite of…" },
+  phrase: { pt: "Ouve e escolhe!", en: "Listen: which one did the TV say?" },
 };
 
 export function BombScreen({ a }: { a: BatataQuente }) {
@@ -85,7 +86,7 @@ export function BombScreen({ a }: { a: BatataQuente }) {
             {holder.name}: {KIND[q.kind]!.pt} <i>{KIND[q.kind]!.en}</i>
           </span>
           <div className="bq-body">
-            {q.kind === "hear" || q.kind === "hearNumber" ? (
+            {q.kind === "hear" || q.kind === "hearNumber" || q.kind === "phrase" ? (
               <span className="bq-prompt display">🔊</span>
             ) : q.prompt?.pic ? (
               <Picture glyph={q.prompt.pic} size="3.6em" />

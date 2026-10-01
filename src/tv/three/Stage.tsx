@@ -162,6 +162,100 @@ function Character({ rt, p, x, y, height, flip }: { rt: TvRuntime; p: RuntimePla
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* The puppy: sits next to Ana and reacts to whatever is happening.            */
+/* -------------------------------------------------------------------------- */
+
+const PET_POSES = ["idle", "cheer", "oops", "think", "wave", "sleep"] as const;
+type PetPose = (typeof PET_POSES)[number];
+/** Lying and curled-up poses are shorter than sitting ones. */
+const PET_HEIGHT: Record<PetPose, number> = { idle: 1, cheer: 1.05, oops: 0.55, think: 1, wave: 1.08, sleep: 0.72 };
+
+function Pet({ rt, x, y, height, flip }: { rt: TvRuntime; x: number; y: number; height: number; flip: boolean }) {
+  const textures = PET_POSES.map((p) => useTex(`/art/pet/pup-${p}.webp`)); // eslint-disable-line react-hooks/rules-of-hooks
+  const group = useRef<THREE.Group>(null);
+  const body = useRef<THREE.Mesh>(null);
+  const mat = useRef<THREE.MeshBasicMaterial>(null);
+  const pos = useRef({ x, y, h: height });
+  const joy = useRef({ seen: rt.petJoy, until: 0, confetti: rt.confetti });
+  useFrame(({ clock }, dt) => {
+    const t = clock.elapsedTime;
+    const now = performance.now();
+    // Excited when named, when someone sends ❤️, and with every confetti burst.
+    if (rt.petJoy !== joy.current.seen || rt.confetti !== joy.current.confetti) {
+      joy.current = { seen: rt.petJoy, confetti: rt.confetti, until: now + 2600 };
+    }
+    const emotes = rt.activePlayers.map((p) => rt.emoteOf(p.playerId));
+    const owner = rt.petOwner();
+    const sleepy = now - rt.lastInputAt > 45_000 && (rt.activity?.id === "title" || rt.activity?.id === "lobby" || rt.paused);
+    const pose: PetPose =
+      now < joy.current.until || emotes.includes("cheer")
+        ? "cheer"
+        : emotes.includes("sad")
+          ? "oops"
+          : emotes.includes("think")
+            ? "think"
+            : owner && rt.emoteOf(owner.playerId) === "wave"
+              ? "wave"
+              : sleepy
+                ? "sleep"
+                : "idle";
+    const tex = textures[PET_POSES.indexOf(pose)]!;
+    if (mat.current && mat.current.map !== tex) {
+      mat.current.map = tex;
+      mat.current.needsUpdate = true;
+    }
+    pos.current.x += (x - pos.current.x) * Math.min(1, dt * 3);
+    pos.current.y += (y - pos.current.y) * Math.min(1, dt * 3);
+    pos.current.h += (height - pos.current.h) * Math.min(1, dt * 3);
+    const h = pos.current.h * PET_HEIGHT[pose];
+    const img = tex.image as { width: number; height: number } | undefined;
+    const w = img ? (h * img.width) / img.height : h;
+    if (!group.current || !body.current) return;
+    let dy = 0;
+    let rot = 0;
+    let sx = 1;
+    let sy = 1;
+    if (pose === "cheer") {
+      // Bouncy hops.
+      const j = Math.abs(Math.sin(t * 7));
+      dy = j * h * 0.22;
+      sy = 1 + (1 - j) * 0.06;
+      sx = 1 - (1 - j) * 0.04;
+      rot = Math.sin(t * 7) * 0.08;
+    } else if (pose === "oops") {
+      rot = Math.sin(t * 14) * 0.03;
+      sy = 0.97;
+    } else if (pose === "think") rot = Math.sin(t * 1.2) * 0.1;
+    else if (pose === "wave") rot = Math.sin(t * 5) * 0.06;
+    else if (pose === "sleep") sy = 1 + Math.sin(t * 1.4) * 0.03;
+    else {
+      // Idle: breathing, and a little hop every few seconds.
+      sy = 1 + Math.sin(t * 2.6) * 0.015;
+      const k = (t % 4.5) / 4.5;
+      if (k > 0.9) dy = Math.sin(((k - 0.9) / 0.1) * Math.PI) * h * 0.08;
+    }
+    group.current.position.set(pos.current.x, pos.current.y, 0.5);
+    body.current.scale.set(w * sx * (flip ? -1 : 1), h * sy, 1);
+    body.current.position.set(0, (h * sy) / 2 + dy, 0);
+    body.current.rotation.z = rot;
+  });
+  return (
+    <group ref={group}>
+      {shadowTex && (
+        <mesh position={[0, 2, -0.5]} scale={[height * 0.7, height * 0.14, 1]}>
+          <planeGeometry args={[1, 1]} />
+          <meshBasicMaterial map={shadowTex} transparent depthWrite={false} toneMapped={false} />
+        </mesh>
+      )}
+      <mesh ref={body}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial ref={mat} map={textures[0]} transparent alphaTest={0.02} toneMapped={false} />
+      </mesh>
+    </group>
+  );
+}
+
 const CONFETTI_COLORS = ["#ff6b6b", "#4ba3f5", "#3ecf95", "#ffc23d", "#ffffff", "#ff9fb2"];
 
 function Confetti({ burst, count }: { burst: number; count: number }) {
@@ -253,6 +347,20 @@ function Scene() {
           <Character rt={rt} p={p} x={spots[i]!.x} y={spots[i]!.y} height={spots[i]!.height} flip={rt.activity?.id !== "title" && rt.activity?.id !== "lobby" && rt.activity?.id !== "results" && i % 2 === 1} />
         </Suspense>
       ))}
+      {(() => {
+        // The puppy sits next to its person, on the side towards the middle of the screen.
+        const owner = rt.petOwner();
+        const i = owner ? players.indexOf(owner) : -1;
+        const spot = spots[i];
+        if (!spot) return null;
+        const inward = spot.x > 0 ? -1 : 1;
+        const h = spot.height * 0.42;
+        return (
+          <Suspense fallback={null}>
+            <Pet rt={rt} x={spot.x + inward * spot.height * 0.42} y={spot.y} height={h} flip={inward < 0} />
+          </Suspense>
+        );
+      })()}
       <Confetti burst={rt.confetti} count={rt.settings.lowFx ? 60 : 160} />
     </>
   );

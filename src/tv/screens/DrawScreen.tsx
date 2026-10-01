@@ -5,7 +5,7 @@ import type { Stroke } from "../../games/draw/ink.ts";
 import { PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
 import { paintStrokes } from "../../ui/Sketch.tsx";
-import { GameTop } from "./Menus.tsx";
+import { GameTop, MetaBar } from "./Menus.tsx";
 import { useTick } from "./useTick.ts";
 import { gameNow } from "../clock.ts";
 
@@ -153,6 +153,7 @@ export function DrawScreen({ a }: { a: Desenha }) {
         {a.reviewFor && a.phase === "draw" && <span className="pill review-pill">🔁 Revisão para {a.reviewFor} · Review word</span>}
         {a.twist && a.phase === "draw" && <span className="pill twist-pill">⚡ {a.twist.pt} <i>{a.twist.en}</i></span>}
         <span className="pill star-pill">{a.score} pontos</span>
+        {!a.inPractice && <MetaBar score={a.score} max={a.maxScore} />}
       </GameTop>
       <div className="turn-banner card">
         {drawer && <PlayerChip p={drawer} size="2em" />}

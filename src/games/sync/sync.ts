@@ -1,11 +1,12 @@
 /**
- * Em Sintonia — telepathy for two (Mind Meld / Just One spirit).
+ * Em Sintonia — telepathy for two (the party game Mind Meld, A1 edition).
  *
  * Two words appear ("o gelado + a neve"). Each of you secretly picks or writes ONE word that links
- * them; 3, 2, 1… if you both chose the same word, you're in sync. Every pair is drawn from a real
- * link (frio, grande, fruta, praia…), each phone gets its OWN shuffled options (on medium only 6
- * of 8, on hard none — you type), and a match on an unrelated word needs you both to agree it makes
- * sense. Three tries per pair (you see each other's last words); the last pair counts double.
+ * them; 3, 2, 1… the same word? You're in sync. Different words? Then YOUR two words become the
+ * next pair — "frio + inverno" — and you try again to meet in the middle ("a neve!"). The chain
+ * goes noun → link word → noun…, so you converge on each other's thinking. Sync on try 1 = 4 points,
+ * try 2 = 3, 3 = 2, 4 = 1; a chain that never meets costs a life. Each phone gets its OWN shuffled
+ * options (on medium one phone may not have the best one; on hard you type). The last chain counts double.
  */
 import { ALL_ITEMS, getItem } from "../../curriculum/index.ts";
 import { cardOf, type LearnCard } from "../../curriculum/learn.ts";
@@ -23,10 +24,9 @@ import { LINKS, linksOf, type Link } from "./links.ts";
 import { selectItem } from "../../learner/selector.ts";
 
 export const ROUNDS = 5;
-export const ATTEMPTS = 3;
+export const ATTEMPTS = 4;
 const COUNTDOWN_MS = 3200;
 const REVEAL_MS = 4600;
-const SENSE_MS = 15_000;
 /** Difficulty: seconds to choose, and how many of the 8 options each phone sees (0 = type only). */
 /**
  * Difficulty: time, how many word chips each phone gets (0 = type only), and tries per pair.
@@ -34,9 +34,9 @@ const SENSE_MS = 15_000;
  * think of it (or type it); on Difícil you type.
  */
 export const LEVEL_RULES: Record<Level, { writeMs: number; options: number; tries: number; linkInBoth: boolean; lives: number; wordsOnlyFinal: boolean }> = {
-  1: { writeMs: 45_000, options: 8, tries: 3, linkInBoth: true, lives: 4, wordsOnlyFinal: false },
-  2: { writeMs: 35_000, options: 6, tries: 2, linkInBoth: false, lives: 3, wordsOnlyFinal: true },
-  3: { writeMs: 30_000, options: 0, tries: 2, linkInBoth: false, lives: 2, wordsOnlyFinal: true },
+  1: { writeMs: 45_000, options: 8, tries: 4, linkInBoth: true, lives: 3, wordsOnlyFinal: false },
+  2: { writeMs: 35_000, options: 6, tries: 4, linkInBoth: false, lives: 2, wordsOnlyFinal: true },
+  3: { writeMs: 30_000, options: 0, tries: 3, linkInBoth: false, lives: 2, wordsOnlyFinal: true },
 };
 
 /** A prediction ("Vamos coincidir?") that comes true. */
@@ -67,7 +67,35 @@ export function cardForWord(s: string, pool: readonly LearnCard[]): LearnCard | 
 
 /** Points for a match on attempt 1/2/3, doubled on the last pair. */
 export function matchPoints(attempt: number, final: boolean): number {
-  return (ATTEMPTS + 1 - attempt) * (final ? 2 : 1);
+  return Math.max(1, ATTEMPTS + 1 - attempt) * (final ? 2 : 1);
+}
+
+/** A word in the chain: a link word (frio, praia…) or a picture noun (a neve, o gelado…). */
+type ChainNode = { kind: "link"; link: Link } | { kind: "member"; m: string };
+
+const ALL_MEMBERS = [...new Set(LINKS.flatMap((l) => l.members))];
+
+/** Find what a chosen/typed word is in the link graph (if anything). */
+function nodeOf(word: string): ChainNode | undefined {
+  const n = normWord(word);
+  if (!n) return undefined;
+  const link = LINKS.find((l) => normWord(l.pt) === n);
+  if (link) return { kind: "link", link };
+  const m = ALL_MEMBERS.find((x) => memberCard(x)?.pt.split(/\s*·\s*/).some((f) => normWord(f) === n));
+  return m ? { kind: "member", m } : undefined;
+}
+
+function nodeWord(node: ChainNode): Word {
+  if (node.kind === "link") return { pt: node.link.pt, en: node.link.en, pic: node.link.pic };
+  const c = memberCard(node.m)!;
+  return { pt: c.pt.split(" · ")[0]!, en: c.en, pic: c.emoji };
+}
+
+/** The words that connect to a node: a link's pictures, or the links a picture belongs to. */
+function neighbours(node: ChainNode | undefined): Word[] {
+  if (!node) return [];
+  if (node.kind === "link") return node.link.members.filter((m) => memberCard(m)).map((m) => nodeWord({ kind: "member", m }));
+  return linksOf(node.m).map((link) => nodeWord({ kind: "link", link }));
 }
 
 function memberCard(m: string): LearnCard | null {
@@ -104,6 +132,10 @@ export class EmSintonia implements Activity {
   /** Who did what, for the MVP split on game night. */
   contrib = new Map<string, number>();
   matches: { words: [string, string]; word: string; attempt: number }[] = [];
+  /** This round's chain so far, for the TV: each pair and what each of you said. */
+  chain: { pair: [string, string]; picks: string[]; match: boolean }[] = [];
+  /** The current pair as words in the link graph. */
+  private nodes: [ChainNode | undefined, ChainNode | undefined] = [undefined, undefined];
   banks = new Map<string, Word[]>();
   promptId = randomId(6);
   private readonly roundId = randomId(6);
@@ -123,6 +155,10 @@ export class EmSintonia implements Activity {
   }
   get rules() {
     return LEVEL_RULES[this.level];
+  }
+  /** The score ⭐⭐⭐ is measured against: every pair first try (the last doubled) and a few predictions. */
+  get maxScore() {
+    return ATTEMPTS * (ROUNDS - 1) + ATTEMPTS * 2 + ROUNDS * PREDICT_POINTS;
   }
   get final() {
     return this.round === ROUNDS - 1;
@@ -175,6 +211,8 @@ export class EmSintonia implements Activity {
       2,
     ) as [string, string];
     this.pairMembers = [m1, m2];
+    this.nodes = [{ kind: "member", m: m1 }, { kind: "member", m: m2 }];
+    this.chain = [];
     this.pair = [this.toWord(memberCard(m1)!), this.toWord(memberCard(m2)!)];
     // The last pair on Médio/Difícil: words only, no pictures — you have to read them.
     if (this.final && this.rules.wordsOnlyFinal) this.pair = [{ ...this.pair[0], pic: undefined }, { ...this.pair[1], pic: undefined }];
@@ -183,7 +221,27 @@ export class EmSintonia implements Activity {
     this.startAttempt();
   }
 
-  /** Link words that genuinely connect this pair (any of them counts without a vote). */
+  /** Words that connect BOTH words of the pair (the meeting point), best first. */
+  bestWords(): Word[] {
+    const [a, b] = this.nodes.map(neighbours);
+    const inB = new Set((b ?? []).map((w) => normWord(w.pt)));
+    const both = (a ?? []).filter((w) => inB.has(normWord(w.pt)));
+    // Pair words themselves don't count as an answer.
+    const pair = new Set(this.pair.map((w) => normWord(w.pt)));
+    return both.filter((w) => !pair.has(normWord(w.pt)));
+  }
+  /** Words that connect at least one of the pair. */
+  goodWords(): Word[] {
+    const pair = new Set(this.pair.map((w) => normWord(w.pt)));
+    const seen = new Set<string>();
+    return this.nodes.flatMap(neighbours).filter((w) => {
+      const k = normWord(w.pt);
+      if (pair.has(k) || seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }
+  /** Kept for evidence/compat: the link words around the first pair. */
   goodLinks(): Link[] {
     const [a, b] = this.pairMembers;
     return [...new Set([...linksOf(a), ...linksOf(b)])];
@@ -193,27 +251,28 @@ export class EmSintonia implements Activity {
     this.banks.clear();
     const n = this.rules.options;
     if (!n) return;
-    const good = this.goodLinks();
-    const others = this.rt.rng.shuffle(LINKS.filter((l) => !good.includes(l)));
-    const otherGood = this.rt.rng.shuffle(good.filter((l) => l !== this.link));
-    // Who gets the intended link on its chips (everyone on Fácil; one random phone otherwise).
+    const best = this.rt.rng.shuffle(this.bestWords());
+    const bestKeys = new Set(best.map((w) => normWord(w.pt)));
+    const good = this.rt.rng.shuffle(this.goodWords().filter((w) => !bestKeys.has(normWord(w.pt))));
+    // Filler of the same kind as the answers (link words after pictures, pictures after link words).
+    const wantLinks = this.nodes[0]?.kind !== "link";
+    const used = new Set([...best, ...good, ...this.pair].map((w) => normWord(w.pt)));
+    const filler = this.rt.rng.shuffle(wantLinks ? LINKS.map((link) => nodeWord({ kind: "link", link })) : ALL_MEMBERS.filter((m) => memberCard(m)).map((m) => nodeWord({ kind: "member", m }))).filter((w) => !used.has(normWord(w.pt)));
+    // Who gets the meeting word on their chips (everyone on Fácil; one random phone otherwise).
     const lucky = this.rt.rng.pick(this.players);
     for (const p of this.players) {
-      const withLink = this.rules.linkInBoth || p === lucky;
-      const head = withLink ? [this.link] : [];
-      // A couple of other plausible links, then unrelated words; everyone gets their own mix and order.
-      const mine = [...head, ...this.rt.rng.sample(otherGood, Math.min(otherGood.length, 2)), ...this.rt.rng.sample(others, n)].slice(0, n);
-      this.banks.set(
-        p.playerId,
-        this.rt.rng.shuffle(mine).map((l) => ({ pt: l.pt, en: l.en, pic: l.pic })),
-      );
+      const withBest = this.rules.linkInBoth || p === lucky;
+      const head = withBest ? best.slice(0, 1) : [];
+      const mine = [...head, ...this.rt.rng.sample(good, Math.min(good.length, 3)), ...filler.slice(0, n)];
+      const uniq = [...new Map(mine.map((w) => [normWord(w.pt), w])).values()].slice(0, n);
+      this.banks.set(p.playerId, this.rt.rng.shuffle(uniq));
     }
   }
 
-  /** Both answers were real links for the pair, just different ones ("frio" vs "bebida"). */
+  /** Both answers connect the pair, just differently ("frio" vs "bebida"). */
   get closeMiss(): boolean {
     const norms = this.players.map((p) => normWord(this.submitted.get(p.playerId) ?? ""));
-    const good = this.goodLinks().map((l) => normWord(l.pt));
+    const good = this.goodWords().map((w) => normWord(w.pt));
     return norms.length === 2 && norms.every((w) => w && good.includes(w));
   }
 
@@ -307,17 +366,8 @@ export class EmSintonia implements Activity {
       const c = w ? cardForWord(w, this.pool) : undefined;
       if (c) this.rt.evidence(p, c.itemId, "sync.produce", "correct", 2);
     }
-    if (same && !this.goodLinks().some((l) => normWord(l.pt) === norms[0])) {
-      // Same word, but not an obvious link: does it make sense? Both decide.
-      this.phase = "sense";
-      this.phaseEnd = now + SENSE_MS;
-      this.promptId = randomId(6);
-      this.rt.say(SAY.makesSense);
-      play("crowd-ooh");
-      this.rt.refreshViews();
-      this.rt.bump();
-      return;
-    }
+    // In Mind Meld, the same word is the point — whatever it is.
+    this.chain.push({ pair: [this.pair[0].pt, this.pair[1].pt], picks: words, match: same });
     this.settle(same);
   }
 
@@ -382,8 +432,19 @@ export class EmSintonia implements Activity {
       if (this.round >= ROUNDS) return this.finish();
       return this.newRound();
     }
-    // Same pair again — now you know what the other one was thinking.
+    // The chain: your two words become the next pair — meet in the middle.
     this.previous = this.players.map((p) => ({ name: p.name, word: this.submitted.get(p.playerId) || "—" }));
+    const picks = this.players.map((p) => (this.submitted.get(p.playerId) ?? "").trim());
+    if (picks.length === 2 && picks[0] && picks[1] && normWord(picks[0]) !== normWord(picks[1])) {
+      const wordFor = (t: string) => {
+        const node = nodeOf(t);
+        return { node, word: node ? nodeWord(node) : { pt: t } };
+      };
+      const [x, y] = picks.map(wordFor) as [ReturnType<typeof wordFor>, ReturnType<typeof wordFor>];
+      this.nodes = [x.node, y.node];
+      this.pair = [x.word, y.word];
+      if (this.final && this.rules.wordsOnlyFinal) this.pair = [{ ...this.pair[0], pic: undefined }, { ...this.pair[1], pic: undefined }];
+    }
     this.attempt++;
     this.startAttempt();
   }
@@ -398,7 +459,7 @@ export class EmSintonia implements Activity {
     this.onDone({
       score: this.score,
       // Every pair first try (the last one doubled) and a couple of predictions right.
-      max: 3 * (ROUNDS - 1) + 6 + ROUNDS * PREDICT_POINTS,
+      max: this.maxScore,
       headline: `${n} de ${ROUNDS} em sintonia · ${this.score} pontos`,
       headlineEn: `In sync on ${n} of ${ROUNDS} pairs`,
       sub: out ? "Acabaram-se as vidas!" : n ? `Palavras: ${this.matches.map((m) => m.word).join(", ")}` : "Continuem a tentar!",
@@ -448,7 +509,7 @@ export class EmSintonia implements Activity {
       submitted: this.submitted.has(p.playerId),
       mine: this.submitted.get(p.playerId) || undefined,
       predicted: this.predictions.get(p.playerId),
-      debugAnswer: this.rt.testMode ? { word: this.link.pt } : undefined,
+      debugAnswer: this.rt.testMode ? { word: this.bestWords()[0]?.pt ?? this.goodWords()[0]?.pt ?? this.link.pt } : undefined,
     };
   }
 }

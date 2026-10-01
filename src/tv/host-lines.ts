@@ -30,9 +30,9 @@ export const RULES: Record<Mode, Line[]> = {
     { pt: "O outro roda o mostrador. Mais perto, mais pontos!", en: "The other turns the dial. Closer means more points!" },
   ],
   sync: [
-    { pt: "Aparecem duas palavras.", en: "Two words appear." },
-    { pt: "Cada um escolhe uma palavra que liga as duas.", en: "Each of you picks a word that links them." },
+    { pt: "Aparecem duas palavras. Cada um escolhe uma palavra que liga as duas.", en: "Two words appear. Each of you picks a word that links them." },
     { pt: "A mesma palavra? Estão em sintonia!", en: "The same word? You're in sync!" },
+    { pt: "Palavras diferentes? As vossas palavras são o novo par. Encontrem-se a meio!", en: "Different words? Your two words become the new pair. Meet in the middle!" },
   ],
   draw: [
     { pt: "Um desenha a palavra secreta, sem falar.", en: "One of you draws the secret word, without talking." },
@@ -108,6 +108,7 @@ export const SAY = {
   boom: { pt: "Bum!", en: "Boom!" },
   nightMaths: { pt: "Vamos fazer as contas da noite!", en: "Let's add up tonight's points!" },
   sem: { pt: "Atenção: com ou sem?", en: "Careful: with or without?" },
+  petNamed: { pt: "Que nome tão bonito!", en: "What a lovely name!" },
   lightning: { pt: "Desafio relâmpago! Quarenta segundos!", en: "Lightning round! Forty seconds!" },
   suddenDeath: { pt: "Morte súbita! Sem pistas. Um erro e acabou!", en: "Sudden death! No clues. One mistake and it's over!" },
 } satisfies Record<string, Line>;
@@ -163,6 +164,7 @@ export const NAMED = {
   hurryUp: { pt: "Despacha-te, {name}!", en: "Hurry up, {name}!" },
   bestBy: { pt: "{name} fez o melhor desenho!", en: "{name} made the best drawing!" },
   mvpGame: { pt: "{name} foi a estrela deste jogo!", en: "{name} was the star of this game!" },
+  levelUp: { pt: "{name} subiu de nível!", en: "{name} levelled up!" },
 } satisfies Record<string, Line>;
 
 /** Names the host's lines are pre-recorded with. */
@@ -184,7 +186,7 @@ export const CUE = {
   pickBest: { pt: "Escolhe o melhor!", en: "Pick the best!" },
 } satisfies Record<string, Line>;
 
-const CHEER = new Set<Line>([SAY.betWon, SAY.bothPredicted, NAMED.bestBy, NAMED.mvpGame, SAY.near, SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
+const CHEER = new Set<Line>([SAY.petNamed, NAMED.levelUp, SAY.betWon, SAY.bothPredicted, NAMED.bestBy, NAMED.mvpGame, SAY.near, SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
 const OOPS = new Set<Line>([SAY.betLost, SAY.livesOut, SAY.lifeLost, SAY.boom, NAMED.burned, NAMED.noFaith, SAY.farOff, SAY.revenge, SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
 export function moodOf(l: Line): Mood {
   return CHEER.has(l) ? "cheer" : OOPS.has(l) ? "oops" : "talk";

@@ -20,7 +20,7 @@ import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
 import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
-import { spectra, type Clue, type Spectrum } from "./scale.ts";
+import { spectra, spectrumKey, type Clue, type Spectrum } from "./scale.ts";
 import { THINGS } from "./things.ts";
 
 export const ROUNDS = 6;
@@ -48,6 +48,14 @@ export function pointsFor(target: number, value: number, bands: [number, number,
 export function betPoints(points: number, sure: boolean): number {
   if (!sure) return points;
   return points >= BULLSEYE ? points * 2 : 0;
+}
+
+/** Spectra the dial can use: ones with at least three things in each third. */
+export function dialSpectra(): Spectrum[] {
+  return spectra().filter((s) => {
+    const things = THINGS[spectrumKey(s)] ?? [];
+    return [0, 1, 2].every((k) => things.filter((t) => Math.min(2, Math.floor(t.at / 33.4)) === k).length >= 3);
+  });
 }
 
 const word = (a: ItemOf<"adjective">): Word => ({ pt: a.m, en: a.en, pic: a.emoji });
@@ -90,6 +98,10 @@ export class NaMesmaOnda implements Activity {
 
   get rules() {
     return LEVEL_RULES[this.level];
+  }
+  /** The score ⭐⭐⭐ is measured against. */
+  get maxScore() {
+    return 40;
   }
   get players() {
     return this.rt.activePlayers.slice(0, 2);
@@ -143,7 +155,8 @@ export class NaMesmaOnda implements Activity {
   start(rt: TvRuntime) {
     this.rt = rt;
     if (this.practice) this.round = -1;
-    this.deck = rt.rng.shuffle(spectra());
+    // Only the spectra with things spread over the dial (newer adjective pairs may not have any yet).
+    this.deck = rt.rng.shuffle(dialSpectra());
     this.newRound();
   }
 
@@ -330,7 +343,7 @@ export class NaMesmaOnda implements Activity {
       this.rt.bump();
       const bulls = this.history.filter((h) => h.points >= BULLSEYE).length;
       // Bets can double a bullseye, so ⭐⭐⭐ needs bullseyes *and* a brave bet or two.
-      const max = 40;
+      const max = this.maxScore;
       const headline = this.score >= max * 0.85 ? "Telepatia! 🔮" : this.score >= max * 0.6 ? "Na mesma onda!" : this.score >= max * 0.35 ? "Boa onda!" : "Quase… outra vez?";
       const headlineEn = this.score >= max * 0.85 ? "Telepathy!" : this.score >= max * 0.6 ? "On the same wavelength!" : this.score >= max * 0.35 ? "Good vibes!" : "Almost… again?";
       this.onDone({

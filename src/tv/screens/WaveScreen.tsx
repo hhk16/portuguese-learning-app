@@ -4,7 +4,7 @@ import { ROUNDS } from "../../games/wave/wave.ts";
 import { DialFace } from "../../ui/DialFace.tsx";
 import { PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
-import { GameTop } from "./Menus.tsx";
+import { GameTop, MetaBar } from "./Menus.tsx";
 import { useTick } from "./useTick.ts";
 
 export function WaveScreen({ a }: { a: NaMesmaOnda }) {
@@ -26,6 +26,7 @@ export function WaveScreen({ a }: { a: NaMesmaOnda }) {
         {a.final && <span className="pill double-pill">×2</span>}
         {timed && <span className={`pill clock ${a.msLeft < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
         <span className="pill star-pill">{a.score} pontos</span>
+        {!a.inPractice && <MetaBar score={a.score} max={a.maxScore} />}
       </GameTop>
       <div className="turn-banner card">
         {a.phase === "clue" && psychic && (

@@ -755,6 +755,14 @@
   "text": "Ana queimou-se!",
   "voice": "pt_PT-tugão-medium"
  },
+ "ana subiu de nível!": {
+  "file": "8cb9f40e75.mp3",
+  "lengthScale": 1.12,
+  "say": "Ana subiu de nível!",
+  "source": "piper",
+  "text": "Ana subiu de nível!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "ana é a estrela da noite!": {
   "file": "559bc12f20.mp3",
   "lengthScale": 1.12,
@@ -835,12 +843,12 @@
   "text": "angolano, angolana",
   "voice": "pt_PT-tugão-medium"
  },
- "aparecem duas palavras.": {
-  "file": "bdabf84407.mp3",
+ "aparecem duas palavras. cada um escolhe uma palavra que liga as duas.": {
+  "file": "db461b6b9b.mp3",
   "lengthScale": 1.12,
-  "say": "Aparecem duas palavras.",
+  "say": "Aparecem duas palavras. Cada um escolhe uma palavra que liga as duas.",
   "source": "piper",
-  "text": "Aparecem duas palavras.",
+  "text": "Aparecem duas palavras. Cada um escolhe uma palavra que liga as duas.",
   "voice": "pt_PT-tugão-medium"
  },
  "aposta perdida!": {
@@ -1083,14 +1091,6 @@
   "say": "cabeleireiro, cabeleireira.",
   "source": "piper",
   "text": "cabeleireiro, cabeleireira",
-  "voice": "pt_PT-tugão-medium"
- },
- "cada um escolhe uma palavra que liga as duas.": {
-  "file": "205333e1f5.mp3",
-  "lengthScale": 1.12,
-  "say": "Cada um escolhe uma palavra que liga as duas.",
-  "source": "piper",
-  "text": "Cada um escolhe uma palavra que liga as duas.",
   "voice": "pt_PT-tugão-medium"
  },
  "cada um responde no seu telemóvel.": {
@@ -2325,6 +2325,14 @@
   "say": "Hadi queimou-se!",
   "source": "piper",
   "text": "Hadi queimou-se!",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "hadi subiu de nível!": {
+  "file": "b2e1572afe.mp3",
+  "lengthScale": 1.12,
+  "say": "Hadi subiu de nível!",
+  "source": "piper",
+  "text": "Hadi subiu de nível!",
   "voice": "pt_PT-tugão-medium"
  },
  "hadi é a estrela da noite!": {
@@ -3793,6 +3801,14 @@
   "text": "Ouçam com atenção.",
   "voice": "pt_PT-tugão-medium"
  },
+ "palavras diferentes? as vossas palavras são o novo par. encontrem-se a meio!": {
+  "file": "3a54b454f6.mp3",
+  "lengthScale": 1.12,
+  "say": "Palavras diferentes? As vossas palavras são o novo par. Encontrem-se a meio!",
+  "source": "piper",
+  "text": "Palavras diferentes? As vossas palavras são o novo par. Encontrem-se a meio!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "para a próxima!": {
   "file": "dd2267a728.mp3",
   "lengthScale": 1.12,
@@ -4508,6 +4524,14 @@
   "text": "quatro",
   "title": "File:LL-Q5146 (por)-Santamarcanda-quatro.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-quatro.wav"
+ },
+ "que nome tão bonito!": {
+  "file": "93efc99b46.mp3",
+  "lengthScale": 1.12,
+  "say": "Que nome tão bonito!",
+  "source": "piper",
+  "text": "Que nome tão bonito!",
+  "voice": "pt_PT-tugão-medium"
  },
  "que pena!": {
   "file": "9fc00dd94b.mp3",

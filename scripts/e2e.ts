@@ -98,7 +98,9 @@ if (first === "night") {
   await press("ArrowDown");
   await press("Enter");
   await tv.waitForTimeout(400);
-  await press("Home"); // no-op; focus starts on the next lesson (the first on a fresh TV)
+  // Units first (focus starts on the unit of the next lesson), then that unit's lessons.
+  await press("Enter");
+  await tv.waitForTimeout(400);
   await press("ArrowRight", LESSON_INDEX);
   await tv.screenshot({ path: `${OUT}/04-tv-learn-menu.png` });
 } else {
@@ -227,6 +229,14 @@ async function botStep(b: Bot, seen: Set<string>) {
     }
     case "learn":
       return learnStep(b, v, seen);
+    case "petName": {
+      // Ana names the puppy (first run on a fresh TV).
+      if (seen.has("petName")) return;
+      seen.add("petName");
+      await nap(pg, 1500);
+      await shoot("pet-name", b);
+      return click(pg, ".pet-ideas .btn", "Bolacha");
+    }
     case "secret": {
       // The clue-giver bets how many their partner will find.
       if (v.role === "watch" && v.clue && v.bet === undefined && !seen.has(`bet:${v.promptId}`)) {
@@ -565,6 +575,8 @@ while (Date.now() - start < LIMIT) {
     await tv.waitForTimeout(600);
     if (m === "lesson") {
       await press("ArrowDown");
+      await press("Enter");
+      await tv.waitForTimeout(300);
       await press("Enter");
     } else {
       await press("ArrowDown", 2);

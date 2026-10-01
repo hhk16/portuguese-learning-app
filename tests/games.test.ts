@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { gameCards, padCards } from "../src/curriculum/learn.ts";
 import { LESSONS } from "../src/curriculum/lessons.ts";
 import { cardForWord, normWord } from "../src/games/sync/sync.ts";
-import { betPoints, LEVEL_RULES as WAVE_LEVELS, pointsFor } from "../src/games/wave/wave.ts";
+import { betPoints, dialSpectra, LEVEL_RULES as WAVE_LEVELS, pointsFor } from "../src/games/wave/wave.ts";
 import { intensifiers, spectra, waveSpoken } from "../src/games/wave/scale.ts";
 
 describe("Na Mesma Onda scoring", () => {
@@ -161,8 +161,9 @@ describe("Grande Final", () => {
 });
 
 describe("Word data", () => {
-  it("every Na Mesma Onda spectrum has things spread over the whole dial", () => {
-    for (const s of spectra()) {
+  it("the dial has plenty of spectra, each with things spread over the whole dial", () => {
+    expect(dialSpectra().length).toBeGreaterThanOrEqual(8);
+    for (const s of dialSpectra()) {
       const key = `${s.left.id.split(".").pop()}|${s.right.id.split(".").pop()}`;
       const things = THINGS[key];
       expect(things, key).toBeDefined();

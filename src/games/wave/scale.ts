@@ -40,6 +40,11 @@ export function spectra(): Spectrum[] {
   return out;
 }
 
+/** Key of a spectrum in THINGS ("frio|quente"). */
+export function spectrumKey(s: Spectrum): string {
+  return `${s.left.id.split(".").pop()}|${s.right.id.split(".").pop()}`;
+}
+
 /** Every intensifier phrase the TV can say (for the audio pipeline). */
 export function waveSpoken(): string[] {
   return spectra().flatMap((s) => intensifiers(s.left, s.right).map((c) => c.pt));

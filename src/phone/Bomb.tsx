@@ -14,6 +14,7 @@ const ASK: Record<V["kind"], { pt: string; en: string }> = {
   number: { pt: "Que número é?", en: "Tap the number in words" },
   hearNumber: { pt: "🔊 Ouve o número!", en: "Listen to the TV, tap the number" },
   opposite: { pt: "O contrário de…", en: "Tap the opposite" },
+  phrase: { pt: "🔊 Ouve e toca!", en: "Listen to the TV, tap what it said" },
 };
 
 export function Bomb({ v, send }: { v: V; send: Send }) {

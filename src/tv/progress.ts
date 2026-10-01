@@ -103,3 +103,12 @@ export function recordScore(mode: string, level: Level, score: number): { previo
   }
   return { previous, isNew };
 }
+
+const TOPIC_KEY = "pp.tv.gameTopic";
+/** The words the games use: "all" (everything learned so far) or a book unit id ("u03"). */
+export function lastTopic(): string {
+  return read<string>(TOPIC_KEY, "all");
+}
+export function rememberTopic(topic: string) {
+  write(TOPIC_KEY, topic);
+}

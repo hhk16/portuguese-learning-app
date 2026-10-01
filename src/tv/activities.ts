@@ -7,7 +7,7 @@
 import { gameNow } from "./clock.ts";
 import type { LearnCard } from "../curriculum/learn.ts";
 import { getLesson, LESSONS } from "../curriculum/lessons.ts";
-import { unitOf } from "../curriculum/units.ts";
+import { UNITS, unitOf } from "../curriculum/units.ts";
 import type { Lesson } from "../curriculum/schema.ts";
 import { LearnActivity, type LearnSummary } from "../games/learn/learn.ts";
 import { GrandeFinal } from "../games/final/final.ts";
@@ -23,9 +23,10 @@ import { randomId } from "../shared/ids.ts";
 import type { ControllerView, InputValue, NavDir } from "../shared/protocol.ts";
 import { play } from "../audio/sfx.ts";
 import { NAMED, RULES, SAY } from "./host-lines.ts";
-import { bestScore, countPlay, lastLevel, LEVELS, recordScore, rememberLevel, wantsPractice, type Level } from "./progress.ts";
+import { bestScore, countPlay, lastLevel, lastTopic, LEVELS, recordScore, rememberLevel, rememberTopic, wantsPractice, type Level } from "./progress.ts";
 import { lessonsDone, lessonStars, nextLessonId, playableLessons } from "./progress.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "./runtime.ts";
+import { award, levelOf, type Award } from "./stats.ts";
 
 export type Mode = "lesson" | "secret" | "wave" | "sync" | "draw" | "stop" | "bomb" | "kitchen" | "final";
 
@@ -34,6 +35,8 @@ export const VERSUS: readonly Mode[] = ["stop", "bomb"];
 
 export interface ModeSpec {
   mode: Mode;
+  /** Which words: a book unit ("u03") or "all" (everything learned so far). */
+  unitId?: string;
   /** Games: 1 Fácil · 2 Médio · 3 Difícil. */
   level?: Level;
   /** Lesson to learn ("lesson") or whose words to play with (games). Default: everything learned. */
@@ -86,8 +89,10 @@ export interface MenuItem {
 export class TitleActivity implements Activity {
   readonly id = "title";
   rt!: TvRuntime;
-  menu: "main" | "learn" | "play" | "settings" = "main";
+  /** learn = the book's units; unit = one unit's lessons; progress = levels, streaks, badges. */
+  menu: "main" | "learn" | "unit" | "play" | "settings" | "progress" = "main";
   focus = 0;
+  unitId = "u00";
 
   constructor(menu: TitleActivity["menu"] = "main") {
     this.menu = menu;
@@ -95,15 +100,40 @@ export class TitleActivity implements Activity {
 
   start(rt: TvRuntime) {
     this.rt = rt;
-    if (this.menu === "learn") this.focus = Math.max(0, LESSONS.findIndex((l) => l.id === nextLessonId()));
+    if (this.menu === "learn") this.focusNextUnit();
+    // First time: Ana names the puppy on her phone.
+    setTimeout(() => rt.activity === this && rt.maybeAskPetName(), 1500);
+  }
+
+  onPlayersChanged() {
+    this.rt.maybeAskPetName();
+    this.rt.bump();
+  }
+
+  /** Units that have lessons, in book order. */
+  get units() {
+    return UNITS.filter((u) => LESSONS.some((l) => unitOf(l.unit)?.id === u.id));
+  }
+  private focusNextUnit() {
+    const next = getLesson(nextLessonId() ?? "");
+    this.focus = Math.max(0, this.units.findIndex((u) => u.id === unitOf(next?.unit ?? "u00")?.id));
   }
 
   get items(): MenuItem[] {
     if (this.menu === "learn") {
       const done = lessonsDone();
+      const next = nextLessonId();
+      return this.units.map((u) => {
+        const ls = LESSONS.filter((l) => unitOf(l.unit)?.id === u.id);
+        const n = ls.filter((l) => done.has(l.id)).length;
+        return { id: `unit:${u.id}`, label: `${u.short} · ${u.title}`, sub: `${n}/${ls.length} lições`, subEn: u.en, pic: u.pic, badge: ls.some((l) => l.id === next) ? "Próxima" : undefined, stars: n === ls.length && n > 0 ? 3 : 0 };
+      });
+    }
+    if (this.menu === "unit") {
+      const done = lessonsDone();
       const stars = lessonStars();
       const next = nextLessonId();
-      return LESSONS.map((l) => ({
+      return LESSONS.filter((l) => unitOf(l.unit)?.id === this.unitId).map((l) => ({
         id: `lesson:${l.id}`,
         label: l.title,
         sub: unitOf(l.unit)?.short ?? "",
@@ -122,6 +152,7 @@ export class TitleActivity implements Activity {
       return [
         { id: "sound", label: `Voz e sons: ${s.sound ? "ligados" : "desligados"}`, subEn: `Voice, music and sounds: ${s.sound ? "on" : "off"}`, pic: s.sound ? "🔊" : "🔇" },
         { id: "lowFx", label: `Efeitos 3D: ${s.lowFx ? "leves" : "completos"}`, sub: "Leves = mais fluido em TVs antigas", subEn: "Light = smoother on older TVs", pic: "✨" },
+        { id: "pet", label: `Cachorrinho: ${s.petName || "sem nome"}`, sub: "Mudar o nome no telemóvel da Ana", subEn: "Rename the puppy (on Ana's phone)", pic: "🐶" },
       ];
     }
     const done = lessonsDone().size;
@@ -129,6 +160,7 @@ export class TitleActivity implements Activity {
       { id: "night", label: "Noite de jogos", sub: "3 jogos seguidos + a Grande Final", subEn: "Game night: 3 games in a row + a Grand Final", pic: "🎉", badge: "Novo" },
       { id: "learn", label: "Aprender juntos", sub: `Lições do livro · ${done}/${LESSONS.length} feitas`, subEn: "Learn together: lessons from the book", pic: "📖" },
       { id: "play", label: "Jogar", sub: "Jogos a dois com as palavras que aprenderam", subEn: "Play: party games with your new words", pic: "🎲" },
+      { id: "progress", label: "Progresso", sub: "Níveis, dias seguidos e medalhas", subEn: "Progress: levels, streaks and badges", pic: "📈" },
       { id: "settings", label: "Definições", subEn: "Settings", pic: "⚙️" },
     ];
   }
@@ -137,7 +169,8 @@ export class TitleActivity implements Activity {
 
   onNav(dir: NavDir) {
     const items = this.items;
-    const cols = this.menu === "learn" ? 4 : this.menu === "play" ? 3 : 1;
+    if (!items.length && dir !== "back") return;
+    const cols = this.menu === "unit" ? 4 : this.menu === "learn" || this.menu === "play" ? 3 : 1;
     const move = (step: number) => {
       let i = this.focus;
       do i = (i + step + items.length) % items.length;
@@ -151,8 +184,13 @@ export class TitleActivity implements Activity {
     if (dir === "up") return move(-cols);
     if (dir === "down") return move(cols);
     if (dir === "back") {
-      if (this.menu !== "main") {
-        this.focus = { learn: 1, play: 2, settings: 3, main: 0 }[this.menu];
+      if (this.menu === "unit") {
+        this.menu = "learn";
+        this.focus = Math.max(0, this.units.findIndex((u) => u.id === this.unitId));
+        play("back");
+        this.rt.bump();
+      } else if (this.menu !== "main") {
+        this.focus = { learn: 1, play: 2, progress: 3, settings: 4, main: 0 }[this.menu];
         this.menu = "main";
         play("back");
         this.rt.bump();
@@ -164,6 +202,14 @@ export class TitleActivity implements Activity {
     if (item.disabled) return play("wrong");
     play("select");
     if (item.id.startsWith("lesson:")) return this.rt.run(new LobbyActivity({ mode: "lesson", lessonId: item.id.slice(7) }));
+    if (item.id.startsWith("unit:")) {
+      this.unitId = item.id.slice(5);
+      this.menu = "unit";
+      const ls = LESSONS.filter((l) => unitOf(l.unit)?.id === this.unitId);
+      this.focus = Math.max(0, ls.findIndex((l) => l.id === nextLessonId()));
+      this.rt.bump();
+      return;
+    }
     switch (item.id) {
       case "secret":
       case "wave":
@@ -177,12 +223,16 @@ export class TitleActivity implements Activity {
         return startNight(this.rt);
       case "learn":
         this.menu = "learn";
-        this.focus = Math.max(0, LESSONS.findIndex((l) => l.id === nextLessonId()));
+        this.focusNextUnit();
         break;
       case "play":
       case "settings":
+      case "progress":
         this.menu = item.id;
         this.focus = 0;
+        break;
+      case "pet":
+        this.rt.askPetName(true);
         break;
       case "sound":
         this.rt.setSettings({ sound: !this.rt.settings.sound });
@@ -263,9 +313,26 @@ export class LobbyActivity implements Activity {
     return this.spec.mode !== "lesson" && this.spec.mode !== "final";
   }
 
+  /** Games built on your words can be played with one unit's words (▲ ▼ on the phone). */
+  get picksTopic() {
+    return WORD_GAMES.includes(this.spec.mode);
+  }
+  get topics(): { id: string; pt: string; en: string }[] {
+    const units = UNITS.filter((u) => LESSONS.some((l) => unitOf(l.unit)?.id === u.id));
+    return [{ id: "all", pt: "Tudo o que já aprendemos", en: "Everything you've learned" }, ...units.map((u) => ({ id: u.id, pt: `${u.short} · ${u.title}`, en: u.en }))];
+  }
+  get topic(): { id: string; pt: string; en: string } {
+    if (this.spec.lessonId && !this.spec.unitId) {
+      const l = getLesson(this.spec.lessonId);
+      return { id: "lesson", pt: l?.title ?? "Esta lição", en: "This lesson's words" };
+    }
+    return this.topics.find((t) => t.id === (this.spec.unitId ?? "all")) ?? this.topics[0]!;
+  }
+
   start(rt: TvRuntime) {
     this.rt = rt;
     if (this.spec.mode === "final") this.spec = { ...this.spec, level: rt.night?.level ?? 1 };
+    if (this.picksTopic && !this.spec.unitId && !this.spec.lessonId) this.spec = { ...this.spec, unitId: lastTopic() };
     else if (this.spec.mode !== "lesson" && !this.spec.level) this.spec = { ...this.spec, level: lastLevel(this.spec.mode) };
     for (const p of rt.players.values()) p.ready = false;
     // The host reads the rules (PT, with English on screen) — no reading needed at A1.
@@ -328,6 +395,18 @@ export class LobbyActivity implements Activity {
       }
       return;
     }
+    if ((dir === "up" || dir === "down") && this.picksTopic) {
+      const ts = this.topics;
+      const i = ts.findIndex((t) => t.id === this.topic.id);
+      const next = ts[(i + (dir === "down" ? 1 : -1) + ts.length) % ts.length]!;
+      this.spec = { ...this.spec, unitId: next.id, lessonId: undefined };
+      rememberTopic(next.id);
+      play("tap");
+      this.rt.cue({ pt: next.pt, en: `Words: ${next.en}` }, from === "tv" ? undefined : from);
+      this.rt.refreshViews();
+      this.rt.bump();
+      return;
+    }
     if (dir === "back") this.rt.run(new TitleActivity(this.spec.mode === "lesson" ? "learn" : "play"));
     if (dir === "ok" && from === "tv") {
       // TV remote "OK" = everyone connected is ready.
@@ -337,7 +416,7 @@ export class LobbyActivity implements Activity {
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
-    return { mode: "lobby", ready: p.ready, hint: this.title, level: this.picksLevel ? this.level : undefined };
+    return { mode: "lobby", ready: p.ready, hint: this.title, level: this.picksLevel ? this.level : undefined, topic: this.picksTopic ? this.topic.pt : undefined };
   }
 }
 
@@ -418,6 +497,10 @@ export interface ResultsInfo {
   nightTotals?: Record<string, number>;
   /** Co-op game on game night: who contributed most (Pipo names the game's star). */
   mvp?: string;
+  /** Versus games: each player's share (the winner gets bonus XP). */
+  perPlayer?: Record<string, number>;
+  /** XP for this screen: lessons and games award per player; the night-over card awards the night. */
+  xp?: "lesson" | "game" | "night";
   win: boolean;
   lesson?: LearnSummary;
   words?: LearnCard[];
@@ -561,6 +644,8 @@ export class ResultsActivity implements Activity {
   startAt = 0;
   /** Personal best before this game (null = first time) and whether this game beat it. */
   record: { previous: number | null; isNew: boolean } | null = null;
+  /** XP, level and streak changes per player (shown on the TV and each phone). */
+  awards = new Map<string, Award>();
   private readonly promptId = randomId(6);
 
   constructor(info: ResultsInfo) {
@@ -593,7 +678,38 @@ export class ResultsActivity implements Activity {
     else if (stars === 0) setTimeout(() => rt.activity === this && play("sad-trombone", 0.7), 900);
     if (this.info.win) rt.celebrate();
     for (const p of rt.activePlayers) rt.emote(p.playerId, this.info.win ? "cheer" : "wave", 3000);
+    this.giveXp();
     void rt.learner.sync().then(() => rt.learner.pushSnapshot());
+  }
+
+  /** XP: playing earns it, stars and wins earn more; a streak adds a daily bonus. */
+  private giveXp() {
+    const { xp, stars, lesson, perPlayer, nightTotals } = this.info;
+    if (!xp) return;
+    const rt = this.rt;
+    const top = perPlayer ? Object.entries(perPlayer).sort((a, b) => b[1] - a[1]) : [];
+    const winner = top.length >= 2 && top[0]![1] > top[1]![1] ? top[0]![0] : undefined;
+    const nightTop = nightTotals ? Object.entries(nightTotals).sort((a, b) => b[1] - a[1]) : [];
+    const champs = nightTop.filter(([, v]) => v === nightTop[0]?.[1]).map(([id]) => id);
+    for (const p of rt.activePlayers) {
+      let gain: number;
+      if (xp === "lesson") gain = 20 + 10 * (lesson ? Math.round((3 * lesson.stars) / Math.max(1, lesson.graded)) : 1) + 2 * (lesson?.rush?.team ?? 0);
+      else if (xp === "game") gain = 15 + 10 * (stars ?? 0) + (winner === p.playerId ? 15 : 0);
+      else gain = 40 + (champs.includes(p.playerId) ? 40 : 0);
+      this.awards.set(p.playerId, award(p.profile, gain, { lesson: xp === "lesson", game: xp === "game", win: winner === p.playerId, crown: xp === "night" && champs.includes(p.playerId) }));
+    }
+    // A level up gets its own fanfare and a line from Pipo, after the stars.
+    const ups = rt.activePlayers.filter((p) => this.awards.get(p.playerId)?.levelUp);
+    setTimeout(() => {
+      if (rt.activity !== this) return;
+      for (const p of ups) {
+        play("fanfare", 0.8);
+        rt.say(NAMED.levelUp, { name: p.name });
+        rt.emote(p.playerId, "cheer", 3000);
+      }
+      const badges = rt.activePlayers.flatMap((p) => (this.awards.get(p.playerId)?.newBadges ?? []).map((b) => ({ p, b })));
+      badges.slice(0, 2).forEach(({ p, b }, i) => setTimeout(() => rt.activity === this && rt.cue({ pt: `${b.pic} ${b.pt}`, en: `New badge: ${b.en}` }, p), i * 3000));
+    }, 3200);
   }
 
   tick(now: number) {
@@ -627,7 +743,14 @@ export class ResultsActivity implements Activity {
     this.choose(this.info.options.findIndex((o) => o.id === value.id));
   }
 
-  viewFor(): ControllerView {
+  /** "+45 XP · Nível 3 · 🔥 4 dias" for a player's phone. */
+  xpLine(p: RuntimePlayer): string | undefined {
+    const a = this.awards.get(p.playerId);
+    if (!a) return undefined;
+    return `+${a.gain} XP · Nível ${levelOf(a.after)}${a.levelUp ? " 🎉" : ""}${a.streak >= 2 ? ` · 🔥 ${a.streak} dias` : ""}`;
+  }
+
+  viewFor(p: RuntimePlayer): ControllerView {
     // Phones wait for the TV's reveal (stars, record) before showing the menu.
     if (gameNow() - this.startAt < RESULTS_HOLD_MS) return { mode: "wait", title: "Olha para a TV!", subtitle: "Look at the TV — here come the results!", pic: "👀" };
     return {
@@ -635,7 +758,7 @@ export class ResultsActivity implements Activity {
       roundId: "results",
       promptId: this.promptId,
       title: this.info.headline,
-      subtitle: this.info.sub,
+      subtitle: this.xpLine(p) ?? this.info.sub,
       options: this.info.options.map((o) => ({ id: o.id, label: o.label, sub: o.sub, emoji: o.pic })),
     };
   }
@@ -645,9 +768,18 @@ export class ResultsActivity implements Activity {
 /* Mode runner                                                                 */
 /* -------------------------------------------------------------------------- */
 
+/** Games whose words come from the lessons (the chapter picker applies to these). */
+export const WORD_GAMES: readonly Mode[] = ["secret", "sync", "draw", "bomb"];
+
+/** The lessons a game draws its words from: one lesson, one unit, or everything learned so far. */
 function lessonsFor(spec: ModeSpec): Lesson[] {
   const l = spec.lessonId ? getLesson(spec.lessonId) : undefined;
-  return l ? [l] : playableLessons();
+  if (l) return [l];
+  if (spec.unitId && spec.unitId !== "all") {
+    const ls = LESSONS.filter((x) => unitOf(x.unit)?.id === spec.unitId);
+    if (ls.length) return ls;
+  }
+  return playableLessons();
 }
 
 /** Game night: one head-to-head game (Stop! or Batata Quente) and two co-op games, then the Grande Final. */
@@ -753,6 +885,8 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
           nightGain: gained,
           nightTotals: { ...night.points },
           mvp: o.perPlayer ? undefined : mvpOf(rt, gained),
+          perPlayer: o.perPlayer,
+          xp: "game",
           options: [advance, { ...menu, label: "Terminar a noite", sub: "End the night" }],
           autoGo: 15_000,
         }),
@@ -775,6 +909,8 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
         stars,
         practiced: o.words,
         gallery: o.gallery,
+        perPlayer: o.perPlayer,
+        xp: "game",
         options: [...up, { ...again, label: "Outra vez!", sub: "Play again" }, ...games(spec.mode), menu],
       }),
     );
@@ -796,6 +932,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
               win: true,
               lesson: s,
               words: s.words,
+              xp: "lesson",
               options: [
                 ...games().map((o) => ({ ...o, sub: "Jogar com estas palavras" })),
                 { id: "next", label: "Próxima lição", sub: next.title, pic: "➡️", go: go({ mode: "lesson", lessonId: next.id }) },
@@ -858,6 +995,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
               practiced: o.words,
               champion: true,
               nightTotals: totals,
+              xp: "night",
               options: [
                 { id: "night", label: "Outra noite!", sub: "Another game night", pic: "🎉", go: () => startNight(rt) },
                 ...games(),

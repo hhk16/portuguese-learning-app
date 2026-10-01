@@ -101,7 +101,7 @@ export function Sync({ v, send }: { v: V; send: Send }) {
               {p.name}: “{p.word}”
             </span>
           ))}
-          <small>Last try — get closer to each other!</small>
+          <small>Your last words are the new pair — meet in the middle!</small>
         </div>
       )}
       <div className="p-callout soft">

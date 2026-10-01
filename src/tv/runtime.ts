@@ -62,7 +62,13 @@ export interface Activity {
 export interface Settings {
   sound: boolean;
   lowFx: boolean;
+  /** The puppy's name (Ana picks it), and whether she was asked already. */
+  petName?: string;
+  petAsked?: boolean;
 }
+
+/** Name ideas for the puppy (Portuguese pet names). */
+export const PET_NAMES = ["Bolacha", "Pipoca", "Canela", "Mel", "Caramelo", "Tofu", "Nata", "Bica"];
 
 const SETTINGS_KEY = "pp.tv.settings.v3";
 
@@ -184,11 +190,17 @@ export class TvRuntime {
     this.bump();
   }
 
+  /** Last time anyone did anything (the puppy dozes off when nobody plays). */
+  lastInputAt = performance.now();
+
   private onBody(playerId: string, body: PlayerBody) {
     const p = this.players.get(playerId);
     if (!p) return;
+    if (body.k !== "ping") this.lastInputAt = performance.now();
+    if (body.k === "react" && body.emoji === "❤️") this.petJoy++;
     switch (body.k) {
       case "input": {
+        if (body.value.mode === "petName") return this.onPetName(p, body.value);
         if (this.paused) return;
         const now = gameNow();
         const t = body.clientHostTime > 0 && body.clientHostTime <= now + 50 && body.clientHostTime > now - 3000 ? body.clientHostTime : now;
@@ -234,6 +246,50 @@ export class TvRuntime {
     }
     if (dir === "back" && this.activity?.pausable) return this.pause();
     this.activity?.onNav?.(dir, "tv");
+  }
+
+  /* --------------------------------- the puppy ---------------------------------- */
+
+  /** Who is being asked to name the puppy (their phone shows the name screen). */
+  petPrompt: string | null = null;
+  /** Bumped when the puppy should get excited (named, a heart reaction…). */
+  petJoy = 0;
+
+  /** The puppy's person: Ana (by character or name), else the second player. */
+  petOwner(): RuntimePlayer | undefined {
+    const ps = this.activePlayers;
+    return ps.find((p) => /^an+a$/i.test(p.name.trim())) ?? ps.find((p) => p.avatar === "ana") ?? ps[1];
+  }
+
+  /** On the title screen, the first time Ana is here: ask her to name the puppy. */
+  maybeAskPetName() {
+    if (this.settings.petAsked || this.petPrompt || this.activity?.id !== "title") return;
+    const ps = this.activePlayers;
+    const ana = ps.find((p) => /^an+a$/i.test(p.name.trim())) ?? ps.find((p) => p.avatar === "ana");
+    if (ana) this.askPetName(false, ana);
+  }
+
+  askPetName(rename: boolean, who = this.petOwner() ?? this.activePlayers[0]) {
+    if (!who) return;
+    this.petPrompt = who.playerId;
+    if (rename) this.cue({ pt: "🐶 Um nome para o cachorrinho?", en: `${who.name}: name the puppy on your phone` }, who);
+    this.conn.sendView(who.playerId, this.currentView(who));
+    this.bump();
+  }
+
+  private onPetName(p: RuntimePlayer, v: { name?: string; skip?: boolean }) {
+    if (this.petPrompt !== p.playerId) return;
+    this.petPrompt = null;
+    if (v.name && !v.skip) {
+      this.setSettings({ petName: v.name.trim().slice(0, 16), petAsked: true });
+      this.petJoy++;
+      play("fanfare", 0.7);
+      this.celebrate();
+      this.cue({ pt: `🐶 ${this.settings.petName}!`, en: "The puppy has a name!" }, p);
+      this.say(SAY.petNamed);
+    } else this.setSettings({ petAsked: true });
+    this.conn.sendView(p.playerId, this.currentView(p));
+    this.bump();
   }
 
   /* ------------------------------- side bets ------------------------------- */
@@ -327,6 +383,7 @@ export class TvRuntime {
   }
 
   currentView(p: RuntimePlayer): ControllerView {
+    if (this.petPrompt === p.playerId) return { mode: "petName", roundId: "pet", promptId: "pet", current: this.settings.petName, suggestions: PET_NAMES };
     if (this.paused) return { mode: "paused", title: "Pausa" };
     // During a reveal the TV is the show: phones wait a beat before showing the result.
     if (performance.now() < this.holdUntil) return { mode: "wait", title: "Olha para a TV!", subtitle: "Look at the TV! 👀", pic: "👀" };
@@ -349,6 +406,8 @@ export class TvRuntime {
 
   run(a: Activity) {
     this.unpauseQuietly();
+    // An unanswered puppy-name question doesn't follow you into a game (it's asked again later).
+    if (this.petPrompt && a.id !== "title") this.petPrompt = null;
     stopSpeech();
     this.activity?.stop?.();
     this.activity = a;

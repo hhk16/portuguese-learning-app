@@ -9,6 +9,10 @@ import { GAMES, HOW_TO, specPic, toNextStar, type ChampionActivity, type Gallery
 import { gameNow } from "../clock.ts";
 import { useRuntime } from "../runtime.ts";
 import { LEVELS } from "../progress.ts";
+import { BADGES, dayKey, levelOf, levelProgress, levelTitle, statsOf, streakOf, wordsKnown, xpForLevel } from "../stats.ts";
+import { unitOf, UNITS } from "../../curriculum/units.ts";
+import { LESSONS } from "../../curriculum/lessons.ts";
+import { lessonsDone } from "../progress.ts";
 import { useTick } from "./useTick.ts";
 
 export function joinUrl(code: string) {
@@ -70,8 +74,8 @@ function windowed<T>(items: T[], focus: number, rows: number, cols: number): { i
 
 export function TitleScreen({ a }: { a: TitleActivity }) {
   const items = a.items;
-  const grid = a.menu === "learn" ? 4 : a.menu === "play" ? 3 : 1;
-  const shown = a.menu === "learn" ? windowed(items, a.focus, 2, 4) : items.map((it, i) => ({ it, i }));
+  const grid = a.menu === "unit" ? 4 : a.menu === "learn" || a.menu === "play" ? 3 : 1;
+  const shown = a.menu === "unit" ? windowed(items, a.focus, 2, 4) : a.menu === "learn" ? windowed(items, a.focus, 3, 3) : items.map((it, i) => ({ it, i }));
   return (
     <div className="tv-overlay title-screen">
       <div className="title-left">
@@ -80,10 +84,11 @@ export function TitleScreen({ a }: { a: TitleActivity }) {
         </div>
         {a.menu !== "main" && (
           <div className="crumb">
-            <span className="kicker">{{ learn: "Aprender juntos", play: "Jogar", settings: "Definições", main: "" }[a.menu]}</span>
+            <span className="kicker">{{ learn: "Aprender juntos · Unidades", unit: `Aprender juntos · ${unitOf(a.unitId)?.short ?? ""}`, play: "Jogar", settings: "Definições", progress: "Progresso", main: "" }[a.menu]}</span>
             <span className="hint">← Voltar · Back</span>
           </div>
         )}
+        {a.menu === "progress" && <ProgressPanel />}
         <div className={`menu grid-${grid}`}>
           {shown.map(({ it, i }) => (
             <div key={it.id} className={`menu-card card ${i === a.focus ? "focus" : ""} ${it.disabled ? "disabled" : ""}`}>
@@ -105,6 +110,86 @@ export function TitleScreen({ a }: { a: TitleActivity }) {
       </div>
       <div className="title-right">
         <JoinCard />
+      </div>
+    </div>
+  );
+}
+
+/** Levels, streaks, words and badges for each player, and the book's units done. */
+function ProgressPanel() {
+  const rt = useRuntime();
+  const people = rt.activePlayers.length ? rt.activePlayers.map((p) => ({ id: p.profile.profileId, name: p.name, profile: p.profile, p })) : Object.values(rt.learner.profiles).map((pr) => ({ id: pr.profileId, name: pr.name, profile: pr, p: undefined }));
+  const done = lessonsDone();
+  const last14 = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (13 - i));
+    return dayKey(d);
+  });
+  return (
+    <div className="progress-panel">
+      <div className="progress-people">
+        {people.slice(0, 4).map((x) => {
+          const st = statsOf(x.id);
+          const lvl = levelOf(st.xp);
+          const t = levelTitle(lvl);
+          const streak = streakOf(st);
+          return (
+            <div key={x.id} className="card progress-card">
+              <div className="pc-head">
+                {x.p ? <PlayerChip p={x.p} size="2.4em" /> : <b className="display">{x.name}</b>}
+                <span className="pc-level display">
+                  Nível {lvl} <i>{t.pt}</i>
+                </span>
+              </div>
+              <div className="xp-bar big">
+                <span style={{ width: `${Math.round(levelProgress(st.xp) * 100)}%` }} />
+              </div>
+              <small className="muted">
+                {st.xp} XP · faltam {xpForLevel(lvl + 1) - st.xp} para o nível {lvl + 1} <i>· {t.en}</i>
+              </small>
+              <div className="pc-stats">
+                <span>🔥 <b>{streak}</b> {streak === 1 ? "dia" : "dias"} seguidos</span>
+                <span>🧠 <b>{wordsKnown(x.profile)}</b> palavras</span>
+                <span>📖 <b>{st.lessons}</b> lições</span>
+                <span>🎲 <b>{st.games}</b> jogos</span>
+                <span>👑 <b>{st.crowns}</b></span>
+              </div>
+              <div className="pc-days" title="Últimos 14 dias">
+                {last14.map((d) => (
+                  <span key={d} className={st.days.includes(d) ? "on" : ""} />
+                ))}
+              </div>
+              <div className="pc-badges">
+                {BADGES.map((b) => (
+                  <span key={b.id} className={`badge-dot ${st.badges.includes(b.id) ? "on" : ""}`} title={`${b.pt} · ${b.en}`}>
+                    {b.pic}
+                  </span>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+        {people.length === 0 && <p className="muted">Entrem com o telemóvel para ver o vosso progresso. · Join with your phones to see your progress.</p>}
+      </div>
+      <div className="card progress-units">
+        <span className="kicker">O livro · The book</span>
+        {UNITS.filter((u) => LESSONS.some((l) => unitOf(l.unit)?.id === u.id)).map((u) => {
+          const ls = LESSONS.filter((l) => unitOf(l.unit)?.id === u.id);
+          const n = ls.filter((l) => done.has(l.id)).length;
+          return (
+            <div key={u.id} className="pu-row">
+              <span>
+                {u.pic} {u.short}
+              </span>
+              <span className="xp-bar">
+                <span style={{ width: `${Math.round((n / ls.length) * 100)}%` }} />
+              </span>
+              <small>
+                {n}/{ls.length}
+              </small>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -162,6 +247,16 @@ export function LobbyScreen({ a }: { a: LobbyActivity }) {
               ))}
             </div>
             <span className="muted">{a.best !== null ? `Recorde · Best: ${a.best}` : "◀ ▶ no telemóvel · on your phone"}</span>
+          </div>
+        )}
+        {a.picksTopic && (
+          <div className="level-row topic-row">
+            <span className="kicker">Palavras · Words</span>
+            <span className="level-pill on">
+              <b>{a.topic.pt}</b>
+              <i>{a.topic.en}</i>
+            </span>
+            <span className="muted">▲ ▼ no telemóvel · choose a unit on your phone</span>
           </div>
         )}
         <div className="ready-row">
@@ -224,6 +319,30 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
               ? "Falta 1 ponto para a próxima estrela · 1 point to the next star"
               : `Faltam ${toNextStar(info.score, info.max)} pontos para a próxima estrela · ${toNextStar(info.score, info.max)} points to the next star`}
           </p>
+        )}
+        {a.awards.size > 0 && (
+          <div className="xp-row">
+            {rt.activePlayers.map((p) => {
+              const aw = a.awards.get(p.playerId);
+              if (!aw) return null;
+              const lvl = levelOf(aw.after);
+              const t = levelTitle(lvl);
+              return (
+                <div key={p.playerId} className={`xp-card ${aw.levelUp ? "up" : ""}`}>
+                  <PlayerChip p={p} size="1.8em" />
+                  <span className="xp-gain display">+{aw.gain} XP</span>
+                  <span className="xp-level">
+                    <b>Nível {lvl}</b> <i>{t.pt}</i>
+                    <span className="xp-bar">
+                      <span style={{ width: `${Math.round(levelProgress(aw.after) * 100)}%` }} />
+                    </span>
+                  </span>
+                  {aw.streak >= 1 && <span className="xp-streak">🔥 {aw.streak}</span>}
+                  {aw.levelUp && <span className="xp-up display">Subiu de nível! 🎉</span>}
+                </div>
+              );
+            })}
+          </div>
         )}
         {info.gallery && info.gallery.length > 0 && (
           <div className="words">
@@ -332,6 +451,28 @@ export function PauseScreen() {
         <div className="muted">Também podes usar o telemóvel · You can use your phone too</div>
       </div>
     </div>
+  );
+}
+
+/**
+ * The co-op target: a bar filling towards the three stars (35 / 60 / 85% of the game's maximum),
+ * so the goal is on screen the whole game — "get to ⭐⭐⭐".
+ */
+export function MetaBar({ score, max }: { score: number; max: number }) {
+  const f = Math.max(0, Math.min(1, score / Math.max(1, max)));
+  const stars = [0.35, 0.6, 0.85];
+  return (
+    <span className="meta-bar pill" title="Meta · Target">
+      <span className="meta-label">Meta</span>
+      <span className="meta-track">
+        <span className="meta-fill" style={{ width: `${f * 100}%` }} />
+        {stars.map((s, i) => (
+          <span key={i} className={`meta-star ${f >= s ? "on" : ""}`} style={{ left: `${s * 100}%` }}>
+            ★
+          </span>
+        ))}
+      </span>
+    </span>
   );
 }
 
