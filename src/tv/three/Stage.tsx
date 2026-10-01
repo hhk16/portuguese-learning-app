@@ -353,11 +353,15 @@ function Scene() {
         const i = owner ? players.indexOf(owner) : -1;
         const spot = spots[i];
         if (!spot) return null;
-        const inward = spot.x > 0 ? -1 : 1;
+        // In games (players in the corners) it sits on the inner side; on menu stages, on the outer side.
+        const id = rt.activity?.id;
+        const onStage = id === "title" || id === "lobby" || id === "results";
+        const centre = spots.reduce((sum, p) => sum + p.x, 0) / Math.max(1, spots.length);
+        const side = onStage ? (spot.x >= centre ? 1 : -1) : spot.x > 0 ? -1 : 1;
         const h = spot.height * 0.42;
         return (
           <Suspense fallback={null}>
-            <Pet rt={rt} x={spot.x + inward * spot.height * 0.42} y={spot.y} height={h} flip={inward < 0} />
+            <Pet rt={rt} x={spot.x + side * spot.height * 0.4} y={spot.y} height={h} flip={side < 0} />
           </Suspense>
         );
       })()}
