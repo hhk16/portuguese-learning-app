@@ -325,9 +325,21 @@ export class WardrobeActivity implements Activity {
     else if (dir === "ok" || dir === "back") this.close();
   }
 
+  private closing = false;
+  /** "Pronto!": a little reveal of today's look, then back to the menu. */
   private close() {
-    play("select");
-    this.rt.run(new TitleActivity());
+    if (this.closing) return;
+    this.closing = true;
+    play("fanfare", 0.7);
+    this.rt.celebrate();
+    const top = TOPS.find((t) => t.id === this.top);
+    const bottom = BOTTOMS.find((b) => b.id === this.bottom);
+    this.rt.bigMoment({ pt: "✨ O look de hoje!", en: `${top?.pt ?? ""} + ${bottom?.pt ?? ""}` }, "won", 2800, true);
+    const d = this.dresser;
+    if (d) this.rt.emote(d.playerId, "cheer", 2800);
+    this.rt.petDo("cheer", 2800);
+    this.rt.say(SAY.suitsYou);
+    setTimeout(() => this.rt.activity === this && this.rt.run(new TitleActivity()), 3000);
   }
 
   viewFor(p: RuntimePlayer): ControllerView {
@@ -531,6 +543,10 @@ export interface ResultOption {
 export interface GameOutcome {
   /** The team lost (out of turns, lives, signals or customers): no win jingle, at most one star. */
   failed?: boolean;
+  /** A clear win guarantees at least this many stars (a perfect game never reads as a poor one). */
+  minStars?: 1 | 2 | 3;
+  /** Words to review that the game knows you missed (e.g. Secret's pictures nobody found). */
+  review?: { pt: string; en?: string }[];
   score: number;
   max: number;
   headline: string;
@@ -584,6 +600,8 @@ export interface ResultsInfo {
   max?: number;
   stars?: 0 | 1 | 2 | 3;
   practiced?: { pt: string; en?: string; pic?: string }[];
+  /** Words the game knows you missed (shown under "Para rever"). */
+  review?: { pt: string; en?: string }[];
   gallery?: GalleryItem[];
   /** Game night: go on to the first option by itself after this many ms. */
   autoGo?: number;
@@ -726,7 +744,8 @@ export class ChampionActivity implements Activity {
     const [top] = this.standings;
     const me = this.night.points[p.playerId] ?? 0;
     const star = this.tie || top?.p === p;
-    return { mode: "wait", title: star ? "👑 És a estrela da noite!" : `👑 ${top?.p.name ?? ""}!`, subtitle: `${me} pontos da noite · tonight's points`, pic: star ? "👑" : "👏" };
+    if (star) return { mode: "wait", title: this.tie ? "👑 Dois campeões!" : "👑 És a estrela da noite!", subtitle: `${me} pontos da noite · tonight's points`, pic: "👑" };
+    return { mode: "wait", title: `👑 ${top?.p.name ?? ""} é a estrela!`, subtitle: `Tu: ${me} · ${top?.p.name ?? ""}: ${top?.pts ?? 0} pontos — desforra na próxima noite!`, pic: "👏" };
   }
 }
 
@@ -761,7 +780,7 @@ export class ResultsActivity implements Activity {
     const stars = this.info.stars;
     // Versus results already had their winner line; co-op gets praise or encouragement.
     if (this.record?.isNew && this.record.previous !== null) rt.say(SAY.record);
-    else if (!VERSUS.includes(spec.mode) && spec.mode !== "final") rt.say(this.info.win !== false && (stars === undefined || stars >= 2) ? SAY.youDidIt : SAY.nextTime);
+    else if (!VERSUS.includes(spec.mode) && spec.mode !== "final") rt.say(this.info.win !== false && (stars === undefined || stars >= 1) ? SAY.youDidIt : SAY.nextTime);
     if (this.info.mvp) rt.say(NAMED.mvpGame, { name: this.info.mvp });
     // Recap: the TV says the words you met, so the round ends on listening.
     const words = (this.info.practiced ?? []).slice(0, 4);
@@ -962,9 +981,10 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
     // Versus games have a winner, not team stars.
     const versus = !!o.perPlayer;
     // A lost game is never praised like a win: one star at most.
-    const stars = versus ? undefined : o.failed ? (Math.min(1, starsFor(o.score, o.max)) as 0 | 1) : starsFor(o.score, o.max);
+    const stars = versus ? undefined : o.failed ? (Math.min(1, starsFor(o.score, o.max)) as 0 | 1) : (Math.max(starsFor(o.score, o.max), o.minStars ?? 0) as 0 | 1 | 2 | 3);
     if (night) {
-      night.words.push(...(o.words ?? []));
+      // A few words from each game, so the night's recap covers the whole night.
+      night.words.push(...(o.words ?? []).slice(0, 2));
       const gained = addNightPoints(rt, o, title, GAMES.find((g) => g.mode === spec.mode)?.pic ?? "🎲");
       if (o.highlight) night.moments.push(o.highlight);
       if (o.gallery?.length) night.drawing = o.gallery.find((g) => g.best) ?? o.gallery.find((g) => g.guessed) ?? o.gallery[0];
@@ -986,6 +1006,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
           max: o.max,
           stars,
           practiced: o.words,
+          review: o.review,
           gallery: o.gallery,
           nightGain: gained,
           nightTotals: { ...night.points },
@@ -1013,6 +1034,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
         max: o.max,
         stars,
         practiced: o.words,
+        review: o.review,
         gallery: o.gallery,
         perPlayer: o.perPlayer,
         xp: "game",

@@ -26,7 +26,7 @@ export function SecretScreen({ a }: { a: ParesSecretos }) {
         <span className="pill">
           Turno {Math.min(a.turnsUsed + 1, a.rules.turns)}/{a.rules.turns}
         </span>
-        <span className="pill">{"❤️".repeat(Math.max(0, a.lives))}</span>
+        <span className="pill">{a.lives > 0 ? "❤️".repeat(a.lives) : "💔 0"}</span>
         {a.phase === "clue" && !a.inPractice && <span className={`pill clock ${a.msLeft < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
       </GameTop>
       {a.phase === "clue" && a.turnsUsed === 0 && (

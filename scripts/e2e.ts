@@ -534,13 +534,19 @@ async function bombStep(b: Bot, v: View, seen: Set<string>) {
   const pg = b.page;
   if (!v.holding) {
     // "Aquece!": the safe player answers their own question (usually right) to burn the fuse.
-    const steal = v.steal as { options: { pt: string }[]; lockedMs?: number } | undefined;
+    const steal = v.steal as { options: { pt: string }[]; lockedMs?: number; typed?: boolean } | undefined;
     const key = `bomb:steal:${v.promptId}`;
     if (!steal || steal.lockedMs || seen.has(key)) return;
     seen.add(key);
     await nap(pg, 900 + Math.random() * 1500);
-    await shoot("bomb-safe", b);
+    await shoot(steal.typed ? "bomb-safe-typed" : "bomb-safe", b);
     const want = (v.debugAnswer as { steal?: string } | undefined)?.steal;
+    if (steal.typed) {
+      // Typing it: usually right (sometimes without the article or an accent), sometimes a miss.
+      const typed = Math.random() < b.skill ? (want ?? "").replace(/^(o|a|os|as) /, "") : "casa";
+      await pg.fill(".bomb-safe .sync-form input", typed).catch(() => {});
+      return click(pg, ".bomb-safe .sync-form .btn");
+    }
     const pick = Math.random() < b.skill ? steal.options.find((o) => o.pt === want) : steal.options.find((o) => o.pt !== want);
     const i = steal.options.indexOf(pick ?? steal.options[0]!);
     if (i >= 0) await pg.locator(".bomb-safe .draw-options .lopt").nth(i).click({ timeout: 2500 }).catch(() => {});

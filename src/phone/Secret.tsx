@@ -25,7 +25,7 @@ export function Secret({ v, send }: { v: V; send: Send }) {
       <span className="pill">
         {v.turnsUsed >= v.turns ? "Morte súbita!" : `Turno ${v.turnsUsed + 1}/${v.turns}`}
       </span>
-      <span className="pill">{"❤️".repeat(Math.max(0, v.lives))}</span>
+      <span className="pill">{v.lives > 0 ? "❤️".repeat(v.lives) : "💔 0"}</span>
       {v.msLeft !== undefined && v.role === "clue" && <span className={`pill ${left < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}</span>}
     </div>
   );

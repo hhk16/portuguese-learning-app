@@ -260,7 +260,7 @@ export class TvRuntime {
   petJoy = 0;
 
   /** A game moment the puppy acts out for a while: hides from a bang, sniffs the kitchen, carries the crown… */
-  petAct: { pose: PetAct; until: number; seq: number; spotlight?: boolean } | null = null;
+  petAct: { pose: PetAct; until: number; seq: number; spotlight?: boolean; anchor?: "left" | "right" | "center" } | null = null;
   private petActSeq = 0;
   private petLineAt = 0;
 
@@ -271,18 +271,19 @@ export class TvRuntime {
   }
 
   /** The puppy's big moment: it pops up big over the game (above every card), acts it out, then goes back to its person. */
-  petStar(pose: PetAct, ms = 2200, line?: Line, chance = 0.7) {
-    this.petAct = { pose, until: performance.now() + ms, seq: ++this.petActSeq, spotlight: true };
+  petStar(pose: PetAct, ms = 2200, line?: Line, chance = 0.7, anchor: "left" | "right" | "center" = "right") {
+    this.petAct = { pose, until: performance.now() + ms, seq: ++this.petActSeq, spotlight: true, anchor };
     if (line) this.petSay(line, chance);
     this.bump();
   }
 
   /** A game's big ending beat on the stage ("💔 Acabaram-se as vidas!", "📻 Sem sinal!"), before the results. */
-  moment: { seq: number; at: number; ms: number; pt: string; en: string; kind: "won" | "lost" } | null = null;
+  moment: { seq: number; at: number; ms: number; pt: string; en: string; kind: "won" | "lost"; top?: boolean } | null = null;
   private momentSeq = 0;
-  bigMoment(line: Line, kind: "won" | "lost", ms = 2600) {
+  bigMoment(line: Line, kind: "won" | "lost", ms = 2600, top = false) {
     const seq = ++this.momentSeq;
-    this.moment = { seq, at: performance.now(), ms, pt: line.pt, en: line.en, kind };
+    this.moment = { seq, at: performance.now(), ms, pt: line.pt, en: line.en, kind, top };
+    this.refreshViews();
     this.bump();
     setTimeout(() => {
       if (this.moment?.seq === seq) {
@@ -433,6 +434,9 @@ export class TvRuntime {
     if (this.paused) return { mode: "paused", title: "Pausa" };
     // During a reveal the TV is the show: phones wait a beat before showing the result.
     if (performance.now() < this.holdUntil) return { mode: "wait", title: "Olha para a TV!", subtitle: "Look at the TV! 👀", pic: "👀" };
+    // A game's ending beat: every phone shows it too (nothing left to tap).
+    const m = this.moment;
+    if (m && performance.now() < m.at + m.ms) return { mode: "wait", title: m.pt, subtitle: `${m.en} · Olha para a TV!`, pic: m.kind === "won" ? "🏆" : "💔" };
     return this.activity ? this.activity.viewFor(p) : { mode: "wait", title: "Olha para a TV!" };
   }
 

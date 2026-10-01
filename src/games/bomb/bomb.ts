@@ -14,6 +14,7 @@ import { ALL_ITEMS, getItem } from "../../curriculum/index.ts";
 import { cardOf, type LearnCard } from "../../curriculum/learn.ts";
 import type { ItemOf, Lesson } from "../../curriculum/schema.ts";
 import { randomId } from "../../shared/ids.ts";
+import { matchAnswer } from "../../shared/answer-check.ts";
 import type { ControllerView, InputValue, Word } from "../../shared/protocol.ts";
 import { play } from "../../audio/sfx.ts";
 import { setHurry } from "../../audio/music.ts";
@@ -63,6 +64,8 @@ interface Question {
   options: Word[];
   /** What the TV says (hear / hearNumber). */
   say?: string;
+  /** "Aquece!" on Médio+ from the third potato: type the word (the options come back after a miss). */
+  typed?: boolean;
   itemId?: string;
 }
 
@@ -216,7 +219,10 @@ export class BatataQuente implements Activity {
   /** A fresh "Aquece!" question for the safe player: something to read, not to hear. */
   private newSteal() {
     const kinds = kindsFor(Math.max(0, this.round)).filter((k) => k === "see" || k === "number" || k === "opposite");
-    this.stealQ = this.question(this.rt.rng.pick(kinds.length ? kinds : (["see", "number", "opposite"] as BombKind[])));
+    const kind = this.rt.rng.pick(kinds.length ? kinds : (["see", "number", "opposite"] as BombKind[]));
+    this.stealQ = this.question(kind);
+    // Production, not just recognition: from the third potato on Médio, name the picture by typing it.
+    if (this.level >= 2 && this.round >= 2 && (kind === "see" || kind === "opposite")) this.stealQ.typed = true;
     this.stealPromptId = randomId(6);
     const o = this.other;
     if (o) this.rt.view(o, this.viewFor(o));
@@ -338,12 +344,17 @@ export class BatataQuente implements Activity {
     if (value.steal && p === this.other && this.hurryLeft > 0 && this.stealQ && promptId === this.stealPromptId) {
       if (gameNow() < this.stealLockedUntil) return;
       const sq = this.stealQ;
-      const right = value.steal === sq.answer;
-      if (sq.itemId) this.rt.evidence(p, sq.itemId, `bomb.${sq.kind}`, right ? "correct" : "wrong");
+      const typedOk = sq.typed && ["correct", "accent-slip", "close"].includes(matchAnswer(value.steal.toLowerCase(), [sq.answer, sq.answer.replace(/^(o|a|os|as) /, "")]));
+      const right = sq.typed ? typedOk : value.steal === sq.answer;
+      if (sq.itemId) this.rt.evidence(p, sq.itemId, `bomb.${sq.kind}${sq.typed ? ".typed" : ""}`, right ? "correct" : "wrong", sq.typed ? 2 : 1);
       if (!right) {
         play("buzzer", 0.4);
         this.stealLockedUntil = gameNow() + STEAL_LOCK_MS;
-        setTimeout(() => this.rt.activity === this && this.phase === "play" && this.other === p && this.newSteal(), STEAL_LOCK_MS);
+        // A typed miss: the same picture again, now with the options as a lifeline.
+        if (sq.typed) {
+          sq.typed = false;
+          this.stealPromptId = randomId(6);
+        } else setTimeout(() => this.rt.activity === this && this.phase === "play" && this.other === p && this.newSteal(), STEAL_LOCK_MS);
         this.rt.view(p, this.viewFor(p));
         return;
       }
@@ -457,7 +468,7 @@ export class BatataQuente implements Activity {
       mode: "bomb",
       roundId: this.roundId,
       promptId: holding ? this.promptId : this.stealPromptId,
-      steal: sq ? { kind: sq.kind, prompt: sq.prompt, options: sq.options, lockedMs: Math.max(0, this.stealLockedUntil - gameNow()) || undefined } : undefined,
+      steal: sq ? { kind: sq.kind, prompt: sq.prompt, options: sq.typed ? [] : sq.options, typed: sq.typed || undefined, lockedMs: Math.max(0, this.stealLockedUntil - gameNow()) || undefined } : undefined,
       holding: holding && this.phase === "play",
       holder: this.holder?.name ?? "",
       kind: q?.kind ?? "hear",

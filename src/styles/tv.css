@@ -3243,3 +3243,30 @@ html.tv-root #root {
   outline-offset: -0.25rem;
   background: #f0fff7;
 }
+
+/* The puppy's big moment sits beside the payoff, not on it (centre only for the lesson boss). */
+.pet-star.at-right,
+.pet-star.at-left {
+  height: 30vh;
+  transform: none;
+  animation: pet-star-side 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.pet-star.at-right {
+  left: auto;
+  right: 3vw;
+}
+.pet-star.at-left {
+  left: 3vw;
+}
+@keyframes pet-star-side {
+  from { transform: translateY(60%) scale(0.6); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.big-moment.top {
+  top: 13%;
+  padding: 0.9rem 2.4rem;
+}
+.big-moment.top b {
+  font-size: 2.4em;
+}

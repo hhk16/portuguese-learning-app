@@ -118,6 +118,7 @@ export const SAY = {
   lightningGoal: { pt: "Cinco certas para passar!", en: "Five right to pass!" },
   lightningWon: { pt: "Relâmpago superado! Lição completa!", en: "Lightning round beaten! Lesson complete!" },
   lightningLost: { pt: "Quase! Repitam o relâmpago.", en: "Almost! Try the lightning round again." },
+  lightningLostFar: { pt: "Hoje não deu… Tentem outra vez!", en: "Not today… try again!" },
   wardrobe: { pt: "O guarda-roupa! Escolhe a tua roupa.", en: "The wardrobe! Pick your clothes." },
   suitsYou: { pt: "Fica-te tão bem!", en: "That looks so good on you!" },
 } satisfies Record<string, Line>;
@@ -210,7 +211,7 @@ export const CUE = {
 } satisfies Record<string, Line>;
 
 const CHEER = new Set<Line>([SAY.signalBack, SAY.lightningWon, PET.loves, PET.crown, PET.hello, PET.knew, SAY.petNamed, NAMED.levelUp, SAY.betWon, SAY.bothPredicted, NAMED.bestBy, NAMED.mvpGame, SAY.near, SAY.good, SAY.perfect, SAY.record, SAY.youDidIt, SAY.served, SAY.inSync, NAMED.wellDone, NAMED.wins, NAMED.mvp]);
-const OOPS = new Set<Line>([SAY.signalLost, SAY.offAir, SAY.lightningLost, PET.scared, SAY.betLost, SAY.livesOut, SAY.lifeLost, SAY.boom, NAMED.burned, NAMED.noFaith, SAY.farOff, SAY.revenge, SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
+const OOPS = new Set<Line>([SAY.lightningLostFar, SAY.signalLost, SAY.offAir, SAY.lightningLost, PET.scared, SAY.betLost, SAY.livesOut, SAY.lifeLost, SAY.boom, NAMED.burned, NAMED.noFaith, SAY.farOff, SAY.revenge, SAY.ohNo, SAY.bomb, SAY.timeUp, SAY.customerLeft, SAY.notQuite, SAY.nextTime, SAY.notThat, SAY.close]);
 export function moodOf(l: Line): Mood {
   return CHEER.has(l) ? "cheer" : OOPS.has(l) ? "oops" : "talk";
 }

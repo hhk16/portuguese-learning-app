@@ -390,6 +390,7 @@ export class Cozinha implements Activity {
   private report(closedEarly: boolean, perfect: boolean) {
     this.onDone({
       failed: closedEarly,
+      minStars: perfect ? 2 : undefined,
       score: this.score,
       max: TARGETS[this.level],
       headline: `${this.score} pontos · ${this.served} pedidos`,

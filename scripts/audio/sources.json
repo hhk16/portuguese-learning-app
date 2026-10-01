@@ -6783,6 +6783,14 @@
   "text": "Hoje faço anos!",
   "voice": "pt_PT-tugão-medium"
  },
+ "hoje não deu… tentem outra vez!": {
+  "file": "54b6a9d47e.mp3",
+  "lengthScale": 1.12,
+  "say": "Hoje não deu, Tentem outra vez!",
+  "source": "piper",
+  "text": "Hoje não deu… Tentem outra vez!",
+  "voice": "pt_PT-tugão-medium"
+ },
  "hoje não me apetece sair.": {
   "file": "9dea7c3cf0.mp3",
   "lengthScale": 1.12,

@@ -111,8 +111,9 @@ export class NaMesmaOnda implements Activity {
     return LEVEL_RULES[this.level];
   }
   /** The score ⭐⭐⭐ is measured against. */
+  /** A bullseye on every dial (the last one doubled), every signal kept and one side bet called. */
   get maxScore() {
-    return 40 + SIGNAL_BONUS * this.rules.signals;
+    return BULLSEYE * (ROUNDS + 1) + SIGNAL_BONUS * this.rules.signals + SIDE_BET;
   }
   get players() {
     return this.rt.activePlayers.slice(0, 2);
@@ -378,6 +379,8 @@ export class NaMesmaOnda implements Activity {
         if (this.rt.activity !== this) return;
         this.onDone({
           failed: this.offAir,
+        // Still on air with most dials in the bullseye: at least two stars.
+        minStars: !this.offAir && bulls >= 4 ? 2 : undefined,
           score: this.score,
           max,
           headline: this.offAir ? `Sem sinal! 📻 ${this.score} pontos` : `${headline} ${this.score} pontos`,

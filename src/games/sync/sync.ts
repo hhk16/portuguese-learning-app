@@ -469,6 +469,8 @@ export class EmSintonia implements Activity {
       if (this.rt.activity !== this) return;
       this.onDone({
         failed: out,
+        // Every pair in sync with lives to spare: that's a perfect game.
+        minStars: !out && n === ROUNDS ? 3 : !out && n >= ROUNDS - 1 ? 2 : undefined,
         score: this.score,
         // Every pair first try (the last one doubled) and a couple of predictions right.
         max: this.maxScore,

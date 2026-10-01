@@ -463,6 +463,9 @@ export class ParesSecretos implements Activity {
     this.rt.bigMoment(
       won ? { pt: "🕵️ Todos os pares!", en: "Every secret picture found!" } : this.lives <= 0 ? { pt: "💣 A bomba ganhou!", en: "The bomb got you — the missed ones are lit up" } : { pt: "⏰ Acabaram-se os turnos!", en: "Out of turns — the missed ones are lit up" },
       won ? "won" : "lost",
+      2600,
+      // On a loss the card goes up top, so the lit-up missed pictures stay in view.
+      !won,
     );
     this.rt.bump();
     // Score: every pair found, plus a bonus for each turn to spare when you win.
@@ -474,6 +477,9 @@ export class ParesSecretos implements Activity {
       () =>
         this.onDone({
           failed: !won,
+          // Every pair found: two stars at least, three with a turn to spare.
+          minStars: won ? (spare > 0 ? 3 : 2) : undefined,
+          review: won ? undefined : this.cards.filter((c) => c.state === "missed").map((c) => ({ pt: c.card.pt, en: c.card.en })),
           score,
           max,
           headline: won ? `Conseguiram! ${this.found}/${this.goal} em ${this.turnsUsed} turno${this.turnsUsed === 1 ? "" : "s"}` : `${this.found} de ${this.goal} pares`,
@@ -484,7 +490,8 @@ export class ParesSecretos implements Activity {
           contrib: Object.fromEntries(this.contrib),
           highlight: won ? { pt: `Todos os pares em ${this.turnsUsed} turno${this.turnsUsed === 1 ? "" : "s"}!`, en: `Every pair in ${this.turnsUsed} turns`, pic: "🕵️" } : undefined,
         }),
-      2600,
+      // After a loss, a little longer on the lit-up board before the results.
+      won ? 2600 : 4000,
     );
   }
 

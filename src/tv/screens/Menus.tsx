@@ -289,7 +289,9 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
   const per = info.lesson?.perPlayer;
   // Words to review: the ones not already listed as this game's words, so the card stays short.
   const shownPt = new Set((info.gallery?.length ? [] : (info.practiced ?? [])).map((w) => w.pt.replace(/^(o|a|os|as) /, "")));
-  const review = [...new Map(rt.activePlayers.flatMap((p) => p.missed).map((m) => [m.itemId, m])).values()].filter((m) => !shownPt.has(m.pt.replace(/^(o|a|os|as) /, ""))).slice(0, 6);
+  const review = [...new Map([...(info.review ?? []).map((m) => ({ itemId: m.pt, ...m })), ...rt.activePlayers.flatMap((p) => p.missed)].map((m) => [m.pt, m])).values()]
+    .filter((m) => !shownPt.has(m.pt.replace(/^(o|a|os|as) /, "")))
+    .slice(0, 6);
   return (
     <div className="tv-overlay results-screen">
       <div className="card results-card">
@@ -577,7 +579,7 @@ export function PetStar() {
   if (!act?.spotlight || left <= 0) return null;
   const pose = act.pose === "think" ? "think" : act.pose;
   return (
-    <div className={`pet-star ${pose}`} key={act.seq}>
+    <div className={`pet-star ${pose} at-${act.anchor ?? "right"}`} key={act.seq}>
       <img src={`/art/pet/pup-${pose}.webp`} alt="" />
       {rt.settings.petName && <span className="pet-star-tag display">{rt.settings.petName}</span>}
     </div>
@@ -590,7 +592,7 @@ export function BigMoment() {
   const m = rt.moment;
   if (!m) return null;
   return (
-    <div className={`card big-moment ${m.kind}`} key={m.seq}>
+    <div className={`card big-moment ${m.kind} ${m.top ? "top" : ""}`} key={m.seq}>
       <b className="display">{m.pt}</b>
       <i>{m.en}</i>
     </div>

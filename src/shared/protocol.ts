@@ -292,6 +292,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
         kind: z.enum(["hear", "see", "opposite", "number", "hearNumber", "phrase"]),
         prompt: Word.optional(),
         options: z.array(Word).max(6),
+        /** Type the word instead of tapping (the options come back after a miss). */
+        typed: z.boolean().optional(),
         lockedMs: z.number().nonnegative().optional(),
       })
       .optional(),

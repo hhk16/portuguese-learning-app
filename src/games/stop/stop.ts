@@ -339,10 +339,18 @@ export class Stop implements Activity {
       this.rt.say(NAMED.wins, { name: winner.name });
       this.rt.say(SAY.revenge);
     }
+    // The winner's moment on the stage, with the puppy cheering beside it.
+    this.rt.bigMoment(tie ? { pt: "🏁 Empate!", en: `${a!.points}–${b!.points} — a tie!` } : { pt: `🏁 ${a!.name} ganha o Stop!`, en: `${a!.points}–${b?.points ?? 0}` }, "won");
+    this.rt.petStar("cheer", 2400);
     this.rt.bump();
     // Records and stars count the couple's total; the headline is the rivalry.
     const total = scores.reduce((s, x) => s + x.points, 0);
     const perfect = 2 * this.rules.cats * 10 * (ROUNDS + 1);
+    setTimeout(() => this.rt.activity === this && this.report(scores, total, perfect, tie), 2600);
+  }
+
+  private report(scores: { name: string; points: number }[], total: number, perfect: number, tie: boolean) {
+    const [a, b] = scores;
     this.onDone({
       score: total,
       max: Math.round(perfect * 0.75),

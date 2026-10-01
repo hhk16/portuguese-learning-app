@@ -49,7 +49,7 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
           <>
             <div className="p-callout hot">
               <b className="display">🔥 Aquece a batata! ({v.hurryLeft ?? 0})</b>
-              <span>Right answer = the fuse burns shorter for {v.holder}. {ASK[sq.kind].en}</span>
+              <span>Right answer = the fuse burns shorter for {v.holder}. {sq.typed ? "Type its name in Portuguese!" : ASK[sq.kind].en}</span>
             </div>
             {sq.prompt && (
               <div className="bomb-prompt card">
@@ -57,6 +57,24 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
                 {sq.kind === "opposite" && <b className="display">{sq.prompt.pt}</b>}
               </div>
             )}
+            {sq.typed ? (
+              <form
+                className="sync-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const f = e.currentTarget.elements.namedItem("w") as HTMLInputElement;
+                  if (!f.value.trim()) return;
+                  play("tap");
+                  send({ mode: "bomb", steal: f.value.trim() });
+                  f.value = "";
+                }}
+              >
+                <input name="w" placeholder="Escreve em português · Type it in Portuguese" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} disabled={sLocked > 0} />
+                <button className="btn player" type="submit" disabled={sLocked > 0}>
+                  OK
+                </button>
+              </form>
+            ) : (
             <div className="draw-options">
               {sq.options.map((o) => (
                 <button
@@ -73,6 +91,7 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
                 </button>
               ))}
             </div>
+            )}
             {sLocked > 0 && <div className="bomb-locked display">✗ Errado! Espera… · Wrong — wait a moment</div>}
           </>
         ) : (

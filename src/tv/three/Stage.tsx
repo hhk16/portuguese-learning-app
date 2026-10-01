@@ -318,6 +318,8 @@ function Pet({ rt, x, y, height, flip, force }: { rt: TvRuntime; x: number; y: n
       if (k > 0.9) dy = Math.sin(((k - 0.9) / 0.1) * Math.PI) * h * 0.08;
     }
     group.current.position.set(pos.current.x, pos.current.y, 0.5);
+    // During its big moment the puppy is drawn big over the game (PetStar): one puppy on screen, not two.
+    group.current.visible = !(rt.petAct?.spotlight && now < rt.petAct.until);
     body.current.scale.set(w * sx * (flip ? -1 : 1), h * sy, 1);
     body.current.position.set(0, (h * sy) / 2 + dy, 0);
     body.current.rotation.z = rot;
@@ -398,9 +400,8 @@ function Confetti({ burst, count }: { burst: number; count: number }) {
 /** Where characters stand for each activity (in CSS px relative to the screen centre). */
 function layout(activityId: string | undefined, n: number, w: number, h: number, star = -1): { x: number; y: number; height: number }[] {
   if (activityId === "wardrobe") {
-    // The wardrobe: whoever is dressing up stands big in the middle; the others watch from the side.
-    let k = 0;
-    return Array.from({ length: n }, (_, i) => (i === star ? { x: 0, y: -h * 0.5 + h * 0.03, height: h * 0.78 } : { x: (k++ % 2 === 0 ? 1 : -1) * w * 0.38, y: -h * 0.5 + h * 0.03, height: h * 0.42 }));
+    // The wardrobe: whoever is dressing up has the stage to themselves (the others step off, out of the cards' way).
+    return Array.from({ length: n }, (_, i) => (i === star ? { x: 0, y: -h * 0.5 + h * 0.03, height: h * 0.78 } : { x: w * 0.7, y: -h * 0.5, height: h * 0.42 }));
   }
   const onStage = activityId === "title" || activityId === "lobby" || activityId === "results" || activityId === "champion";
   if (activityId === "champion") {
@@ -464,8 +465,8 @@ function Scene() {
         const id = rt.activity?.id;
         const onStage = id === "title" || id === "lobby" || id === "results";
         const centre = spots.reduce((sum, p) => sum + p.x, 0) / Math.max(1, spots.length);
-        const side = id === "wardrobe" ? -1 : onStage ? (spot.x >= centre ? 1 : -1) : spot.x > 0 ? -1 : 1;
-        const h = spot.height * 0.42;
+        const side = id === "wardrobe" ? 1 : onStage ? (spot.x >= centre ? 1 : -1) : spot.x > 0 ? -1 : 1;
+        const h = spot.height * (id === "wardrobe" ? 0.3 : 0.42);
         // Results: the card fills the right of the screen, so the puppy sits close in, just before it.
         if (id === "results") {
           const right = Math.max(...spots.map((s) => s.x));
@@ -485,7 +486,7 @@ function Scene() {
         }
         return (
           <Suspense fallback={null}>
-            <Pet rt={rt} x={spot.x + side * spot.height * 0.4} y={spot.y} height={h} flip={side < 0} />
+            <Pet rt={rt} x={spot.x + side * spot.height * (id === "wardrobe" ? 0.24 : 0.4)} y={spot.y} height={h} flip={side < 0} />
           </Suspense>
         );
       })()}

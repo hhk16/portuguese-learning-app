@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { inReference, otherCategory } from "../src/games/stop/dictionary.ts";
 import { notPortuguese } from "../src/games/stop/stop.ts";
-import { LEVEL_RULES, NaMesmaOnda, SIGNAL_BONUS } from "../src/games/wave/wave.ts";
+import { BULLSEYE, LEVEL_RULES, NaMesmaOnda, ROUNDS, SIDE_BET, SIGNAL_BONUS } from "../src/games/wave/wave.ts";
 import { hostSpoken, PET, PET_NAMES } from "../src/tv/host-lines.ts";
 
 describe("Stop! category check", () => {
@@ -35,7 +35,8 @@ describe("Na Mesma Onda signals", () => {
       expect(LEVEL_RULES[l].signals).toBeGreaterThanOrEqual(2);
       const g = new NaMesmaOnda(() => {});
       g.level = l;
-      expect(g.maxScore).toBe(40 + SIGNAL_BONUS * LEVEL_RULES[l].signals);
+      // A bullseye on every dial (the last doubled), every signal kept, one side bet.
+      expect(g.maxScore).toBe(BULLSEYE * (ROUNDS + 1) + SIGNAL_BONUS * LEVEL_RULES[l].signals + SIDE_BET);
     }
   });
 });
@@ -44,5 +45,15 @@ describe("Puppy lines", () => {
   it("are pre-recorded for every suggested name", () => {
     const spoken = new Set(hostSpoken());
     for (const n of PET_NAMES) for (const l of Object.values(PET)) expect(spoken.has(l.pt.replace("{name}", n))).toBe(true);
+  });
+});
+
+describe("Stars after a good Na Mesma Onda", () => {
+  it("four bullseyes still on air is at least two stars by score alone on Médio", async () => {
+    const { starsFor } = await import("../src/tv/activities.ts");
+    const g = new NaMesmaOnda(() => {});
+    g.level = 2;
+    // 4 bullseyes (one of them the doubled last dial) + 2 signals kept.
+    expect(starsFor(4 * BULLSEYE + BULLSEYE + 2 * SIGNAL_BONUS, g.maxScore)).toBeGreaterThanOrEqual(2);
   });
 });
