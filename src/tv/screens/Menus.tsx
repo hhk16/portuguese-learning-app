@@ -291,7 +291,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
   const shownPt = new Set((info.gallery?.length ? [] : (info.practiced ?? [])).map((w) => w.pt.replace(/^(o|a|os|as) /, "")));
   const review = [...new Map([...(info.review ?? []).map((m) => ({ itemId: m.pt, ...m })), ...rt.activePlayers.flatMap((p) => p.missed)].map((m) => [m.pt, m])).values()]
     .filter((m) => !shownPt.has(m.pt.replace(/^(o|a|os|as) /, "")))
-    .slice(0, 6);
+    .slice(0, 8);
   return (
     <div className="tv-overlay results-screen">
       <div className="card results-card">

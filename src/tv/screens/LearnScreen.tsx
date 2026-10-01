@@ -50,13 +50,29 @@ function RushView({ a }: { a: LearnActivity }) {
         ) : (
           <>
             <Picture glyph="🔊" size="4em" />
-            <div className="rush-options">
-              {r.options.map((o) => (
-                <span key={o.itemId} className={`rush-opt ${r.settled ? (o.itemId === r.card.itemId ? "right" : "dim") : ""}`}>
-                  {r.pictures ? <Picture glyph={o.emoji} size="3.4em" /> : <b className="display">{o.pt}</b>}
-                </span>
-              ))}
-            </div>
+            {r.typed ? (
+              <div className="rush-typed">
+                <b className="display">✍️ A última estrela: escrevam!</b>
+                <i>The last star: type the word you hear — both of you!</i>
+                {!r.settled && (
+                  <div className="rush-slots display" aria-label="letters">
+                    {r.card.pt
+                      .replace(/^(o|a|os|as) /, "")
+                      .replace(/[?!.,¿¡]/g, "")
+                      .split("")
+                      .map((ch, i) => (ch === " " ? <span key={i} className="gap" /> : <span key={i}>_</span>))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="rush-options">
+                {r.options.map((o) => (
+                  <span key={o.itemId} className={`rush-opt ${r.settled ? (o.itemId === r.card.itemId ? "right" : "dim") : ""}`}>
+                    {r.pictures ? <Picture glyph={o.emoji} size="3.4em" /> : <b className="display">{o.pt}</b>}
+                  </span>
+                ))}
+              </div>
+            )}
             {r.settled && r.last?.pt && (
               <div className={`rush-said display ${r.last.ok ? "ok" : "miss"}`}>
                 {r.last.ok ? "✓" : "✗"} {r.last.pt} {!r.last.ok && <i>era esta · that was it</i>}
@@ -64,7 +80,13 @@ function RushView({ a }: { a: LearnActivity }) {
             )}
             <div className="rush-players">
               {a.players.map((p) => (
-                <PlayerChip key={p.playerId} p={p} size="1.8em" extra={<b>{!r.answers.has(p.playerId) ? (r.settled ? "✗" : "…") : r.settled ? (r.answers.get(p.playerId) ? "✓" : "✗") : "🔒"}</b>} />
+                <PlayerChip key={p.playerId} p={p} size="1.8em" extra={
+                    <b>
+                      {!r.answers.has(p.playerId) ? (r.settled ? "✗" : "…") : r.settled ? (r.answers.get(p.playerId) ? "✓" : "✗") : "🔒"}
+                      {r.settled && r.typedBy.get(p.playerId) && <i className="rush-wrote"> “{r.typedBy.get(p.playerId)}”</i>}
+                    </b>
+                  }
+                />
               ))}
             </div>
           </>

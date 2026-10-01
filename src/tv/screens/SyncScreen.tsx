@@ -88,8 +88,8 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
       )}
       {a.phase === "reveal" && (
         <div className={`sync-verdict display ${a.lastMatch ? "match" : ""}`}>
-          {a.lastMatch ? "Em sintonia!" : `${a.closeMiss ? "Quase!" : "Nada disso!"} ${a.attempt < a.rules.tries ? "Agora liguem as vossas palavras!" : a.inPractice ? "Próximo par!" : "Menos uma vida 💔"}`}
-          <i>{a.lastMatch ? "In sync!" : `${a.closeMiss ? "So close" : "Not quite"} — ${a.attempt < a.rules.tries ? "now link your two words" : a.inPractice ? "next pair" : "you lose a life"}`}</i>
+          {a.lastMatch ? "Em sintonia!" : `${a.closeMiss ? "Quase!" : "Nada disso!"} ${a.attempt < a.rules.tries ? "Agora liguem as vossas palavras!" : a.inPractice ? "Próximo par!" : a.lives <= 0 ? "💔 Sem vidas!" : "Menos uma vida 💔"}`}
+          <i>{a.lastMatch ? "In sync!" : `${a.closeMiss ? "So close" : "Not quite"} — ${a.attempt < a.rules.tries ? "now link your two words" : a.inPractice ? "next pair" : a.lives <= 0 ? "that was the last life" : "you lose a life"}`}</i>
         </div>
       )}
     </div>

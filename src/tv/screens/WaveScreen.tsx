@@ -86,7 +86,7 @@ export function WaveScreen({ a }: { a: NaMesmaOnda }) {
           <i>{s.left.en}</i>
         </div>
         <div className="wave-dial">
-          <DialFace value={a.value} target={reveal ? a.target : undefined} widths={a.rules.bands} />
+          <DialFace value={a.value} target={reveal || a.phase === "end" ? a.target : undefined} widths={a.rules.bands} />
         </div>
         <div className="wave-end right">
           <Picture glyph={s.right.emoji} size="5em" />

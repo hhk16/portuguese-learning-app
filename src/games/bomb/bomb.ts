@@ -51,6 +51,12 @@ export function kindsFor(round: number): BombKind[] {
   return [["hear"], ["see"], ["number", "hearNumber"], ["opposite"], ["hear", "see", "opposite", "number", "hearNumber"]][Math.max(0, Math.min(4, round))] as BombKind[];
 }
 
+/** Production, not just recognition: from the second potato on Médio, the "Aquece!" is typed
+ *  (the picture's name, the number in words, the opposite). */
+export function stealTyped(level: Level, round: number, kind: BombKind): boolean {
+  return level >= 2 && round >= 1 && (kind === "see" || kind === "opposite" || kind === "number");
+}
+
 /** Night share for a versus game: 40 for turning up, up to 100 for winning every potato. */
 export function bombShare(wins: number, possible: number): number {
   return Math.round(40 + 60 * Math.min(1, wins / Math.max(1, possible)));
@@ -64,7 +70,7 @@ interface Question {
   options: Word[];
   /** What the TV says (hear / hearNumber). */
   say?: string;
-  /** "Aquece!" on Médio+ from the third potato: type the word (the options come back after a miss). */
+  /** "Aquece!" on Médio+ from the second potato: type the word (the options come back after a miss). */
   typed?: boolean;
   itemId?: string;
 }
@@ -221,8 +227,7 @@ export class BatataQuente implements Activity {
     const kinds = kindsFor(Math.max(0, this.round)).filter((k) => k === "see" || k === "number" || k === "opposite");
     const kind = this.rt.rng.pick(kinds.length ? kinds : (["see", "number", "opposite"] as BombKind[]));
     this.stealQ = this.question(kind);
-    // Production, not just recognition: from the third potato on Médio, name the picture by typing it.
-    if (this.level >= 2 && this.round >= 2 && (kind === "see" || kind === "opposite")) this.stealQ.typed = true;
+    if (stealTyped(this.level, this.round, kind)) this.stealQ.typed = true;
     this.stealPromptId = randomId(6);
     const o = this.other;
     if (o) this.rt.view(o, this.viewFor(o));

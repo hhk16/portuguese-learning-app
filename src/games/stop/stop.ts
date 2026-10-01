@@ -19,6 +19,8 @@ import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
 import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
+import { getItem } from "../../curriculum/index.ts";
+import { cardOf } from "../../curriculum/learn.ts";
 import { CATEGORIES, examples, fairLetters, inReference, lookup, nearMiss, normStop, otherCategory, startsWith, type DictWord, type StopCategory } from "./dictionary.ts";
 
 export const ROUNDS = 3;
@@ -96,7 +98,9 @@ export class Stop implements Activity {
   promptId = randomId(6);
   private readonly roundId = randomId(6);
   private letters: string[] = [];
-  private words = new Map<string, { pt: string; pic?: string }>();
+  private words = new Map<string, { pt: string; en?: string; pic?: string }>();
+  /** Words that didn't stand (vetoed, not a word, wrong category, blank): one good answer each, for "Para rever". */
+  private review = new Map<string, { pt: string; en?: string }>();
   private readonly onDone: (r: GameOutcome) => void;
 
   constructor(onDone: (r: GameOutcome) => void) {
@@ -267,7 +271,7 @@ export class Stop implements Activity {
         row[c.id] = { word, status, dict, helped: !!this.help.get(p.playerId)?.[c.id], points: 0, realCat };
         if (dict && status !== "letter") {
           this.rt.evidence(p, dict.itemId, "stop.produce", exact ? "correct" : "accent-slip", 2);
-          this.words.set(dict.itemId, { pt: dict.pt, pic: dict.pic });
+          this.words.set(dict.itemId, wordOf(dict));
         }
       }
       this.cells.set(p.playerId, row);
@@ -302,7 +306,12 @@ export class Stop implements Activity {
         cell.points = cellPoints(cell, other ? this.cells.get(other.playerId)?.[c.id] : undefined) * (this.double ? 2 : 1);
         sum += cell.points;
         // Voted-in words join the recap only when they're real words we know (not "fola").
-        if (cell.status === "voted-yes" && inReference(c.id, cell.word)) this.words.set(normStop(cell.word), { pt: cell.word });
+        if (cell.status === "voted-yes" && inReference(c.id, cell.word)) {
+          const ref = ((REFERENCE as Record<string, string[]>)[c.id] ?? []).find((w) => normStop(w) === normStop(cell.word)) ?? cell.word;
+          this.words.set(normStop(cell.word), { pt: ref, en: GLOSS[ref] });
+        }
+        // Didn't stand: learn one that would have.
+        if (["voted-no", "notword", "wrongcat", "letter", "empty"].includes(cell.status)) this.addReview(c);
       }
       // Shouting STOP pays — only if every word holds up.
       const good = this.categories.filter((c) => (row[c.id]?.points ?? 0) > 0).length;
@@ -340,13 +349,13 @@ export class Stop implements Activity {
       this.rt.say(SAY.revenge);
     }
     // The winner's moment on the stage, with the puppy cheering beside it.
-    this.rt.bigMoment(tie ? { pt: "🏁 Empate!", en: `${a!.points}–${b!.points} — a tie!` } : { pt: `🏁 ${a!.name} ganha o Stop!`, en: `${a!.points}–${b?.points ?? 0}` }, "won");
-    this.rt.petStar("cheer", 2400);
+    this.rt.bigMoment(tie ? { pt: "🏁 Empate!", en: `${a!.points}–${b!.points} — a tie!` } : { pt: `🏁 ${a!.name} ganha o Stop!`, en: `${a!.points}–${b?.points ?? 0}` }, "won", 3200, true);
+    this.rt.petStar("cheer", 2600);
     this.rt.bump();
     // Records and stars count the couple's total; the headline is the rivalry.
     const total = scores.reduce((s, x) => s + x.points, 0);
     const perfect = 2 * this.rules.cats * 10 * (ROUNDS + 1);
-    setTimeout(() => this.rt.activity === this && this.report(scores, total, perfect, tie), 2600);
+    setTimeout(() => this.rt.activity === this && this.report(scores, total, perfect, tie), 3300);
   }
 
   private report(scores: { name: string; points: number }[], total: number, perfect: number, tie: boolean) {
@@ -359,11 +368,22 @@ export class Stop implements Activity {
       sub: `Os dois juntos: ${total} pontos`,
       subEn: `Together: ${total} points`,
       // Newest first, so the last letter's words make the recap.
-      words: [...this.words.values()].reverse(),
+      words: [...this.words.values()].reverse().slice(0, 6),
+      review: [...this.review.values()].slice(0, 4),
       // Each player's share for the night: a strong solo game is worth 100.
       perPlayer: Object.fromEntries(this.players.map((p) => [p.playerId, Math.round(Math.min(100, ((this.totals.get(p.playerId) ?? 0) / (perfect * 0.375)) * 100))])),
       highlight: tie ? undefined : { pt: `${a!.name} ganhou o Stop! ${a!.points}–${b?.points ?? 0}`, en: `${a!.name} won Stop!`, pic: "⏱️" },
     });
+  }
+
+  /** A word that would have scored (curriculum first), with its article and English. */
+  private addReview(c: StopCategory) {
+    const key = `${this.letter}:${c.id}`;
+    if (this.review.has(key)) return;
+    const dict = examples(c.id, this.letter)[0];
+    if (dict) return void this.review.set(key, { pt: wordOf(dict).pt, en: `${this.letter} · ${c.label}: ${wordOf(dict).en ?? ""}` });
+    const ref = ((REFERENCE as Record<string, string[]>)[c.id] ?? []).find((w) => startsWith(w, this.letter) && !NOT_FOR_SUGGESTIONS.has(w));
+    if (ref) this.review.set(key, { pt: ref, en: `${this.letter} · ${c.label}${GLOSS[ref] ? `: ${GLOSS[ref]}` : ""}` });
   }
 
   /** Round score for a player (TV table). */
@@ -431,4 +451,13 @@ export class Stop implements Activity {
       debugAnswer: debug,
     };
   }
+}
+
+/** A dictionary word for the recap: nouns with their article ("o leão the lion"), the rest as they are. */
+function wordOf(d: DictWord): { pt: string; en?: string; pic?: string } {
+  const it = getItem(d.itemId);
+  // Countries come with their nationality: "Japão · japonês".
+  if (it?.kind === "nationality") return { pt: `${it.country} · ${it.ms}`, en: it.en, pic: d.pic };
+  const card = it?.kind === "noun" ? cardOf(it) : null;
+  return { pt: card?.pt ?? d.pt, en: card?.en ?? d.en, pic: d.pic };
 }

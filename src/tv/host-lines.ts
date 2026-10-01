@@ -115,6 +115,7 @@ export const SAY = {
   signalLost: { pt: "Perderam um sinal!", en: "You lost a signal!" },
   offAir: { pt: "Sem sinal! A rádio saiu do ar!", en: "No signal! The show is off the air!" },
   signalBack: { pt: "Recuperaram um sinal!", en: "You got a signal back!" },
+  lightningType: { pt: "A última! Ouçam bem e escrevam.", en: "The last one! Listen carefully and write it." },
   lightningGoal: { pt: "Cinco certas para passar!", en: "Five right to pass!" },
   lightningWon: { pt: "Relâmpago superado! Lição completa!", en: "Lightning round beaten! Lesson complete!" },
   lightningLost: { pt: "Quase! Repitam o relâmpago.", en: "Almost! Try the lightning round again." },
@@ -207,6 +208,7 @@ export const CUE = {
   vote: { pt: "Vota!", en: "Vote!" },
   answer: { pt: "Responde!", en: "Answer!" },
   listenTap: { pt: "Ouve e toca!", en: "Listen and tap!" },
+  listenType: { pt: "Ouve e escreve!", en: "Listen and type it!" },
   pickBest: { pt: "Escolhe o melhor!", en: "Pick the best!" },
 } satisfies Record<string, Line>;
 

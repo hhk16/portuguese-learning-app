@@ -500,7 +500,7 @@ export class EmSintonia implements Activity {
       return {
         mode: "wait",
         title: this.lastMatch ? "Em sintonia! 🎉" : this.closeMiss ? "Quase!" : "Nada disso!",
-        subtitle: this.lastMatch ? "In sync!" : `${this.closeMiss ? "So close" : "Not quite"} — ${this.attempt < this.rules.tries ? "now link your two words. Olha para a TV!" : "next pair. Olha para a TV!"}`,
+        subtitle: this.lastMatch ? "In sync!" : `${this.closeMiss ? "So close" : "Not quite"} — ${this.attempt < this.rules.tries ? "now link your two words. Olha para a TV!" : this.lives <= 0 && !this.inPractice ? "that was the last life. Olha para a TV!" : "next pair. Olha para a TV!"}`,
         pic: this.lastMatch ? "🥳" : "🤔",
       };
     const base = {

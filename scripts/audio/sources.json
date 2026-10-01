@@ -1351,6 +1351,14 @@
   "text": "a árvore",
   "voice": "pt_PT-tugão-medium"
  },
+ "a última! ouçam bem e escrevam.": {
+  "file": "57d2213aa7.mp3",
+  "lengthScale": 1.12,
+  "say": "A última! Ouçam bem e escrevam.",
+  "source": "piper",
+  "text": "A última! Ouçam bem e escrevam.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "aborrecido, aborrecida": {
   "file": "be0a37e18a.mp3",
   "lengthScale": 1.12,

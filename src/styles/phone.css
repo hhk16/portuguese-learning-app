@@ -1457,6 +1457,13 @@ body,
 
 /* Guarda-roupa */
 .wardrobe-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(31, 42, 68, 0.12);
+  padding: 6px 10px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1532,4 +1539,47 @@ body,
 }
 .kitchen-pad .p-grow {
   display: none;
+}
+.bomb-prompt {
+  flex-wrap: wrap;
+}
+.bomb-prompt .kicker {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 0.55em;
+}
+.tip-card {
+  gap: 0.3rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  flex: none;
+}
+.tip-card .tip-ask {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.tip-card .tip-ask b {
+  flex: 1;
+  font-size: 1.05em;
+}
+.tip-card .muted {
+  font-size: 0.85em;
+}
+.tip-card .sync-form input {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+.kitchen-pad .pantry {
+  flex: none;
+}
+/* While a tip is asked, the pantry gets compact so everything still fits. */
+.kitchen-pad.tipping .pantry-item {
+  min-height: 78px;
+  padding: 6px 8px;
+  flex-direction: row;
+  gap: 8px;
+}
+.kitchen-pad.tipping .pantry-item b {
+  font-size: 17px;
 }

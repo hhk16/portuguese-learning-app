@@ -377,7 +377,7 @@ async function botStep(b: Bot, seen: Set<string>) {
       // The lesson's lightning round gives 6 s a word: real players tap within a couple of seconds.
       if (v.label) await pg.waitForTimeout(900 + Math.random() * 1600);
       else await nap(pg, 1200 + Math.random() * 2600);
-      await shoot(`final-${v.kind}`, b);
+      await shoot(`final-${v.kind}${v.options ? "" : "-typed"}`, b);
       const answer = (v.debugAnswer as { answer: string }).answer;
       // Lightning-round words were just taught in the lesson: a little easier than the Final.
       const right = Math.random() < b.skill + (v.label ? 0.15 : 0);
@@ -566,14 +566,26 @@ async function bombStep(b: Bot, v: View, seen: Set<string>) {
   if (i >= 0) await pg.locator(v.pictures ? ".final-pics .final-pic" : ".draw-options .lopt").nth(i).click({ timeout: 2500 }).catch(() => {});
 }
 
+const tipsAnswered = new Set<string>();
+
 async function kitchenStep(b: Bot, v: View) {
   const pg = b.page;
   const now = Date.now();
   if ((cooldown.get(b.name) ?? 0) > now) return;
   cooldown.set(b.name, now + (700 + Math.random() * 600) * PACE);
   await shoot(`kitchen-${b.name}`, b);
-  const d = v.debugAnswer as { add: string[]; wrongTray: boolean; serve: boolean; table?: number };
+  const d = v.debugAnswer as { add: string[]; wrongTray: boolean; serve: boolean; table?: number; tip?: string };
   const pantry = v.pantry as { id: string; pt: string }[];
+  // "Gorjeta!": type the dish (usually right; sometimes without the article, sometimes wrong).
+  if (v.tip && d.tip && !tipsAnswered.has(`${b.name}:${v.served}`)) {
+    tipsAnswered.add(`${b.name}:${v.served}`);
+    await nap(pg, 1800 + Math.random() * 2500);
+    const r = Math.random();
+    const text = r < b.skill - 0.15 ? d.tip : r < b.skill + 0.1 ? d.tip.replace(/^(o|a) /, "") : "o queijo";
+    await pg.fill(".tip-card input", text).catch(() => {});
+    await shoot("kitchen-tip", b);
+    return click(pg, ".tip-card .btn", "OK");
+  }
   // Listening levels: now and then ask to hear an order again (it costs patience).
   if (Array.isArray(v.replay) && v.replay.length && Math.random() < 0.06) return click(pg, ".replay-row .btn");
   if (d.serve) return v.tables ? click(pg, ".serve-tables .btn", `Mesa ${d.table}`) : click(pg, ".btn", "Servir");
@@ -611,6 +623,28 @@ while (Date.now() - start < LIMIT) {
   await Promise.all(bots.map((b, i) => botStep(b, seen[i]!)));
   const screen = await tv.evaluate(() => (document.querySelector(".results-screen") ? "results" : document.querySelector(".game-screen") ? "game" : "other"));
   if (screen === "game" && !gameStart) gameStart = Date.now();
+  // The puppy's spotlight must never cover what's being celebrated (cards, chips, captions, avatars' faces).
+  const covered = await tv.evaluate(() => {
+    const star = document.querySelector(".pet-star");
+    if (!star) return null;
+    const r = star.getBoundingClientRect();
+    return [...document.querySelectorAll(".sb-card, .sync-chip, .best-caption, .rush-said, .big-moment, .stop-final-row, .kitchen-tray, .bomb-verdict")]
+      .filter((el) => {
+        const b = el.getBoundingClientRect();
+        const cx = b.left + b.width / 2;
+        const cy = b.top + b.height / 2;
+        return cx > r.left && cx < r.right && cy > r.top && cy < r.bottom;
+      })
+      .map((el) => el.className.split(" ")[0]);
+  });
+  if (covered && !shots.has(`pet-star-${MODES[modeIndex]}`)) {
+    await tv.waitForTimeout(500); // past the pop-in
+    await shoot(`pet-star-${MODES[modeIndex]}`);
+  }
+  if (covered?.length) {
+    console.log(`OVERLAP: the puppy's spotlight covers ${[...new Set(covered)].join(", ")}`);
+    await shoot(`overlap-${covered[0]}`);
+  }
   if (!VIDEO && !pauseChecked && gameStart && Date.now() - gameStart > 12_000) {
     pauseChecked = true;
     await checkPause();

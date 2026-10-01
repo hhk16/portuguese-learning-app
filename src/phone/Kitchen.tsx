@@ -1,4 +1,5 @@
 /** Cozinha Caótica on the phone: your half of the pantry, the shared tray, Servir. */
+import { useState } from "react";
 import type { ControllerView } from "../shared/protocol.ts";
 import { play } from "../audio/sfx.ts";
 import { Picture } from "../ui/Picture.tsx";
@@ -7,13 +8,45 @@ import { useCountdown } from "./useCountdown.ts";
 
 type V = Extract<ControllerView, { mode: "kitchen" }>;
 
+/** "Gorjeta!": the customer asks the one who served to name a dish — type it for a tip. */
+function TipCard({ tip, onSend }: { tip: NonNullable<V["tip"]>; onSend: (text: string) => void }) {
+  const [text, setText] = useState("");
+  const left = useCountdown(tip.msLeft);
+  return (
+    <form
+      className="p-callout hot tip-card"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!text.trim()) return;
+        play("lock");
+        onSend(text.trim());
+      }}
+    >
+      <span className="tip-ask">
+        <Picture glyph={tip.pic} size="40px" />
+        <b className="display">💶 Gorjeta! Como se diz?</b>
+        <span className={`pill ${left < 4000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>
+      </span>
+      <span className="muted">
+        Tip +{tip.bonus}: type it in Portuguese{tip.en ? ` (${tip.en})` : ""}, with o / a
+      </span>
+      <span className="sync-form">
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="o … / a …" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} autoFocus />
+        <button className="btn player" type="submit" disabled={!text.trim()}>
+          OK
+        </button>
+      </span>
+    </form>
+  );
+}
+
 export function Kitchen({ v, send }: { v: V; send: Send }) {
   const left = useCountdown(v.msLeft);
   const act = (
     a: Extract<Parameters<Send>[0], { mode: "kitchen" }>["action"],
   ) => send({ mode: "kitchen", action: a });
   return (
-    <div className="p-col kitchen-pad">
+    <div className={`p-col kitchen-pad ${v.tip ? "tipping" : ""}`}>
       <div className="kitchen-head">
         <span className="pill">⭐ {v.score}</span>
         <span className="pill hearts-mini">{"♥".repeat(v.hearts)}</span>
@@ -24,6 +57,7 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
           </span>
         )}
       </div>
+      {v.tip && <TipCard key={v.tip.bonus + ":" + v.served} tip={v.tip} onSend={(text) => act({ a: "tip", text })} />}
       {v.swapped && (
         <div className="p-warn">
           Troca! 🔄 Tens comida nova. · Swap! You have new food.

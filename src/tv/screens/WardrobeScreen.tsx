@@ -9,7 +9,7 @@ export function WardrobeScreen({ a }: { a: WardrobeActivity }) {
   const who = a.dresser?.name ?? "Ana";
   const bottoms = bottomsFor(a.top);
   return (
-    <div className="tv-overlay wardrobe-screen">
+    <div className={`tv-overlay wardrobe-screen ${a.rt.moment ? "revealing" : ""}`}>
       <div className="card wardrobe-card left">
         <div className="kicker">Guarda-roupa · Wardrobe</div>
         <h2 className="display">👗 O look da {who}</h2>

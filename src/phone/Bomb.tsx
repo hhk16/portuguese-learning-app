@@ -17,6 +17,13 @@ const ASK: Record<V["kind"], { pt: string; en: string }> = {
   phrase: { pt: "🔊 Ouve e toca!", en: "Listen to the TV, tap what it said" },
 };
 
+/** The typed "Aquece!" (Médio+): what to write, per kind. */
+const TYPED: Partial<Record<V["kind"], { pt: string; en: string }>> = {
+  see: { pt: "✍️ Como se diz?", en: "Type its name in Portuguese" },
+  number: { pt: "✍️ Escreve o número", en: "Type the number in words" },
+  opposite: { pt: "✍️ Escreve o contrário de…", en: "Type the opposite in Portuguese" },
+};
+
 export function Bomb({ v, send }: { v: V; send: Send }) {
   const locked = useCountdown(v.lockedMs ?? 0);
   useEffect(() => {
@@ -49,10 +56,11 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
           <>
             <div className="p-callout hot">
               <b className="display">🔥 Aquece a batata! ({v.hurryLeft ?? 0})</b>
-              <span>Right answer = the fuse burns shorter for {v.holder}. {sq.typed ? "Type its name in Portuguese!" : ASK[sq.kind].en}</span>
+              <span>Right answer = the fuse burns shorter for {v.holder}. {(sq.typed && TYPED[sq.kind]?.en) || ASK[sq.kind].en}!</span>
             </div>
             {sq.prompt && (
               <div className="bomb-prompt card">
+                <span className="kicker">{(sq.typed && TYPED[sq.kind]?.pt) || ASK[sq.kind].pt}</span>
                 {sq.prompt.pic && <Picture glyph={sq.prompt.pic} size="56px" />}
                 {sq.kind === "opposite" && <b className="display">{sq.prompt.pt}</b>}
               </div>

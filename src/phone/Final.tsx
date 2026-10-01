@@ -43,6 +43,11 @@ export function Final({ v, send }: { v: V; send: Send }) {
           <b className="display">Como se diz? {v.prompt?.pic && <Picture glyph={v.prompt.pic} size="36px" />}</b>
           <span>How do you say “{v.prompt?.en}” in Portuguese? Look at the TV — first right answer wins!</span>
         </div>
+      ) : !v.options ? (
+        <div className="p-callout">
+          <b className="display">🔊 Ouve e escreve!</b>
+          <span>Listen to the TV and type the word in Portuguese (the “o/a” is optional). You both need it!</span>
+        </div>
       ) : (
         <div className="p-callout">
           <b className="display">🔊 Ouve e toca!</b>

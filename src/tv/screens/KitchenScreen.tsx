@@ -1,5 +1,6 @@
 /** Cozinha Caótica on the TV: order tickets with patience bars, the shared tray, the clock. */
-import { HEARTS, SHIFT_MS, TARGETS, type Cozinha } from "../../games/kitchen/kitchen.ts";
+import { dishWord, HEARTS, SHIFT_MS, TARGETS, type Cozinha } from "../../games/kitchen/kitchen.ts";
+import { DISHES } from "../../games/kitchen/menu.ts";
 import { Picture } from "../../ui/Picture.tsx";
 import { gameNow } from "../clock.ts";
 import { GameTop, MetaBar } from "./Menus.tsx";
@@ -102,6 +103,24 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
       <div className="kitchen-clock">
         <div style={{ width: `${(left / SHIFT_MS) * 100}%` }} />
       </div>
+      {a.tip && (
+        <div className={`card kitchen-tip ${a.tip.result ? (a.tip.result.ok ? "ok" : "miss") : ""}`}>
+          <Picture glyph={DISHES[a.tip.dish]!.pic} size="2.2em" />
+          {!a.tip.result ? (
+            <span>
+              <b className="display">💶 Gorjeta! {a.tip.name}: como se diz?</b>
+              <i>A tip — {a.tip.name} types its name on the phone</i>
+            </span>
+          ) : (
+            <span>
+              <b className="display">
+                {a.tip.result.ok ? `✓ ${dishWord(a.tip.dish).pt} +${a.tip.bonus}` : `✗ ${dishWord(a.tip.dish).pt}`}
+              </b>
+              <i>{a.tip.result.wrote ? `${a.tip.name} escreveu “${a.tip.result.wrote}”` : "Sem resposta · no answer"}</i>
+            </span>
+          )}
+        </div>
+      )}
       {a.rush && <div className="rush-banner display">🔥 Hora de ponta! ×2 <i>Rush hour!</i></div>}
       {flash?.kind === "swap" && (
         <div className="kitchen-swap display">

@@ -35,7 +35,8 @@ export function StopScreen({ a }: { a: Stop }) {
           </span>
         ))}
       </GameTop>
-      {!table && (
+      {a.phase === "end" && <StopFinal a={a} />}
+      {!table && a.phase !== "end" && (
         <div className="stop-stage">
           <div key={a.letter + a.round} className={`card stop-letter spin-in ${a.phase === "hurry" ? "hurry" : ""}`}>
             <span className="display">{a.letter}</span>
@@ -129,6 +130,32 @@ export function StopScreen({ a }: { a: Stop }) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/** The final tally under the winner's beat: two bars fill to the totals, the crown on the winner. */
+function StopFinal({ a }: { a: Stop }) {
+  const rows = a.players.map((p) => ({ p, pts: a.totals.get(p.playerId) ?? 0 }));
+  const top = Math.max(1, ...rows.map((r) => r.pts));
+  const tie = rows.length === 2 && rows[0]!.pts === rows[1]!.pts;
+  return (
+    <div className="card stop-final">
+      {rows.map(({ p, pts }) => (
+        <div key={p.playerId} className="stop-final-row">
+          <PlayerChip p={p} size="2.2em" />
+          <div className="stop-final-bar">
+            <div data-color={p.color} style={{ width: `${(pts / top) * 100}%`, background: "var(--pc)" }} />
+          </div>
+          <b className="display">
+            {pts}
+            {!tie && pts === top ? " 👑" : ""}
+          </b>
+        </div>
+      ))}
+      <i>
+        Pontuação final · final score — {ROUNDS} letras
+      </i>
     </div>
   );
 }

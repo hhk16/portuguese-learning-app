@@ -15,6 +15,7 @@ import { play } from "../../audio/sfx.ts";
 import { lessonsDone, markLessonDone } from "../../tv/progress.ts";
 import { gameNow } from "../../tv/clock.ts";
 import { CUE, PET, SAY } from "../../tv/host-lines.ts";
+import { matchAnswer } from "../../shared/answer-check.ts";
 
 /** The lesson ends on a lightning round: the TV says the lesson's words, tap them — how many in 40 s? */
 export const RUSH_MS = 45_000;
@@ -22,6 +23,8 @@ const RUSH_WORD_MS = 6_000;
 /** The lightning round is the lesson's boss: this many words together, before the hearts or the time run out. */
 export const RUSH_GOAL = 5;
 export const RUSH_HEARTS = 3;
+/** The clincher (the last star) is written, not tapped: hear it, type it — more time for that one. */
+const RUSH_TYPE_MS = 13_000;
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 
 export interface LearnSummary {
@@ -52,6 +55,11 @@ interface Rush {
   /** Last word's result, for the TV flash (and the word that was said). */
   last: { ok: boolean; seq: number; pt?: string } | null;
   recent: string[];
+  /** This word is typed (the clincher). After one typed miss, the clincher goes back to tapping. */
+  typed: boolean;
+  typedMissed: boolean;
+  /** What each player typed (shown on the TV when the word settles). */
+  typedBy: Map<string, string>;
 }
 
 interface Answer {
@@ -172,7 +180,7 @@ export class LearnActivity implements Activity {
   private startRush() {
     const pool = this.rushPool();
     if (pool.length < 4 || !this.players.length) return this.finish();
-    this.rush = { endAt: gameNow() + RUSH_MS + 1500, wordEnd: 0, card: pool[0]!, options: [], pictures: false, answers: new Map(), team: 0, asked: 0, combo: 0, hearts: RUSH_HEARTS, settled: false, last: null, recent: [] };
+    this.rush = { endAt: gameNow() + RUSH_MS + 1500, wordEnd: 0, card: pool[0]!, options: [], pictures: false, answers: new Map(), team: 0, asked: 0, combo: 0, hearts: RUSH_HEARTS, settled: false, last: null, recent: [], typed: false, typedMissed: false, typedBy: new Map() };
     this.rt.say([SAY.lightning, SAY.lightningGoal]);
     this.rt.cue(CUE.listenTap);
     play("whistle");
@@ -189,8 +197,13 @@ export class LearnActivity implements Activity {
     const r = this.rush;
     if (!r) return;
     const pool = this.rushPool();
-    const fresh = pool.filter((c) => !r.recent.includes(c.itemId));
-    const card = this.rt.rng.pick(fresh.length ? fresh : pool);
+    // One star to go: write it (a short word you can spell from hearing it).
+    r.typed = r.team === RUSH_GOAL - 1 && !r.typedMissed;
+    const short = pool.filter((c) => c.pt.replace(/^(o|a|os|as) /, "").replace(/[?!.,¿¡]/g, "").length <= 12);
+    if (r.typed && short.length < 2) r.typed = false;
+    const from = r.typed ? short : pool;
+    const fresh = from.filter((c) => !r.recent.includes(c.itemId));
+    const card = this.rt.rng.pick(fresh.length ? fresh : from);
     r.recent = [...r.recent, card.itemId].slice(-Math.min(3, pool.length - 1));
     const others = this.rt.rng.sample(pool.filter((c) => c.itemId !== card.itemId && c.pt !== card.pt), 3);
     r.card = card;
@@ -199,10 +212,18 @@ export class LearnActivity implements Activity {
     r.pictures = r.options.every((o) => o.emoji && /^vocab\.(noun|number|adjective|colour|color)/.test(o.itemId)) && new Set(r.options.map((o) => o.emoji)).size === r.options.length;
     r.settled = false;
     r.answers = new Map();
+    r.typedBy = new Map();
     r.asked++;
-    r.wordEnd = gameNow() + RUSH_WORD_MS;
+    r.wordEnd = gameNow() + (r.typed ? RUSH_TYPE_MS : RUSH_WORD_MS);
+    // The written clincher always gets its full time, even at the end of the clock.
+    if (r.typed) {
+      r.endAt = Math.max(r.endAt, r.wordEnd + 400);
+      this.rt.say(SAY.lightningType, { interrupt: true });
+      this.rt.cue(CUE.listenType);
+    }
     this.promptId = randomId(6);
-    this.rt.speakPt(card.say);
+    if (r.typed) setTimeout(() => this.rt.activity === this && r.card === card && !r.settled && this.rt.speakPt(card.say, { slow: true }), 2200);
+    else this.rt.speakPt(card.say);
     this.rt.refreshViews();
     this.rt.bump();
   }
@@ -210,9 +231,11 @@ export class LearnActivity implements Activity {
   private rushAnswer(p: RuntimePlayer, answer: string) {
     const r = this.rush!;
     if (r.answers.has(p.playerId)) return;
-    const ok = answer === r.card.pt;
+    // Typed: the article is optional and a slipped accent still counts (the TV shows the spelling).
+    const ok = r.typed ? ["correct", "accent-slip", "close"].includes(matchAnswer(answer.toLowerCase(), [r.card.pt, r.card.pt.replace(/^(o|a|os|as) /, "")])) : answer === r.card.pt;
     r.answers.set(p.playerId, ok);
-    this.rt.evidence(p, r.card.itemId, "learn.rush", ok ? "correct" : "wrong");
+    if (r.typed) r.typedBy.set(p.playerId, answer.trim().slice(0, 24));
+    this.rt.evidence(p, r.card.itemId, r.typed ? "learn.rush.typed" : "learn.rush", ok ? "correct" : "wrong", r.typed ? 2 : undefined);
     play(ok ? "pop" : "buzzer", ok ? 0.8 : 0.4, 1 + Math.min(r.combo, 8) * 0.05);
     if (this.players.every((x) => r.answers.has(x.playerId))) {
       const all = [...r.answers.values()].every(Boolean);
@@ -250,6 +273,7 @@ export class LearnActivity implements Activity {
     r.settled = true;
     r.combo = 0;
     r.hearts--;
+    if (r.typed) r.typedMissed = true;
     r.last = { ok: false, seq: (r.last?.seq ?? 0) + 1, pt: r.card.pt };
     // Hear it once more, now that you know which one it was.
     setTimeout(() => this.rt.activity === this && this.rt.speakPt(r.card.say), 350);
@@ -449,13 +473,13 @@ export class LearnActivity implements Activity {
         mode: "final",
         roundId: this.roundId,
         promptId: this.promptId,
-        label: `⚡ ${r.team}/${RUSH_GOAL} ⭐ · ${"❤️".repeat(Math.max(0, r.hearts))}`,
+        label: `${r.typed ? "✍️ A última! Escreve" : "⚡"} ${r.team}/${RUSH_GOAL} ⭐ · ${"❤️".repeat(Math.max(0, r.hearts))}`,
         kind: "hear",
         index: r.asked - 1,
         total: Math.max(r.asked, 1),
         msLeft: Math.max(0, r.endAt - gameNow()),
-        options: r.options.map((c) => (r.pictures ? { pt: c.pt, pic: c.emoji } : { pt: c.pt })),
-        pictures: r.pictures || undefined,
+        options: r.typed ? undefined : r.options.map((c) => (r.pictures ? { pt: c.pt, pic: c.emoji } : { pt: c.pt })),
+        pictures: (!r.typed && r.pictures) || undefined,
         answered: r.answers.has(p.playerId),
         debugAnswer: this.rt.testMode ? { answer: r.card.pt } : undefined,
       };

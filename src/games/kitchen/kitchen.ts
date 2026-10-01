@@ -7,6 +7,9 @@
  * order. Every so often the pantries swap — Troca!
  */
 import { randomId } from "../../shared/ids.ts";
+import { getItem } from "../../curriculum/index.ts";
+import { matchAnswer } from "../../shared/answer-check.ts";
+import { cardOf } from "../../curriculum/learn.ts";
 import type { ControllerView, InputValue } from "../../shared/protocol.ts";
 import { play } from "../../audio/sfx.ts";
 import { setHurry } from "../../audio/music.ts";
@@ -24,6 +27,9 @@ export const HEARTS = 3;
 /** Score for ⭐⭐⭐ (85%); stars are 35 / 60 / 85% of this. */
 export const TARGETS: Record<Level, number> = { 1: 500, 2: 800, 3: 900 };
 const MAX_TICKETS = 3;
+/** "Gorjeta!": every third plate, whoever served it types the dish's name for a tip (that order's points again). */
+export const TIP_EVERY = 3;
+export const TIP_MS = 11_000;
 
 /**
  * Difficulty: what the ticket shows, whether you must serve the right table, patience, swaps.
@@ -103,6 +109,8 @@ export class Cozinha implements Activity {
   private words = new Set<string>();
   private firstServe = true;
   private semAnnounced = false;
+  /** The tip question for whoever served (null when none); `result` shows on the TV for a moment. */
+  tip: { playerId: string; name: string; dish: string; until: number; bonus: number; result?: { ok: boolean; wrote: string } } | null = null;
   /** Items each player put on trays that were served (the MVP split on game night). */
   contrib = new Map<string, number>();
   private readonly onDone: (r: GameOutcome) => void;
@@ -214,6 +222,7 @@ export class Cozinha implements Activity {
     }
     setHurry(this.shiftEnd - now < 20_000);
     if (now >= this.shiftEnd) return this.finish();
+    if (this.tip && !this.tip.result && now >= this.tip.until) this.tipDone("");
     if (this.rush && !this.rushAnnounced) {
       this.rushAnnounced = true;
       play("whistle");
@@ -291,10 +300,13 @@ export class Cozinha implements Activity {
       t.deadline = Math.max(gameNow() + 2000, t.deadline - REPLAY_COST);
       if (this.rules.show === "audio") t.revealed = true;
       void this.rt.speakSeq(this.rules.tables ? [t.order.text, TABLE_SAY[t.table]!] : [t.order.text]);
+    } else if (act.a === "tip") {
+      if (this.tip && !this.tip.result && this.tip.playerId === p.playerId) this.tipDone(act.text);
+      return;
     } else if (act.a === "serve") {
       const matching = this.open.filter((x) => trayMatches(this.tray, x.order));
       const t = this.rules.tables ? matching.find((x) => x.table === act.table) : matching[0];
-      if (t) this.serve(t);
+      if (t) this.serve(t, p);
       else if (matching.length && this.rules.tables) {
         // Right food, wrong table.
         this.mistakes++;
@@ -323,7 +335,7 @@ export class Cozinha implements Activity {
     this.rt.bump();
   }
 
-  private serve(t: Ticket) {
+  private serve(t: Ticket, by: RuntimePlayer) {
     const now = gameNow();
     t.done = "served";
     t.doneAt = now;
@@ -360,8 +372,39 @@ export class Cozinha implements Activity {
     }
     play("cash");
     this.clearTray();
+    // Every third plate: "Como se diz?" — the one who served names a dish of it (typed) for a tip.
+    if (!this.tip && this.served % TIP_EVERY === 2) {
+      const dish = this.rt.rng.pick(Object.keys(t.order.items));
+      this.tip = { playerId: by.playerId, name: by.name, dish, until: now + TIP_MS, bonus: Math.max(10, t.points) };
+      play("ding", 0.6, 1.3);
+      this.rt.view(by, this.viewFor(by));
+    }
     // A served table frees a spot soon.
     this.nextArrival = Math.min(this.nextArrival, now + 2500);
+  }
+
+  /** The tip answer (or "" when time ran out). */
+  private tipDone(text: string) {
+    const tip = this.tip;
+    if (!tip || tip.result) return;
+    const w = dishWord(tip.dish);
+    const ok = !!text && ["correct", "accent-slip", "close"].includes(matchAnswer(text.toLowerCase(), [w.pt, DISHES[tip.dish]!.sing]));
+    tip.result = { ok, wrote: text.slice(0, 24) };
+    const p = this.rt.players.get(tip.playerId);
+    if (p && text) this.rt.evidence(p, `vocab.noun.${tip.dish}`, "kitchen.say", ok ? "correct" : "wrong", 2);
+    if (ok) {
+      this.score += tip.bonus;
+      play("cash", 1, 1.2);
+      if (p) this.rt.emote(p.playerId, "cheer", 1500);
+    } else play("buzzer", 0.3);
+    if (p) this.rt.view(p, this.viewFor(p));
+    this.rt.bump();
+    setTimeout(() => {
+      if (this.tip === tip) {
+        this.tip = null;
+        this.rt.bump();
+      }
+    }, 2600);
   }
 
   private clearTray() {
@@ -372,6 +415,7 @@ export class Cozinha implements Activity {
   private finish() {
     if (this.phase === "end") return;
     this.phase = "end";
+    this.tip = null;
     setHurry(false);
     play("whistle");
     const closedEarly = this.hearts <= 0;
@@ -399,7 +443,7 @@ export class Cozinha implements Activity {
         ? `${this.menu.name} · A cozinha fechou: clientes a mais foram-se embora!`
         : `${this.menu.name} · ${this.missed === 0 ? `Nenhum cliente se foi embora!${perfect ? " Turno perfeito: bónus!" : ""}` : this.missed === 1 ? "1 cliente foi-se embora" : `${this.missed} clientes foram-se embora`}`,
       subEn: closedEarly ? "The kitchen closed: too many customers left!" : this.missed === 1 ? "1 customer left" : `${this.missed} customers left`,
-      words: [...this.words].map((id) => ({ pt: DISHES[id]!.sing, pic: DISHES[id]!.pic })),
+      words: [...this.words].map((id) => dishWord(id)),
       contrib: Object.fromEntries(this.contrib),
       highlight: this.served ? { pt: `${this.served} pedidos servidos na cozinha!`, en: `${this.served} orders served`, pic: "🧑‍🍳" } : undefined,
     });
@@ -427,7 +471,8 @@ export class Cozinha implements Activity {
       mode: "kitchen",
       roundId: this.roundId,
       promptId: this.promptId,
-      pantry: mine.map((id) => ({ id, pt: DISHES[id]!.sing, pic: DISHES[id]!.pic })),
+      // With the article: every tap says the noun's gender too.
+      pantry: mine.map((id) => ({ id, pt: dishWord(id).pt, pic: DISHES[id]!.pic })),
       tables: this.rules.tables ? this.open.map((t) => t.table).sort() : undefined,
       replay: this.rules.show !== "text" ? this.open.map((t) => t.table).sort() : undefined,
       tray: this.trayList().map(({ dish, n }) => ({ pt: amount(dish, n), pic: dish.pic, n })),
@@ -438,14 +483,27 @@ export class Cozinha implements Activity {
       rush: this.rush || undefined,
       swapped: this.swapped || undefined,
       practice: this.inPractice || undefined,
+      tip:
+        this.tip && !this.tip.result && this.tip.playerId === p.playerId
+          ? { pic: DISHES[this.tip.dish]!.pic, en: dishWord(this.tip.dish).en, msLeft: Math.max(0, this.tip.until - gameNow()), bonus: this.tip.bonus }
+          : undefined,
       debugAnswer: this.rt.testMode
         ? {
             add: mine.filter((id) => (need.get(id) ?? 0) > 0),
             wrongTray: [...this.tray.keys()].some((id) => (need.get(id) ?? 0) < 0 || !need.has(id)),
             serve: !!target && trayMatches(this.tray, target.order),
             table: target?.table,
+            tip: this.tip && this.tip.playerId === p.playerId ? dishWord(this.tip.dish).pt : undefined,
           }
         : undefined,
     };
   }
+}
+
+/** A dish for the recap with its article and English ("o pão the bread"). */
+export function dishWord(id: string): { pt: string; en?: string; pic?: string } {
+  const d = DISHES[id]!;
+  const it = getItem(`vocab.noun.${id}`);
+  const card = it ? cardOf(it) : null;
+  return { pt: card?.pt ?? `${d.g === "m" ? "o" : "a"} ${d.sing}`, en: card?.en, pic: d.pic };
 }

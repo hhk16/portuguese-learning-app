@@ -509,6 +509,8 @@ export class Desenha implements Activity {
     this.onDone({
       score: this.score,
       max: this.maxScore,
+      // Most of the drawings guessed is a good night of Pictionary: never a 1★.
+      minStars: n >= ROUNDS ? 3 : n >= Math.ceil((ROUNDS * 2) / 3) ? 2 : undefined,
       headline: `${n} de ${ROUNDS} desenhos adivinhados`,
       headlineEn: `${n} of ${ROUNDS} drawings guessed`,
       sub: n ? `Mais rápido: ${[...this.guessed].sort((a, b) => a.secs - b.secs)[0]!.pt}` : "Desenhem maior e mais simples!",

@@ -2002,7 +2002,9 @@ html.tv-root #root {
 .lobby-screen ~ .command,
 .command.at-lobby {
   top: auto;
-  bottom: 3vh;
+  bottom: 1.2vh;
+  font-size: 1.1em;
+  padding: 0.35em 1.1em;
 }
 .bet-line {
   display: block;
@@ -3245,18 +3247,49 @@ html.tv-root #root {
 }
 
 /* The puppy's big moment sits beside the payoff, not on it (centre only for the lesson boss). */
+/* Beside the payoff: a spotlight bubble under the QR, clear of the cards and of the avatars' heads. */
 .pet-star.at-right,
 .pet-star.at-left {
-  height: 30vh;
+  top: 17vh;
+  bottom: auto;
+  height: 26vh;
+  width: 26vh;
+  justify-content: flex-end;
   transform: none;
   animation: pet-star-side 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
 }
+.pet-star.at-right::before,
+.pet-star.at-left::before {
+  content: "";
+  position: absolute;
+  inset: 4% 4% 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #fff8e6 0%, #ffe3b0 62%, #f2b766 100%);
+  border: 0.3rem solid var(--white);
+  box-shadow: 0 0.5rem 1.4rem rgba(31, 42, 68, 0.25);
+  z-index: -1;
+}
+.pet-star.at-right img,
+.pet-star.at-left img {
+  height: 96%;
+  max-width: 116%;
+  object-fit: contain;
+}
+.pet-star.at-right .pet-star-tag,
+.pet-star.at-left .pet-star-tag {
+  top: auto;
+  bottom: -1.1rem;
+}
 .pet-star.at-right {
   left: auto;
-  right: 3vw;
+  right: 1.2vw;
 }
 .pet-star.at-left {
-  left: 3vw;
+  left: 1.2vw;
+}
+/* Centre (the lesson boss): a little right of centre, clear of Pipo's bubble on the left. */
+.pet-star.at-center {
+  left: 64%;
 }
 @keyframes pet-star-side {
   from { transform: translateY(60%) scale(0.6); opacity: 0; }
@@ -3269,4 +3302,125 @@ html.tv-root #root {
 }
 .big-moment.top b {
   font-size: 2.4em;
+}
+
+/* Lightning round's clincher: written, not tapped. */
+.rush-typed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+}
+.rush-typed > b {
+  font-size: 2em;
+  color: var(--sun-d);
+}
+.rush-typed > i {
+  font-style: normal;
+  color: var(--ink-2);
+}
+.rush-slots {
+  display: flex;
+  gap: 0.35em;
+  font-size: 2.4em;
+  margin-top: 0.2em;
+  letter-spacing: 0;
+}
+.rush-slots .gap {
+  width: 0.6em;
+}
+.rush-wrote {
+  font-style: normal;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* Cozinha: "Gorjeta!" — the one who served names a dish on the phone. */
+.kitchen-tip {
+  position: absolute;
+  right: 10.5vw;
+  top: 59vh;
+  max-width: 23vw;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.6em 1em;
+  border: 0.2rem solid var(--sun);
+  animation: pop-in 0.3s ease-out both;
+  z-index: 5;
+}
+.kitchen-tip span {
+  display: flex;
+  flex-direction: column;
+}
+.kitchen-tip b {
+  font-size: 1.15em;
+}
+.kitchen-tip i {
+  font-style: normal;
+  color: var(--ink-2);
+  font-size: 0.85em;
+}
+.kitchen-tip.ok {
+  border-color: var(--mint-d);
+  background: #dcf7ea;
+}
+.kitchen-tip.miss {
+  border-color: var(--coral-d);
+  background: #ffe1dc;
+}
+
+/* Stop!: the final tally under the winner's beat. */
+.stop-final {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  top: 36%;
+  width: min(58vw, 60rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9em;
+  padding: 1.4em 2em;
+  animation: pop-in 0.3s ease-out both;
+}
+.stop-final-row {
+  display: grid;
+  grid-template-columns: 9em 1fr 5em;
+  align-items: center;
+  gap: 1em;
+}
+.stop-final-row b {
+  font-size: 1.8em;
+  text-align: right;
+}
+.stop-final-bar {
+  height: 1.6em;
+  border-radius: 999px;
+  background: #eef0f6;
+  overflow: hidden;
+}
+.stop-final-bar > div {
+  height: 100%;
+  border-radius: 999px;
+  animation: bar-fill 1.2s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  transform-origin: left;
+}
+.stop-final i {
+  font-style: normal;
+  color: var(--ink-2);
+  text-align: center;
+}
+@keyframes bar-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Guarda-roupa: the side cards step back for "✨ O look de hoje!". */
+.wardrobe-screen .wardrobe-card {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.wardrobe-screen.revealing .wardrobe-card {
+  opacity: 0;
+  transform: scale(0.94);
 }
