@@ -8,7 +8,43 @@ import { useCountdown } from "./useCountdown.ts";
 
 type V = Extract<ControllerView, { mode: "verbs" }>;
 
-const ENDINGS = "eu -o · tu -as/-es · ele -a/-e · nós -amos/-emos · eles -am/-em";
+/** The endings cheat sheet: person → -ar / -er ending (a mini-table, so no ending ever breaks in half). */
+const ENDINGS: [string, string, string][] = [
+  ["eu", "-o", "-o"],
+  ["tu", "-as", "-es"],
+  ["ele", "-a", "-e"],
+  ["nós", "-amos", "-emos"],
+  ["eles", "-am", "-em"],
+];
+
+function Endings() {
+  return (
+    <table className="verbs-endings-p">
+      <thead>
+        <tr>
+          <th />
+          {ENDINGS.map(([p]) => (
+            <th key={p}>{p}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>-ar</th>
+          {ENDINGS.map(([p, ar]) => (
+            <td key={p}>{ar}</td>
+          ))}
+        </tr>
+        <tr>
+          <th>-er</th>
+          {ENDINGS.map(([p, , er]) => (
+            <td key={p}>{er}</td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  );
+}
 
 export function Verbs({ v, send }: { v: V; send: Send }) {
   const [text, setText] = useState("");
@@ -18,9 +54,10 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
   const head = (
     <div className="sync-head">
       <span className="kicker">
-        {v.practice ? "🎓 Ensaio" : `Ronda ${v.round + 1}/${v.rounds}`}
-        {v.final ? " · ×2!" : ""} · {"❤️".repeat(v.hearts)}
+        {v.practice ? "" : `Ronda ${v.round + 1}/${v.rounds}`}
+        {v.final ? " · ×2!" : ""}
       </span>
+      <span className="pill hearts-pill">{"❤️".repeat(v.hearts) || "💔"}</span>
       {v.msLeft !== undefined && <span className={`pill ${left < 6000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>}
     </div>
   );
@@ -30,7 +67,7 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
         {head}
         <div className="p-callout">
           <b className="display">🃏 Escolhe a tua carta!</b>
-          <span>Easy: a regular verb. Risky: an irregular one, double points — but a miss still costs a heart.</span>
+          <span>Fácil = regular verb. Arriscada = irregular, ×2 points.</span>
         </div>
         <div className="verbs-offers">
           {v.offers.map((o) => (
@@ -62,7 +99,7 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
         {head}
         <div className="p-callout">
           <b className="display">✍️ Escreve o verbo!{v.risky ? " 🔥 ×2" : ""}</b>
-          <span>Write the verb for this person — only the verb (your partner must read who it is).</span>
+          <span>Only the verb — your partner reads who it is.</span>
         </div>
         <div className="card verbs-prompt">
           <span className="vp-person">
@@ -96,11 +133,15 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
     return (
       <div className="p-col verbs-pad">
         {head}
+        <div className="p-callout">
+          <b className="display">Quem faz o quê?</b>
+          <span>Read “{v.written || "—"}”: who is doing what?</span>
+        </div>
         <div className="card verbs-written-p">
-          <span className="kicker">Leram? · Read it:</span>
+          <span className="p-label">O teu par escreveu · Your partner wrote</span>
           <b className="display">“{v.written || "—"}”</b>
         </div>
-        {v.endings && <div className="p-sub verbs-endings-p">{ENDINGS}</div>}
+        {v.endings && <Endings />}
         <div className="kicker">Quem? · Who?</div>
         <div className="verbs-person-grid">
           {v.persons.map((p) => (
@@ -119,7 +160,7 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
             </button>
           ))}
         </div>
-        <button className="btn player" disabled={!person || !verb} onClick={() => person && verb && (play("lock"), send({ mode: "verbs", pick: { person, verb } }))}>
+        <button className="btn block player p-hero-btn" disabled={!person || !verb} onClick={() => person && verb && (play("lock"), send({ mode: "verbs", pick: { person, verb } }))}>
           OK
         </button>
       </div>
@@ -128,13 +169,16 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
     <div className="p-col verbs-pad">
       {head}
       <div className="p-center">
-        <div className="p-big">{v.written !== undefined ? "👀" : "✉️"}</div>
+        <div className="p-bob">
+          <Picture glyph={v.written !== undefined ? "👀" : "✉️"} size="72px" />
+        </div>
+        <div className="p-big">{v.written !== undefined ? `${v.other} ainda está a ler…` : `Feito! ${v.other} ainda está a escrever…`}</div>
         <div className="p-sub">
           {v.written !== undefined
-            ? `Leste “${v.written || "—"}”. ${v.other} ainda está a ler… · waiting for ${v.other}`
-            : `Feito! ${v.other} ainda está a escolher ou a escrever… Depois trocam: a terminação diz quem é! · Then you swap and read each other's verb`}
+            ? `${v.other} is still reading your verb — then the TV shows both.`
+            : `${v.other} is still writing — then you swap and read each other's verb.`}
         </div>
-        {v.endings && !v.written && <div className="p-sub verbs-endings-p">{ENDINGS}</div>}
+        {v.endings && !v.written && <Endings />}
       </div>
     </div>
   );

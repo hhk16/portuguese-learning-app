@@ -29,14 +29,18 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
   useEffect(() => {
     if (v.holding) navigator.vibrate?.([30, 40, 30]);
   }, [v.holding]);
+  // Status row: the round, and each player's pill — the one with the potato is marked 🥔.
   const score = (
     <div className="bomb-score">
-      <span className="kicker">
-        {v.practice ? "Ensaio" : `Batata ${v.round + 1}/${v.rounds}`}
-        {v.double ? " · ×2!" : ""}
-      </span>
+      {!v.practice && (
+        <span className="kicker">
+          Batata {v.round + 1}/{v.rounds}
+          {v.double ? " · ×2!" : ""}
+        </span>
+      )}
       {v.score.map((s) => (
-        <span key={s.name} className="pill">
+        <span key={s.name} className={`pill ${s.name === v.holder ? "has-potato" : ""}`}>
+          {s.name === v.holder ? "🥔 " : ""}
           {s.name} {s.wins}
         </span>
       ))}
@@ -48,19 +52,18 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
     return (
       <div className="p-col bomb-safe">
         {score}
-        <div className="p-callout">
-          <b className="display">🥔 A batata está com {v.holder}!</b>
-          <span>The potato is with {v.holder}. When it comes back, answer fast!</span>
-        </div>
         {sq ? (
           <>
             <div className="p-callout hot">
-              <b className="display">🔥 Aquece a batata! ({v.hurryLeft ?? 0})</b>
-              <span>Right answer = the fuse burns shorter for {v.holder}. {(sq.typed && TYPED[sq.kind]?.en) || ASK[sq.kind].en}!</span>
+              <b className="display">🔥 Aquece a batata! ({v.hurryLeft ?? 0}×)</b>
+              <span>Answer right: {v.holder}&apos;s fuse burns faster.</span>
             </div>
             {sq.prompt && (
               <div className="bomb-prompt card">
-                <span className="kicker">{(sq.typed && TYPED[sq.kind]?.pt) || ASK[sq.kind].pt}</span>
+                <span className="prompt-label">
+                  <b>{(sq.typed && TYPED[sq.kind]?.pt) || ASK[sq.kind].pt}</b>
+                  <small>{(sq.typed && TYPED[sq.kind]?.en) || ASK[sq.kind].en}</small>
+                </span>
                 {sq.prompt.pic && <Picture glyph={sq.prompt.pic} size="56px" />}
                 {sq.kind === "opposite" && <b className="display">{sq.prompt.pt}</b>}
               </div>
@@ -107,7 +110,12 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
             <div className="p-bob">
               <Picture glyph="🥔" size="96px" />
             </div>
-            <div className="p-sub">{v.hurryLeft === 0 ? "Já aqueceste três vezes! Agora espera. · You've heated it three times — now wait." : "Olha para a TV! · Watch the TV!"}</div>
+            <div className="p-big">A batata está com {v.holder}!</div>
+            <div className="p-sub">
+              {v.hurryLeft === 0
+                ? `Já aqueceste 3 vezes — agora espera. · ${v.holder} is answering; if right, the potato comes to you!`
+                : `${v.holder} is answering — if right, the potato comes to you!`}
+            </div>
           </div>
         )}
       </div>
@@ -151,7 +159,9 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
             </button>
           </form>
           <button className="btn white bomb-lifeline" disabled={locked > 0} onClick={() => (play("tap"), send({ mode: "bomb", lifeline: true }))}>
-            🆘 Opções (o pavio queima! · options, but the fuse burns)
+            <span className="bi">
+              🆘 Mostrar opções<small>Show options — the fuse burns faster</small>
+            </span>
           </button>
         </>
       )}

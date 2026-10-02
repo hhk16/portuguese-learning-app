@@ -3931,3 +3931,338 @@ html.tv-root #root {
 .game-top .join-badge {
   opacity: 0.85;
 }
+
+/* clarity: game screens
+ * Every game screen reads top-down: GameTop → the ONE do-now line (pinned right under the header,
+ * never centred away with the stage) → an optional status row → the stage. */
+.game-screen.centered > .game-top + .do-now,
+.game-screen > .game-top + .do-now {
+  margin-top: 0;
+}
+.game-screen.centered > .do-now + * {
+  margin-top: auto;
+}
+/* A second instruction-sized line under the do-now (the kitchen tip) stays glued to it. */
+.game-screen.centered > .do-now + .kitchen-tip {
+  margin-top: 0;
+}
+.game-screen.centered > .do-now + .kitchen-tip + * {
+  margin-top: auto;
+}
+
+/* Header pills: score + the ★★★ target as one pill; ×2 folded into the round pill. */
+.score-meta {
+  gap: 0.6em;
+}
+.score-meta .meta-bar {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+.score-meta .meta-label {
+  display: none;
+}
+.score-meta .meta-track {
+  width: 8rem;
+  background: rgba(255, 255, 255, 0.7);
+}
+.score-meta .meta-star {
+  color: #fff7d6;
+  text-shadow: 0 0 2px rgba(31, 42, 68, 0.35);
+}
+.score-meta .meta-star.on {
+  color: var(--coral);
+}
+.round-pill .x2 {
+  margin-left: 0.2em;
+  padding: 0 0.45em;
+  border-radius: 999px;
+  background: var(--coral);
+  color: var(--white);
+}
+.game-status .double-pill i {
+  font-style: normal;
+  opacity: 0.85;
+}
+
+/* Status rows are calm and never wrap into the stage. */
+.turn-banner {
+  flex: none;
+}
+
+/* Lesson: the option tiles are a display (the answers are given on the phones), not buttons. */
+.tv-opt {
+  border: none;
+  box-shadow: none;
+  background: var(--cream);
+  font-size: 1.3em;
+}
+.pictures .tv-opt {
+  font-size: 1.1em;
+}
+.tv-opt.right {
+  box-shadow: inset 0 0 0 0.2rem var(--mint);
+}
+.tv-opt .picked {
+  top: 0.3em;
+  right: 0.3em;
+}
+.rush-result .rush-result-pt {
+  font-size: 1.6em;
+  color: var(--navy);
+}
+.rush-result i {
+  font-size: 1.2rem;
+}
+
+/* Pares Secretos: the clue row (status) and a board that fits four rows above the caption strip. */
+.secret-clue {
+  align-self: center;
+  gap: 0.6em;
+}
+.secret-clue .kicker {
+  color: var(--ink-2);
+}
+.secret-clue .clue-big {
+  font-size: 1.2em;
+}
+
+/* Na Mesma Onda: the stage stays inside the centre (the puppy's tag is never covered); the clue sits on top of it. */
+.wave-stage {
+  position: relative;
+  max-width: 66vw;
+  margin-top: 1.4rem;
+}
+.wave-clue {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.15em 0.9em;
+  border-radius: 999px;
+  background: var(--sun);
+  color: var(--navy);
+  font-size: 1.4em;
+  white-space: nowrap;
+  box-shadow: 0 0.2rem 0 #d99a00;
+  z-index: 2;
+}
+.wave-clue i {
+  font-family: var(--body);
+  font-style: normal;
+  font-weight: 800;
+  font-size: 0.6em;
+  opacity: 0.8;
+}
+.turn-banner.signal-note {
+  display: inline-flex;
+  margin-top: 0;
+  font-family: var(--display);
+  font-size: 1.3rem;
+}
+
+/* Em Sintonia: a match turns the result line green. */
+.sync-match .do-now.calm {
+  background: var(--good-bg);
+  box-shadow: 0 0.3rem 0 var(--mint-d), 0 0.6rem 1.2rem rgba(31, 42, 68, 0.12);
+}
+.sync-tv-word i {
+  font-size: 0.85em;
+  color: var(--ink-2);
+}
+.sync-chain .kicker {
+  color: var(--ink-2);
+}
+
+/* Desenha!: the board fits under the do-now line; the hint shows each word as its own group. */
+.draw-board {
+  height: min(56vh, 60vw);
+  max-width: 66vw;
+}
+.draw-hint-tv {
+  display: inline-flex;
+  gap: 1.1em;
+  letter-spacing: 0.1em;
+  font-size: 1.6em;
+}
+.draw-hint-tv .hint-word {
+  white-space: nowrap;
+}
+.gallery-grid figcaption {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  font-size: 1.3rem;
+}
+.gallery-grid figcaption b {
+  font-size: 1.15em;
+}
+.gallery-grid figcaption small,
+.gallery-grid small {
+  font-size: 1.3rem;
+  color: var(--ink-2);
+}
+.gallery-grid canvas {
+  width: 12rem;
+  height: 12rem;
+}
+
+/* Stop!: the categories card hugs its content; the vote legend explains the marks. */
+.stop-cats {
+  width: fit-content;
+  max-width: min(66vw, 80rem);
+  grid-template-columns: repeat(4, minmax(9rem, auto));
+}
+.stop-cat {
+  font-size: 1em;
+}
+.stop-cat i {
+  font-size: 0.8em;
+  color: var(--ink-2);
+  opacity: 1;
+}
+.stop-shout {
+  font-size: 2.2em;
+}
+.stop-row .hint {
+  font-size: 1.2rem;
+  color: var(--ink-2);
+}
+.stop-row .cell .fix {
+  font-size: 1.2rem;
+}
+.stop-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4em 1.4em;
+  font-size: 1.25rem;
+  color: var(--ink-2);
+  font-weight: 700;
+}
+.stop-legend b {
+  font-weight: 900;
+  color: var(--navy);
+}
+.stop-legend b.ok {
+  color: var(--mint-d);
+}
+.stop-legend b.pending {
+  color: var(--sun-d);
+}
+.stop-final {
+  position: relative;
+  top: auto;
+}
+
+/* Cozinha: the tip is a second line right under the do-now; ticket glosses are readable. */
+.kitchen-tip {
+  position: relative;
+  left: auto;
+  bottom: auto;
+  max-width: 44vw;
+  padding: 0.3em 1em;
+}
+.kitchen-tip b {
+  font-size: 1.1em;
+}
+.kitchen-tip i {
+  font-size: 0.85em;
+}
+.ticket-text.listen i,
+.ticket-text.phone i {
+  font-style: normal;
+  font-family: var(--body);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--ink-2);
+}
+.ticket-text.phone span {
+  font-size: 1em;
+}
+.tray-items .muted {
+  font-size: 1.3rem;
+}
+.ticket-no {
+  font-size: 1.3rem;
+  color: var(--ink-2);
+}
+
+/* Batata Quente: the countdown rides on the spark; the steal card's label is the who. */
+.wick-secs {
+  right: auto;
+  top: -3.2rem;
+  transform: translateX(-50%);
+  animation: none;
+}
+.bomb-steal .kicker {
+  color: var(--coral-d);
+}
+.bomb-steal .bs-res,
+.bomb-question .bs-res {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--display);
+}
+.bomb-steal .bs-res i,
+.bomb-question .bs-res i {
+  font-family: var(--body);
+  font-style: normal;
+  font-size: 1.2rem;
+  color: var(--ink-2);
+}
+.bq-opt {
+  font-size: 1.3em;
+}
+
+/* Quem faz o quê?: the endings key is a labelled table (persons across, -ar / -er down). */
+.verbs-endings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 66vw;
+}
+.ve-table {
+  display: grid;
+  grid-template-columns: auto repeat(5, auto);
+  gap: 0.2rem 1.4rem;
+  align-items: baseline;
+  font-size: 1.4rem;
+}
+.ve-person {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--navy);
+  text-align: center;
+  border-bottom: 0.12rem solid var(--line);
+}
+.ve-head {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--sky-p-d);
+  white-space: nowrap;
+}
+.ve-head i {
+  font-family: var(--body);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 0.85em;
+  color: var(--ink-2);
+}
+.ve-table > b {
+  text-align: center;
+  white-space: nowrap;
+  font-size: 1.15em;
+}
+.verbs-card .kicker {
+  font-size: 1.2rem;
+}
+.verbs-row span small {
+  font-size: 1.2rem;
+  color: var(--ink-2);
+}

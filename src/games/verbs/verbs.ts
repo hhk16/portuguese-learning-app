@@ -419,7 +419,8 @@ export class QuemFazOQue implements Activity {
     if (this.phase === "reveal") {
       const m = theirs;
       const ok = !!m?.result && m.result.form && m.result.person && m.result.verb;
-      return { mode: "wait", title: ok ? "Em cheio! 🎉" : "Olha para a TV!", subtitle: "Both messages and the whole verb rows are on the TV.", pic: ok ? "🥳" : "🧩" };
+      const next = this.final || this.hearts <= 0 ? "then the results" : "then new cards";
+      return { mode: "wait", title: ok ? "Em cheio! 🎉" : "Vê na TV o que falhou", subtitle: `Os dois verbos estão na TV · Both verbs are on the TV — ${next}`, pic: ok ? "🥳" : "🧩" };
     }
     const base = { mode: "verbs" as const, roundId: this.roundId, promptId: this.promptId, round: Math.max(0, this.round), rounds: ROUNDS, hearts: this.hearts, msLeft: this.inPractice ? undefined : this.msLeft, practice: this.inPractice || undefined, final: this.final || undefined };
     if (this.phase === "pick" && mine) {
