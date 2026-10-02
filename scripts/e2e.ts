@@ -725,7 +725,7 @@ while (Date.now() - start < LIMIT) {
     });
     if (spill.length) console.log(`LAYOUT: results card overflow (${spill.join(", ")})`);
     resultsSeen++;
-    console.log(`results after ${NIGHT ? kicker : MODES[modeIndex]}: ${(await tv.textContent(".results-card h1"))?.trim()} · ${((await tv.textContent(".results-card > p.muted").catch(() => "")) ?? "").trim().slice(0, 160)}`);
+    console.log(`results after ${NIGHT ? kicker : MODES[modeIndex]}: ${(await tv.textContent(".results-card h1"))?.trim()} · ${((await tv.locator(".results-hero p").allTextContents().catch(() => [])) ?? []).join(" · ").trim().slice(0, 160)}`);
     if (NIGHT) {
       if (kicker.startsWith("Fim da noite")) {
         await tv.waitForTimeout(6000 * PACE);

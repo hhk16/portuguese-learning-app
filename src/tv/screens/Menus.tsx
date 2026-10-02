@@ -332,6 +332,13 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
         <div className="results-hero">
           <h1 className="display">{info.headline}</h1>
           {enLine ? <p className="en-line">{enLine}</p> : info.sub && <p className="en-line">{info.sub}</p>}
+          {/* A loss always says why ("Acabaram-se as vidas!"). */}
+          {!info.win && enLine && info.sub && (
+            <p className="results-why">
+              {info.sub}
+              {info.subEn && <i> · {info.subEn}</i>}
+            </p>
+          )}
         </div>
         {a.awards.size > 0 && (
           <div className="xp-row">

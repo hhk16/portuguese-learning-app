@@ -4384,3 +4384,18 @@ html.tv-root #root {
   color: var(--coral);
   line-height: 1;
 }
+.results-hero .results-why {
+  margin: 0.35em 0 0;
+  padding: 0.2em 0.8em;
+  border-radius: 0.8em;
+  display: inline-block;
+  background: var(--bad-bg);
+  color: var(--coral-d);
+  font-weight: 800;
+  font-size: 1.05em;
+  white-space: pre-line;
+}
+.results-hero .results-why i {
+  font-style: normal;
+  color: var(--ink-2);
+}
