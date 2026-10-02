@@ -171,12 +171,15 @@ body,
   background: var(--white);
   border-left: 6px solid var(--pc);
   box-shadow: 0 3px 0 rgba(31, 42, 68, 0.06);
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 800;
   line-height: 1.35;
   color: var(--ink-2);
+  flex: none;
 }
 .p-callout b {
-  font-size: 20px;
+  font-size: 22px;
+  line-height: 1.15;
   color: var(--navy);
 }
 .p-callout.soft {
@@ -393,7 +396,8 @@ body,
 }
 .learn-instr small {
   font-size: 16px;
-  color: var(--ink-3);
+  font-weight: 800;
+  color: var(--ink-2);
 }
 .learn-card {
   padding: 16px;
@@ -1197,8 +1201,6 @@ body,
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  max-height: 220px;
-  overflow-y: auto;
 }
 .clue-callout b {
   display: flex;
@@ -1292,11 +1294,24 @@ body,
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 8px;
-  padding: 6px 6px 6px 12px;
+  padding: 4px 4px 4px 12px;
   border-radius: 999px;
-  background: var(--sky-p, #4ba3f5);
-  color: #fff;
+  /* Light, outlined: practice is a quiet status, never louder than the game. */
+  background: var(--white);
+  border: 2px solid color-mix(in srgb, var(--sky-p) 45%, white);
+  color: var(--sky-p-d);
   font-size: 15px;
+  font-weight: 800;
+  flex: none;
+}
+.practice-bar small {
+  font-size: 15px;
+  color: var(--ink-2);
+  margin-left: 4px;
+}
+.practice-bar .btn.mini {
+  box-shadow: none;
+  background: color-mix(in srgb, var(--sky-p) 12%, white);
 }
 .final-pics {
   display: grid;

@@ -36,7 +36,7 @@ export function Controller({ view, conn }: { view: ControllerView; conn: PhoneCo
       {"practice" in view && view.practice && (
         <div className="practice-bar">
           <span>
-            🎓 <b>Ensaio</b> · Practice — doesn't count
+            🎓 Ensaio · não conta<small>Practice</small>
           </span>
           <button className="btn white mini" onClick={() => conn.input(view.roundId, view.promptId, { mode: "skip" })}>
             Saltar · Skip
@@ -107,6 +107,7 @@ function Lobby({ v, conn }: { v: ViewOf<"lobby">; conn: PhoneConnection }) {
       <div className="kicker">A seguir · Up next</div>
       <div className="p-big">{v.hint}</div>
       <div className="p-sub">{v.ready ? "Estás pronto! À espera dos outros… · Ready! Waiting for the others…" : "Carrega quando estiveres pronto. · Tap when you're ready."}</div>
+      {v.level !== undefined && <div className="kicker picker-label">Dificuldade · Difficulty</div>}
       {v.level !== undefined && (
         <div className="level-picker">
           <button className="btn white" disabled={v.level <= 1} onClick={() => conn.nav("left")} aria-label="Mais fácil">
@@ -123,13 +124,13 @@ function Lobby({ v, conn }: { v: ViewOf<"lobby">; conn: PhoneConnection }) {
           </button>
         </div>
       )}
+      {v.topic !== undefined && <div className="kicker picker-label">Palavras · Words</div>}
       {v.topic !== undefined && (
         <div className="level-picker topic-picker">
           <button className="btn white" onClick={() => conn.nav("up")} aria-label="Anterior">
             ▲
           </button>
           <span className="bi">
-            <small>Palavras · Words</small>
             <b>{v.topic}</b>
           </span>
           <button className="btn white" onClick={() => conn.nav("down")} aria-label="Seguinte">
@@ -163,7 +164,7 @@ function Paused({ conn }: { conn: PhoneConnection }) {
   return (
     <div className="p-center">
       <div className="p-big">Pausa</div>
-      <div className="p-sub">Paused</div>
+      <div className="p-sub">Paused — o jogo está parado na TV · the game is on hold</div>
       <div className="p-grow" />
       <button className="btn block mint p-hero-btn" onClick={() => conn.menu("resume")}>
         <span className="bi">
@@ -172,7 +173,7 @@ function Paused({ conn }: { conn: PhoneConnection }) {
       </button>
       <button className="btn block white" onClick={() => conn.menu("restart")}>
         <span className="bi">
-          Recomeçar<small>Restart</small>
+          Recomeçar este jogo<small>Restart this game</small>
         </span>
       </button>
       <button className="btn block white" onClick={() => conn.menu("quit")}>
@@ -225,9 +226,11 @@ function Pick({ v, send }: { v: ViewOf<"pick">; send: Send }) {
   const [sent, setSent] = useState(false);
   return (
     <div className="p-col">
-      <div className="p-big center">{v.title}</div>
-      {v.subtitle && <div className="p-sub center">{v.subtitle}</div>}
-      <div className="p-grow" />
+      <div className="p-callout">
+        <b className="display">{v.title}</b>
+        {v.subtitle && <span>{v.subtitle}</span>}
+      </div>
+      {v.roundId === "results" && <div className="kicker">E agora? · What next?</div>}
       <div className="pick-list">
         {v.options.map((o, i) => (
           <button
@@ -248,6 +251,7 @@ function Pick({ v, send }: { v: ViewOf<"pick">; send: Send }) {
           </button>
         ))}
       </div>
+      <div className="p-grow" />
     </div>
   );
 }
