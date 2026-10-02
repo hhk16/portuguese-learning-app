@@ -134,20 +134,25 @@ export function VerbsScreen({ a }: { a: QuemFazOQue }) {
         {a.rules.endings && (a.phase === "write" || a.phase === "read") && (
           <div className="card verbs-endings">
             <span className="kicker">Terminações · Endings</span>
+            {/* Persons across, the two verb groups down: every cell says which column it is. */}
             <div className="ve-table">
-              <span className="ve-head" />
+              <span className="ve-corner" />
+              {ENDINGS.map((e) => (
+                <span key={e.person} className="ve-person">
+                  {e.person}
+                </span>
+              ))}
               <span className="ve-head">
                 -ar <i>falar</i>
               </span>
+              {ENDINGS.map((e) => (
+                <b key={e.person}>{e.ar}</b>
+              ))}
               <span className="ve-head">
                 -er <i>comer</i>
               </span>
               {ENDINGS.map((e) => (
-                <span key={e.person} className="ve-row">
-                  <small>{e.person}</small>
-                  <b>{e.ar}</b>
-                  <b>{e.er}</b>
-                </span>
+                <b key={e.person}>{e.er}</b>
               ))}
             </div>
           </div>

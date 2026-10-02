@@ -28,7 +28,7 @@ function TipCard({ tip, onSend }: { tip: NonNullable<V["tip"]>; onSend: (text: s
         <span className={`pill ${left < 4000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>
       </span>
       <span className="muted">
-        Tip +{tip.bonus}: type it in Portuguese{tip.en ? ` (${tip.en})` : ""}, with its o / a
+        Tip +{tip.bonus}: type its name{tip.en ? ` (${tip.en})` : ""} in Portuguese, with o / a
       </span>
       <span className="sync-form">
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder="o … / a …" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} autoFocus />
@@ -55,7 +55,7 @@ function CallCard({ call, onSend }: { call: NonNullable<V["call"]>; onSend: (tex
       }}
     >
       <span className="tip-ask">
-        <b className="display">📞 Pedido por telefone!</b>
+        <b className="display">📞 Escreve o pedido!</b>
         <span className={`pill ${left < 6000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>
       </span>
       <span className="call-items">
@@ -66,10 +66,27 @@ function CallCard({ call, onSend }: { call: NonNullable<V["call"]>; onSend: (tex
           </span>
         ))}
       </span>
-      <span className="muted">Write this order in Portuguese — your partner cooks from what you write! (um/uma, dois/duas…)</span>
-      <span className="sync-form">
-        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Queria … , por favor." autoCapitalize="sentences" autoCorrect="off" spellCheck={false} maxLength={120} autoFocus />
-        <button className="btn player" type="submit" disabled={!text.trim()}>
+      <span className="muted">Write it in Portuguese — your partner cooks what you write.</span>
+      {/* Two lines, full width: the whole sentence stays visible while you write it. */}
+      <span className="sync-form call-form">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value.replace(/\n/g, " "))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              e.currentTarget.form?.requestSubmit();
+            }
+          }}
+          rows={2}
+          placeholder="Queria … , por favor."
+          autoCapitalize="sentences"
+          autoCorrect="off"
+          spellCheck={false}
+          maxLength={120}
+          autoFocus
+        />
+        <button className="btn player block" type="submit" disabled={!text.trim()}>
           OK
         </button>
       </span>
@@ -104,13 +121,10 @@ export function Kitchen({ v, send }: { v: V; send: Send }) {
       {v.rush && (
         <div className="p-warn rush">🔥 Hora de ponta! ×2 · Rush hour!</div>
       )}
-      {v.served === 0 && (
-        <div className="p-callout soft">
-          <b className="display">Ouve os pedidos na TV</b>
-          <span>
-            Listen to the orders on the TV. Tap your food; ask your partner for
-            the rest!
-          </span>
+      {v.served === 0 && !v.tip && !v.call && (
+        <div className="p-callout">
+          <b className="display">Ouve o pedido na TV</b>
+          <span>You don&apos;t have everything — ask your partner!</span>
         </div>
       )}
       <div className="kicker">A tua despensa · Your pantry</div>

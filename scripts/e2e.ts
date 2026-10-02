@@ -635,7 +635,7 @@ async function kitchenStep(b: Bot, v: View) {
       form === ".call-card"
         ? r < b.skill ? dc.call! : dc.call!.replace(/\buma\b/, "um").replace(/\bduas\b/, "dois")
         : r < b.skill ? dc.tip! : r < b.skill + 0.1 ? dc.tip!.replace(/^(o|a) /, "") : "o queijo";
-    const filled = await pg.fill(`${form} input`, text, { timeout: 1500 }).then(() => true).catch(() => false);
+    const filled = await pg.fill(`${form} input, ${form} textarea`, text, { timeout: 1500 }).then(() => true).catch(() => false);
     await shoot(form === ".call-card" ? "kitchen-call" : "kitchen-tip", b);
     if (filled) await pg.locator(`${form} .btn`).click({ timeout: 1500 }).catch(() => {});
     return;
