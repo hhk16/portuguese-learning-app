@@ -70,7 +70,7 @@ export const GAMES: GameInfo[] = [
   { mode: "draw", name: "Desenha!", pic: "🎨", kind: "Juntos · desenhar", how: "Um desenha no telemóvel, o outro adivinha a palavra.", howEn: "One draws on the phone, the other guesses the word." },
   { mode: "stop", name: "Stop!", pic: "⏱️", kind: "Um contra o outro · escrever", how: "Uma letra, quatro categorias. Quem acaba grita STOP!", howEn: "One letter, four categories. First to finish shouts STOP!" },
   { mode: "kitchen", name: "Cozinha Caótica", pic: "🧑‍🍳", kind: "Juntos · correria", how: "Os clientes pedem em português. Sirvam depressa!", howEn: "Customers order in Portuguese. Serve fast!" },
-  { mode: "verbs", name: "Quem faz o quê?", pic: "🧩", kind: "Juntos · verbos", how: "Um escreve o verbo, o outro lê quem o faz.", howEn: "One writes the verb, the other reads who's doing it." },
+  { mode: "verbs", name: "Quem faz o quê?", pic: "🧩", kind: "Juntos · verbos", how: "Os dois escrevem um verbo; depois troquem e leiam quem o faz.", howEn: "Both write a verb, then swap and read who's doing it." },
   { mode: "bomb", name: "Batata Quente", pic: "🥔", kind: "Um contra o outro · rapidez", how: "Responde certo e passa a batata. Quando explodir, não a queiras na mão!", howEn: "Answer right to pass the potato. Don't be holding it when it blows!" },
 ];
 
@@ -141,7 +141,9 @@ export class TitleActivity implements Activity {
       return LESSONS.filter((l) => unitOf(l.unit)?.id === this.unitId).map((l) => ({
         id: `lesson:${l.id}`,
         label: l.title,
-        sub: unitOf(l.unit)?.short ?? "",
+        // The unit is already in the breadcrumb: say what's inside instead.
+        sub: `${l.itemIds.length} palavras e frases`,
+        subEn: `${l.itemIds.length} words and phrases`,
         pic: lessonPic(l),
         badge: l.id === next ? "Próxima" : undefined,
         stars: done.has(l.id) ? (stars[l.id] ?? 1) : 0,
@@ -1071,11 +1073,12 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
                 words: s.words,
                 xp: "lesson",
                 options: lost
-                  ? [retry, { id: "again", label: "Repetir a lição", pic: "🔁", go: go({ ...spec, rushOnly: undefined }) }, ...games().map((o) => ({ ...o, sub: "Jogar com estas palavras" })), menu]
+                  ? [retry, { id: "again", label: "Repetir a lição", sub: "Repeat the lesson", pic: "🔁", go: go({ ...spec, rushOnly: undefined }) }, ...games(), menu]
                   : [
-                      ...games().map((o) => ({ ...o, sub: "Jogar com estas palavras" })),
+                      // Next lesson first (and focused); then games with these words.
                       { id: "next", label: "Próxima lição", sub: next.title, pic: "➡️", go: go({ mode: "lesson", lessonId: next.id }) },
-                      { id: "again", label: "Repetir a lição", pic: "🔁", go: go({ ...spec, rushOnly: undefined }) },
+                      ...games(),
+                      { id: "again", label: "Repetir a lição", sub: "Repeat the lesson", pic: "🔁", go: go({ ...spec, rushOnly: undefined }) },
                       menu,
                     ],
               }),

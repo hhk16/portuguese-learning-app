@@ -378,11 +378,11 @@ export class TvRuntime {
 
   /* --------------------------------- pause --------------------------------- */
 
-  get pauseItems(): { id: "resume" | "restart" | "quit"; label: string }[] {
+  get pauseItems(): { id: "resume" | "restart" | "quit"; label: string; en: string }[] {
     return [
-      { id: "resume", label: "Continuar" },
-      { id: "restart", label: "Recomeçar" },
-      { id: "quit", label: "Sair para o menu" },
+      { id: "resume", label: "Continuar", en: "Resume" },
+      { id: "restart", label: "Recomeçar este jogo", en: "Restart this game" },
+      { id: "quit", label: "Sair para o menu", en: "Quit to the menu" },
     ];
   }
 

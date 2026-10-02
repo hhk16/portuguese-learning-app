@@ -9,7 +9,7 @@ import { Picture } from "../../ui/Picture.tsx";
 import { PlayerChip } from "../../ui/Face.tsx";
 import { GAMES, HOW_TO, specPic, toNextStar, type ChampionActivity, type GalleryItem, type LobbyActivity, type ResultsActivity, type TitleActivity } from "../activities.ts";
 import { gameNow } from "../clock.ts";
-import { useRuntime } from "../runtime.ts";
+import { useRuntime, type RuntimePlayer } from "../runtime.ts";
 import { LEVELS } from "../progress.ts";
 import { BADGES, dayKey, levelOf, levelProgress, levelTitle, statsOf, streakOf, wordsKnown, xpForLevel } from "../stats.ts";
 import { unitOf, UNITS } from "../../curriculum/units.ts";
@@ -76,7 +76,7 @@ function windowed<T>(items: T[], focus: number, rows: number, cols: number): { i
 
 export function TitleScreen({ a }: { a: TitleActivity }) {
   const items = a.items;
-  const grid = a.menu === "unit" ? 4 : a.menu === "learn" || a.menu === "play" ? 3 : 1;
+  const grid = a.menu === "unit" ? 4 : a.menu === "learn" || a.menu === "play" ? 3 : a.menu === "main" ? 2 : 1;
   const shown = a.menu === "unit" ? windowed(items, a.focus, 2, 4) : a.menu === "learn" ? windowed(items, a.focus, 3, 3) : items.map((it, i) => ({ it, i }));
   return (
     <div className="tv-overlay title-screen">
@@ -97,8 +97,8 @@ export function TitleScreen({ a }: { a: TitleActivity }) {
               {it.pic && <Picture glyph={it.pic} size={grid === 1 ? "3.4em" : "2.8em"} />}
               <div className="mc-text">
                 <div className="mc-label display">{it.label}</div>
-                {it.sub && <div className="mc-sub">{it.sub}</div>}
-                {it.subEn && <div className="mc-en">{it.subEn}</div>}
+                {it.sub && a.menu !== "main" && <div className="mc-sub">{it.sub}</div>}
+                {it.subEn && <div className="mc-en">{a.menu === "main" ? it.subEn.replace(/^[^:]*:\s*/, "") : it.subEn}</div>}
               </div>
               {it.badge && <span className="badge">{it.badge}</span>}
               {it.stars !== undefined && it.stars > 0 && <Stars n={it.stars} />}
@@ -235,41 +235,50 @@ export function LobbyScreen({ a }: { a: LobbyActivity }) {
             </li>
           ))}
         </ol>
-        {a.picksLevel && (
-          <div className="level-row">
-            <span className="kicker">Dificuldade · Difficulty</span>
-            <div className="level-pills">
-              {([1, 2, 3] as const).map((l) => (
-                <span key={l} className={`level-pill ${a.level === l ? "on" : ""}`}>
-                  <b>{LEVELS[l - 1]!.pt}</b>
-                  <i>
-                    {LEVELS[l - 1]!.en} {LEVELS[l - 1]!.stars}
-                  </i>
+        {(a.picksLevel || a.picksTopic) && (
+          <div className="lobby-settings">
+            {a.picksLevel && (
+              <div className="level-row">
+                <span className="kicker">Dificuldade · Difficulty</span>
+                <div className="level-pills">
+                  {([1, 2, 3] as const).map((l) => (
+                    <span key={l} className={`level-pill ${a.level === l ? "on" : ""}`}>
+                      <b>{LEVELS[l - 1]!.pt}</b>
+                      <i>
+                        {LEVELS[l - 1]!.en} {LEVELS[l - 1]!.stars}
+                      </i>
+                    </span>
+                  ))}
+                </div>
+                {a.best !== null && <span className="muted">Recorde · Best: {a.best}</span>}
+              </div>
+            )}
+            {a.picksTopic && (
+              <div className="level-row topic-row">
+                <span className="kicker">Palavras · Words</span>
+                <span className="level-pill on">
+                  <b>{a.topic.pt}</b>
+                  <i>{a.topic.en}</i>
                 </span>
-              ))}
-            </div>
-            <span className="muted">{a.best !== null ? `Recorde · Best: ${a.best}` : "◀ ▶ no telemóvel · on your phone"}</span>
+              </div>
+            )}
+            <span className="settings-hint">📱 Muda no telemóvel · change it on your phone</span>
           </div>
         )}
-        {a.picksTopic && (
-          <div className="level-row topic-row">
-            <span className="kicker">Palavras · Words</span>
-            <span className="level-pill on">
-              <b>{a.topic.pt}</b>
-              <i>{a.topic.en}</i>
+        <div className="lobby-go">
+          <div className={`do-now ${need ? "alert" : ""}`}>
+            <span className="dn-text">
+              <b className="display">{need ? "Falta uma pessoa!" : "Os dois: «Estou pronto»"}</b>
+              <i>{need ? "This game needs two players — join with the QR code" : "Both press “I'm ready” on your phone"}</i>
             </span>
-            <span className="muted">▲ ▼ no telemóvel · choose a unit on your phone</span>
+            {!need && <span className="dn-phone">📱</span>}
           </div>
-        )}
-        <div className="ready-row">
-          {players.map((p) => (
-            <PlayerChip key={p.playerId} p={p} size="2.4em" extra={<span className={`ready-tag ${p.ready ? "on" : ""}`}>{p.ready ? "Pronto!" : "…"}</span>} />
-          ))}
-          {players.length === 0 && <span className="muted">Entrem com o telemóvel →</span>}
-        </div>
-        <div className="lobby-foot">
-          {need ? "Este jogo precisa de duas pessoas." : "Carreguem em “Estou pronto” no telemóvel."}
-          <i>{need ? "This game needs two players." : "Press “Estou pronto” (I'm ready) on your phone."}</i>
+          <div className="ready-row">
+            {players.map((p) => (
+              <PlayerChip key={p.playerId} p={p} size="2.2em" extra={<span className={`ready-tag ${p.ready ? "on" : ""}`}>{p.ready ? "Pronto! ✓" : "…"}</span>} />
+            ))}
+            {players.length === 0 && <span className="muted">Entrem com o telemóvel →</span>}
+          </div>
         </div>
       </div>
       <div className="lobby-side">
@@ -333,21 +342,21 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
               const t = levelTitle(lvl);
               return (
                 <div key={p.playerId} className={`xp-card ${aw.levelUp ? "up" : ""}`}>
-                  <PlayerChip p={p} size="1.8em" />
+                  <PlayerChip p={p} size="1.6em" />
                   <span className="xp-gain display">+{aw.gain} XP</span>
-                  <span className="xp-level">
-                    <b>Nível {lvl}</b> <i>{t.pt}</i>
-                    <span className="xp-bar">
-                      <span style={{ width: `${Math.round(levelProgress(aw.after) * 100)}%` }} />
-                    </span>
+                  <span className="xp-lvl">
+                    Nível {lvl} <i>{t.pt}</i>
                   </span>
                   {aw.streak >= 1 && <span className="xp-streak">🔥 {aw.streak}</span>}
-                  {aw.newBadges.slice(0, 2).map((b) => (
-                    <span key={b.pt} className="xp-badge" title={b.en}>
-                      {b.pic} {b.pt}
-                    </span>
-                  ))}
-                  {aw.levelUp && <span className="xp-up display">Subiu de nível! 🎉</span>}
+                  {aw.levelUp ? (
+                    <span className="xp-up-inline display">Subiu de nível! 🎉</span>
+                  ) : (
+                    aw.newBadges.slice(0, 1).map((b) => (
+                      <span key={b.pt} className="xp-badge" title={b.en}>
+                        {b.pic} {b.pt}
+                      </span>
+                    ))
+                  )}
                 </div>
               );
             })}
@@ -460,7 +469,10 @@ export function PauseScreen() {
         <div className="pause-menu">
           {rt.pauseItems.map((it, i) => (
             <div key={it.id} className={`next-item ${i === rt.pauseFocus ? "focus" : ""}`}>
-              <b>{it.label}</b>
+              <span>
+                <b>{it.label}</b>
+                <small>{it.en}</small>
+              </span>
             </div>
           ))}
         </div>
@@ -479,7 +491,6 @@ export function MetaBar({ score, max }: { score: number; max: number }) {
   const stars = [0.35, 0.6, 0.85];
   return (
     <span className="meta-bar pill" title="Meta · Target">
-      <span className="meta-label">Meta</span>
       <span className="meta-track">
         <span className="meta-fill" style={{ width: `${f * 100}%` }} />
         {stars.map((s, i) => (
@@ -505,7 +516,7 @@ export function GameTop({ title, pic, children }: { title: string; pic?: string;
       <div className="game-status">
         {practicing && (
           <span className="pill practice-pill">
-            🎓 Ensaio <i>Practice — doesn't count</i>
+            🎓 Ensaio <i>· não conta · practice</i>
           </span>
         )}
         {children}
@@ -548,6 +559,25 @@ export function HostBubble() {
 }
 
 /** The big one-verb command ("Ana: Roda o mostrador! · Turn the dial!"), with a phone pointer. */
+/**
+ * The one "do this now" line of a game screen, always in the same slot under the game's title bar:
+ * Portuguese big, English underneath, 📱 when it happens on the phones. It pulses whenever the game
+ * gives a new command (the old floating command banner stays hidden while a DoNow is on screen).
+ */
+export function DoNow({ who, pt, en, phone, tone }: { who?: RuntimePlayer; pt: string; en?: string; phone?: boolean; tone?: "calm" | "alert" }) {
+  const rt = useRuntime();
+  return (
+    <div className={`do-now ${tone ?? ""}`} key={`${rt.command?.seq ?? 0}:${pt}`}>
+      {who && <PlayerChip p={who} size="1.6em" />}
+      <span className="dn-text">
+        <b className="display">{pt}</b>
+        {en && <i>{en}</i>}
+      </span>
+      {phone && <span className="dn-phone">📱</span>}
+    </div>
+  );
+}
+
 export function Command() {
   const rt = useRuntime();
   const c = rt.command;

@@ -103,6 +103,12 @@ html.tv-root #root {
   grid-template-columns: 1fr;
   max-width: 34rem;
 }
+.menu.grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.menu.grid-2 .menu-card {
+  padding: 0.9em 1em;
+}
 .menu.grid-3 {
   grid-template-columns: repeat(3, 1fr);
 }
@@ -141,7 +147,7 @@ html.tv-root #root {
   font-size: 1em;
 }
 .menu-card .mc-sub {
-  font-size: 0.62em;
+  font-size: 0.75em;
   color: var(--ink-2);
   margin-top: 0.2em;
   line-height: 1.25;
@@ -181,7 +187,7 @@ html.tv-root #root {
   text-shadow: 0 0.08em 0 var(--sun-d);
 }
 .menu-foot {
-  font-size: 0.7em;
+  font-size: 0.8em;
   color: var(--navy);
   background: rgba(255, 255, 255, 0.75);
   padding: 0.5em 1em;
@@ -243,10 +249,44 @@ html.tv-root #root {
 }
 .lobby-card {
   flex: 0 0 56%;
-  padding: 2rem 2.2rem;
+  max-height: 100%;
+  overflow: hidden;
+  padding: 1.8rem 2.2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.4rem;
+  gap: 1.1rem;
+}
+/* Settings (difficulty, words) in one quiet box; changed from the phone. */
+.lobby-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  border-radius: 1rem;
+  background: var(--cream);
+  font-size: 0.8em;
+}
+.lobby-settings .level-row {
+  gap: 0.8rem;
+}
+.lobby-settings .kicker {
+  min-width: 9.5em;
+}
+.settings-hint {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--ink-2);
+}
+/* Getting started: the one thing to do (yellow) above who's ready. */
+.lobby-go {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-top: auto;
+}
+.lobby-go .do-now {
+  align-self: flex-start;
 }
 .lobby-title {
   display: flex;
@@ -289,8 +329,8 @@ html.tv-root #root {
 }
 .how .rule i {
   font-style: normal;
-  font-size: 0.8em;
-  color: var(--ink-3);
+  font-size: 0.9em;
+  color: var(--ink-2);
 }
 .how .n {
   flex: none;
@@ -313,7 +353,7 @@ html.tv-root #root {
   background: var(--cream);
 }
 .ready-tag {
-  font-size: 0.75em;
+  font-size: 0.85em;
   padding: 0.15em 0.6em;
   border-radius: 999px;
   background: #eee8dc;
@@ -323,17 +363,6 @@ html.tv-root #root {
   background: var(--good-bg);
   color: var(--mint-d);
 }
-.lobby-foot {
-  font-size: 0.7em;
-  color: var(--ink-3);
-  display: flex;
-  flex-direction: column;
-}
-.lobby-foot i {
-  font-style: normal;
-  font-size: 0.85em;
-}
-
 /* The host's subtitle bubble (bottom centre, above the stage). */
 /* Pipo the host stands bottom-left, beside the first player; his subtitles run along the bottom
    (a caption strip the game layouts keep free). */
@@ -352,7 +381,7 @@ html.tv-root #root {
   left: 1vw;
 }
 .pipo.at-lobby {
-  left: 2vw;
+  left: 57vw;
 }
 .pipo.pose-cheer {
   animation: pipo-hop 0.5s ease-out 2;
@@ -1816,9 +1845,9 @@ html.tv-root #root {
 }
 .menu-card .mc-en {
   margin-top: 0.15em;
-  font-size: 0.55em;
-  font-style: italic;
-  color: var(--ink-3);
+  font-size: 0.75em;
+  font-weight: 700;
+  color: var(--ink-2);
 }
 .review-pill {
   background: var(--sky-p);
@@ -1833,13 +1862,13 @@ html.tv-root #root {
   color: #f6c9dc;
 }
 .practice-pill {
-  background: var(--sky-p);
-  color: #fff;
+  background: var(--white);
+  color: var(--sky-p-d);
+  box-shadow: inset 0 0 0 0.15rem var(--sky-p);
 }
 .practice-pill i {
   font-style: normal;
-  font-size: 0.7em;
-  opacity: 0.85;
+  color: var(--ink-2);
 }
 .auto-go {
   margin-left: auto;
@@ -2199,7 +2228,7 @@ html.tv-root #root {
 /* Side-bet reveal: a card that flips in over the game, after the main reveal. */
 .bet-card {
   position: fixed;
-  top: 22vh;
+  top: 10.5vh;
   left: 50%;
   z-index: 40;
   min-width: 30rem;
@@ -2207,7 +2236,7 @@ html.tv-root #root {
   flex-direction: column;
   align-items: center;
   gap: 0.35rem;
-  padding: 1.1rem 2rem 1.3rem;
+  padding: 0.7rem 1.8rem 0.9rem;
   border: 0.3rem solid var(--sun);
   transform: translateX(-50%);
   animation: bet-flip 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) both;
@@ -2221,10 +2250,12 @@ html.tv-root #root {
   border-color: var(--coral);
 }
 .bet-card .bet-title {
-  font-size: 2.1em;
+  font-size: 1.6em;
 }
 .bet-card .bet-en {
-  color: var(--ink-3);
+  font-style: normal;
+  font-weight: 700;
+  color: var(--ink-2);
 }
 .bet-rows {
   display: flex;
@@ -3780,4 +3811,123 @@ html.tv-root #root {
 }
 .results-card .next-item {
   font-size: 0.9em;
+}
+.results-card .next-item small {
+  font-size: 0.8em;
+}
+/* The recommended next step: a full-width tile; the rest are smaller. */
+.results-card .next-list > .next-item:first-child {
+  grid-column: 1 / -1;
+  font-size: 1.05em;
+  background: #fff4c9;
+}
+.results-card .next-list > .next-item.focus {
+  background: var(--sun);
+}
+.xp-lvl {
+  font-weight: 800;
+  color: var(--navy);
+}
+.xp-lvl i {
+  font-style: normal;
+  color: var(--ink-2);
+}
+.xp-up-inline {
+  padding: 0.05em 0.6em;
+  border-radius: 999px;
+  background: var(--sun);
+  color: var(--navy);
+}
+
+/* ================================================================ clarity system (R13)
+ * Every game screen: title bar → ONE "do now" line (always here, same size) → the stage → the
+ * caption strip at the bottom (Pipo). Status lines are white and calm; only the do-now is yellow. */
+.do-now {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  min-height: 4.4rem;
+  max-width: 72vw;
+  padding: 0.4em 1.4em 0.4em 0.9em;
+  border-radius: 1.4rem;
+  background: var(--sun);
+  color: var(--navy);
+  box-shadow: 0 0.3rem 0 #d99a00, 0 0.6rem 1.2rem rgba(31, 42, 68, 0.18);
+  animation: do-now-in 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  flex: none;
+}
+.do-now .dn-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.12;
+}
+.do-now b {
+  font-size: 2.2rem;
+  font-weight: 600;
+}
+.do-now i {
+  font-style: normal;
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: var(--navy);
+  opacity: 0.8;
+}
+.do-now .dn-phone {
+  font-size: 2.2rem;
+  animation: phone-nudge 0.6s ease-in-out infinite alternate;
+}
+.do-now.calm {
+  background: var(--white);
+  box-shadow: 0 0.3rem 0 #e3dccb, 0 0.6rem 1.2rem rgba(31, 42, 68, 0.12);
+}
+.do-now.alert {
+  background: var(--coral);
+  color: #fff;
+  box-shadow: 0 0.3rem 0 var(--coral-d);
+}
+.do-now.alert i {
+  color: #fff;
+}
+@keyframes do-now-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+/* While a screen has its do-now line, the floating command banner and the old goal line stay hidden. */
+.tv:has(.do-now) .command,
+.tv-overlay:has(.do-now) .goal-line {
+  display: none;
+}
+/* Status (who is doing what): calm white, never an instruction. */
+.turn-banner {
+  font-size: 1.3rem;
+  color: var(--ink-2);
+}
+/* Text floors at 1080p: labels ≥ 22px, glosses ≥ 24px. */
+.tv .kicker {
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+}
+.bi-line i {
+  font-size: 0.9em;
+  color: var(--ink-2);
+}
+.host-bubble {
+  max-width: 44vw;
+}
+.host-bubble b {
+  font-size: 1.6rem;
+}
+.host-bubble i {
+  font-size: 1.2rem;
+  color: var(--ink-2);
+}
+/* The caption strip (Pipo + subtitles) stays free of game content. */
+.game-screen {
+  padding-bottom: 12vh;
+}
+/* During games the join badge steps back (it's still scannable). */
+.game-top .join-badge {
+  opacity: 0.85;
 }

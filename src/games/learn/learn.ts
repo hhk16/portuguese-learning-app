@@ -421,12 +421,12 @@ export class LearnActivity implements Activity {
       this.rt.celebrate();
       if (r) {
         this.rt.say(SAY.lightningWon, { interrupt: true });
-        this.rt.petStar("cheer", 2600, PET.knew, 0.6, "center");
+        this.rt.petStar("cheer", 2600, PET.knew, 0.6, "right");
       }
     } else {
       play("fail-jingle");
       this.rt.say((r?.team ?? 0) >= 3 ? SAY.lightningLost : SAY.lightningLostFar, { interrupt: true });
-      this.rt.petStar("oops", 2600, undefined, 0, "center");
+      this.rt.petStar("oops", 2600, undefined, 0, "right");
     }
     const stars = this.graded ? this.stars / this.graded : 1;
     // The lesson only counts as done once its lightning round is beaten.
