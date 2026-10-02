@@ -5,7 +5,8 @@ import { ROUNDS } from "../../games/sync/sync.ts";
 import { Face } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
 import { gameNow } from "../clock.ts";
-import { GameTop, MetaBar } from "./Menus.tsx";
+import { DoNow, GameTop } from "./Menus.tsx";
+import { ScorePill } from "./ScorePill.tsx";
 
 export function SyncScreen({ a }: { a: EmSintonia }) {
   const [, force] = useState(0);
@@ -17,21 +18,38 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
   if (!a.pair) return null;
   const secs = Math.max(1, Math.ceil((a.phaseEnd - gameNow()) / 1000));
   return (
-    <div className="tv-overlay game-screen centered">
+    <div className={`tv-overlay game-screen centered ${a.phase === "reveal" && a.lastMatch ? "sync-match" : ""}`}>
       <GameTop title="Em Sintonia" pic="🤝">
-        <span className="pill">
+        <span className="pill round-pill">
           {a.inPractice ? "" : `Par ${Math.min(a.round + 1, ROUNDS)}/${ROUNDS} · `}tentativa {a.attempt}/{a.rules.tries}
+          {a.final && <b className="x2">×2</b>}
         </span>
-        {a.final && <span className="pill double-pill">×2</span>}
         {!a.inPractice && <span className="pill lives-pill">{"❤️".repeat(Math.max(0, a.lives))}{"🖤".repeat(Math.max(0, a.rules.lives - a.lives))}</span>}
         {a.phase === "write" && !a.inPractice && <span className={`pill clock ${a.msLeft < 8000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
-        <span className="pill star-pill">{a.score} pontos</span>
-        {!a.inPractice && <MetaBar score={a.score} max={a.maxScore} />}
+        <ScorePill score={a.score} max={a.maxScore} meta={!a.inPractice} />
       </GameTop>
-      {a.final && a.rules.wordsOnlyFinal && !a.pair[0].pic && (
-        <div className="goal-line">
-          📖 <b>Só palavras! Leiam bem.</b> <i>Last pair: words only, no pictures — read them!</i>
-        </div>
+      {a.phase === "write" ? (
+        <DoNow
+          pt="Uma palavra que ligue as duas!"
+          en={a.final && a.rules.wordsOnlyFinal && !a.pair[0].pic ? "Words only, no pictures — both write ONE linking word" : "Both write ONE word that links them"}
+          phone
+        />
+      ) : a.phase === "countdown" ? (
+        a.inPractice ? (
+          <DoNow tone="calm" pt="Vamos ver…" en="Here come your words…" />
+        ) : (
+          <DoNow pt="Vão coincidir? Apostem!" en="Will your words match? Predict on your phone" phone />
+        )
+      ) : a.phase === "sense" ? (
+        <DoNow pt="Faz sentido? Votem!" en="Same word — does it really link them? Vote on your phones" phone />
+      ) : a.phase === "reveal" ? (
+        <DoNow
+          tone="calm"
+          pt={a.lastMatch ? "Em sintonia! 🎉" : `${a.closeMiss ? "Quase!" : "Nada disso!"} ${a.attempt < a.rules.tries ? "Agora liguem as vossas palavras!" : a.inPractice ? "Próximo par!" : a.lives <= 0 ? "💔 Sem vidas!" : "Menos uma vida 💔"}`}
+          en={a.lastMatch ? "In sync!" : `${a.closeMiss ? "So close" : "Not quite"} — ${a.attempt < a.rules.tries ? "your two words become the next pair" : a.inPractice ? "next pair" : a.lives <= 0 ? "that was the last life" : "you lose a life"}`}
+        />
+      ) : (
+        <DoNow tone="calm" pt="Fim do jogo!" en="Game over" />
       )}
       <div className="sync-stage">
         <div className="card sync-tv-word">
@@ -46,12 +64,9 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
           {a.pair[1].en && <i>{a.pair[1].en}</i>}
         </div>
       </div>
-      <div className="sync-help" style={a.phase === "reveal" ? { visibility: "hidden" } : undefined}>
-        Uma palavra que ligue as duas <i>One word that links both — the same as your partner. Different? Your two words become the next pair.</i>
-      </div>
       {a.chain.length > 0 && (a.phase === "write" || a.phase === "countdown") && (
         <div className="sync-chain">
-          <span className="kicker">A corrente · The chain — meet in the middle!</span>
+          <span className="kicker">A corrente · The chain</span>
           {a.chain.map((c, i) => (
             <span key={i} className="chain-step">
               <i>
@@ -79,17 +94,6 @@ export function SyncScreen({ a }: { a: EmSintonia }) {
       {a.phase === "countdown" && (
         <div className="countdown display">
           <span key={secs}>{secs}</span>
-        </div>
-      )}
-      {a.phase === "sense" && (
-        <div className="sync-verdict display">
-          Faz sentido? 🤔<i>Same word — does it link them? Vote on your phones</i>
-        </div>
-      )}
-      {a.phase === "reveal" && (
-        <div className={`sync-verdict display ${a.lastMatch ? "match" : ""}`}>
-          {a.lastMatch ? "Em sintonia!" : `${a.closeMiss ? "Quase!" : "Nada disso!"} ${a.attempt < a.rules.tries ? "Agora liguem as vossas palavras!" : a.inPractice ? "Próximo par!" : a.lives <= 0 ? "💔 Sem vidas!" : "Menos uma vida 💔"}`}
-          <i>{a.lastMatch ? "In sync!" : `${a.closeMiss ? "So close" : "Not quite"} — ${a.attempt < a.rules.tries ? "now link your two words" : a.inPractice ? "next pair" : a.lives <= 0 ? "that was the last life" : "you lose a life"}`}</i>
         </div>
       )}
     </div>

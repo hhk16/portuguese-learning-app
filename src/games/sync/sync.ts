@@ -407,7 +407,7 @@ export class EmSintonia implements Activity {
         predicted.map((p) => {
           const said = this.predictions.get(p.playerId)!;
           const won = said === match;
-          return { playerId: p.playerId, pt: `${p.name}: “${said ? "Sim" : "Não"}” ${won ? `✓ +${PREDICT_POINTS}` : "✗"}`, en: said ? "said yes" : "said no", won, pts: won ? PREDICT_POINTS : undefined };
+          return { playerId: p.playerId, pt: `“${said ? "Sim" : "Não"}”${won ? ` +${PREDICT_POINTS}` : ""}`, en: said ? "said yes" : "said no", won, pts: won ? PREDICT_POINTS : undefined };
         }),
         { delay: 1700, line: this.rightPredictions.length === 2 ? SAY.bothPredicted : this.rightPredictions.length ? SAY.betWon : SAY.betLost },
       );

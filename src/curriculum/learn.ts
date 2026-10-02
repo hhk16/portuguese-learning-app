@@ -180,7 +180,7 @@ export function exTier(ex: LearnEx): 1 | 2 {
 export const INSTRUCTIONS: Record<LearnExKind, { pt: string; en: string }> = {
   tip: { pt: "Dica", en: "Tip" },
   intro: { pt: "Palavra nova", en: "New word" },
-  listen: { pt: "Toca no que ouves", en: "Tap what you hear" },
+  listen: { pt: "Ouve e toca", en: "Listen, then tap" },
   read: { pt: "O que quer dizer?", en: "What does it mean?" },
   write: { pt: "Como se diz em português?", en: "How do you say it in Portuguese?" },
   pairs: { pt: "Junta os pares", en: "Match the pairs" },

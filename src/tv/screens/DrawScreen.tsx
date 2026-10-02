@@ -5,7 +5,8 @@ import type { Stroke } from "../../games/draw/ink.ts";
 import { PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
 import { paintStrokes } from "../../ui/Sketch.tsx";
-import { GameTop, MetaBar } from "./Menus.tsx";
+import { DoNow, GameTop } from "./Menus.tsx";
+import { RoundPill, ScorePill } from "./ScorePill.tsx";
 import { useTick } from "./useTick.ts";
 import { gameNow } from "../clock.ts";
 
@@ -72,6 +73,7 @@ function Gallery({ a }: { a: Desenha }) {
         <GameTop title="Desenha!" pic="🎨">
           <span className="pill">🖼️ Galeria {i + 1}/{a.gallery.length}</span>
         </GameTop>
+        <DoNow tone="calm" pt="Vejam a galeria!" en="Tonight's drawings, one by one" />
         <div className="gallery-big card">
           <ReplayCanvas key={i} strokes={g.strokes} ms={1700} />
           <div className="gallery-caption">
@@ -89,15 +91,14 @@ function Gallery({ a }: { a: Desenha }) {
   return (
     <div className="tv-overlay game-screen centered gallery-screen">
       <GameTop title="Desenha!" pic="🎨">
+        {a.phase === "vote" && <span className="pill">🗳️ {a.bestVotes.size}/{a.players.length}</span>}
         {a.phase === "vote" && <span className={`pill clock ${a.msLeft < 5000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
       </GameTop>
-      <div className="turn-banner card">
-        <span className="bi-line">
-          <b className="display">{best ? "⭐ Melhor desenho!" : "Qual é o melhor desenho?"}</b>
-          <i>{best ? `Best drawing — by ${nameOf(best.drawer)?.name ?? ""}` : "Vote for your partner's best drawing on your phone!"}</i>
-        </span>
-        {a.phase === "vote" && <span className="pill">🗳️ {a.bestVotes.size}/{a.players.length}</span>}
-      </div>
+      {best ? (
+        <DoNow tone="calm" pt="⭐ O melhor desenho!" en={`Best drawing — by ${nameOf(best.drawer)?.name ?? ""}`} />
+      ) : (
+        <DoNow pt="Votem no melhor desenho!" en="Vote for your partner's best drawing on your phone" phone />
+      )}
       {best ? (
         <div className="gallery-big best card">
           <ReplayCanvas strokes={best.strokes} ms={1200} />
@@ -114,7 +115,8 @@ function Gallery({ a }: { a: Desenha }) {
             <figure key={i} className="gallery-item card">
               <ReplayCanvas strokes={g.strokes} ms={10} size={320} className="" />
               <figcaption>
-                <b>{g.pt}</b> <small>{nameOf(g.drawer)?.name}</small>
+                <b>{g.pt}</b>
+                {nameOf(g.drawer) && <small>{nameOf(g.drawer)!.name}</small>}
               </figcaption>
             </figure>
           ))}
@@ -144,34 +146,29 @@ export function DrawScreen({ a }: { a: Desenha }) {
   return (
     <div className="tv-overlay game-screen centered">
       <GameTop title="Desenha!" pic="🎨">
-        {!a.inPractice && (
-          <span className="pill">
-            Desenho {Math.min(a.round + 1, ROUNDS)}/{ROUNDS}
-          </span>
-        )}
-        {a.final && <span className="pill double-pill">×2</span>}
+        {!a.inPractice && <RoundPill label={`Desenho ${Math.min(a.round + 1, ROUNDS)}/${ROUNDS}`} double={a.final} />}
         {a.reviewFor && a.phase === "draw" && <span className="pill review-pill">🔁 Revisão para {a.reviewFor} · Review word</span>}
         {a.twist && a.phase === "draw" && <span className="pill twist-pill">⚡ {a.twist.pt} <i>{a.twist.en}</i></span>}
-        <span className="pill star-pill">{a.score} pontos</span>
-        {!a.inPractice && <MetaBar score={a.score} max={a.maxScore} />}
+        <ScorePill score={a.score} max={a.maxScore} meta={!a.inPractice} />
       </GameTop>
-      <div className="turn-banner card">
-        {drawer && <PlayerChip p={drawer} size="2em" />}
-        <span className="bi-line">
-          <b>desenha</b>
-          <i>draws</i>
-        </span>
-        <span className="arrow">→</span>
-        {guesser && <PlayerChip p={guesser} size="2em" />}
-        <span className="bi-line">
-          <b>escreve ou diz a palavra</b>
-          <i>types or says the word</i>
-        </span>
-      </div>
+      {a.phase === "draw" && drawer && guesser ? (
+        <DoNow pt={`${drawer.name} desenha, ${guesser.name} adivinha!`} en={`${drawer.name} draws (no talking) — ${guesser.name} types or says it`} phone />
+      ) : (
+        <DoNow tone="calm" pt="Era isto!" en="Here's what it was" />
+      )}
       <div className="draw-stage">
         <div className="card draw-board">
           <LiveCanvas a={a} />
-          {a.phase === "draw" && a.hint && <div className="draw-hint-tv display">{a.hint}</div>}
+          {a.phase === "draw" && a.hint && (
+            <div className="draw-hint-tv display" aria-label={a.hint}>
+              {/* One group per word, so the gap between words is visible and a word never breaks. */}
+              {a.hint.split(/\s*\u2003\s*|\s{2,}/).map((w, i) => (
+                <span key={i} className="hint-word">
+                  {w}
+                </span>
+              ))}
+            </div>
+          )}
           {a.phase === "draw" && a.warmth && gameNow() - a.warmth.at < 2200 && (
             <div key={a.warmth.seq} className={`warm-bubble display ${a.warmth.hot ? "hot" : "cold"}`}>
               {a.warmth.hot ? "🔥 Quente!" : "❄️ Frio!"}

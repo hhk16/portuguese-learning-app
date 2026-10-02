@@ -29,9 +29,9 @@ export function Learn({ v, conn, send }: { v: LearnView; conn: PhoneConnection; 
           🔊
         </button>
       </div>
-      <div className="learn-instr">
-        <span className="display">{v.instr}</span>
-        {v.instrEn && <small>{v.instrEn}</small>}
+      <div className="p-callout learn-instr">
+        <b className="display">{v.instr}</b>
+        {v.instrEn && <span>{v.instrEn}</span>}
       </div>
       <Exercise v={v} answer={answer} locked={locked} />
       {v.waiting && !v.result && <div className="learn-waiting">✓ {v.waiting}</div>}
@@ -45,7 +45,9 @@ export function Learn({ v, conn, send }: { v: LearnView; conn: PhoneConnection; 
             <div className="learn-waiting inline">✓ {v.waiting}</div>
           ) : (
             <button className={`btn block ${v.result.ok ? "mint" : "white"}`} onClick={() => answer({ t: "next" })}>
-              Continuar
+              <span className="bi">
+                Continuar<small>Next</small>
+              </span>
             </button>
           )}
         </div>
@@ -60,7 +62,7 @@ function En({ text, show }: { text: string; show: boolean }) {
   if (open) return <div className="learn-en">{text}</div>;
   return (
     <button className="learn-en hidden" onClick={() => setOpen(true)}>
-      ver em inglês
+      ver em inglês · show English
     </button>
   );
 }
@@ -87,7 +89,7 @@ function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => 
           </div>
           <div className="p-grow" />
           {!locked && (
-            <button className="btn block player" onClick={() => answer({ t: "next" })}>
+            <button className="btn block player p-hero-btn" onClick={() => answer({ t: "next" })}>
               <span className="bi">
                 Percebi<small>Got it</small>
               </span>
@@ -99,7 +101,6 @@ function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => 
       return (
         <>
           <div className="learn-card card intro">
-            <div className="kicker">Palavra nova · New word</div>
             {ex.emoji && <Picture glyph={ex.emoji} size="120px" />}
             <div className="pt display">{ex.pt}</div>
             <div className="learn-en">{ex.en}</div>
@@ -107,7 +108,7 @@ function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => 
           </div>
           <div className="p-grow" />
           {!locked && (
-            <button className="btn block player" onClick={() => answer({ t: "next" })}>
+            <button className="btn block player p-hero-btn" onClick={() => answer({ t: "next" })}>
               <span className="bi">
                 Percebi<small>Got it</small>
               </span>
@@ -120,7 +121,6 @@ function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => 
         <>
           <div className="learn-card card center">
             <Picture glyph="🔊" size="84px" />
-            <div className="note">Ouve a TV e escolhe.</div>
           </div>
           <Choose options={ex.options} answer={answer} locked={locked} />
         </>
@@ -173,18 +173,18 @@ function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => 
             <div className="pt display">{ex.pt}</div>
             <En text={ex.en} show={v.showEn} />
           </div>
-          <div className="speak-cue">
-            <Picture glyph="🗣️" size="56px" />
-            <span>Diz em voz alta!</span>
-          </div>
           <div className="p-grow" />
           {!v.waiting && !locked && (
             <div className="row2">
               <button className="btn mint" onClick={() => answer({ t: "judge", ok: true })}>
-                Disse bem
+                <span className="bi">
+                  🗣️ Disse bem<small>I said it</small>
+                </span>
               </button>
               <button className="btn white" onClick={() => answer({ t: "judge", ok: false })}>
-                Ainda não
+                <span className="bi">
+                  Ainda não<small>Not yet</small>
+                </span>
               </button>
             </div>
           )}
@@ -198,18 +198,18 @@ function Exercise({ v, answer, locked }: { v: LearnView; answer: (a: Answer) => 
             <div className="pt display">{ex.pt}</div>
             <div className="learn-en">{ex.en}</div>
           </div>
-          <div className="speak-cue">
-            <Picture glyph="👂" size="56px" />
-            <span>Ouve {ex.name}. Ficou bem?</span>
-          </div>
           <div className="p-grow" />
           {!locked && (
             <div className="row2">
               <button className="btn mint" onClick={() => answer({ t: "judge", ok: true })}>
-                👍 Sim!
+                <span className="bi">
+                  👍 Sim!<small>Yes</small>
+                </span>
               </button>
               <button className="btn white" onClick={() => answer({ t: "judge", ok: false })}>
-                Ainda não
+                <span className="bi">
+                  Ainda não<small>Not yet</small>
+                </span>
               </button>
             </div>
           )}
@@ -241,7 +241,7 @@ function Choose({ options, answer, locked }: { options: { id: string; label: str
       </div>
       <div className="p-grow" />
       {!locked && (
-        <button className="btn block player" disabled={!sel} onClick={() => sel && answer({ t: "choice", id: sel })}>
+        <button className="btn block player p-hero-btn" disabled={!sel} onClick={() => sel && answer({ t: "choice", id: sel })}>
           <span className="bi">
             Verificar<small>Check</small>
           </span>
@@ -260,7 +260,7 @@ function Build({ ex, answer, locked }: { ex: Extract<LearnView["ex"], { kind: "b
         <div className="en-prompt">“{ex.en}”</div>
       </div>
       <div className="build-line">
-        {chosen.length === 0 && <span className="placeholder">Toca nas palavras…</span>}
+        {chosen.length === 0 && <span className="placeholder">Toca nas palavras… · Tap the words</span>}
         {chosen.map((id) => (
           <button key={id} className="word" disabled={locked} onClick={() => setChosen(chosen.filter((x) => x !== id))}>
             {text(id)}
@@ -284,7 +284,7 @@ function Build({ ex, answer, locked }: { ex: Extract<LearnView["ex"], { kind: "b
       </div>
       <div className="p-grow" />
       {!locked && (
-        <button className="btn block player" disabled={chosen.length === 0} onClick={() => answer({ t: "build", words: chosen.map(text) })}>
+        <button className="btn block player p-hero-btn" disabled={chosen.length === 0} onClick={() => answer({ t: "build", words: chosen.map(text) })}>
           <span className="bi">
             Verificar<small>Check</small>
           </span>
