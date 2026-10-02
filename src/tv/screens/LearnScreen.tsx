@@ -3,7 +3,7 @@ import { answerOf, isGraded } from "../../curriculum/learn.ts";
 import { RUSH_GOAL, RUSH_HEARTS, type LearnActivity } from "../../games/learn/learn.ts";
 import { Face, PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
-import { GameTop } from "./Menus.tsx";
+import { DoNow, GameTop } from "./Menus.tsx";
 import { lessonPic } from "../activities.ts";
 import { gameNow } from "../clock.ts";
 import { useTick } from "./useTick.ts";
@@ -27,6 +27,13 @@ function RushView({ a }: { a: LearnActivity }) {
         </span>
         {r.combo >= 2 && <span className="pill double-pill">Combo ×{r.combo}</span>}
       </GameTop>
+      {a.rushResult ? (
+        <DoNow tone="calm" pt="Vejam o resultado" en="Here's how the lightning round went" />
+      ) : r.typed ? (
+        <DoNow pt="A última: ouçam e escrevam!" en="The last star: both type the word you hear" phone />
+      ) : (
+        <DoNow pt={`Ouçam e toquem — ${RUSH_GOAL} certas!`} en={`Listen and tap — ${RUSH_GOAL} right together to pass`} phone />
+      )}
       {a.rushResult && (
         <div className={`card rush-result ${a.rushResult}`}>
           <div className="display rush-result-title">{a.rushResult === "won" ? "⚡ Relâmpago superado!" : "⚡ Relâmpago perdido!"}</div>
@@ -39,21 +46,18 @@ function RushView({ a }: { a: LearnActivity }) {
               {"🖤".repeat(Math.max(0, RUSH_HEARTS - r.hearts))}
             </span>
           </div>
-          <i>{a.rushResult === "won" ? "Lesson complete! Lição completa!" : "The lesson isn't complete yet — try the lightning round again!"}</i>
+          <b className="display rush-result-pt">{a.rushResult === "won" ? "Lição completa!" : "Tentem outra vez o relâmpago!"}</b>
+          <i>{a.rushResult === "won" ? "Lesson complete!" : "The lesson isn't complete yet — try the lightning round again"}</i>
         </div>
       )}
       <div className={`card stage-card rush-card ${r.last ? (r.last.ok ? "ok" : "miss") : ""}`} key={r.asked} style={a.rushResult ? { visibility: "hidden" } : undefined}>
         {!r.wordEnd ? (
-          <h2 className="display">
-            ⚡ {RUSH_GOAL} certas juntos para passar! <i>Get {RUSH_GOAL} right together to pass — {RUSH_HEARTS} hearts</i>
-          </h2>
+          <Picture glyph="⚡" size="5em" />
         ) : (
           <>
             <Picture glyph="🔊" size="4em" />
             {r.typed ? (
               <div className="rush-typed">
-                <b className="display">✍️ A última estrela: escrevam!</b>
-                <i>The last star: type the word you hear — both of you!</i>
                 {!r.settled && (
                   <div className="rush-slots display" aria-label="letters">
                     {r.card.pt
@@ -111,7 +115,6 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
     case "tip":
       body = (
         <>
-          <div className="kicker">Dica</div>
           <h2 className="display">{ex.title}</h2>
           <div className="tip-grid">
             {ex.rows.map(([l, r]) => (
@@ -130,7 +133,6 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
         <div className="intro">
           <Picture glyph={ex.emoji} size="9em" />
           <div>
-            <div className="kicker">Palavra nova</div>
             <div className="big-pt display">{ex.pt}</div>
             <div className="big-en">{ex.en}</div>
             {ex.note && <p className="muted">{ex.note}</p>}
@@ -144,7 +146,6 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
           <div className="listen-icon">
             <Picture glyph="🔊" size="5em" />
           </div>
-          <h2 className="display">Ouve e escolhe</h2>
         </>
       );
       break;
@@ -156,7 +157,6 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
         <div className="intro">
           {ex.emoji && ex.emoji !== ex.en && <Picture glyph={ex.emoji} size="6em" />}
           <div>
-            <div className="kicker">Como se diz?</div>
             <div className="big-en quote">“{ex.en}”</div>
           </div>
         </div>
@@ -180,7 +180,6 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
     case "build":
       body = (
         <>
-          <div className="kicker center">Traduz</div>
           <div className="big-en quote center">“{ex.en}”</div>
           {reveal && <div className="big-pt display center">{ex.pt}</div>}
         </>
@@ -189,7 +188,6 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
     case "pairs":
       body = (
         <>
-          <h2 className="display center">Juntem os pares no telemóvel</h2>
           <div className="pairs-tv">
             {ex.pairs.map((p) => (
               <span key={p.id} className="word-chip">
@@ -206,7 +204,6 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
         <div className="intro">
           {ex.emoji && ex.emoji !== ex.en && <Picture glyph={ex.emoji} size="6em" />}
           <div>
-            <div className="kicker">{speaker ? `${speaker.name}, diz em voz alta:` : "Diz em voz alta:"}</div>
             <div className="big-pt display">{ex.pt}</div>
             <div className="big-en">{ex.en}</div>
           </div>
@@ -214,6 +211,24 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
       );
       break;
   }
+
+  const listener = players.find((p) => p.playerId !== a.speakerId);
+  const doNow: { pt: string; en: string; phone?: boolean } = reveal
+    ? { pt: "Vejam a resposta", en: "Then tap Continuar on your phone", phone: true }
+    : {
+        tip: { pt: "Leiam a dica", en: "Read the tip, then tap Percebi", phone: true },
+        intro: { pt: "Palavra nova — ouçam e repitam", en: "New word: listen and repeat" },
+        listen: { pt: "Ouçam e toquem no telemóvel", en: "Listen, then tap on your phone", phone: true },
+        read: { pt: "O que quer dizer?", en: "What does it mean? Tap on your phone", phone: true },
+        write: { pt: "Como se diz em português?", en: "How do you say it? Answer on your phone", phone: true },
+        gap: { pt: "Completem a frase", en: "Fill the gap on your phone", phone: true },
+        build: { pt: "Traduzam a frase", en: "Build the sentence on your phone", phone: true },
+        pairs: { pt: "Juntem os pares no telemóvel", en: "Match the pairs on your phone", phone: true },
+        speak:
+          speaker && listener
+            ? { pt: `${speaker.name}, diz em voz alta! ${listener.name}, ouve.`, en: `${speaker.name}, say it out loud — ${listener.name}, listen` }
+            : { pt: "Diz em voz alta!", en: "Say it out loud", phone: true },
+      }[ex.kind];
 
   return (
     <div className="tv-overlay game-screen centered">
@@ -226,6 +241,7 @@ export function LearnScreen({ a }: { a: LearnActivity }) {
         {a.combo >= 2 && <span className="pill double-pill">Combo ×{a.combo}</span>}
         <span className="pill star-pill">★ {a.stars}</span>
       </GameTop>
+      <DoNow tone={reveal ? "calm" : undefined} pt={doNow.pt} en={doNow.en} phone={doNow.phone} />
       <div className={`card stage-card ex-${ex.kind}`} key={`${a.index}-${a.phase}`}>
         {body}
         {opts && (

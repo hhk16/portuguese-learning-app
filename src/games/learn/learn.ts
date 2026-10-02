@@ -181,7 +181,7 @@ export class LearnActivity implements Activity {
     const pool = this.rushPool();
     if (pool.length < 4 || !this.players.length) return this.finish();
     this.rush = { endAt: gameNow() + RUSH_MS + 1500, wordEnd: 0, card: pool[0]!, options: [], pictures: false, answers: new Map(), team: 0, asked: 0, combo: 0, hearts: RUSH_HEARTS, settled: false, last: null, recent: [], typed: false, typedMissed: false, typedBy: new Map() };
-    this.rt.say([SAY.lightning, SAY.lightningGoal]);
+    this.rt.say(SAY.lightning);
     this.rt.cue(CUE.listenTap);
     play("whistle");
     setTimeout(() => this.rt.activity === this && !this.finished && this.nextRushWord(), 1500);
@@ -420,7 +420,7 @@ export class LearnActivity implements Activity {
       play("success-jingle");
       this.rt.celebrate();
       if (r) {
-        this.rt.say(SAY.lightningWon, { interrupt: true });
+        this.rt.say(SAY.perfect, { interrupt: true });
         this.rt.petStar("cheer", 2600, PET.knew, 0.6, "right");
       }
     } else {
