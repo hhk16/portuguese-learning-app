@@ -113,6 +113,8 @@ function Gallery({ a }: { a: Desenha }) {
         <div className="gallery-grid">
           {a.gallery.map((g, i) => (
             <figure key={i} className="gallery-item card">
+              {/* The same number the phones show next to each drawing in the vote. */}
+              <span className="gallery-n display">{String.fromCharCode(0x2460 + i)}</span>
               <ReplayCanvas strokes={g.strokes} ms={10} size={320} className="" />
               <figcaption>
                 <b>{g.pt}</b>

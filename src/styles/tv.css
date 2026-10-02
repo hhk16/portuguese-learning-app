@@ -3722,8 +3722,8 @@ html.tv-root #root {
 
 /* ---- Results, clarity pass: title + stars → big headline → XP → two word columns → what next. */
 .results-card {
-  gap: 0.9rem;
-  padding: 1.6rem 2.2rem 1.8rem;
+  gap: 0.7rem;
+  padding: 1.4rem 2.2rem 1.5rem;
 }
 .results-head {
   display: flex;
@@ -3815,11 +3815,29 @@ html.tv-root #root {
 .results-card .next-item small {
   font-size: 0.8em;
 }
-/* The recommended next step: a full-width tile; the rest are smaller. */
+/* The recommended next step: a full-width tile; the rest (at most four) share one row below it. */
+.results-card .next-list,
+.results-card .next-list.few {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
 .results-card .next-list > .next-item:first-child {
   grid-column: 1 / -1;
-  font-size: 1.05em;
+  font-size: 1em;
+  padding: 0.45em 1em;
   background: #fff4c9;
+}
+.results-card .next-list > .next-item:not(:first-child) {
+  font-size: 0.78em;
+  padding: 0.45em 0.7em;
+}
+.results-card .next-list > .next-item:not(:first-child) span {
+  min-width: 0;
+}
+.results-card .next-list > .next-item b {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .results-card .next-list > .next-item.focus {
   background: var(--sun);
@@ -4342,4 +4360,27 @@ html.tv-root #root {
 }
 .verbs-duo .verbs-row span b {
   font-size: 1em;
+}
+/* Grande Final: the question card fits its prompt on one or two balanced lines. */
+.final-q {
+  width: 34rem;
+}
+.final-stop {
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+  font-size: 2.2em;
+  line-height: 1.1;
+}
+.gallery-item {
+  position: relative;
+}
+.gallery-n {
+  position: absolute;
+  z-index: 2;
+  top: 0.3rem;
+  left: 0.5rem;
+  font-size: 1.6em;
+  color: var(--coral);
+  line-height: 1;
 }

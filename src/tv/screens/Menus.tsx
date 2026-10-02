@@ -348,6 +348,11 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
                     Nível {lvl} <i>{t.pt}</i>
                   </span>
                   {aw.streak >= 1 && <span className="xp-streak">🔥 {aw.streak}</span>}
+                  {per?.find((pp) => pp.playerId === p.playerId) && (
+                    <b className="pp-score">
+                      ✓ {per.find((pp) => pp.playerId === p.playerId)!.correct}/{per.find((pp) => pp.playerId === p.playerId)!.graded}
+                    </b>
+                  )}
                   {aw.levelUp ? (
                     <span className="xp-up-inline display">Subiu de nível! 🎉</span>
                   ) : (
@@ -403,7 +408,7 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             </div>
           </div>
         )}
-        {per && per.length > 0 && (
+        {per && per.length > 0 && a.awards.size === 0 && (
           <div className="per-player">
             {per.map((pp) => {
               const p = rt.players.get(pp.playerId);
