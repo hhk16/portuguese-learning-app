@@ -976,7 +976,7 @@ export function startMode(rt: TvRuntime, spec: ModeSpec) {
     two
       ? rt.rng
           .shuffle(GAMES.filter((g) => g.mode !== except))
-          .slice(0, 2)
+          .slice(0, 1)
           .map((g) => ({ id: g.mode, label: g.name, sub: g.kind, pic: g.pic, go: go({ mode: g.mode, lessonId }) }))
       : [];
 

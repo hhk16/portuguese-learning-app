@@ -11507,6 +11507,14 @@
   "title": "File:LL-Q5146 (por)-Santamarcanda-perfeito.wav",
   "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Santamarcanda-perfeito.wav"
  },
+ "perguntas de cada jogo desta noite.": {
+  "file": "53bb22a3fd.mp3",
+  "lengthScale": 1.12,
+  "say": "Perguntas de cada jogo desta noite.",
+  "source": "piper",
+  "text": "Perguntas de cada jogo desta noite.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "perto da minha casa, há um jardim.": {
   "file": "88a37b1907.mp3",
   "lengthScale": 1.12,
@@ -15165,14 +15173,6 @@
   "say": "Vêm alguns amigos meus ao jantar.",
   "source": "piper",
   "text": "Vêm alguns amigos meus ao jantar.",
-  "voice": "pt_PT-tugão-medium"
- },
- "vês uma imagem ou ouves uma palavra.": {
-  "file": "98ba9c8257.mp3",
-  "lengthScale": 1.12,
-  "say": "Vês uma imagem ou ouves uma palavra.",
-  "source": "piper",
-  "text": "Vês uma imagem ou ouves uma palavra.",
   "voice": "pt_PT-tugão-medium"
  },
  "zero": {

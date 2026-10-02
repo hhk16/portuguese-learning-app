@@ -52,7 +52,7 @@ export const RULES: Record<Mode, Line[]> = {
   ],
   final: [
     { pt: "A Grande Final! Um contra o outro.", en: "The Grand Final! Head to head." },
-    { pt: "Vês uma imagem ou ouves uma palavra.", en: "You see a picture or hear a word." },
+    { pt: "Perguntas de cada jogo desta noite.", en: "Questions from each of tonight's games." },
     { pt: "Responde primeiro no telemóvel e ganha a coroa!", en: "Answer first on your phone and win the crown!" },
   ],
   verbs: [

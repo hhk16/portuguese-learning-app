@@ -1534,7 +1534,8 @@ body,
 .kitchen-pad {
   min-height: 0;
   max-height: 100%;
-  overflow: hidden;
+  /* Short phones scroll rather than cut off Servir. */
+  overflow-y: auto;
 }
 .kitchen-pad .pantry {
   flex: 1 1 auto;

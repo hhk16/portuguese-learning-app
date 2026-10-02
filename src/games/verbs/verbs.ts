@@ -227,7 +227,12 @@ export class QuemFazOQue implements Activity {
   private choose(m: Msg, risky: boolean) {
     m.card = risky ? m.offers.risky : m.offers.easy;
     const verbs = [...this.table.keys()].filter((v) => this.level >= 3 || !VERB_PICS[v]!.hard);
-    m.options = this.rt.rng.shuffle([m.card.verb, ...this.rt.rng.sample(verbs.filter((v) => v !== m.card!.verb && VERB_PICS[v]!.pic !== VERB_PICS[m.card!.verb]!.pic), this.rules.options - 1)]);
+    // Look-alike distractors: same verb group first (-ar with -ar), so the stem has to be read, not matched.
+    const group = (v: string) => v.replace(/ \(de\)$|-se$/, "").slice(-2);
+    const pool = verbs.filter((v) => v !== m.card!.verb && VERB_PICS[v]!.pic !== VERB_PICS[m.card!.verb]!.pic);
+    const same = this.rt.rng.shuffle(pool.filter((v) => group(v) === group(m.card!.verb)));
+    const rest = this.rt.rng.shuffle(pool.filter((v) => group(v) !== group(m.card!.verb)));
+    m.options = this.rt.rng.shuffle([m.card.verb, ...[...same, ...rest].slice(0, this.rules.options - 1)]);
   }
 
   private toWrite() {
@@ -454,7 +459,7 @@ export class QuemFazOQue implements Activity {
         other: partner,
         written: theirs.written ?? "",
         persons: PERSONS.map((x) => ({ id: x, ...PERSON_LABEL[x] })),
-        actions: theirs.options.map((v) => ({ id: v, pic: VERB_PICS[v]!.pic, label: this.rules.hint !== "none" ? v : undefined })),
+        actions: theirs.options.map((v) => ({ id: v, pic: VERB_PICS[v]!.pic, label: this.rules.hint === "infinitive" ? v : this.rules.hint === "english" ? VERB_PICS[v]!.en.replace(/^to /, "") : undefined })),
         endings: this.rules.endings || undefined,
         debugAnswer: this.rt.testMode ? { person: personsOf(theirs.written ?? "", this.table.get(theirs.card.verb)!)[0] ?? theirs.card.person, verb: theirs.card.verb } : undefined,
       };
