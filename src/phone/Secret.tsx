@@ -159,7 +159,7 @@ export function Secret({ v, send }: { v: V; send: Send }) {
       {v.role === "watch" && (
         <div className="p-status">
           <b>{v.clue ? `${v.partner} está a adivinhar…` : `${v.partner} está a escolher uma pista…`}</b>
-          <span>{v.clue ? `${v.partner} is guessing — then it's your turn to guess` : `${v.partner} is picking a clue — then you guess`}</span>
+          <span>{v.clue ? `${v.partner} is guessing — next, ${v.partner} gives you a clue` : `${v.partner} is picking a clue — then you guess`}</span>
         </div>
       )}
       {v.role === "watch" && v.clue && (

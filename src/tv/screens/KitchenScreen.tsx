@@ -3,7 +3,8 @@ import { dishWord, HEARTS, SHIFT_MS, TARGETS, type Cozinha } from "../../games/k
 import { DISHES, orderSentence } from "../../games/kitchen/menu.ts";
 import { Picture } from "../../ui/Picture.tsx";
 import { gameNow } from "../clock.ts";
-import { GameTop, MetaBar } from "./Menus.tsx";
+import { DoNow, GameTop } from "./Menus.tsx";
+import { ScorePill } from "./ScorePill.tsx";
 import { useTick } from "./useTick.ts";
 
 const CUSTOMERS = ["👩", "👨", "👵", "👴", "🧑", "👧", "👦", "👱"];
@@ -41,9 +42,36 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
             </span>
           ))}
         </span>
-        <span className="pill star-pill">{a.score} pontos</span>
-        {!a.inPractice && <MetaBar score={a.score} max={TARGETS[a.level]} />}
+        {a.rush && (
+          <span className="pill double-pill">
+            🔥 Hora de ponta! ×2 <i>Rush hour</i>
+          </span>
+        )}
+        <ScorePill score={a.score} max={TARGETS[a.level]} meta={!a.inPractice} />
       </GameTop>
+      {a.phase === "shift" ? (
+        <DoNow pt="Ouçam o pedido e sirvam!" en="Listen, tap the food, then Servir" phone />
+      ) : (
+        <DoNow tone="calm" pt="Fim do turno!" en="The shift is over" />
+      )}
+      {a.tip && (
+        <div className={`card kitchen-tip ${a.tip.result ? (a.tip.result.ok ? "ok" : "miss") : ""}`}>
+          <Picture glyph={DISHES[a.tip.dish]!.pic} size="2em" />
+          {!a.tip.result ? (
+            <span>
+              <b className="display">💶 Gorjeta! {a.tip.name}, como se diz?</b>
+              <i>Tip: {a.tip.name}, type its name in Portuguese</i>
+            </span>
+          ) : (
+            <span>
+              <b className="display">
+                {a.tip.result.ok ? `✓ ${dishWord(a.tip.dish).pt} +${a.tip.bonus}` : `✗ ${dishWord(a.tip.dish).pt}`}
+              </b>
+              <i>{a.tip.result.wrote ? `${a.tip.name} escreveu “${a.tip.result.wrote}”` : "Sem resposta · no answer"}</i>
+            </span>
+          )}
+        </div>
+      )}
       <div className="kitchen-tickets">
         {a.tickets.map((t, i) => {
           const total = t.deadline - t.arrived;
@@ -61,8 +89,8 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
               </div>
               {t.phone && t.phone.wrote === undefined ? (
                 <div className="ticket-text phone">
-                  📞 <span>{t.phone.name} está a escrever o pedido…</span>
-                  <i>Phone order: {t.phone.name} writes it on the phone — then cook it!</i>
+                  <span>📞 {t.phone.name} escreve o pedido…</span>
+                  <i>{t.phone.name} is writing the order</i>
                 </div>
               ) : t.phone?.wrote ? (
                 <div className="ticket-text phone-wrote">
@@ -109,7 +137,7 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
       <div className={`card kitchen-tray ${flash?.kind === "wrong" ? "wrong" : ""} ${flash?.kind === "served" ? "served" : ""}`} key={flash?.seq ?? 0}>
         <span className="kicker">Tabuleiro · Tray</span>
         <div className="tray-items">
-          {tray.length === 0 && <span className="muted">vazio — toquem na comida no telemóvel · empty: tap the food on your phones</span>}
+          {tray.length === 0 && <span className="muted">vazio · empty</span>}
           {tray.map(({ dish, n }) => (
             <span key={dish.id} className="tray-item">
               <Picture glyph={dish.pic} size="2.8em" />
@@ -121,25 +149,6 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
       <div className="kitchen-clock">
         <div style={{ width: `${(left / SHIFT_MS) * 100}%` }} />
       </div>
-      {a.tip && (
-        <div className={`card kitchen-tip ${a.tip.result ? (a.tip.result.ok ? "ok" : "miss") : ""}`}>
-          <Picture glyph={DISHES[a.tip.dish]!.pic} size="2.2em" />
-          {!a.tip.result ? (
-            <span>
-              <b className="display">💶 Gorjeta! {a.tip.name}: como se diz?</b>
-              <i>A tip — {a.tip.name} types its name on the phone</i>
-            </span>
-          ) : (
-            <span>
-              <b className="display">
-                {a.tip.result.ok ? `✓ ${dishWord(a.tip.dish).pt} +${a.tip.bonus}` : `✗ ${dishWord(a.tip.dish).pt}`}
-              </b>
-              <i>{a.tip.result.wrote ? `${a.tip.name} escreveu “${a.tip.result.wrote}”` : "Sem resposta · no answer"}</i>
-            </span>
-          )}
-        </div>
-      )}
-      {a.rush && <div className="rush-banner display">🔥 Hora de ponta! ×2 <i>Rush hour!</i></div>}
       {flash?.kind === "swap" && (
         <div className="kitchen-swap display">
           Troca! 🔄 <i>Swap pantries!</i>
