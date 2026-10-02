@@ -3,7 +3,7 @@ import { ROUNDS, type BatataQuente } from "../../games/bomb/bomb.ts";
 import { PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
 import { gameNow } from "../clock.ts";
-import { GameTop } from "./Menus.tsx";
+import { DoNow, GameTop } from "./Menus.tsx";
 import { useTick } from "./useTick.ts";
 
 const KIND: Record<string, { pt: string; en: string }> = {
@@ -13,6 +13,12 @@ const KIND: Record<string, { pt: string; en: string }> = {
   hearNumber: { pt: "Ouve o número!", en: "Listen: which number?" },
   opposite: { pt: "O contrário de…", en: "The opposite of…" },
   phrase: { pt: "Ouve e escolhe!", en: "Listen: which one did the TV say?" },
+};
+/** The written versions (harder levels): same question, typed on the phone. */
+const KIND_TYPED: Record<string, { pt: string; en: string }> = {
+  see: { pt: "Como se diz? Escreve!", en: "Type its name in Portuguese" },
+  number: { pt: "Escreve o número!", en: "Type the number in words" },
+  opposite: { pt: "Escreve o contrário!", en: "Type the opposite in Portuguese" },
 };
 
 export function BombScreen({ a }: { a: BatataQuente }) {
@@ -35,6 +41,8 @@ export function BombScreen({ a }: { a: BatataQuente }) {
   const hurry = a.lastHurry && gameNow() - a.lastHurry.at < 1300 ? a.lastHurry : null;
   const hurrier = hurry ? a.rt.players.get(hurry.by) : undefined;
   const fast = a.lastFast && gameNow() - a.lastFast.at < 1300 ? a.lastFast : null;
+  const ask = q ? ((q.typed && KIND_TYPED[q.kind]) || KIND[q.kind]!) : null;
+  const fuseLeft = Math.max(0, (1 - heat) * 100);
   return (
     <div className={`tv-overlay game-screen centered bomb-screen ${a.phase === "boom" ? "shake-screen" : ""}`}>
       <GameTop title="Batata Quente" pic="🥔">
@@ -50,6 +58,15 @@ export function BombScreen({ a }: { a: BatataQuente }) {
           </span>
         ))}
       </GameTop>
+      {a.phase === "play" && holder && ask ? (
+        <DoNow who={holder} pt={ask.pt} en={`${ask.en} — right answer passes the potato`} phone />
+      ) : a.phase === "intro" && holder ? (
+        <DoNow tone="calm" who={holder} pt="começa com a batata!" en={`${holder.name} starts${a.final && !a.inPractice ? " — this one counts double" : ""}`} />
+      ) : a.phase === "boom" && a.burned ? (
+        <DoNow tone="alert" who={a.burned} pt="queimou-se!" en={`${a.burned.name} got burned${a.inPractice ? " (practice — doesn't count)" : ""}`} />
+      ) : (
+        <DoNow tone="calm" pt="Fim do jogo!" en="Game over" />
+      )}
       <div className="bomb-arena">
         {players.map((p, i) => (
           <div key={p.playerId} className={`bomb-seat ${i === 0 ? "left" : "right"} ${p === holder && a.phase !== "boom" ? "hot" : ""} ${a.burned === p ? "burned" : ""}`}>
@@ -77,11 +94,15 @@ export function BombScreen({ a }: { a: BatataQuente }) {
       {a.phase === "play" && (
         <div className={`wick ${heat > 0.75 ? "short" : ""} ${hurry ? "jolt" : ""}`} key={`wick-${a.hurrySeq}`} aria-hidden>
           {hurry && <span className="wick-burn display">🔥 −1s</span>}
-          <span className="wick-rope" style={{ width: `${Math.max(0, (1 - heat) * 100)}%` }} />
-          <span className="wick-spark" style={{ left: `${Math.max(0, (1 - heat) * 100)}%` }}>
+          <span className="wick-rope" style={{ width: `${fuseLeft}%` }} />
+          <span className="wick-spark" style={{ left: `${fuseLeft}%` }}>
             ✨
           </span>
-          {a.fuseEnd - gameNow() < 5000 && <span className="wick-secs display">{Math.max(0, Math.ceil((a.fuseEnd - gameNow()) / 1000))}</span>}
+          {a.fuseEnd - gameNow() < 5000 && (
+            <span className="wick-secs display" style={{ left: `${fuseLeft}%` }}>
+              {Math.max(0, Math.ceil((a.fuseEnd - gameNow()) / 1000))}
+            </span>
+          )}
           {fast && (
             <span className="wick-fast display" key={fast.at}>
               🔥 Rápido! −1s <i>Fast answer: hotter potato!</i>
@@ -90,18 +111,10 @@ export function BombScreen({ a }: { a: BatataQuente }) {
         </div>
       )}
       {a.phase === "intro" && holder && (
-        <div className="bomb-intro display">
-          🥔 {a.inPractice ? "Ensaio!" : a.final ? "Última batata — vale a dobrar!" : "Batata quente!"}
-          <i>
-            {holder.name} começa · {holder.name} starts{a.final && !a.inPractice ? " — this one counts double" : ""}
-          </i>
-        </div>
+        <div className="bomb-intro display">🥔 {a.inPractice ? "Ensaio!" : a.final ? "Última batata — vale a dobrar!" : "Batata quente!"}</div>
       )}
       {a.phase === "play" && q && holder && (
         <div className={`card bomb-question ${side} ${a.lockedMs > 0 ? "wrong" : ""}`} key={`${a.passSeq}-${a.promptId}`}>
-          <span className="kicker">
-            {holder.name}: {KIND[q.kind]!.pt} <i>{KIND[q.kind]!.en}</i>
-          </span>
           <div className="bq-body">
             {q.kind === "hear" || q.kind === "hearNumber" || q.kind === "phrase" ? (
               <span className="bq-prompt display">🔊</span>
@@ -124,18 +137,13 @@ export function BombScreen({ a }: { a: BatataQuente }) {
           {a.lockedMs > 0 && <span className="bq-wrong display">✗</span>}
           {a.lockedMs > 0 && a.lastHold && gameNow() - a.lastHold.at < 2000 && (
             <b className="bs-res">
-              “{a.lastHold.wrote}” → <i>{a.lastHold.answer}</i>
+              ✗ {a.lastHold.wrote} — era «{a.lastHold.answer}» <i>it was «{a.lastHold.answer}»</i>
             </b>
           )}
         </div>
       )}
       {a.phase === "boom" && a.burned && (
-        <div className="bomb-boom display">
-          BUM!
-          <i>
-            {a.burned.name} queimou-se! · {a.burned.name} got burned{a.inPractice ? " (Ensaio — doesn't count)" : ""}
-          </i>
-        </div>
+        <div className="bomb-boom display">BUM!</div>
       )}
     </div>
   );
@@ -145,10 +153,11 @@ export function BombScreen({ a }: { a: BatataQuente }) {
 function StealCard({ a }: { a: BatataQuente }) {
   const sq = a.stealQ!;
   const last = a.lastSteal && gameNow() - a.lastSteal.at < 1800 ? a.lastSteal : null;
+  const who = a.other;
   return (
     <div className={`card bomb-steal ${last ? (last.ok ? "ok" : "miss") : ""}`}>
       <span className="kicker">
-        🔥 Aquece! ({a.hurryLeft}) {sq.typed ? "✍️" : ""}
+        {who ? `${who.name} aquece` : "Aquece"} 🔥 · {a.hurryLeft}× {sq.typed ? "✍️" : ""}
       </span>
       <span className="bs-q">
         {sq.prompt?.pic && <Picture glyph={sq.prompt.pic} size="1.8em" />}
@@ -156,7 +165,13 @@ function StealCard({ a }: { a: BatataQuente }) {
       </span>
       {last && (
         <b className="bs-res">
-          {last.ok ? "✓" : "✗"} “{last.wrote}”{!last.ok && <i> → {last.answer}</i>}
+          {last.ok ? (
+            <>✓ {last.wrote}</>
+          ) : (
+            <>
+              ✗ {last.wrote} — era «{last.answer}»<i>it was «{last.answer}»</i>
+            </>
+          )}
         </b>
       )}
     </div>

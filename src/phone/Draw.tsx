@@ -91,12 +91,12 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
   return (
     <div className="p-col draw-pad">
       {timer}
-      <div className="draw-word card">
+      <div className="p-callout draw-word">
         <Picture glyph={v.word?.pic} size="48px" />
         <span>
-          <small className="kicker">Desenha (sem falar!) · Draw it, no talking!</small>
-          <b className="display">{v.word?.pt}</b>
+          <b className="display">Desenha: {v.word?.pt}</b>
           {v.word?.en && <i>{v.word.en}</i>}
+          <small>No letters, no talking — just draw</small>
         </span>
       </div>
       {limit && (
@@ -142,18 +142,41 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
           stroke.current = null;
         }}
       />
+      <div className={`guesses ${v.guesses?.length ? "" : "none"}`}>
+        {v.guesses && v.guesses.length ? (
+          <>
+            Palpites · Guesses: <b>{v.guesses.map((g) => `${g}?`).join(" · ")}</b>
+          </>
+        ) : (
+          `${v.partner} ainda não tentou · no guesses yet`
+        )}
+      </div>
       <div className="warm-row">
-        <span className="guesses">{v.guesses && v.guesses.length ? v.guesses.map((g) => `${g}?`).join(" · ") : "… à espera de palpites · waiting for guesses"}</span>
+        <span className="p-label">Diz ao teu par:</span>
         <button className="btn mini white" onClick={() => send({ mode: "draw", action: { a: "warm", hot: true } })}>
-          🔥 Quente
+          <span className="bi">
+            🔥 Quente<small>close</small>
+          </span>
         </button>
         <button className="btn mini white" onClick={() => send({ mode: "draw", action: { a: "warm", hot: false } })}>
-          ❄️ Frio
+          <span className="bi">
+            ❄️ Frio<small>far</small>
+          </span>
         </button>
       </div>
       <div className="palette">
-        <button className={`ink size ${thick ? "sel" : ""}`} aria-label="Pincel grosso · Thick brush" onClick={() => setThick(!thick)}>
-          {thick ? "⬤" : "•"}
+        {INK.map((c, i) => (
+          <button key={c} className={`ink ${i === color ? "sel" : ""} ${i === 5 ? "eraser" : ""}`} style={{ background: c }} aria-label={i === 5 ? "Borracha · Eraser" : `Cor ${i + 1} · Colour ${i + 1}`} onClick={() => setColor(i)}>
+            {i === 5 ? "🧽" : ""}
+          </button>
+        ))}
+      </div>
+      <div className="draw-tools">
+        <button className={`ink size ${thick ? "sel" : ""}`} aria-label="Pincel grosso · Thick brush" aria-pressed={thick} onClick={() => setThick(!thick)}>
+          <span className="tool-ico">{thick ? "⬤" : "•"}</span>
+          <span className="bi">
+            Pincel<small>Brush</small>
+          </span>
         </button>
         <button
           className="ink size"
@@ -166,30 +189,29 @@ function Pad({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode }) {
             send({ mode: "draw", action: { a: "undo" } });
           }}
         >
-          ↩️
+          <span className="tool-ico">↩️</span>
+          <span className="bi">
+            Desfazer<small>Undo</small>
+          </span>
         </button>
-        {INK.map((c, i) => (
-          <button key={c} className={`ink ${i === color ? "sel" : ""} ${i === 5 ? "eraser" : ""}`} style={{ background: c }} aria-label={i === 5 ? "Borracha" : `Cor ${i + 1}`} onClick={() => setColor(i)}>
-            {i === 5 ? "🧽" : ""}
-          </button>
-        ))}
-      </div>
-      <div className="row2">
         <button
           className="btn white"
+          aria-label="Apagar tudo · Clear"
           onClick={() => {
             reset();
             local.current = [];
             send({ mode: "draw", action: { a: "clear" } });
           }}
         >
+          <span className="tool-ico">🗑️</span>
           <span className="bi">
-            Apagar tudo<small>Clear</small>
+            Apagar<small>Clear</small>
           </span>
         </button>
-        <button className="btn sun" disabled={!v.canPass} onClick={() => send({ mode: "draw", action: { a: "pass" } })}>
+        <button className="btn white" aria-label="Outra palavra · Skip word" disabled={!v.canPass} onClick={() => send({ mode: "draw", action: { a: "pass" } })}>
+          <span className="tool-ico">⏭️</span>
           <span className="bi">
-            Outra palavra<small>Skip word (1×)</small>
+            Outra<small>Skip (1×)</small>
           </span>
         </button>
       </div>
@@ -228,7 +250,12 @@ function Guess({ v, send, timer }: { v: V; send: Send; timer: React.ReactNode })
         <b className="display">O que é que {v.partner} está a desenhar?</b>
         <span>What is {v.partner} drawing? Type or say it in Portuguese.</span>
       </div>
-      {v.hint && <div className="draw-hint display">{v.hint}</div>}
+      {v.hint && (
+        // One line, always: the size shrinks with the pattern's length instead of wrapping.
+        <div className="draw-hint display" style={{ fontSize: `clamp(15px, ${(92 / (0.72 * v.hint.length + 1.4)).toFixed(2)}vw, 28px)` }}>
+          {v.hint}
+        </div>
+      )}
       <form
         className="sync-form"
         onSubmit={(e) => {

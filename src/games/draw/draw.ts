@@ -528,22 +528,25 @@ export class Desenha implements Activity {
   viewFor(p: RuntimePlayer): ControllerView {
     if (this.players.length < 2) return { mode: "wait", title: "Desenha! precisa de 2", subtitle: "Chama o teu par! · Needs two players", pic: "🎨" };
     if (this.phase === "end") return { mode: "wait", title: "Fim!", subtitle: `${this.score} pontos · points`, pic: "🎨" };
-    if (this.phase === "gallery") return { mode: "wait", title: "A galeria! 🖼️", subtitle: "Olha para a TV — your drawings, one by one", pic: "🖼️" };
+    if (this.phase === "gallery") return { mode: "wait", title: "A galeria! 🖼️", subtitle: "Os vossos desenhos estão na TV · Your drawings, then you vote for the best", pic: "🖼️" };
     if (this.phase === "best") {
       const g = this.gallery[this.bestIndex];
       return { mode: "wait", title: `⭐ ${g?.pt ?? ""}`, subtitle: "Melhor desenho! · Best drawing — olha para a TV!", pic: g?.pic ?? "🎨" };
     }
     if (this.phase === "vote") {
-      if (this.bestVotes.has(p.playerId)) return { mode: "wait", title: "Votaste! ✓", subtitle: "À espera do teu par… · Waiting for your partner", pic: "🗳️" };
+      const other = this.rt.partnerOf(p)?.name ?? "o teu par";
+      if (this.bestVotes.has(p.playerId)) return { mode: "wait", title: "Votaste! ✓", subtitle: `${other} está a votar… · ${other} is voting — then the best drawing`, pic: "🗳️" };
       return {
         mode: "pick",
         roundId: this.roundId,
         promptId: this.promptId,
         title: this.players.length > 1 ? "O melhor desenho do teu par?" : "Qual é o melhor desenho?",
         subtitle: this.players.length > 1 ? "Pick your partner's best drawing!" : "Which drawing is the best? Vote!",
+        // Numbered like the TV's gallery (①②③… in gallery order), so you can match the drawing to the option.
         options: this.votable(p).map((i) => {
           const g = this.gallery[i]!;
-          return { id: `g${i}`, label: g.pt, sub: `${this.rt.players.get(g.drawer ?? "")?.name ?? ""} ${g.guessed ? "✓" : "✗"}`, emoji: g.pic };
+          const n = i < 20 ? String.fromCharCode(0x2460 + i) : `${i + 1}.`;
+          return { id: `g${i}`, label: `${n} ${g.pt}`, sub: `${this.rt.players.get(g.drawer ?? "")?.name ?? ""} · ${g.guessed ? "✓ adivinhado · guessed" : "✗ não adivinhado"}`, emoji: g.pic };
         }),
       };
     }

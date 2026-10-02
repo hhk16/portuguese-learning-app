@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { HEARTS, PERSON_LABEL, PERSONS, ROUNDS, VERB_PICS, type Msg, type QuemFazOQue } from "../../games/verbs/verbs.ts";
 import { PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
-import { GameTop, MetaBar } from "./Menus.tsx";
+import { DoNow, GameTop } from "./Menus.tsx";
+import { RoundPill, ScorePill } from "./ScorePill.tsx";
 
 /** The endings that say who (regular verbs): the key to reading the word. */
 export const ENDINGS: { person: string; ar: string; er: string }[] = [
@@ -14,10 +15,13 @@ export const ENDINGS: { person: string; ar: string; er: string }[] = [
   { person: "eles / elas", ar: "-am", er: "-em" },
 ];
 
-const CUES: Record<string, { pt: string; en: string }> = {
-  pick: { pt: "Fácil ×1 ou arriscada ×2 🔥?", en: "Each picks a card: a regular verb, or an irregular one for double" },
-  write: { pt: "Escrevam o verbo! Só o verbo.", en: "Write only the verb — the ending must tell your partner who" },
-  read: { pt: "Troquem! Quem? O quê?", en: "Read your partner's verb: who does it, and what?" },
+/** The one instruction per phase (same verbs as the phones). */
+const CUES: Record<string, { pt: string; en: string; phone?: boolean; calm?: boolean }> = {
+  pick: { pt: "Escolham uma carta!", en: "Easy ×1 or risky 🔥 ×2 — pick on your phone", phone: true },
+  write: { pt: "Escrevam só o verbo!", en: "The ending must tell your partner who", phone: true },
+  read: { pt: "Troquem! Quem faz o quê?", en: "Read your partner's verb: who does what?", phone: true },
+  reveal: { pt: "Vejam as respostas", en: "Here's how you both did", calm: true },
+  end: { pt: "Fim do jogo!", en: "Game over", calm: true },
 };
 
 function Message({ a, m }: { a: QuemFazOQue; m: Msg }) {
@@ -90,7 +94,7 @@ function Message({ a, m }: { a: QuemFazOQue; m: Msg }) {
       ) : (
         <>
           <b className="display verbs-written">“{m.written || "—"}”</b>
-          <i>{m.pick ? "✓ lido! · read" : "Quem? O quê? · who, doing what?"}</i>
+          <i>{m.pick ? "✓ lido! · read" : `${reader?.name ?? ""} está a ler… · reading`}</i>
         </>
       )}
     </div>
@@ -110,12 +114,7 @@ export function VerbsScreen({ a }: { a: QuemFazOQue }) {
   return (
     <div className="tv-overlay game-screen centered">
       <GameTop title="Quem faz o quê?" pic="🧩">
-        {!a.inPractice && (
-          <span className="pill">
-            Ronda {Math.min(a.round + 1, ROUNDS)}/{ROUNDS}
-          </span>
-        )}
-        {a.final && <span className="pill double-pill">×2</span>}
+        {!a.inPractice && <RoundPill label={`Ronda ${Math.min(a.round + 1, ROUNDS)}/${ROUNDS}`} double={a.final} />}
         {!a.inPractice && (
           <span className="pill lives-pill">
             {"❤️".repeat(Math.max(0, a.hearts))}
@@ -123,12 +122,9 @@ export function VerbsScreen({ a }: { a: QuemFazOQue }) {
           </span>
         )}
         {timed && !a.inPractice && <span className={`pill clock ${a.msLeft < 8000 ? "low" : ""}`}>⏱ {Math.ceil(a.msLeft / 1000)}</span>}
-        <span className="pill star-pill">{a.score} pontos</span>
-        {!a.inPractice && <MetaBar score={a.score} max={a.maxScore} />}
+        <ScorePill score={a.score} max={a.maxScore} meta={!a.inPractice} />
       </GameTop>
-      <div className="goal-line">
-        🎯 <b>{cue?.pt ?? "Escrever o verbo certo · ler quem o faz"}</b> <i>{cue?.en ?? "Write the right verb form — read who's doing it from the ending"}</i>
-      </div>
+      <DoNow tone={cue?.calm ? "calm" : undefined} pt={cue?.pt ?? "Quem faz o quê?"} en={cue?.en ?? "Write the verb — read who does it from the ending"} phone={cue?.phone} />
       <div className="verbs-stage">
         <div className="verbs-duo">
           {a.msgs.map((m) => (
@@ -137,12 +133,23 @@ export function VerbsScreen({ a }: { a: QuemFazOQue }) {
         </div>
         {a.rules.endings && (a.phase === "write" || a.phase === "read") && (
           <div className="card verbs-endings">
-            <span className="kicker">Terminações · endings (falar · comer)</span>
-            {ENDINGS.map((e) => (
-              <span key={e.person}>
-                <small>{e.person}</small> <b>{e.ar}</b> · <b>{e.er}</b>
+            <span className="kicker">Terminações · Endings</span>
+            <div className="ve-table">
+              <span className="ve-head" />
+              <span className="ve-head">
+                -ar <i>falar</i>
               </span>
-            ))}
+              <span className="ve-head">
+                -er <i>comer</i>
+              </span>
+              {ENDINGS.map((e) => (
+                <span key={e.person} className="ve-row">
+                  <small>{e.person}</small>
+                  <b>{e.ar}</b>
+                  <b>{e.er}</b>
+                </span>
+              ))}
+            </div>
           </div>
         )}
         {a.phase === "read" && (
