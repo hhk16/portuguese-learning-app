@@ -110,7 +110,7 @@ export function KitchenScreen({ a }: { a: Cozinha }) {
               ) : (
                 <div className="ticket-text listen">
                   🔊 <span>{a.itemCount(t) === 1 ? "1 item" : `${a.itemCount(t)} itens`}</span>
-                  <i>{a.itemCount(t) === 1 ? "1 item" : `${a.itemCount(t)} items`} — listen! {a.rules.show === "audio" ? "Replay on your phone to see it (−3 s)" : ""}</i>
+                  <i>{a.rules.show === "audio" ? "Listen! Replay on a phone (−3 s)" : "Listen!"}</i>
                 </div>
               )}
               {a.ticketShows(t).pictures && (

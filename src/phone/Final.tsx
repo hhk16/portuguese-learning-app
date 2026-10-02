@@ -77,7 +77,7 @@ export function Final({ v, send }: { v: V; send: Send }) {
       ) : (
         <div className="p-callout">
           <b className="display">🔊 Ouve e toca!</b>
-          <span>{v.label ? "Tap it fast — you score when you both get it." : "Tap the picture you hear — be the first!"}</span>
+          <span>{v.label ? "Tap it fast — you both need it!" : "Tap the picture you hear — be the first!"}</span>
         </div>
       )}
       {v.options ? (
@@ -97,7 +97,7 @@ export function Final({ v, send }: { v: V; send: Send }) {
             answer(text);
           }}
         >
-          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Escreve em português · Type in Portuguese" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} autoFocus />
+          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Em português… · Type it" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} autoFocus />
           <button className="btn player" type="submit" disabled={!text.trim()}>
             OK
           </button>

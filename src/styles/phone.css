@@ -1308,11 +1308,6 @@ body,
   font-weight: 800;
   flex: none;
 }
-.practice-bar small {
-  font-size: 15px;
-  color: var(--ink-2);
-  margin-left: 4px;
-}
 .practice-bar .btn.mini {
   box-shadow: none;
   background: color-mix(in srgb, var(--sky-p) 12%, white);
@@ -1810,16 +1805,17 @@ body,
   color: var(--ink-2);
 }
 .key-chips {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
 }
 .key-chip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 10px 3px 4px;
-  border-radius: 999px;
+  gap: 6px;
+  min-width: 0;
+  padding: 4px 8px 4px 6px;
+  border-radius: 14px;
   border: 3px solid var(--mint);
   background: #eefcf5;
   font-size: 16px;
@@ -1828,13 +1824,28 @@ body,
   border-color: var(--coral);
   background: #fff1f1;
 }
+.key-chip > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
 .key-chip b {
   font-family: var(--display);
   font-weight: 600;
 }
 .key-chip small {
   font-size: 15px;
+  font-weight: 700;
   color: var(--ink-2);
+}
+.secret-grid.cols4 {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.secret-grid.cols4 .scard {
+  min-height: 84px;
+  padding: 6px 2px;
 }
 .btn.block.mini {
   padding: 10px;
@@ -1914,8 +1925,20 @@ body,
 }
 .draw-tools {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
+}
+.draw-tools .bi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+.draw-tools .bi small {
+  font-family: var(--body);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink-2);
 }
 .draw-tools > button {
   width: auto;
@@ -1974,8 +1997,23 @@ body,
   color: var(--sky-p-d);
   border-left: 2px solid var(--line);
 }
+.verbs-written-p {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 2px 10px;
+  padding: 8px 12px;
+  flex: none;
+}
 .verbs-written-p b {
-  font-size: 1.9em;
+  font-size: 1.7em;
+}
+.verbs-action-grid.cols4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.verbs-pad .verbs-opt {
+  padding: 6px 2px;
 }
 .hearts-pill {
   letter-spacing: 1px;
@@ -2030,4 +2068,8 @@ body,
 }
 .call-card .call-form .btn {
   padding: 8px;
+}
+.kitchen-actions .row2 .btn {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
 }

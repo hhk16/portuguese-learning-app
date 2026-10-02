@@ -51,10 +51,11 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
   const [person, setPerson] = useState<string | null>(null);
   const [verb, setVerb] = useState<string | null>(null);
   const left = useCountdown(v.msLeft ?? 0);
-  const head = (
+  // Status row (the practice bar already says "Ensaio"; practice hearts don't count, so no row then).
+  const head = v.practice ? null : (
     <div className="sync-head">
       <span className="kicker">
-        {v.practice ? "" : `Ronda ${v.round + 1}/${v.rounds}`}
+        Ronda {v.round + 1}/{v.rounds}
         {v.final ? " · ×2!" : ""}
       </span>
       <span className="pill hearts-pill">{"❤️".repeat(v.hearts) || "💔"}</span>
@@ -152,10 +153,10 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
           ))}
         </div>
         <div className="kicker">O quê? · Doing what?</div>
-        <div className="verbs-action-grid">
+        <div className={`verbs-action-grid ${v.actions.length === 4 ? "cols4" : ""}`}>
           {v.actions.map((a) => (
             <button key={a.id} className={`card verbs-opt ${verb === a.id ? "sel" : ""}`} onClick={() => (play("tap"), setVerb(a.id))}>
-              <Picture glyph={a.pic} size="40px" />
+              <Picture glyph={a.pic} size="34px" />
               {a.label && <b>{a.label}</b>}
             </button>
           ))}

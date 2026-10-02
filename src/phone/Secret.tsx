@@ -32,7 +32,7 @@ export function Secret({ v, send }: { v: V; send: Send }) {
     </div>
   );
   const board = (
-    <div className="secret-grid">
+    <div className={`secret-grid ${v.cards.length > 12 ? "cols4" : ""}`}>
       {v.cards.map((c) => (
         <button
           key={c.id}
@@ -58,8 +58,10 @@ export function Secret({ v, send }: { v: V; send: Send }) {
     const chip = (c: V["cards"][number]) => (
       <span key={c.id} className={`key-chip k-${c.key}`}>
         <Picture glyph={c.word.pic} size="28px" />
-        <b>{c.word.pt}</b>
-        {c.word.en && <small>{c.word.en}</small>}
+        <span>
+          <b>{c.word.pt}</b>
+          {c.word.en && <small>{c.word.en}</small>}
+        </span>
       </span>
     );
     return (

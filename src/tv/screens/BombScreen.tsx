@@ -63,7 +63,7 @@ export function BombScreen({ a }: { a: BatataQuente }) {
       ) : a.phase === "intro" && holder ? (
         <DoNow tone="calm" who={holder} pt="começa com a batata!" en={`${holder.name} starts${a.final && !a.inPractice ? " — this one counts double" : ""}`} />
       ) : a.phase === "boom" && a.burned ? (
-        <DoNow tone="alert" who={a.burned} pt="queimou-se!" en={`${a.burned.name} got burned${a.inPractice ? " (practice — doesn't count)" : ""}`} />
+        <DoNow tone="alert" who={a.burned} pt="perde esta batata!" en={`${a.burned.name} loses this potato${a.inPractice ? " (practice — doesn't count)" : ""}`} />
       ) : (
         <DoNow tone="calm" pt="Fim do jogo!" en="Game over" />
       )}

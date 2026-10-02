@@ -21,7 +21,7 @@ const ASK: Record<V["kind"], { pt: string; en: string }> = {
 const TYPED: Partial<Record<V["kind"], { pt: string; en: string }>> = {
   see: { pt: "✍️ Como se diz?", en: "Type its name in Portuguese" },
   number: { pt: "✍️ Escreve o número", en: "Type the number in words" },
-  opposite: { pt: "✍️ Escreve o contrário de…", en: "Type the opposite in Portuguese" },
+  opposite: { pt: "✍️ Escreve o contrário", en: "Type the opposite in Portuguese" },
 };
 
 export function Bomb({ v, send }: { v: V; send: Send }) {
@@ -80,7 +80,7 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
                   f.value = "";
                 }}
               >
-                <input name="w" placeholder="Escreve em português · Type it in Portuguese" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} disabled={sLocked > 0} />
+                <input name="w" placeholder="Em português… · Type it" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} disabled={sLocked > 0} />
                 <button className="btn player" type="submit" disabled={sLocked > 0}>
                   OK
                 </button>
@@ -132,7 +132,7 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
     <div className={`p-col bomb-hot ${locked > 0 ? "locked" : ""}`}>
       {score}
       <div className="p-callout hot">
-        <b className="display">🥔🔥 {(v.typed && TYPED[v.kind]?.pt) || ask.pt}</b>
+        <b className="display">🥔 {(v.typed && TYPED[v.kind]?.pt) || ask.pt}</b>
         <span>{(v.typed && TYPED[v.kind]?.en) || ask.en} — right answer passes the potato!</span>
       </div>
       {v.prompt && (
@@ -153,7 +153,7 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
               f.value = "";
             }}
           >
-            <input name="w" placeholder="Escreve em português · Type it in Portuguese" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} disabled={locked > 0} autoFocus />
+            <input name="w" placeholder="Em português… · Type it" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} disabled={locked > 0} autoFocus />
             <button className="btn player" type="submit" disabled={locked > 0}>
               OK
             </button>

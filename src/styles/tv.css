@@ -4289,3 +4289,57 @@ html.tv-root #root {
 .wick-fast i {
   font-size: 1.2rem;
 }
+.star-pill .x2 {
+  margin-left: 0.2em;
+  padding: 0 0.45em;
+  border-radius: 999px;
+  background: var(--coral);
+  color: var(--white);
+}
+/* The gallery card leaves the caption strip free under the do-now line. */
+.gallery-big canvas {
+  width: min(46vh, 40rem);
+  height: min(46vh, 40rem);
+}
+.stop-cats {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(10rem, auto);
+}
+/* Kitchen tickets hug their content so the tray and the shift bar stay above the caption strip. */
+.kitchen-tickets {
+  min-height: 15rem;
+  padding-top: 1.4rem;
+}
+.kitchen-tray {
+  margin-top: 1rem;
+}
+/* The player chip inside a coloured do-now keeps its own navy name. */
+.do-now .chip {
+  color: var(--navy);
+}
+/* The lightning round's outcome card sits under the do-now line, never over it. */
+.rush-result {
+  top: 55%;
+}
+.verbs-endings {
+  flex-wrap: nowrap;
+}
+.verbs-endings .kicker {
+  flex-basis: auto;
+}
+/* Verbs reveal: the whole present-tense row fits inside its card (never spills into the other card). */
+.verbs-duo .verbs-card {
+  min-width: 0;
+}
+.verbs-duo .verbs-row {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25em;
+}
+.verbs-duo .verbs-row span {
+  padding: 0.2em 0.4em;
+}
+.verbs-duo .verbs-row span b {
+  font-size: 1em;
+}

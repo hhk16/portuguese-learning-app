@@ -19,13 +19,12 @@ function RushView({ a }: { a: LearnActivity }) {
         <span className="pill twist-pill">⚡ Desafio relâmpago <i>Lightning round</i></span>
         <span className={`pill clock ${left < 10_000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}</span>
         <span className="pill star-pill">
-          {r.team}/{RUSH_GOAL} ⭐
+          {r.team}/{RUSH_GOAL} ⭐{r.combo >= 2 && <b className="x2">×{r.combo}</b>}
         </span>
         <span className="pill lives-pill">
           {"❤️".repeat(Math.max(0, r.hearts))}
           {"🖤".repeat(Math.max(0, RUSH_HEARTS - r.hearts))}
         </span>
-        {r.combo >= 2 && <span className="pill double-pill">Combo ×{r.combo}</span>}
       </GameTop>
       {a.rushResult ? (
         <DoNow tone="calm" pt="Vejam o resultado" en="Here's how the lightning round went" />

@@ -36,7 +36,7 @@ export function Controller({ view, conn }: { view: ControllerView; conn: PhoneCo
       {"practice" in view && view.practice && (
         <div className="practice-bar">
           <span>
-            🎓 Ensaio · não conta<small>Practice</small>
+            🎓 Ensaio · não conta
           </span>
           <button className="btn white mini" onClick={() => conn.input(view.roundId, view.promptId, { mode: "skip" })}>
             Saltar · Skip
@@ -164,7 +164,7 @@ function Paused({ conn }: { conn: PhoneConnection }) {
   return (
     <div className="p-center">
       <div className="p-big">Pausa</div>
-      <div className="p-sub">Paused — o jogo está parado na TV · the game is on hold</div>
+      <div className="p-sub">O jogo está parado · Paused — the game is on hold</div>
       <div className="p-grow" />
       <button className="btn block mint p-hero-btn" onClick={() => conn.menu("resume")}>
         <span className="bi">

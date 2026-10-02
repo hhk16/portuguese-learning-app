@@ -116,7 +116,7 @@ export function Sync({ v, send }: { v: V; send: Send }) {
           submit(word);
         }}
       >
-        <input value={word} onChange={(e) => setWord(e.target.value)} placeholder={typeOnly ? "Escreve em português… · Type in Portuguese" : "Escreve ou escolhe… · Type or pick"} autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} />
+        <input value={word} onChange={(e) => setWord(e.target.value)} placeholder={typeOnly ? "Em português… · Type it" : "Escreve… · Type or pick"} autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} />
         <button className="btn player" type="submit" disabled={!word.trim()}>
           OK
         </button>
