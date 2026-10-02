@@ -3688,3 +3688,96 @@ html.tv-root #root {
   color: var(--ink-3);
   animation: pulse-soft 1.2s ease-in-out infinite;
 }
+
+/* ---- Results, clarity pass: title + stars → big headline → XP → two word columns → what next. */
+.results-card {
+  gap: 0.9rem;
+  padding: 1.6rem 2.2rem 1.8rem;
+}
+.results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.results-head .kicker {
+  font-size: 1em;
+}
+.results-head .result-stars {
+  font-size: 2.6em;
+  gap: 0.15em;
+  align-items: center;
+}
+.results-head .next-star {
+  font-size: 0.32em;
+  font-weight: 800;
+  color: var(--ink-2);
+  margin-left: 0.4em;
+}
+.results-hero h1 {
+  font-size: 2.6em;
+  line-height: 1.05;
+}
+.results-hero .en-line {
+  margin: 0.25em 0 0;
+  font-size: 1.15em;
+  color: var(--ink-2);
+}
+.results-words {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 1rem;
+}
+.results-words section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.8rem 1rem;
+  border-radius: 1rem;
+  background: var(--cream);
+}
+.results-words section.review {
+  background: #fff1e8;
+}
+.results-words h3,
+.next-head {
+  margin: 0 0 0.2rem;
+  font-family: var(--display);
+  font-size: 1em;
+  font-weight: 600;
+}
+.results-words h3 i,
+.next-head i {
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 0.75em;
+  color: var(--ink-3);
+  margin-left: 0.4em;
+}
+.rw-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.95em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rw-row b {
+  font-family: var(--display);
+  font-weight: 600;
+}
+.rw-row i {
+  font-style: normal;
+  color: var(--ink-3);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.next-head {
+  margin-top: 0.3rem;
+}
+.results-card .next-item {
+  font-size: 0.9em;
+}

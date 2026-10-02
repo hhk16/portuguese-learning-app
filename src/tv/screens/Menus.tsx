@@ -294,39 +294,36 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
   const review = [...new Map([...(info.review ?? []).map((m) => ({ itemId: m.pt, ...m })), ...rt.activePlayers.flatMap((p) => p.missed)].map((m) => [m.pt, m])).values()]
     .filter((m) => !shownPt.has(m.pt.replace(/^(o|a|os|as) /, "")))
     .slice(0, 6);
+  // One line of English under the headline; the longer "sub" only when there's no English headline.
+  const enLine = info.headlineEn ?? info.subEn;
+  const used = [...new Map((info.practiced ?? []).map((w) => [w.pt, w])).values()].slice(0, 4);
+  const showReview = !info.lesson && !info.champion && !info.gallery?.length && review.length > 0;
+  const toStar = info.score !== undefined && info.max !== undefined && info.stars !== undefined && info.stars < 3 ? (toNextStar(info.score, info.max) ?? 0) : 0;
   return (
     <div className="tv-overlay results-screen">
       <div className="card results-card">
-        <div className="kicker">{info.title}</div>
-        {info.stars !== undefined && (
-          <div className="result-stars">
-            {[0, 1, 2].map((i) => (
-              <span key={i} className={`rstar ${i < info.stars! ? "on" : ""}`} style={{ animationDelay: `${0.9 + i * 0.45}s` }}>
-                ★
-              </span>
-            ))}
-          </div>
-        )}
+        <div className="results-head">
+          <span className="kicker">{info.title}</span>
+          {info.stars !== undefined && (
+            <span className="result-stars">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className={`rstar ${i < info.stars! ? "on" : ""}`} style={{ animationDelay: `${0.9 + i * 0.45}s` }}>
+                  ★
+                </span>
+              ))}
+              {toStar > 0 && <small className="next-star">+{toStar} → ★</small>}
+            </span>
+          )}
+        </div>
         {a.record?.isNew && a.record.previous !== null && (
           <div className="record-banner display">
             Novo recorde! <i>New record! (antes · before: {a.record.previous})</i>
           </div>
         )}
-        <h1 className="display">{info.headline}</h1>
-        {info.headlineEn && <p className="en-line">{info.headlineEn}</p>}
-        {info.sub && (
-          <p className="muted">
-            {info.sub}
-            {info.subEn && <i> · {info.subEn}</i>}
-          </p>
-        )}
-        {info.score !== undefined && info.max !== undefined && info.stars !== undefined && info.stars < 3 && (
-          <p className="muted next-star">
-            {toNextStar(info.score, info.max) === 1
-              ? "Falta 1 ponto para a próxima estrela · 1 point to the next star"
-              : `Faltam ${toNextStar(info.score, info.max)} pontos para a próxima estrela · ${toNextStar(info.score, info.max)} points to the next star`}
-          </p>
-        )}
+        <div className="results-hero">
+          <h1 className="display">{info.headline}</h1>
+          {enLine ? <p className="en-line">{enLine}</p> : info.sub && <p className="en-line">{info.sub}</p>}
+        </div>
         {a.awards.size > 0 && (
           <div className="xp-row">
             {rt.activePlayers.map((p) => {
@@ -356,26 +353,43 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             })}
           </div>
         )}
+        {!info.gallery?.length && (used.length > 0 || showReview) && (
+          <div className="results-words">
+            {used.length > 0 && (
+              <section>
+                <h3>
+                  ✓ Palavras do jogo <i>Words you used</i>
+                </h3>
+                {used.map((w, i) => (
+                  <span key={`${w.pt}-${i}`} className="rw-row">
+                    {w.pic && <Picture glyph={w.pic} size="1.3em" />}
+                    <b>{w.pt}</b>
+                    {(w.en ?? glossOf(w.pt)) && <i>{w.en ?? glossOf(w.pt)}</i>}
+                  </span>
+                ))}
+              </section>
+            )}
+            {showReview && (
+              <section className="review">
+                <h3>
+                  ↻ Para rever <i>To review</i>
+                </h3>
+                {review.slice(0, 4).map((m) => (
+                  <span key={m.itemId} className="rw-row">
+                    <b>{m.pt}</b>
+                    {m.en && <i>{m.en}</i>}
+                  </span>
+                ))}
+              </section>
+            )}
+          </div>
+        )}
         {info.gallery && info.gallery.length > 0 && (
           <div className="words">
             <div className="kicker">Galeria · Your drawings</div>
             <div className="gallery">
               {info.gallery.map((g, i) => (
                 <GalleryThumb key={i} g={g} delay={i * 600} />
-              ))}
-            </div>
-          </div>
-        )}
-        {!info.gallery?.length && info.practiced && info.practiced.length > 0 && (
-          <div className="words">
-            <div className="kicker">Palavras do jogo · Words you used</div>
-            <div className="word-chips">
-              {[...new Map(info.practiced.map((w) => [w.pt, w])).values()].slice(0, info.champion ? 6 : 8).map((w, i) => (
-                <span key={`${w.pt}-${i}`} className="word-chip">
-                  {w.pic && <Picture glyph={w.pic} size="1.6em" />}
-                  <b>{w.pt}</b>
-                  {(w.en ?? glossOf(w.pt)) && <i>{w.en ?? glossOf(w.pt)}</i>}
-                </span>
               ))}
             </div>
           </div>
@@ -402,19 +416,6 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             </div>
           </div>
         )}
-        {!info.lesson && !info.champion && !info.gallery?.length && review.length > 0 && (
-          <div className="words">
-            <div className="kicker">Para rever · To review</div>
-            <div className="word-chips">
-              {review.map((m) => (
-                <span key={m.itemId} className="word-chip">
-                  <b>{m.pt}</b>
-                  {m.en && <i>{m.en}</i>}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
         {info.nightTotals && rt.activePlayers.length >= 2 && (
           <div className={`tonight ${info.champion ? "champion" : ""}`}>
             <span className="kicker">{info.champion ? "Estrela da noite · Tonight's star" : "Pontos da noite · Tonight's points"}</span>
@@ -430,6 +431,9 @@ export function ResultsScreen({ a }: { a: ResultsActivity }) {
             </div>
           </div>
         )}
+        <h3 className="next-head">
+          E agora? <i>What next? Choose on the phone or the remote</i>
+        </h3>
         <div className={`next-list ${info.options.length <= 4 ? "few" : ""}`}>
           {info.options.map((o, i) => (
             <div key={o.id} className={`next-item ${i === a.focus ? "focus" : ""}`}>
