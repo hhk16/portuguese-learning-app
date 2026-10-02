@@ -226,9 +226,9 @@ export class Cozinha implements Activity {
   private callerNow(order: Order): RuntimePlayer | undefined {
     if (this.inPractice || this.calls >= CALLS[this.level] || this.players.length < 2 || this.rush) return undefined;
     if (this.served < 2 + this.calls * 3 || order.with || order.without || this.open.some((t) => t.phone)) return undefined;
-    const p = this.players[this.callTurn++ % 2]!;
-    // Not the one who's busy with a tip.
-    return this.tip?.playerId === p.playerId ? this.players.find((x) => x !== p) : p;
+    // One writing job at a time: no phone order while a tip is being answered.
+    if (this.tip && !this.tip.result) return undefined;
+    return this.players[this.callTurn++ % 2]!;
   }
 
   /** The phone order was written (or ran out of time: ""). */

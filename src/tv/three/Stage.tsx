@@ -531,7 +531,8 @@ function Scene() {
         }
         return (
           <Suspense fallback={null}>
-            <Pet rt={rt} x={spot.x + side * spot.height * (id === "wardrobe" ? 0.24 : 0.4)} y={spot.y} height={h} flip={side < 0} />
+            {/* Running to a winner on the left: past Pipo, so the host does not hide it. */}
+            <Pet rt={rt} x={spot.x + side * spot.height * (id === "wardrobe" ? 0.24 : run && spot.x < 0 ? 0.8 : 0.4)} y={spot.y} height={h} flip={side < 0} />
           </Suspense>
         );
       })()}

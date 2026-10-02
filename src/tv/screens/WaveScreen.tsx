@@ -47,15 +47,15 @@ export function WaveScreen({ a }: { a: NaMesmaOnda }) {
           <>
             <PlayerChip p={psychic} size="2em" />
             <span className="bi-line">
-              <b>vê o alvo e escolhe uma pista</b>
-              <i>sees the target and picks a clue</i>
+              <b>vê o alvo e {a.typedClues ? "escreve" : "escolhe"} uma pista</b>
+              <i>sees the target and {a.typedClues ? "writes" : "picks"} a clue</i>
             </span>
           </>
         )}
         {a.phase === "guess" && guesser && a.clue && (
           <>
             <span className="clue-big display">
-              <Picture glyph={a.clue.pic} size="1.2em" /> “{a.clue.pt}”
+              <Picture glyph={a.clue.pic} size="1.2em" /> “{a.clue.pt}”{a.clueTyped && <small className="typed-badge"> ✍️</small>}
             </span>
             <span className="bi-line">
               <b>

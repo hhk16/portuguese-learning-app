@@ -62,7 +62,7 @@ export function BombScreen({ a }: { a: BatataQuente }) {
             )}
           </div>
         ))}
-        <div className={`potato ${side} ${a.phase}`} style={{ ["--heat" as string]: heat }} key={a.phase === "boom" ? "boom" : "potato"}>
+        <div className={`potato ${side} ${a.phase}`} style={{ ["--heat" as string]: heat, display: a.phase === "end" ? "none" : undefined }} key={a.phase === "boom" ? "boom" : "potato"}>
           {a.phase === "boom" ? (
             <span className="boom-burst display">💥</span>
           ) : (
