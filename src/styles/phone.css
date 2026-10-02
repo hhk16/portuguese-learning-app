@@ -78,7 +78,7 @@ body,
   padding: 8px 12px;
   border-radius: 12px;
   background: var(--sun);
-  font-size: 14px;
+  font-size: 15px;
   text-align: center;
 }
 .p-error {
@@ -329,7 +329,7 @@ body,
   font-weight: 600;
 }
 .pick-item small {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink-2);
 }
 .pick-item.first {
@@ -392,7 +392,7 @@ body,
   font-size: 22px;
 }
 .learn-instr small {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--ink-3);
 }
 .learn-card {
@@ -410,7 +410,7 @@ body,
   font-size: 28px;
 }
 .learn-card .note {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink-2);
   font-weight: 700;
 }
@@ -424,7 +424,7 @@ body,
   background: var(--cream);
   border-radius: 999px;
   padding: 6px 12px;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink-3);
   align-self: center;
 }
@@ -642,7 +642,7 @@ body,
   color: var(--ink-2);
 }
 .learn-sheet .why {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink-2);
   font-weight: 700;
 }
@@ -660,7 +660,7 @@ body,
   display: flex;
   gap: 8px;
   justify-content: center;
-  font-size: 14px;
+  font-size: 15px;
 }
 .secret-grid {
   display: grid;
@@ -685,12 +685,12 @@ body,
 .scard .w {
   font-family: var(--display);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.1;
   text-align: center;
 }
 .scard .e {
-  font-size: 11px;
+  font-size: 15px;
   color: var(--ink-3);
   line-height: 1.1;
 }
@@ -761,7 +761,7 @@ body,
 }
 .dial-pts {
   font-family: var(--display);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   fill: var(--white);
 }
@@ -788,7 +788,7 @@ body,
   color: var(--coral-d);
 }
 .dial-ends small {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--ink-3);
 }
 .idea-grid {
@@ -802,7 +802,7 @@ body,
   gap: 4px;
   padding: 4px 10px 4px 4px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 /* ---------------------------------------------------------------- Em Sintonia */
@@ -824,7 +824,7 @@ body,
   font-size: 20px;
 }
 .sync-word small {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--ink-3);
 }
 .sync-form {
@@ -924,7 +924,7 @@ body,
 }
 .draw-word i {
   font-style: normal;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink-3);
 }
 .pad-canvas {
@@ -993,7 +993,7 @@ body,
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink-2);
 }
 .stop-field input {
@@ -1026,7 +1026,7 @@ body,
   flex-direction: column;
 }
 .vote-row small {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--ink-3);
 }
 .vote-row b {
@@ -1127,7 +1127,7 @@ body,
 }
 .btn .bi small {
   font-family: var(--body);
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 800;
   opacity: 0.8;
 }
@@ -1142,7 +1142,7 @@ body,
   font-size: 18px;
 }
 .stop-instr small {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--ink-3);
 }
 .stop-field .cat small {
@@ -1154,10 +1154,10 @@ body,
   border-radius: 999px;
   background: var(--cream);
   padding: 2px 8px;
-  font-size: 14px;
+  font-size: 15px;
 }
 .help-btn small {
-  font-size: 10px;
+  font-size: 15px;
   color: var(--ink-3);
 }
 .help-shown {
@@ -1180,16 +1180,16 @@ body,
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
-  font-size: 14px;
+  font-size: 15px;
 }
 .sync-prev small {
   width: 100%;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--ink-3);
 }
 .bank-word small {
   font-family: var(--body);
-  font-size: 11px;
+  font-size: 15px;
   color: var(--ink-3);
   margin-left: 2px;
 }
@@ -1241,7 +1241,7 @@ body,
   line-height: 1.1;
 }
 .level-picker .bi small {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 800;
   opacity: 0.7;
 }
@@ -1278,7 +1278,7 @@ body,
 }
 .btn.mini {
   padding: 6px 10px;
-  font-size: 14px;
+  font-size: 15px;
 }
 .serve-tables {
   display: grid;
@@ -1296,7 +1296,7 @@ body,
   border-radius: 999px;
   background: var(--sky-p, #4ba3f5);
   color: #fff;
-  font-size: 13px;
+  font-size: 15px;
 }
 .final-pics {
   display: grid;
@@ -1350,7 +1350,7 @@ body,
 }
 .warm-row .guesses {
   flex: 1;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink-2, #4a5470);
   overflow: hidden;
   white-space: nowrap;
@@ -1376,7 +1376,7 @@ body,
   text-align: center;
 }
 .twist-banner i {
-  font-size: 0.85em;
+  font-size: 15px;
   opacity: 0.8;
 }
 .stroke-count {
@@ -1448,7 +1448,7 @@ body,
 }
 
 .vote-hint {
-  font-size: 0.75em;
+  font-size: 15px;
   color: var(--ink-3);
 }
 .vote-hint.likely {
@@ -1491,7 +1491,7 @@ body,
   font-size: 15px;
 }
 .wardrobe-opt small {
-  font-size: 11px;
+  font-size: 15px;
   color: var(--ink-3);
 }
 .wardrobe-opt.sel {
@@ -1502,7 +1502,7 @@ body,
 }
 .btn.bet-btn {
   padding: 8px 4px;
-  font-size: 14px;
+  font-size: 15px;
   min-width: 0;
 }
 .btn.bet-btn .bi {
@@ -1546,7 +1546,7 @@ body,
 .bomb-prompt .kicker {
   flex-basis: 100%;
   text-align: center;
-  font-size: 0.55em;
+  font-size: 15px;
 }
 .tip-card {
   gap: 0.3rem;
@@ -1564,7 +1564,7 @@ body,
   font-size: 1.05em;
 }
 .tip-card .muted {
-  font-size: 0.85em;
+  font-size: 15px;
 }
 .tip-card .sync-form input {
   padding-top: 0.4rem;
@@ -1632,7 +1632,7 @@ body,
   color: var(--sky-p-d);
 }
 .verbs-endings-p {
-  font-size: 0.85em;
+  font-size: 15px;
   text-align: center;
 }
 .verbs-person-grid,

@@ -205,7 +205,7 @@ export class NaMesmaOnda implements Activity {
     play("whoosh");
     if (this.final) this.rt.say(SAY.finalRound);
     this.rt.speakPt(`${this.spectrum.left.m} ou ${this.spectrum.right.m}?`);
-    if (this.psychic) this.rt.cue(CUE.pickClue, this.psychic, this.players.length > 1 ? NAMED.pickClue : undefined);
+    if (this.psychic) this.rt.cue(CUE.pickClue, this.psychic);
     this.rt.refreshViews();
     this.rt.bump();
   }

@@ -3,7 +3,8 @@ import { answerText, QUESTIONS, type GrandeFinal } from "../../games/final/final
 import { PERSON_LABEL, VERB_PICS } from "../../games/verbs/verbs.ts";
 import { PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
-import { GameTop } from "./Menus.tsx";
+import { DoNow, GameTop } from "./Menus.tsx";
+import { RoundPill } from "./ScorePill.tsx";
 import { useTick } from "./useTick.ts";
 
 export function FinalScreen({ a }: { a: GrandeFinal }) {
@@ -13,28 +14,46 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
   const secs = Math.ceil(a.msLeft / 1000);
   const pts = (id: string) => a.points.get(id) ?? 0;
   const top = Math.max(1, ...a.players.map((p) => pts(p.playerId)));
+  // The one instruction for this question (first right answer wins).
+  const ask = q.stop
+    ? { pt: `Uma palavra com ${q.stop.letter}!`, en: `Write a word starting with ${q.stop.letter} — first right wins` }
+    : q.verb
+      ? { pt: "Escrevam o verbo!", en: "Write the verb for this person — first right wins" }
+      : q.opp
+        ? { pt: "Escrevam o contrário!", en: "Write the opposite — first right wins" }
+        : q.num
+          ? { pt: "Escrevam o número!", en: "Write the number in words — first right wins" }
+          : q.link
+            ? { pt: "Uma palavra para os dois!", en: "One word that fits both pictures — first right wins" }
+            : q.fits
+              ? { pt: "Qual é a imagem?", en: "Tap the picture it fits — first right wins" }
+              : q.kind === "see"
+                ? { pt: "Como se diz?", en: `${a.rules.typeSee ? "Type" : "Tap"} its name — first right wins` }
+                : q.kind === "frase"
+                  ? { pt: "O que pediu o cliente?", en: "Listen: what was ordered? Tap it — first right wins" }
+                  : { pt: "Ouçam e toquem!", en: "Listen and tap the picture — first right wins" };
   return (
     <div className="tv-overlay game-screen centered final-screen">
       <GameTop title="Grande Final" pic="🏆">
-        <span className="pill">
-          {a.tieBreak ? "Desempate! · Tie-break" : `Pergunta ${Math.min(a.index + 1, QUESTIONS)}/${QUESTIONS}`}
-        </span>
-        {a.last && <span className="pill double-pill">×2</span>}
+        <RoundPill label={a.tieBreak ? "Desempate! · Tie-break" : `Pergunta ${Math.min(a.index + 1, QUESTIONS)}/${QUESTIONS}`} double={a.last} />
         {a.phase === "ask" && <span className={`pill clock ${a.msLeft < 4000 ? "low" : ""}`}>⏱ {secs}</span>}
       </GameTop>
+      {a.phase === "ask" ? (
+        <DoNow pt={ask.pt} en={ask.en} phone />
+      ) : (
+        <DoNow tone="calm" pt="Vejam a resposta" en="Here's the answer — who got it first?" />
+      )}
       <div className="final-stage">
         <div className={`card final-q ${a.phase}`}>
           {q.remix && <span className="final-remix display">🔁 {q.remix}</span>}
           {q.stop ? (
             <>
-              <span className="kicker">Stop! Uma palavra com… · a word starting with…</span>
               <span className="final-stop display">
                 <b>{q.stop.letter}</b> <Picture glyph={q.stop.pic} size="1.2em" /> {q.stop.label}
               </span>
             </>
           ) : q.verb ? (
             <>
-              <span className="kicker">Escreve o verbo · write the verb</span>
               <span className="final-stop display">
                 <Picture glyph={PERSON_LABEL[q.verb.person].pic} size="1.4em" /> {PERSON_LABEL[q.verb.person].pt} + <Picture glyph={VERB_PICS[q.verb.verb]!.pic} size="1.4em" />
               </span>
@@ -42,7 +61,6 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
             </>
           ) : q.opp ? (
             <>
-              <span className="kicker">O contrário de… · the opposite of…</span>
               <span className="final-stop display">
                 <Picture glyph={q.opp.pic} size="1.4em" /> {q.opp.from} ↔ ?
               </span>
@@ -50,36 +68,30 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
             </>
           ) : q.num ? (
             <>
-              <span className="kicker">Escreve o número · write the number in words</span>
               <span className="final-stop display final-num">{q.num.value}</span>
             </>
           ) : q.link ? (
             <>
-              <span className="kicker">Uma palavra para os dois · one word for both</span>
               <span className="final-stop display">
                 <Picture glyph={q.link.a.emoji} size="2.2em" /> + <Picture glyph={q.link.b.emoji} size="2.2em" /> = ?
               </span>
             </>
           ) : q.fits ? (
             <>
-              <span className="kicker">Qual é…? · which picture is…?</span>
               <span className="final-stop display">“{q.fits.pt}”</span>
               {a.level === 1 && <i className="final-en">{q.fits.en}</i>}
             </>
           ) : q.kind === "see" ? (
             <>
-              <span className="kicker">Vê · See — como se diz? · how do you say it?</span>
               <Picture glyph={q.word.emoji} size="7em" />
               <i className="final-en">{q.word.en}</i>
             </>
           ) : q.kind === "frase" ? (
             <>
-              <span className="kicker">Frase · Sentence — o que pediu o cliente? · what was ordered?</span>
               <span className="final-ear">🔊☕</span>
             </>
           ) : (
             <>
-              <span className="kicker">Ouve · Listen — toca na imagem · tap the picture</span>
               <span className="final-ear">🔊</span>
             </>
           )}

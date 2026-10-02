@@ -251,7 +251,7 @@ export class Desenha implements Activity {
     }
     if (this.drawer) {
       this.rt.emote(this.drawer.playerId, "think", 2500);
-      this.rt.cue(CUE.draw, this.drawer, NAMED.drawIt);
+      this.rt.cue(CUE.draw, this.drawer);
     }
     this.rt.refreshViews();
     this.rt.bump();
@@ -321,7 +321,7 @@ export class Desenha implements Activity {
     this.phaseStart = now;
     this.phaseEnd = now + VOTE_MS;
     this.promptId = randomId(6);
-    this.rt.say(SAY.bestDrawing);
+    this.rt.cue(CUE.pickBest);
     this.rt.refreshViews();
     this.rt.bump();
   }

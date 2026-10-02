@@ -17,7 +17,7 @@ import { setHurry } from "../../audio/music.ts";
 import { gameNow } from "../../tv/clock.ts";
 import type { Activity, RuntimePlayer, TvRuntime } from "../../tv/runtime.ts";
 import type { GameOutcome } from "../../tv/activities.ts";
-import { CUE, NAMED, SAY } from "../../tv/host-lines.ts";
+import { CUE, SAY } from "../../tv/host-lines.ts";
 import type { Level } from "../../tv/progress.ts";
 import { CATEGORY_LINKS, LINKS, linksOf, type Link } from "../sync/links.ts";
 import { normWord } from "../sync/sync.ts";
@@ -236,7 +236,7 @@ export class ParesSecretos implements Activity {
     this.guessesLeft = 0;
     this.promptId = randomId(6);
     play("whoosh");
-    if (this.giver) this.rt.cue(CUE.pickClue, this.giver, NAMED.giveClue);
+    if (this.giver) this.rt.cue(CUE.pickClue, this.giver);
     this.rt.refreshViews();
     this.rt.bump();
   }
@@ -288,7 +288,7 @@ export class ParesSecretos implements Activity {
       // The TV says the clue: listening practice for the guesser.
       this.rt.speakPt(word.pt);
       this.rt.emote(p.playerId, "think", 2000);
-      if (this.guesser) this.rt.cue(CUE.tap, this.guesser, NAMED.guessIt);
+      if (this.guesser) this.rt.cue(CUE.tap, this.guesser);
       this.rt.refreshViews();
       this.rt.bump();
       return;
