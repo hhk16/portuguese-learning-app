@@ -20,8 +20,11 @@ export function Final({ v, send }: { v: V; send: Send }) {
   if (v.answered)
     return (
       <div className="p-center">
-        <div className="p-big">🔒</div>
-        <div className="p-sub">Resposta enviada! Olha para a TV. · Locked in — look at the TV!</div>
+        <div className="p-bob">
+          <Picture glyph="🔒" size="96px" />
+        </div>
+        <div className="p-big">Resposta enviada!</div>
+        <div className="p-sub">Locked in — the TV shows who got it first</div>
       </div>
     );
   return (
@@ -36,12 +39,12 @@ export function Final({ v, send }: { v: V; send: Send }) {
       {v.kind === "number" || v.kind === "link" ? (
         <div className="p-callout">
           <b className="display">{v.kind === "number" ? `🔢 ${v.prompt?.pt}` : `🔗 ${v.prompt?.pt}`}</b>
-          <span>{v.kind === "number" ? "Write this number in Portuguese words (vinte e três…) — first right one wins!" : "Write ONE Portuguese word that fits both pictures (a colour, a category, an adjective…) — first right one wins!"}</span>
+          <span>{v.kind === "number" ? "Write it in Portuguese words (vinte e três…) — first right wins!" : "ONE Portuguese word for both pictures — first right wins!"}</span>
         </div>
       ) : v.kind === "fits" ? (
         <div className="p-callout">
           <b className="display">🧩 “{v.prompt?.pt}”</b>
-          <span>Which picture is “{v.prompt?.pt}”{v.prompt?.en ? ` (${v.prompt.en})` : ""}? Tap it — first right one wins!</span>
+          <span>Tap the picture for “{v.prompt?.pt}” — first right wins!</span>
         </div>
       ) : v.kind === "stop" || v.kind === "verbs" || v.kind === "opposite" ? (
         <div className="p-callout">
@@ -50,31 +53,31 @@ export function Final({ v, send }: { v: V; send: Send }) {
           </b>
           <span>
             {v.kind === "stop"
-              ? `Write any word for this category starting with this letter — first valid one wins!`
+              ? `A word in this category with this letter — first wins!`
               : v.kind === "verbs"
-                ? `Write the verb for “${v.prompt?.pt}” (${v.prompt?.en}) — first right one wins!`
-                : `Write the opposite of “${v.prompt?.pt}” in Portuguese — first right one wins!`}
+                ? `Write the verb for “${v.prompt?.pt}” (${v.prompt?.en}) — first right wins!`
+                : `Write the opposite of “${v.prompt?.pt}” — first right wins!`}
           </span>
         </div>
       ) : v.kind === "frase" ? (
         <div className="p-callout">
           <b className="display">🔊 Ouve o pedido!</b>
-          <span>Listen to the order on the TV: what did the customer ask for? Be the first!</span>
+          <span>What did the customer order? Be the first!</span>
         </div>
       ) : v.kind === "see" ? (
         <div className="p-callout">
           <b className="display">Como se diz? {v.prompt?.pic && <Picture glyph={v.prompt.pic} size="36px" />}</b>
-          <span>How do you say “{v.prompt?.en}” in Portuguese? Look at the TV — first right answer wins!</span>
+          <span>How do you say “{v.prompt?.en}”? First right answer wins!</span>
         </div>
       ) : !v.options ? (
         <div className="p-callout">
           <b className="display">🔊 Ouve e escreve!</b>
-          <span>Listen to the TV and type the word in Portuguese (the “o/a” is optional). You both need it!</span>
+          <span>Type the word you hear (“o/a” optional). You both need it!</span>
         </div>
       ) : (
         <div className="p-callout">
           <b className="display">🔊 Ouve e toca!</b>
-          <span>{v.label ? "Listen to the TV and tap it — fast! You score when you both get it." : "Listen to the TV and tap the picture — be the first!"}</span>
+          <span>{v.label ? "Tap it fast — you score when you both get it." : "Tap the picture you hear — be the first!"}</span>
         </div>
       )}
       {v.options ? (

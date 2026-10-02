@@ -473,7 +473,7 @@ export class LearnActivity implements Activity {
         mode: "final",
         roundId: this.roundId,
         promptId: this.promptId,
-        label: `${r.typed ? "✍️ A última! Escreve" : "⚡"} ${r.team}/${RUSH_GOAL} ⭐ · ${"❤️".repeat(Math.max(0, r.hearts))}`,
+        label: `${r.typed ? "✍️ A última!" : "⚡"} ${r.team}/${RUSH_GOAL} ⭐ · ${"❤️".repeat(Math.max(0, r.hearts))}`,
         kind: "hear",
         index: r.asked - 1,
         total: Math.max(r.asked, 1),
