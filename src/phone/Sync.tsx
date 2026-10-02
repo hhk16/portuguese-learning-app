@@ -17,9 +17,9 @@ export function Sync({ v, send }: { v: V; send: Send }) {
     return (
       <div className="p-col">
         <div className="p-callout">
-          <b className="display">Faz sentido?</b>
+          <b className="display">Faz sentido? 🤔</b>
           <span>
-            Escreveram os dois “{v.sense.word}”. Liga {v.words[0].pt} e {v.words[1].pt}? · You both chose “{v.sense.word}”. Does it really link them?
+            You both wrote “{v.sense.word}”. Does it link {v.words[0].pt} and {v.words[1].pt}?
           </span>
         </div>
         <div className="p-grow" />
@@ -57,9 +57,9 @@ export function Sync({ v, send }: { v: V; send: Send }) {
           <Picture glyph="🔒" size="72px" />
         </div>
         <div className="p-big">“{v.mine ?? word}”</div>
-        <div className="p-sub">Segredo guardado! À espera do teu par… · Locked in! Waiting for your partner…</div>
+        <div className="p-sub">Segredo guardado! O teu par ainda está a escrever… · Locked in — your partner is still writing, then the reveal</div>
         <div className="side-bet">
-          <span className="kicker">Vamos coincidir? · Will you match? (+1 if right)</span>
+          <span className="p-label">Vão coincidir? · Will you match? (+1)</span>
           <div className="row2">
             <button className={`btn ${v.predicted === true ? "mint" : "white"}`} disabled={v.predicted !== undefined} onClick={() => send({ mode: "sync", predict: true })}>
               <span className="bi">
@@ -86,6 +86,10 @@ export function Sync({ v, send }: { v: V; send: Send }) {
         {v.lives !== undefined && <span className="pill">{"❤️".repeat(v.lives)}</span>}
         {v.msLeft !== undefined && <span className={`pill ${left < 8000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>}
       </div>
+      <div className="p-callout">
+        <b className="display">Escreve UMA palavra que as ligue</b>
+        <span>One word that links both — the same as your partner!</span>
+      </div>
       <div className="sync-pair">
         {v.words.map((w, i) => (
           <div key={i} className="card sync-word">
@@ -105,10 +109,6 @@ export function Sync({ v, send }: { v: V; send: Send }) {
           <small>Your last words are the new pair — meet in the middle!</small>
         </div>
       )}
-      <div className="p-callout soft">
-        <b>Uma palavra que ligue as duas</b>
-        <span>One word that links both — the same one your partner will choose!</span>
-      </div>
       <form
         className="sync-form"
         onSubmit={(e) => {

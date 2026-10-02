@@ -50,8 +50,8 @@ function Write({ v, send }: { v: V; send: Send }) {
       <div className="stop-head">
         <span className="stop-tile display">{v.letter}</span>
         <span className="stop-instr">
-          <b>Palavras com {v.letter}</b>
-          <small>Words starting with {v.letter}{v.double ? " · ×2 points!" : ""}</small>
+          <b>Escreve palavras com {v.letter}</b>
+          <small>A {v.letter}-word for each category{v.double ? " · ×2!" : ""}</small>
         </span>
         <span className="stop-time display">{Math.ceil(left / 1000)}s</span>
       </div>

@@ -532,7 +532,7 @@ export class ParesSecretos implements Activity {
       return {
         mode: "wait",
         title: `Fim do turno · ${this.turnFinds} encontrad${this.turnFinds === 1 ? "o" : "os"}`,
-        subtitle: `End of the turn — ${this.found}/${this.goal} found. Olha para a TV!`,
+        subtitle: `${this.found}/${this.goal} found — ${this.turnsLeft <= 0 ? "next: sudden death!" : this.giver === p ? "next: you give the clue" : `next: ${this.giver?.name ?? "your partner"} gives you a clue`}`,
         pic: this.turnFinds ? "✅" : "⏭️",
       };
     const isGiver = p === this.giver && !sudden;

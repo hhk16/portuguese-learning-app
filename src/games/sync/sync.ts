@@ -512,12 +512,12 @@ export class EmSintonia implements Activity {
     if (this.phase === "end") return { mode: "wait", title: "Fim!", subtitle: `${this.score} pontos`, pic: "🔮" };
     // During the 3-2-1 you can still make your prediction; after that, eyes on the TV.
     if (this.phase === "countdown" && (this.predictions.has(p.playerId) || this.inPractice || this.players.length < 2))
-      return { mode: "wait", title: "3… 2… 1…", subtitle: "Olha para a TV! · Look at the TV!", pic: "👀" };
+      return { mode: "wait", title: "3… 2… 1…", subtitle: "As vossas palavras vão aparecer na TV · Your words appear on the TV!", pic: "👀" };
     if (this.phase === "reveal")
       return {
         mode: "wait",
         title: this.lastMatch ? "Em sintonia! 🎉" : this.closeMiss ? "Quase!" : "Nada disso!",
-        subtitle: this.lastMatch ? "In sync!" : `${this.closeMiss ? "So close" : "Not quite"} — ${this.attempt < this.rules.tries ? "now link your two words. Olha para a TV!" : this.lives <= 0 && !this.inPractice ? "that was the last life. Olha para a TV!" : "next pair. Olha para a TV!"}`,
+        subtitle: this.lastMatch ? `In sync! ${this.final ? "Next: the results" : "Next: a new pair"}` : `${this.closeMiss ? "So close" : "Not quite"} — ${this.attempt < this.rules.tries ? "next: link your two words" : this.lives <= 0 && !this.inPractice ? "that was the last life" : this.final ? "next: the results" : "next: a new pair"}`,
         pic: this.lastMatch ? "🥳" : "🤔",
       };
     const base = {
