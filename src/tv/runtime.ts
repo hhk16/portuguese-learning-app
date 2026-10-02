@@ -442,7 +442,7 @@ export class TvRuntime {
     if (this.petPrompt === p.playerId) return { mode: "petName", roundId: "pet", promptId: "pet", current: this.settings.petName, suggestions: PET_NAMES };
     if (this.paused) return { mode: "paused", title: "Pausa" };
     // During a reveal the TV is the show: phones wait a beat before showing the result.
-    if (performance.now() < this.holdUntil) return { mode: "wait", title: "Olha para a TV!", subtitle: "Look at the TV! 👀", pic: "👀" };
+    if (performance.now() < this.holdUntil) return { mode: "wait", title: "👀 Resultado na TV!", subtitle: "The result is on the TV — your next move comes in a second", pic: "👀" };
     // A game's ending beat: every phone shows it too (nothing left to tap).
     const m = this.moment;
     if (m && performance.now() < m.at + m.ms) return { mode: "wait", title: m.pt, subtitle: `${m.en} · Olha para a TV!`, pic: m.kind === "won" ? "🏆" : "💔" };
