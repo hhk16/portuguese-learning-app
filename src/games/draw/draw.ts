@@ -82,11 +82,14 @@ export function guessMatches(guess: string, pt: string): "yes" | "typo" | "no" {
   return "no";
 }
 
-/** "g _ _ _" / "_ _ _ _" — the hint pattern for a word. */
+/**
+ * "g _ _ _" / "_ _ _ _" — the hint pattern for a word. Words are split by an em space (which, unlike a
+ * plain space, never collapses in HTML), so "batata frita" shows as two clear groups.
+ */
 export function hintPattern(pt: string, hint: "first-letter" | "length" | "none"): string | undefined {
   if (hint === "none") return undefined;
   const w = pt.split(/\s*·\s*/)[0]!.replace(/^(o|a|os|as)\s+/i, "");
-  return [...w].map((ch, i) => (ch === " " ? " " : i === 0 && hint === "first-letter" ? ch : "_")).join(" ");
+  return [...w].map((ch, i) => (ch === " " ? "\u2003" : i === 0 && hint === "first-letter" ? ch : "_")).join(" ");
 }
 
 export class Desenha implements Activity {

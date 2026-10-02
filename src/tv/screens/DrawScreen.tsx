@@ -162,7 +162,7 @@ export function DrawScreen({ a }: { a: Desenha }) {
           {a.phase === "draw" && a.hint && (
             <div className="draw-hint-tv display" aria-label={a.hint}>
               {/* One group per word, so the gap between words is visible and a word never breaks. */}
-              {a.hint.split(/\s*\u2003\s*|\s{2,}/).map((w, i) => (
+              {a.hint.split(/\s{2,}/).map((w, i) => (
                 <span key={i} className="hint-word">
                   {w}
                 </span>

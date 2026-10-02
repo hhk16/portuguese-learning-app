@@ -2,7 +2,8 @@
 import { ROUNDS, HURRY_MS, type Stop } from "../../games/stop/stop.ts";
 import { Face, PlayerChip } from "../../ui/Face.tsx";
 import { Picture } from "../../ui/Picture.tsx";
-import { GameTop } from "./Menus.tsx";
+import { DoNow, GameTop } from "./Menus.tsx";
+import { RoundPill } from "./ScorePill.tsx";
 import { useTick } from "./useTick.ts";
 
 const CAT_EN: Record<string, string> = { comida: "Food or drink", animal: "Animal", coisa: "Thing", profissao: "Job", pais: "Country / nationality", lugar: "Place / nature" };
@@ -24,24 +25,50 @@ export function StopScreen({ a }: { a: Stop }) {
   const total = a.phase === "hurry" ? HURRY_MS : a.rules.writeMs;
   const secs = Math.ceil(a.msLeft / 1000);
   const table = a.phase === "score" || a.phase === "vote";
+  const timed = a.phase === "write" || a.phase === "hurry" || a.phase === "vote";
+  const hurrying = a.phase === "hurry" && a.stoppedBy ? a.players.find((p) => p !== a.stoppedBy) : undefined;
+  // Vote: who still has to judge their partner's new words, and which words.
+  const voters = a.phase === "vote" ? a.players.filter((p) => !a.voted.has(p.playerId)) : [];
+  const pendingOf = (p: (typeof a.players)[number]) => {
+    const partner = a.rt.partnerOf(p);
+    return Object.values((partner && a.cells.get(partner.playerId)) ?? {}).filter((c) => c.status === "pending").map((c) => c.word);
+  };
+  const oneVoter = voters.length === 1 ? voters[0] : undefined;
+  const oneWord = oneVoter && pendingOf(oneVoter).length === 1 ? pendingOf(oneVoter)[0] : undefined;
   return (
     <div className="tv-overlay game-screen centered">
       <GameTop title="Stop!" pic="⏱️">
-        {!a.inPractice && <span className="pill">{a.suddenDeath ? "Desempate! · Tie-breaker" : `Letra ${Math.min(a.round + 1, ROUNDS)}/${ROUNDS}`}</span>}
-        {a.double && <span className="pill double-pill">×2</span>}
+        {!a.inPractice && <RoundPill label={a.suddenDeath ? "Desempate! · Tie-breaker" : `Letra ${Math.min(a.round + 1, ROUNDS)}/${ROUNDS}`} double={a.double} />}
         {a.players.map((p) => (
           <span key={p.playerId} className="pill">
             <Face avatar={p.avatar} color={p.color} size="1.4em" name={p.name} /> {a.totals.get(p.playerId) ?? 0}
           </span>
         ))}
+        {timed && <span className={`pill clock ${a.msLeft < 10_000 ? "low" : ""}`}>⏱ {secs}</span>}
       </GameTop>
+      {a.phase === "write" ? (
+        <DoNow pt={`Palavras com ${a.letter} para cada categoria!`} en={`Write a ${a.letter}-word for each category`} phone />
+      ) : hurrying && a.stoppedBy ? (
+        <DoNow tone="alert" who={hurrying} pt="Depressa! Acaba as palavras!" en={`${a.stoppedBy.name} hit STOP — finish your words!`} phone />
+      ) : a.phase === "hurry" || a.phase === "lock" ? (
+        <DoNow tone="calm" pt="Tempo! Vamos ver…" en="Time's up — checking your words" />
+      ) : a.phase === "vote" ? (
+        oneVoter ? (
+          <DoNow who={oneVoter} pt={oneWord ? `«${oneWord}» existe? Decide!` : "Estas palavras contam? Decide!"} en="Real word? Vote on your phone" phone />
+        ) : (
+          <DoNow pt="Palavras novas: contam? Votem!" en="Vote on your partner's new words on your phone" phone />
+        )
+      ) : a.phase === "score" ? (
+        <DoNow tone="calm" pt="Pontos desta letra" en="This letter's points" />
+      ) : (
+        <DoNow tone="calm" pt="Pontuação final" en={`Final score — ${ROUNDS} letters`} />
+      )}
       {a.phase === "end" && <StopFinal a={a} />}
       {!table && a.phase !== "end" && (
         <div className="stop-stage">
           <div key={a.letter + a.round} className={`card stop-letter spin-in ${a.phase === "hurry" ? "hurry" : ""}`}>
             <span className="display">{a.letter}</span>
             <div className="stop-ring" style={{ ["--p" as string]: `${(a.msLeft / total) * 100}` }} />
-            <b className="display secs">{secs}</b>
           </div>
           <div className="card stop-cats">
             {a.categories.map((c) => (
@@ -57,11 +84,7 @@ export function StopScreen({ a }: { a: Stop }) {
               <PlayerChip key={p.playerId} p={p} size="2em" extra={<span className={`st ${a.filled(p) === a.categories.length ? "st-right" : "st-thinking"}`}>{a.filled(p)}/{a.categories.length}</span>} />
             ))}
           </div>
-          {a.phase === "hurry" && a.stoppedBy && (
-            <div className="stop-shout display">
-              STOP! · {a.stoppedBy.name} acabou <i>{a.stoppedBy.name} finished — hurry!</i>
-            </div>
-          )}
+          {a.phase === "hurry" && a.stoppedBy && <div className="stop-shout display">STOP!</div>}
         </div>
       )}
       {table && (
@@ -113,9 +136,19 @@ export function StopScreen({ a }: { a: Stop }) {
             );
           })}
           {a.phase === "vote" && (
-            <div className="stop-vote-note">
-              Palavras novas? O teu par decide no telemóvel… ({secsLeft(a)} s)
-              <i>New words? Your partner decides on their phone — only a YES counts.</i>
+            <div className="stop-legend">
+              <span>
+                <b className="ok">✓</b> certo · right
+              </span>
+              <span>
+                <b className="pending">?</b> a votar · voting
+              </span>
+              <span>
+                <b>✗</b> não conta · doesn't count
+              </span>
+              <span>
+                <b>—</b> vazio · empty
+              </span>
             </div>
           )}
           {a.phase === "score" && (
@@ -153,13 +186,7 @@ function StopFinal({ a }: { a: Stop }) {
           </b>
         </div>
       ))}
-      <i>
-        Pontuação final · final score — {ROUNDS} letras
-      </i>
     </div>
   );
 }
 
-function secsLeft(a: Stop) {
-  return Math.ceil(a.msLeft / 1000);
-}
