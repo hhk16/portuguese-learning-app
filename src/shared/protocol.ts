@@ -266,6 +266,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
     /** Your own words your partner is voting on (while you wait). */
     mine: z.array(z.object({ id, category: shortText, word: shortText, likely: z.boolean().optional() })).max(6).optional(),
     voted: z.boolean().optional(),
+    /** Your partner's name (for "Ana está a ver as tuas palavras…"). */
+    partner: shortText.optional(),
   }),
   /** Name the puppy (asked once on Ana's phone; renamed from the TV's settings). */
   z.object({ mode: z.literal("petName"), ...round, current: shortText.optional(), suggestions: z.array(shortText).max(8) }),

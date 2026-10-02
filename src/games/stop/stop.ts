@@ -418,7 +418,8 @@ export class Stop implements Activity {
   viewFor(p: RuntimePlayer): ControllerView {
     if (this.players.length < 2) return { mode: "wait", title: "Stop! precisa de 2", subtitle: "Chama o teu par para jogar!", pic: "⏱️" };
     if (this.phase === "end") return { mode: "wait", title: "Fim!", subtitle: `${this.totals.get(p.playerId) ?? 0} pontos`, pic: "🏁" };
-    if (this.phase === "score") return { mode: "wait", title: `+${this.roundPoints(p)} pontos`, subtitle: "Olha para a TV!", pic: "📋" };
+    if (this.phase === "score")
+      return { mode: "wait", title: `+${this.roundPoints(p)} pontos`, subtitle: `As palavras estão na TV · Everyone's words are on the TV — ${this.round + 1 >= ROUNDS || this.suddenDeath ? "then the results" : "then a new letter"}`, pic: "📋" };
     const base = {
       mode: "stop" as const,
       roundId: this.roundId,
@@ -439,7 +440,7 @@ export class Stop implements Activity {
       const mine = Object.entries(this.cells.get(p.playerId) ?? {})
         .filter(([, c]) => c.status === "pending")
         .map(([cat, c]) => ({ id: `${p.playerId}:${cat}`, category: CATEGORIES.find((x) => x.id === cat)?.label ?? cat, word: c.word, likely: inReference(cat, c.word) || undefined }));
-      return { ...base, phase: "vote", votes, mine: mine.length ? mine : undefined, voted: this.voted.has(p.playerId) };
+      return { ...base, phase: "vote", votes, mine: mine.length ? mine : undefined, voted: this.voted.has(p.playerId), partner: partner?.name };
     }
     const debug = this.rt.testMode
       ? Object.fromEntries(this.categories.map((c) => [c.id, examples(c.id, this.letter)[this.players.indexOf(p) % 2]?.pt ?? examples(c.id, this.letter)[0]?.pt ?? `${this.letter.toLowerCase()}xyz`]))

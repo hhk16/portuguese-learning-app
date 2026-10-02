@@ -103,12 +103,17 @@ function Vote({ v, send }: { v: V; send: Send }) {
   const [ok, setOk] = useState<Record<string, boolean>>({});
   const [sent, setSent] = useState(!!v.voted);
   const votes = v.votes ?? [];
+  const partner = v.partner ?? "O teu par";
   if (sent || votes.length === 0)
     return v.mine?.length ? (
       <div className="p-col">
+        <div className="p-status">
+          <b>{partner} está a ver as tuas palavras…</b>
+          <span>{partner} is checking your words — then the scores</span>
+        </div>
         <div className="p-callout">
           <b className="display">Defende as tuas palavras! 🗣️</b>
-          <span>{"Your partner is voting on these. Say out loud why they count — in Portuguese if you can: “É um animal!”"}</span>
+          <span>Say out loud why they count: “É um animal!”</span>
         </div>
         {v.mine.map((w) => (
           <div key={w.id} className="vote-row card">
@@ -116,21 +121,25 @@ function Vote({ v, send }: { v: V; send: Send }) {
               <small>{w.category}</small>
               <b className="display">{w.word}</b>
             </span>
-            <span className={`vote-hint ${w.likely ? "likely" : ""}`}>{w.likely ? "📖 Conheço!" : "❓ Não conheço"}</span>
+            <span className={`vote-hint ${w.likely ? "likely" : ""}`}>{w.likely ? "📖 Pipo conhece" : "❓ Pipo não conhece"}</span>
           </div>
         ))}
       </div>
     ) : (
       <div className="p-center">
-        <div className="p-big">À espera…</div>
-        <div className="p-sub">O teu par está a ver as tuas palavras. · Your partner is checking your words.</div>
+        <div className="p-bob">
+          <Picture glyph="🧐" size="96px" />
+        </div>
+        {/* Nothing of yours is under review: the scores come next. */}
+        <div className="p-big">{sent ? "Votado ✓" : "Nada para votar"}</div>
+        <div className="p-sub">A seguir: os pontos na TV · Next: the scores on the TV</div>
       </div>
     );
   return (
     <div className="p-col">
       <div className="p-callout">
-        <b className="display">Estas palavras contam?</b>
-        <span>O dicionário não as conhece. Tu decides! · Do these words count? Tap ✓ only if it's a real word.</span>
+        <b className="display">Estas palavras existem?</b>
+        <span>Tap ✓ for real words, ✗ for made-up ones.</span>
       </div>
       {votes.map((w) => {
         const yes = ok[w.id] === true;
@@ -139,7 +148,7 @@ function Vote({ v, send }: { v: V; send: Send }) {
             <span>
               <small>{w.category}</small>
               <b className="display">{w.word}</b>
-              <small className={`vote-hint ${w.likely ? "likely" : ""}`}>{w.likely ? "📖 Pipo conhece esta palavra · Pipo knows this word" : "❓ Pipo não conhece — és tu o juiz · You're the judge"}</small>
+              <small className={`vote-hint ${w.likely ? "likely" : ""}`}>{w.likely ? "📖 Pipo conhece · Pipo knows it" : "❓ Pipo não conhece · you judge"}</small>
             </span>
             <div className="vote-btns">
               <button className={`vbtn ${yes ? "sel yes" : ""}`} onClick={() => setOk({ ...ok, [w.id]: true })}>
@@ -154,7 +163,7 @@ function Vote({ v, send }: { v: V; send: Send }) {
       })}
       <div className="p-grow" />
       <button
-        className="btn block player"
+        className="btn block player p-hero-btn"
         onClick={() => {
           setSent(true);
           play("lock");

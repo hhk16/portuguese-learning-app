@@ -4266,3 +4266,26 @@ html.tv-root #root {
   font-size: 1.2rem;
   color: var(--ink-2);
 }
+
+/* Text floors inside the game screens (≥ 24px at 1080p). */
+.wave-end i {
+  font-size: 0.85em;
+  color: var(--ink-2);
+}
+.status-row {
+  font-size: 0.9em;
+}
+.status-row .st {
+  font-size: 0.9em;
+}
+.intro .muted,
+.stage-card > .muted {
+  font-size: 0.85em;
+  color: var(--ink-2);
+}
+.score-pill small {
+  font-size: 1em;
+}
+.wick-fast i {
+  font-size: 1.2rem;
+}
