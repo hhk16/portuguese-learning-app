@@ -109,6 +109,9 @@ export function BombScreen({ a }: { a: BatataQuente }) {
               <Picture glyph={q.prompt.pic} size="3.6em" />
             ) : null}
             {q.kind === "opposite" && q.prompt && <b className="display bq-word">{q.prompt.pt}</b>}
+            {q.typed ? (
+              <span className="bq-typed display">✍️ …</span>
+            ) : (
             <div className="bq-options">
               {q.options.map((o) => (
                 <span key={o.pt} className="bq-opt">
@@ -116,8 +119,14 @@ export function BombScreen({ a }: { a: BatataQuente }) {
                 </span>
               ))}
             </div>
+            )}
           </div>
           {a.lockedMs > 0 && <span className="bq-wrong display">✗</span>}
+          {a.lockedMs > 0 && a.lastHold && gameNow() - a.lastHold.at < 2000 && (
+            <b className="bs-res">
+              “{a.lastHold.wrote}” → <i>{a.lastHold.answer}</i>
+            </b>
+          )}
         </div>
       )}
       {a.phase === "boom" && a.burned && (

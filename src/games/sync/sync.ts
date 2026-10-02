@@ -42,6 +42,9 @@ export const LEVEL_RULES: Record<Level, { writeMs: number; options: number; trie
 /** A prediction ("Vamos coincidir?") that comes true. */
 export const PREDICT_POINTS = 1;
 
+/** Médio: the word list comes after this long, so the first thought is typed (Fácil shows it at once, Difícil never). */
+export const LIST_AFTER_MS = 12_000;
+
 /** Normalise a typed word: lower-case, no accents, no article, no punctuation. */
 export function normWord(s: string): string {
   return stripAccents(
@@ -276,8 +279,15 @@ export class EmSintonia implements Activity {
     return norms.length === 2 && norms.every((w) => w && good.includes(w));
   }
 
+  /** When this attempt's word list shows up on the phones (Médio). */
+  listAt = 0;
+  get listDelayed() {
+    return this.level === 2 && !this.inPractice;
+  }
+
   private startAttempt() {
     this.phase = "write";
+    this.listAt = gameNow() + (this.listDelayed ? LIST_AFTER_MS : 0);
     this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.writeMs);
     this.submitted.clear();
     this.senseVotes.clear();
@@ -294,6 +304,10 @@ export class EmSintonia implements Activity {
   }
 
   tick(now: number) {
+    if (this.phase === "write" && this.listAt && now >= this.listAt) {
+      this.listAt = 0;
+      if (this.listDelayed) this.rt.refreshViews();
+    }
     if (this.phase === "write" && now >= this.phaseEnd) {
       // Time's up: anyone who didn't choose loses this try.
       for (const p of this.players) if (!this.submitted.has(p.playerId)) this.submitted.set(p.playerId, "");
@@ -523,7 +537,8 @@ export class EmSintonia implements Activity {
       return { ...base, bank: [], submitted: true, sense: { word: this.submitted.get(p.playerId) ?? "", voted: this.senseVotes.has(p.playerId) } };
     return {
       ...base,
-      bank: this.banks.get(p.playerId) ?? [],
+      bank: this.listAt ? [] : (this.banks.get(p.playerId) ?? []),
+      listInMs: this.listAt ? Math.max(0, this.listAt - gameNow()) : undefined,
       submitted: this.submitted.has(p.playerId),
       mine: this.submitted.get(p.playerId) || undefined,
       predicted: this.predictions.get(p.playerId),

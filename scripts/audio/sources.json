@@ -1247,14 +1247,6 @@
   "text": "a televisão",
   "voice": "pt_PT-tugão-medium"
  },
- "a terminação diz quem é! três corações, cuidado.": {
-  "file": "7b3cf62285.mp3",
-  "lengthScale": 1.12,
-  "say": "A terminação diz quem é! Três corações, cuidado.",
-  "source": "piper",
-  "text": "A terminação diz quem é! Três corações, cuidado.",
-  "voice": "pt_PT-tugão-medium"
- },
  "a tia": {
   "file": "92504a6234.mp3",
   "lengthScale": 1.12,
@@ -2541,6 +2533,14 @@
   "text": "cabo-verdiano, cabo-verdiana",
   "voice": "pt_PT-tugão-medium"
  },
+ "cada um escolhe uma carta: fácil, ou arriscada a dobrar.": {
+  "file": "d8e1fd14f9.mp3",
+  "lengthScale": 1.12,
+  "say": "Cada um escolhe uma carta: fácil, ou arriscada a dobrar.",
+  "source": "piper",
+  "text": "Cada um escolhe uma carta: fácil, ou arriscada a dobrar.",
+  "voice": "pt_PT-tugão-medium"
+ },
  "cada um responde no seu telemóvel.": {
   "file": "1e3743ce5f.mp3",
   "lengthScale": 1.12,
@@ -3137,6 +3137,14 @@
   "say": "Depois do bolo, abrimos os presentes.",
   "source": "piper",
   "text": "Depois do bolo, abrimos os presentes.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "depois troquem: quem é, e o que faz? a terminação diz quem é!": {
+  "file": "44dac2b10e.mp3",
+  "lengthScale": 1.12,
+  "say": "Depois troquem: quem é, e o que faz? A terminação diz quem é!",
+  "source": "piper",
+  "text": "Depois troquem: quem é, e o que faz? A terminação diz quem é!",
   "voice": "pt_PT-tugão-medium"
  },
  "depressa!": {
@@ -5153,6 +5161,14 @@
   "say": "Escolhe uma pista no telemóvel. A TV diz a pista.",
   "source": "piper",
   "text": "Escolhe uma pista no telemóvel. A TV diz a pista.",
+  "voice": "pt_PT-tugão-medium"
+ },
+ "escrevam o verbo da vossa carta. só o verbo!": {
+  "file": "6f65ae9007.mp3",
+  "lengthScale": 1.12,
+  "say": "Escrevam o verbo da vossa carta. Só o verbo!",
+  "source": "piper",
+  "text": "Escrevam o verbo da vossa carta. Só o verbo!",
   "voice": "pt_PT-tugão-medium"
  },
  "escreve uma palavra para cada uma, com essa letra.": {
@@ -9971,14 +9987,6 @@
   "text": "O outro roda o mostrador. Mais perto, mais pontos!",
   "voice": "pt_PT-tugão-medium"
  },
- "o outro só vê a palavra escrita: quem é, e o que faz?": {
-  "file": "076fa2702a.mp3",
-  "lengthScale": 1.12,
-  "say": "O outro só vê a palavra escrita: quem é, e o que faz?",
-  "source": "piper",
-  "text": "O outro só vê a palavra escrita: quem é, e o que faz?",
-  "voice": "pt_PT-tugão-medium"
- },
  "o ovo": {
   "file": "085dc74bb7.mp3",
   "lengthScale": 1.12,
@@ -14475,14 +14483,6 @@
   "say": "Um croissant, dois queijos e um pão, se faz favor.",
   "source": "piper",
   "text": "Um croissant, dois queijos e um pão, se faz favor.",
-  "voice": "pt_PT-tugão-medium"
- },
- "um de vocês vê uma pessoa e uma ação, e escreve o verbo.": {
-  "file": "74def33c23.mp3",
-  "lengthScale": 1.12,
-  "say": "Um de vocês vê uma pessoa e uma ação, e escreve o verbo.",
-  "source": "piper",
-  "text": "Um de vocês vê uma pessoa e uma ação, e escreve o verbo.",
   "voice": "pt_PT-tugão-medium"
  },
  "um desenha a palavra secreta, sem falar.": {

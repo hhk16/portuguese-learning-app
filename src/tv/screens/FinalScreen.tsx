@@ -48,6 +48,24 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
               </span>
               <i className="final-en">{q.opp.fromEn}</i>
             </>
+          ) : q.num ? (
+            <>
+              <span className="kicker">Escreve o número · write the number in words</span>
+              <span className="final-stop display final-num">{q.num.value}</span>
+            </>
+          ) : q.link ? (
+            <>
+              <span className="kicker">Uma palavra para os dois · one word for both</span>
+              <span className="final-stop display">
+                <Picture glyph={q.link.a.emoji} size="2.2em" /> + <Picture glyph={q.link.b.emoji} size="2.2em" /> = ?
+              </span>
+            </>
+          ) : q.fits ? (
+            <>
+              <span className="kicker">Qual é…? · which picture is…?</span>
+              <span className="final-stop display">“{q.fits.pt}”</span>
+              {a.level === 1 && <i className="final-en">{q.fits.en}</i>}
+            </>
           ) : q.kind === "see" ? (
             <>
               <span className="kicker">Vê · See — como se diz? · how do you say it?</span>
@@ -74,14 +92,14 @@ export function FinalScreen({ a }: { a: GrandeFinal }) {
                   </b>
                   <i>“{q.frase.text}”</i>
                 </>
-              ) : q.stop || q.verb || q.opp ? (
+              ) : q.stop || q.verb || q.opp || q.num || q.link ? (
                 <>
                   <b className="display">{answerText(q)}</b>
                   <i>{[...a.answers.values()].filter((x) => x.ok).map((x) => x.text).join(" · ") || "ninguém · nobody"}</i>
                 </>
               ) : (
                 <>
-                  {q.kind === "hear" && <Picture glyph={q.word.emoji} size="3em" />}
+                  {(q.kind === "hear" || q.kind === "fits") && <Picture glyph={q.word.emoji} size="3em" />}
                   <b className="display">{q.word.pt}</b>
                   <i>{q.word.en}</i>
                 </>

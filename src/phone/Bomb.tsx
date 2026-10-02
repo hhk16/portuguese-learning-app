@@ -124,14 +124,36 @@ export function Bomb({ v, send }: { v: V; send: Send }) {
     <div className={`p-col bomb-hot ${locked > 0 ? "locked" : ""}`}>
       {score}
       <div className="p-callout hot">
-        <b className="display">🥔🔥 {ask.pt}</b>
-        <span>{ask.en} — right answer passes the potato!</span>
+        <b className="display">🥔🔥 {(v.typed && TYPED[v.kind]?.pt) || ask.pt}</b>
+        <span>{(v.typed && TYPED[v.kind]?.en) || ask.en} — right answer passes the potato!</span>
       </div>
       {v.prompt && (
         <div className="bomb-prompt card">
           {v.prompt.pic && <Picture glyph={v.prompt.pic} size="72px" />}
           {v.kind === "opposite" && <b className="display">{v.prompt.pt}</b>}
         </div>
+      )}
+      {v.typed && (
+        <>
+          <form
+            className="sync-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const f = e.currentTarget.elements.namedItem("w") as HTMLInputElement;
+              if (!f.value.trim()) return;
+              answer(f.value.trim());
+              f.value = "";
+            }}
+          >
+            <input name="w" placeholder="Escreve em português · Type it in Portuguese" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} disabled={locked > 0} autoFocus />
+            <button className="btn player" type="submit" disabled={locked > 0}>
+              OK
+            </button>
+          </form>
+          <button className="btn white bomb-lifeline" disabled={locked > 0} onClick={() => (play("tap"), send({ mode: "bomb", lifeline: true }))}>
+            🆘 Opções (o pavio queima! · options, but the fuse burns)
+          </button>
+        </>
       )}
       <div className={v.pictures ? "final-pics" : "draw-options"}>
         {(v.options ?? []).map((o) => (

@@ -404,7 +404,12 @@ async function botStep(b: Bot, seen: Set<string>) {
       const key = `verbs:${v.promptId}`;
       if (v.role === "wait" || seen.has(key)) return;
       seen.add(key);
-      const d = v.debugAnswer as { form?: string; wrong?: string; person?: string; verb?: string } | undefined;
+      const d = v.debugAnswer as { choose?: string; form?: string; wrong?: string; person?: string; verb?: string } | undefined;
+      if (v.role === "pick") {
+        await nap(pg, 1500 + Math.random() * 2500);
+        await shoot("verbs-pick", b);
+        return pg.locator(`.verbs-offer.${d?.choose ?? "easy"}`).click({ timeout: 2000 }).catch(() => {});
+      }
       await nap(pg, 2500 + Math.random() * 3000);
       if (v.role === "write") {
         const r = Math.random();
@@ -457,7 +462,8 @@ async function botStep(b: Bot, seen: Set<string>) {
       const miss = LOSE ? Math.random() < 0.7 : b.name === "Ana" && Math.random() < (v.attempt === 1 ? 0.45 : 1 - b.skill);
       const others = bank.filter((w) => w.pt !== d?.word);
       // A miss is a random other word (two bots missing the same way would "match" by accident).
-      const word = miss ? (others[Math.floor(Math.random() * others.length)]?.pt ?? "casa") : (d?.word ?? bank[0]?.pt ?? "casa");
+      const junk = ["mesa", "porta", "livro", "janela", "cadeira"];
+      const word = miss ? (others[Math.floor(Math.random() * others.length)]?.pt ?? junk[Math.floor(Math.random() * junk.length)]!) : (d?.word ?? bank[0]?.pt ?? "casa");
       await pg.fill(".sync-form input", word).catch(() => {});
       await shoot("sync-write", b);
       return click(pg, ".sync-form .btn");
@@ -595,6 +601,13 @@ async function bombStep(b: Bot, v: View, seen: Set<string>) {
   const answer = (v.debugAnswer as { answer?: string } | undefined)?.answer;
   const opts = (v.options as { pt: string }[] | undefined) ?? [];
   const right = Math.random() < b.skill + 0.1;
+  if (v.typed) {
+    // Sometimes stuck: ask for the options (the fuse burns); otherwise type it.
+    if (Math.random() < 0.25) return click(pg, ".bomb-lifeline");
+    await pg.fill(".bomb-hot .sync-form input", right ? (answer ?? "").replace(/^(o|a|os|as) /, "") : "casa", { timeout: 2000 }).catch(() => {});
+    await shoot("bomb-holder-typed", b);
+    return click(pg, ".bomb-hot .sync-form .btn");
+  }
   const pick = right ? opts.find((o) => o.pt === answer) : opts.find((o) => o.pt !== answer);
   const i = opts.indexOf(pick ?? opts[0]!);
   if (i >= 0) await pg.locator(v.pictures ? ".final-pics .final-pic" : ".draw-options .lopt").nth(i).click({ timeout: 2500 }).catch(() => {});

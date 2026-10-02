@@ -1,12 +1,11 @@
 /**
- * Quem faz o quê? — a verb game for two (write it, read it).
+ * Quem faz o quê? — a verb game for two (write it, read it), both at once.
  *
- * One of you sees a person and an action ("👫 nós + 🍽️") and WRITES the verb: "comemos". The other sees
- * only that written word and READS it: who (the ending: -o eu, -as/-es tu, -a/-e ele, -amos nós, -am eles)
- * and what (the stem). Then the TV shows the whole present-tense row with the right one lit up.
- * The writer is judged on the form; the reader on what that written form says (a wrong form read
- * correctly still counts for the reader). Three hearts: a round where the message didn't get through
- * costs one. Roles swap every round; the last round counts double.
+ * Each round you BOTH pick a card — easy (a regular verb, ×1) or risky (an irregular one, ×2) — and
+ * write the verb for it ("👫 nós + 🍽️" → comemos). Then you swap: each reads only the other's written
+ * word and decodes who (the ending: -o eu, -as/-es tu, -a/-e ele, -amos nós, -am eles) and what (the
+ * stem). The TV shows both messages and the whole present-tense rows. A message that doesn't get
+ * through costs a team heart; the last round counts double.
  */
 import { ALL_ITEMS } from "../../curriculum/index.ts";
 import type { ItemOf } from "../../curriculum/schema.ts";
@@ -45,11 +44,11 @@ export const VERB_PICS: Record<string, { pic: string; en: string; hard?: boolean
   dormir: { pic: "😴", en: "to sleep" },
   ver: { pic: "👀", en: "to see" },
   dar: { pic: "🎁", en: "to give" },
-  pedir: { pic: "🙋", en: "to ask for" },
+  pedir: { pic: "🛎️", en: "to ask for" },
   saber: { pic: "🧠", en: "to know" },
   dizer: { pic: "💬", en: "to say" },
   ficar: { pic: "🛋️", en: "to stay" },
-  fazer: { pic: "🍳", en: "to make / do" },
+  fazer: { pic: "🥘", en: "to make / cook" },
   querer: { pic: "🙏", en: "to want" },
   ter: { pic: "🎒", en: "to have" },
   perceber: { pic: "💡", en: "to understand" },
@@ -59,11 +58,12 @@ export const VERB_PICS: Record<string, { pic: string; en: string; hard?: boolean
   "vestir-se": { pic: "👕", en: "to get dressed", hard: true },
 };
 
-export const ROUNDS = 6;
+export const ROUNDS = 4;
 export const HEARTS = 3;
-const GUESS_MS = 20_000;
-const REVEAL_MS = 5200;
-/** Points: the writer's form, the reader's person, the reader's action, and a bonus when all three land. */
+const PICK_MS = 12_000;
+const READ_MS = 20_000;
+const REVEAL_MS = 7000;
+/** Points per message: the writer's form, the reader's person and action, a bonus when all three land; ×2 on a risky card. */
 export const WRITE_POINTS = 2;
 export const BONUS = 1;
 /** Fácil shows the infinitive, Médio the English, Difícil only the picture. */
@@ -72,6 +72,8 @@ export const LEVEL_RULES: Record<Level, { writeMs: number; hint: "infinitive" | 
   2: { writeMs: 35_000, hint: "english", options: 4, endings: false },
   3: { writeMs: 28_000, hint: "none", options: 6, endings: false },
 };
+/** Regular verbs (easy cards); every other pictured verb is a risky card. */
+export const REGULAR = new Set(["falar", "morar", "trabalhar", "estudar", "comer", "beber", "aprender", "perceber", "gostar (de)"]);
 
 type Conj = ItemOf<"conjugation">;
 
@@ -112,12 +114,19 @@ export function personsOf(written: string, row: Map<Person, Conj>): Person[] {
   });
 }
 
-interface Round {
+interface Card {
   verb: string;
   person: Person;
   item: Conj;
+  risky: boolean;
+}
+
+/** One player's message this round: their card, what they wrote, and how the partner read it. */
+export interface Msg {
   writer: string;
   reader: string;
+  offers: { easy: Card; risky: Card };
+  card?: Card;
   options: string[];
   written?: string;
   pick?: { person?: Person; verb?: string };
@@ -130,14 +139,16 @@ export class QuemFazOQue implements Activity {
   rt!: TvRuntime;
   level: Level = 1;
   practice = false;
-  phase: "write" | "guess" | "reveal" | "end" = "write";
+  phase: "pick" | "write" | "read" | "reveal" | "end" = "pick";
   phaseEnd = 0;
   round = 0;
   hearts = HEARTS;
   score = 0;
   perfect = 0;
-  r!: Round;
-  history: Round[] = [];
+  risky = 0;
+  /** This round's two messages (one written by each player). */
+  msgs: Msg[] = [];
+  history: Msg[] = [];
   promptId = randomId(6);
   contrib = new Map<string, number>();
   private readonly roundId = randomId(6);
@@ -164,13 +175,20 @@ export class QuemFazOQue implements Activity {
   get msLeft() {
     return Math.max(0, this.phaseEnd - gameNow());
   }
+  /** About half the cards risky, the last round doubled. */
   get maxScore() {
-    return (WRITE_POINTS + 2 + BONUS) * (ROUNDS + 1);
+    return Math.round((WRITE_POINTS + 2 + BONUS) * 2 * (ROUNDS + 1) * 1.5);
   }
-  /** The present-tense row of the round's verb, for the reveal. */
-  get row(): { person: Person; form: string }[] {
-    const row = this.table.get(this.r.verb)!;
+  /** A verb's present-tense row, for the reveal. */
+  rowOf(verb: string): { person: Person; form: string }[] {
+    const row = this.table.get(verb)!;
     return PERSONS.map((p) => ({ person: p, form: row.get(p)!.form }));
+  }
+  msgBy(playerId: string): Msg | undefined {
+    return this.msgs.find((m) => m.writer === playerId);
+  }
+  msgFor(playerId: string): Msg | undefined {
+    return this.msgs.find((m) => m.reader === playerId);
   }
 
   start(rt: TvRuntime) {
@@ -180,101 +198,161 @@ export class QuemFazOQue implements Activity {
     this.newRound();
   }
 
-  private newRound() {
-    const [a, b] = this.players;
-    if (!a || !b) return;
-    const writer = (this.round + 1) % 2 === 0 ? a : b;
-    const reader = writer === a ? b : a;
-    const verbs = [...this.table.keys()].filter((v) => this.level >= 3 || !VERB_PICS[v]!.hard);
+  private card(risky: boolean): Card {
+    const verbs = [...this.table.keys()].filter((v) => (this.level >= 3 || !VERB_PICS[v]!.hard) && REGULAR.has(v) !== risky);
     const fresh = verbs.filter((v) => !this.used.has(v));
     const verb = this.rt.rng.pick(fresh.length ? fresh : verbs);
     this.used.add(verb);
-    // Every person comes up; nós and eles a bit more (their endings are the ones people mix up).
+    // Every person comes up; nós and eles a bit more (the endings people mix up).
     const person = this.rt.rng.pick<Person>(["eu", "tu", "ele", "nos", "nos", "eles", "eles"]);
-    const options = this.rt.rng.shuffle([verb, ...this.rt.rng.sample(verbs.filter((v) => v !== verb && VERB_PICS[v]!.pic !== VERB_PICS[verb]!.pic), this.rules.options - 1)]);
-    this.r = { verb, person, item: this.table.get(verb)!.get(person)!, writer: writer.playerId, reader: reader.playerId, options };
-    this.phase = "write";
-    this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.writeMs);
+    return { verb, person, item: this.table.get(verb)!.get(person)!, risky };
+  }
+
+  private newRound() {
+    const [a, b] = this.players;
+    if (!a || !b) return;
+    this.msgs = [a, b].map((w) => ({ writer: w.playerId, reader: (w === a ? b : a).playerId, offers: { easy: this.card(false), risky: this.card(true) }, options: [] }));
+    // The practice round: easy cards, no choice.
+    if (this.inPractice) for (const m of this.msgs) this.choose(m, false);
+    this.phase = this.inPractice ? "write" : "pick";
+    this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : PICK_MS);
     this.promptId = randomId(6);
     play("whoosh");
     if (this.final) this.rt.say(SAY.finalRound);
-    this.rt.cue(CUE.fill, writer);
+    this.rt.cue(this.inPractice ? CUE.fill : { pt: "Fácil ou arriscada?", en: "Easy card ×1 or risky card ×2?" });
+    this.rt.refreshViews();
+    this.rt.bump();
+  }
+
+  private choose(m: Msg, risky: boolean) {
+    m.card = risky ? m.offers.risky : m.offers.easy;
+    const verbs = [...this.table.keys()].filter((v) => this.level >= 3 || !VERB_PICS[v]!.hard);
+    m.options = this.rt.rng.shuffle([m.card.verb, ...this.rt.rng.sample(verbs.filter((v) => v !== m.card!.verb && VERB_PICS[v]!.pic !== VERB_PICS[m.card!.verb]!.pic), this.rules.options - 1)]);
+  }
+
+  private toWrite() {
+    for (const m of this.msgs) if (!m.card) this.choose(m, false);
+    this.phase = "write";
+    this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : this.rules.writeMs);
+    this.promptId = randomId(6);
+    this.rt.cue(CUE.fill);
+    this.rt.refreshViews();
+    this.rt.bump();
+  }
+
+  private toRead() {
+    for (const m of this.msgs) if (m.written === undefined) m.written = "";
+    this.phase = "read";
+    this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : READ_MS);
+    this.promptId = randomId(6);
+    play("card-flip");
+    this.rt.cue({ pt: "Troquem! Quem? O quê?", en: "Swap: read your partner's verb — who, doing what?" });
     this.rt.refreshViews();
     this.rt.bump();
   }
 
   tick(now: number) {
-    if ((this.phase === "write" || this.phase === "guess") && now >= this.phaseEnd) {
+    if (this.phase === "pick" && now >= this.phaseEnd) return this.toWrite();
+    if (this.phase === "write" && now >= this.phaseEnd) {
       this.rt.say(SAY.timeUp);
-      if (this.phase === "write") this.r.written = "";
-      return this.reveal();
+      return this.toRead();
     }
+    if (this.phase === "read" && now >= this.phaseEnd) return this.reveal();
     if (this.phase === "reveal" && now >= this.phaseEnd) this.next();
   }
 
   onInput(p: RuntimePlayer, promptId: string, _roundId: string, value: InputValue) {
+    if (value.mode === "skip" && this.inPractice) {
+      this.round = 0;
+      return this.newRound();
+    }
     if (value.mode !== "verbs" || promptId !== this.promptId) return;
-    if (this.phase === "write" && p.playerId === this.r.writer && value.write) {
-      this.r.written = value.write.slice(0, 30);
+    if (this.phase === "pick" && value.choose) {
+      const m = this.msgBy(p.playerId);
+      if (!m || m.card) return;
+      this.choose(m, value.choose === "risky");
       play("lock");
-      this.phase = "guess";
-      this.phaseEnd = gameNow() + (this.inPractice ? 600_000 : GUESS_MS);
-      this.promptId = randomId(6);
-      const reader = this.rt.players.get(this.r.reader);
-      this.rt.cue({ pt: "Quem? O quê?", en: "Who? Doing what?" }, reader);
+      if (this.msgs.every((x) => x.card)) return this.toWrite();
       this.rt.refreshViews();
       this.rt.bump();
       return;
     }
-    if (this.phase === "guess" && p.playerId === this.r.reader && value.pick) {
-      this.r.pick = { person: value.pick.person as Person, verb: value.pick.verb };
+    if (this.phase === "write" && value.write) {
+      const m = this.msgBy(p.playerId);
+      if (!m || m.written !== undefined) return;
+      m.written = value.write.slice(0, 30);
       play("lock");
-      this.reveal();
+      if (this.msgs.every((x) => x.written !== undefined)) return this.toRead();
+      this.rt.refreshViews();
+      this.rt.bump();
+      return;
+    }
+    if (this.phase === "read" && value.pick) {
+      const m = this.msgFor(p.playerId);
+      if (!m || m.pick) return;
+      m.pick = { person: value.pick.person as Person, verb: value.pick.verb };
+      play("lock");
+      if (this.msgs.every((x) => x.pick)) return this.reveal();
+      this.rt.refreshViews();
+      this.rt.bump();
     }
   }
 
-  private reveal() {
-    const r = this.r;
-    const row = this.table.get(r.verb)!;
-    const written = r.written ?? "";
-    const form = written ? judgeForm(written, r.item.form) : { ok: false, accent: false };
+  private judge(m: Msg) {
+    const c = m.card!;
+    const row = this.table.get(c.verb)!;
+    const written = m.written ?? "";
+    const form = written ? judgeForm(written, c.item.form) : { ok: false, accent: false };
     // The reader reads what was WRITTEN: a wrong form read correctly is still a right reading.
     const says = written ? personsOf(written, row) : [];
-    const person = !!r.pick?.person && (says.length ? says.includes(r.pick.person) : r.pick.person === r.person);
-    const verb = r.pick?.verb === r.verb;
+    const person = !!m.pick?.person && (says.length ? says.includes(m.pick.person) : m.pick.person === c.person);
+    const verb = m.pick?.verb === c.verb;
     const all = form.ok && person && verb;
-    const points = (form.ok ? WRITE_POINTS : 0) + (person ? 1 : 0) + (verb ? 1 : 0) + (all ? BONUS : 0);
-    r.result = { form: form.ok, accent: form.accent, person, verb, points };
-    const writer = this.rt.players.get(r.writer);
-    const reader = this.rt.players.get(r.reader);
-    if (writer && written) this.rt.evidence(writer, r.item.id, "verbs.write", form.ok ? (form.accent ? "accent-slip" : "correct") : "wrong", 2);
-    if (reader && r.pick) this.rt.evidence(reader, r.item.id, "verbs.read", person && verb ? "correct" : "wrong", 1);
-    if (!this.inPractice) {
-      this.score += points * (this.final ? 2 : 1);
-      if (all) this.perfect++;
-      if (writer && form.ok) this.contrib.set(writer.playerId, (this.contrib.get(writer.playerId) ?? 0) + 2);
-      if (reader && person && verb) this.contrib.set(reader.playerId, (this.contrib.get(reader.playerId) ?? 0) + 2);
-      for (const p of this.players) this.rt.addScore(p, points * 10, "verbs");
-      // The message didn't get through: a heart.
-      if (points < 3) {
-        this.hearts--;
-        play("sad-trombone", 0.6);
-        this.rt.say(this.hearts > 0 ? SAY.lifeLost : SAY.livesOut);
+    const points = ((form.ok ? WRITE_POINTS : 0) + (person ? 1 : 0) + (verb ? 1 : 0) + (all ? BONUS : 0)) * (c.risky ? 2 : 1);
+    m.result = { form: form.ok, accent: form.accent, person, verb, points };
+    const writer = this.rt.players.get(m.writer);
+    const reader = this.rt.players.get(m.reader);
+    if (writer && written) this.rt.evidence(writer, c.item.id, "verbs.write", form.ok ? (form.accent ? "accent-slip" : "correct") : "wrong", 2);
+    if (reader && m.pick) this.rt.evidence(reader, c.item.id, "verbs.read", person && verb ? "correct" : "wrong", 1);
+    return all;
+  }
+
+  private reveal() {
+    let lost = 0;
+    let perfect = 0;
+    for (const m of this.msgs) {
+      const all = this.judge(m);
+      const pts = m.result!.points * (this.final ? 2 : 1);
+      if (!this.inPractice) {
+        this.score += pts;
+        if (all) this.perfect++;
+        if (m.card!.risky) this.risky++;
+        if (m.result!.form) this.contrib.set(m.writer, (this.contrib.get(m.writer) ?? 0) + 2);
+        if (m.result!.person && m.result!.verb) this.contrib.set(m.reader, (this.contrib.get(m.reader) ?? 0) + 2);
+        // The message didn't get through (who or what was misread): a heart.
+        if (!(m.result!.person && m.result!.verb)) lost++;
       }
+      if (all) perfect++;
     }
-    if (all) {
+    for (const p of this.players) this.rt.addScore(p, this.msgs.reduce((s, m) => s + m.result!.points, 0) * 5, "verbs");
+    if (lost) {
+      this.hearts = Math.max(0, this.hearts - lost);
+      play("sad-trombone", 0.6);
+      this.rt.say(this.hearts > 0 ? SAY.lifeLost : SAY.livesOut);
+    }
+    if (perfect === 2) {
       play("star");
       this.rt.say(SAY.perfect);
       this.rt.celebrate();
-      if (this.perfect === 2) this.rt.petSay(PET.knew, 0.7);
-      this.rt.petDo("cheer", 2200);
-    } else if (!form.ok) this.rt.petDo("think", 2200);
-    for (const p of this.players) this.rt.emote(p.playerId, all ? "cheer" : points >= 3 ? "wave" : "sad", 2400);
-    this.history.push(r);
+      this.rt.petDo("cheer", 2400);
+    } else if (perfect) this.rt.petDo("wave", 2200);
+    else this.rt.petDo("think", 2200);
+    for (const m of this.msgs) this.rt.emote(m.writer, m.result!.form && m.result!.person && m.result!.verb ? "cheer" : m.result!.points >= 3 ? "wave" : "sad", 2600);
+    this.history.push(...this.msgs);
     this.phase = "reveal";
     this.phaseEnd = gameNow() + REVEAL_MS;
-    // Hear it said right: "nós comemos".
-    setTimeout(() => this.rt.activity === this && this.rt.speakPt(`${{ eu: "eu", tu: "tu", ele: "ela", nos: "nós", eles: "eles" }[r.person]} ${r.item.form}`), 600);
+    // Hear both said right: "nós comemos", "eles vão".
+    this.msgs.forEach((m, i) => setTimeout(() => this.rt.activity === this && this.rt.speakPt(`${{ eu: "eu", tu: "tu", ele: "ela", nos: "nós", eles: "eles" }[m.card!.person]} ${m.card!.item.form}`), 600 + i * 1800));
     this.rt.holdPhones(1200);
     this.rt.refreshViews();
     this.rt.bump();
@@ -285,6 +363,7 @@ export class QuemFazOQue implements Activity {
       this.round = 0;
       this.score = 0;
       this.perfect = 0;
+      this.risky = 0;
       this.history = [];
       this.hearts = HEARTS;
       this.rt.say(SAY.start);
@@ -298,64 +377,87 @@ export class QuemFazOQue implements Activity {
   private finish() {
     this.phase = "end";
     const out = this.hearts <= 0;
+    const n = this.history.length;
     play(out ? "fail-jingle" : "success-jingle");
-    this.rt.bigMoment(out ? { pt: "💔 Sem corações!", en: "Out of hearts — the messages got lost" } : { pt: `🧩 ${this.perfect} em cheio!`, en: `${this.perfect} of ${ROUNDS} rounds perfect — written and read` }, out ? "lost" : "won", 2600, true);
+    this.rt.bigMoment(out ? { pt: "💔 Sem corações!", en: "Out of hearts — the messages got lost" } : { pt: `🧩 ${this.perfect} de ${n} em cheio!`, en: `${this.perfect} of ${n} verbs written and read perfectly` }, out ? "lost" : "won", 2600, true);
     this.rt.petStar(out ? "oops" : "cheer", 2600);
     this.rt.bump();
+    const label = (m: Msg) => `${PERSON_LABEL[m.card!.person].pt.split(" / ")[0]} ${m.card!.item.form}`;
     const wrong = this.history.filter((h) => h.result && !h.result.form);
     setTimeout(() => {
       if (this.rt.activity !== this) return;
       this.onDone({
         failed: out,
-        minStars: !out && this.perfect >= ROUNDS - 1 ? 3 : !out && this.perfect >= ROUNDS / 2 ? 2 : undefined,
+        minStars: !out && this.perfect >= n - 1 ? 3 : !out && this.perfect >= n / 2 ? 2 : undefined,
         score: this.score,
         max: this.maxScore,
-        headline: `${this.perfect} de ${ROUNDS} em cheio · ${this.score} pontos`,
-        headlineEn: `${this.perfect} of ${ROUNDS} perfect rounds`,
-        sub: out ? "Acabaram-se os corações!" : "Escrever o verbo, ler quem o faz.",
+        headline: `${this.perfect} de ${n} em cheio · ${this.score} pontos`,
+        headlineEn: `${this.perfect} of ${n} verbs written and read · ${this.risky} risky cards`,
+        sub: out ? "Acabaram-se os corações!" : `Escrever o verbo, ler quem o faz · ${this.risky} cartas arriscadas`,
         subEn: out ? "Out of hearts." : "Write the verb, read who does it.",
-        words: this.history.slice(-4).map((h) => ({ pt: `${PERSON_LABEL[h.person].pt.split(" / ")[0]} ${h.item.form}`, en: `${VERB_PICS[h.verb]!.en.replace(/^to /, "")} (${PERSON_LABEL[h.person].pt})`, pic: VERB_PICS[h.verb]!.pic })),
-        review: wrong.map((h) => ({ pt: `${PERSON_LABEL[h.person].pt.split(" / ")[0]} ${h.item.form}`, en: `${h.verb}: não “${h.written || "—"}”` })),
+        words: this.history.slice(-3).map((h) => ({ pt: label(h), en: `${VERB_PICS[h.card!.verb]!.en.replace(/^to /, "")} (${PERSON_LABEL[h.card!.person].pt})`, pic: VERB_PICS[h.card!.verb]!.pic })),
+        review: wrong.slice(-3).map((h) => ({ pt: label(h), en: `${h.card!.verb}: não “${h.written || "—"}”` })),
         contrib: Object.fromEntries(this.contrib),
         highlight: this.perfect ? { pt: `${this.perfect} verbos em cheio!`, en: `${this.perfect} verbs written and read perfectly`, pic: "🧩" } : undefined,
       });
     }, 2800);
   }
 
+  private cardView(c: Card) {
+    return {
+      person: PERSON_LABEL[c.person],
+      action: { pic: VERB_PICS[c.verb]!.pic, hint: this.rules.hint === "infinitive" ? c.verb : this.rules.hint === "english" ? VERB_PICS[c.verb]!.en : undefined },
+    };
+  }
+
   viewFor(p: RuntimePlayer): ControllerView {
     if (this.players.length < 2) return { mode: "wait", title: "Quem faz o quê? precisa de 2", subtitle: "Chama o teu par para jogar! · Needs two players", pic: "🧩" };
     if (this.phase === "end") return { mode: "wait", title: "Fim!", subtitle: `${this.score} pontos`, pic: "🧩" };
-    const r = this.r;
-    const writer = this.rt.players.get(r.writer);
-    const reader = this.rt.players.get(r.reader);
+    const mine = this.msgBy(p.playerId);
+    const theirs = this.msgFor(p.playerId);
+    const partner = this.rt.partnerOf(p)?.name ?? "";
     if (this.phase === "reveal") {
-      const res = r.result!;
-      const ok = res.form && res.person && res.verb;
-      return { mode: "wait", title: ok ? "Em cheio! 🎉" : `${PERSON_LABEL[r.person].pt.split(" / ")[0]} ${r.item.form}`, subtitle: `${ok ? "Written and read!" : "Look at the TV: the whole row"} · Olha para a TV!`, pic: ok ? "🥳" : "🧩" };
+      const m = theirs;
+      const ok = !!m?.result && m.result.form && m.result.person && m.result.verb;
+      return { mode: "wait", title: ok ? "Em cheio! 🎉" : "Olha para a TV!", subtitle: "Both messages and the whole verb rows are on the TV.", pic: ok ? "🥳" : "🧩" };
     }
     const base = { mode: "verbs" as const, roundId: this.roundId, promptId: this.promptId, round: Math.max(0, this.round), rounds: ROUNDS, hearts: this.hearts, msLeft: this.inPractice ? undefined : this.msLeft, practice: this.inPractice || undefined, final: this.final || undefined };
-    if (this.phase === "write") {
-      if (p.playerId === r.writer)
-        return {
-          ...base,
-          role: "write",
-          person: PERSON_LABEL[r.person],
-          action: { pic: VERB_PICS[r.verb]!.pic, hint: this.rules.hint === "infinitive" ? r.verb : this.rules.hint === "english" ? VERB_PICS[r.verb]!.en : undefined },
-          debugAnswer: this.rt.testMode ? { form: r.item.form, wrong: this.table.get(r.verb)!.get(r.person === "nos" ? "eles" : "nos")!.form } : undefined,
-        };
-      return { ...base, role: "wait", other: writer?.name ?? "", endings: this.rules.endings || undefined };
+    if (this.phase === "pick" && mine) {
+      if (mine.card) return { ...base, role: "wait", other: partner };
+      return {
+        ...base,
+        role: "pick",
+        offers: [
+          { id: "easy", mult: 1, ...this.cardView(mine.offers.easy) },
+          { id: "risky", mult: 2, ...this.cardView(mine.offers.risky) },
+        ],
+        debugAnswer: this.rt.testMode ? { choose: this.rt.rng.next() < 0.4 ? "risky" : "easy" } : undefined,
+      };
     }
-    // guess
-    if (p.playerId === r.reader)
+    if (this.phase === "write" && mine?.card) {
+      if (mine.written !== undefined) return { ...base, role: "wait", other: partner };
+      const c = mine.card;
+      return {
+        ...base,
+        role: "write",
+        ...this.cardView(c),
+        risky: c.risky || undefined,
+        debugAnswer: this.rt.testMode ? { form: c.item.form, wrong: this.table.get(c.verb)!.get(c.person === "nos" ? "eles" : "nos")!.form } : undefined,
+      };
+    }
+    if (this.phase === "read" && theirs?.card) {
+      if (theirs.pick) return { ...base, role: "wait", other: partner, written: theirs.written };
       return {
         ...base,
         role: "read",
-        written: r.written ?? "",
+        other: partner,
+        written: theirs.written ?? "",
         persons: PERSONS.map((x) => ({ id: x, ...PERSON_LABEL[x] })),
-        actions: r.options.map((v) => ({ id: v, pic: VERB_PICS[v]!.pic, label: this.rules.hint === "infinitive" ? v : undefined })),
+        actions: theirs.options.map((v) => ({ id: v, pic: VERB_PICS[v]!.pic, label: this.rules.hint !== "none" ? v : undefined })),
         endings: this.rules.endings || undefined,
-        debugAnswer: this.rt.testMode ? { person: personsOf(r.written ?? "", this.table.get(r.verb)!)[0] ?? r.person, verb: r.verb } : undefined,
+        debugAnswer: this.rt.testMode ? { person: personsOf(theirs.written ?? "", this.table.get(theirs.card.verb)!)[0] ?? theirs.card.person, verb: theirs.card.verb } : undefined,
       };
-    return { ...base, role: "wait", other: reader?.name ?? "", written: r.written };
+    }
+    return { ...base, role: "wait", other: partner };
   }
 }

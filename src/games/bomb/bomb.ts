@@ -57,6 +57,14 @@ export function stealTyped(level: Level, round: number, kind: BombKind): boolean
   return level >= 2 && round >= 1 && (kind === "see" || kind === "opposite" || kind === "number");
 }
 
+/** The holder types too: on Médio from the third potato (see, number in words, opposite). Tapping
+ *  "options" brings the choices back but burns the fuse. */
+export function holderTyped(level: Level, round: number, kind: BombKind): boolean {
+  return level >= 2 && round >= 2 && (kind === "see" || kind === "opposite" || kind === "number");
+}
+/** What the options lifeline costs the holder (fuse time). */
+export const LIFELINE_BURN_MS = 3000;
+
 /** Night share for a versus game: 40 for turning up, up to 100 for winning every potato. */
 export function bombShare(wins: number, possible: number): number {
   return Math.round(40 + 60 * Math.min(1, wins / Math.max(1, possible)));
@@ -101,6 +109,8 @@ export class BatataQuente implements Activity {
   lastHurry: { by: string; at: number } | null = null;
   /** The safe player's last "Aquece!" answer, shown on the TV for a moment (the duel is visible to the room). */
   lastSteal: { ok: boolean; wrote: string; answer: string; at: number } | null = null;
+  /** The holder's last typed miss (shown on the TV under the question). */
+  lastHold: { wrote: string; answer: string; at: number } | null = null;
   /** "Aquece!": the safe player's own question (no audio — the TV speaks for the holder). */
   stealQ: Question | null = null;
   stealPromptId = randomId(6);
@@ -214,6 +224,7 @@ export class BatataQuente implements Activity {
     // With a unit or lesson chosen, its verbs and phrases come up too (heard on the TV, tapped on the phone).
     const phrase = this.phrases.length >= 4 && this.rt.rng.next() < 0.4;
     this.q = this.question(phrase ? "phrase" : this.rt.rng.pick(kinds));
+    if (!this.inPractice && holderTyped(this.level, this.round, this.q.kind)) this.q.typed = true;
     this.askedAt = gameNow();
     const it = this.q.itemId ? getItem(this.q.itemId) : undefined;
     const card = it ? cardOf(it) : null;
@@ -396,10 +407,22 @@ export class BatataQuente implements Activity {
       this.rt.bump();
       return;
     }
+    // The typed holder gives up and asks for the options: the fuse burns.
+    if (value.lifeline && p === this.holder && promptId === this.promptId && this.q?.typed) {
+      this.q.typed = false;
+      this.fuseEnd = Math.max(gameNow() + 1200, this.fuseEnd - LIFELINE_BURN_MS);
+      this.promptId = randomId(6);
+      play("sparkle", 0.6, 0.8);
+      this.rt.cue({ pt: "Opções! O pavio queima…", en: "Options — but the fuse burns faster" });
+      this.rt.view(p, this.viewFor(p));
+      this.rt.bump();
+      return;
+    }
     if (!value.answer || p !== this.holder || promptId !== this.promptId || this.lockedMs > 0 || !this.q) return;
     const q = this.q;
-    const ok = value.answer === q.answer;
-    if (q.itemId) this.rt.evidence(p, q.itemId, `bomb.${q.kind}`, ok ? "correct" : "wrong");
+    const ok = q.typed ? (q.kind === "number" ? ["correct", "accent-slip"] : ["correct", "accent-slip", "close"]).includes(matchAnswer(value.answer.toLowerCase().trim().replace(/^(o|a|os|as) /, ""), [q.answer, q.answer.replace(/^(o|a|os|as) /, "")])) : value.answer === q.answer;
+    if (q.itemId) this.rt.evidence(p, q.itemId, `bomb.${q.kind}${q.typed ? ".typed" : ""}`, ok ? "correct" : "wrong", q.typed ? 2 : 1);
+    if (q.typed && !ok) this.lastHold = { wrote: value.answer.slice(0, 24), answer: q.answer, at: gameNow() };
     if (!ok) {
       play("buzzer", 0.6);
       this.rt.emote(p.playerId, "sad", 900);
@@ -490,7 +513,8 @@ export class BatataQuente implements Activity {
       holder: this.holder?.name ?? "",
       kind: q?.kind ?? "hear",
       prompt: holding ? q?.prompt : undefined,
-      options: holding ? q?.options : undefined,
+      options: holding ? (q?.typed ? [] : q?.options) : undefined,
+      typed: (holding && q?.typed) || undefined,
       pictures: q?.kind === "hear" || q?.kind === "hearNumber" || undefined,
       lockedMs: holding && this.lockedMs > 0 ? this.lockedMs : undefined,
       round: Math.max(0, this.round),

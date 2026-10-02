@@ -30,7 +30,10 @@ describe("Grande Final remix", () => {
     expect(plan.slice(6, 9).every((q) => q.kind === "verbs")).toBe(true);
     expect(plan[9]!.kind).toBe("see");
     // Mostly written: at least 6 of 10 questions ask you to produce the word.
-    const written = remixPlan(["bomb", "verbs", "secret"]).filter((q) => ["stop", "verbs", "opposite", "see"].includes(q.kind));
+    const written = remixPlan(["bomb", "verbs", "secret"]).filter((q) => ["stop", "verbs", "opposite", "number", "link", "see"].includes(q.kind));
     expect(written.length).toBeGreaterThanOrEqual(6);
+    // Each game asks its own kind of question: no kind repeats across games.
+    expect(remixPlan(["bomb", "sync", "secret"]).map((q) => q.kind).slice(0, 9)).toEqual(["number", "number", "number", "link", "link", "link", "fits", "fits", "fits"]);
+    expect(remixPlan(["wave", "bomb", "draw"]).filter((q) => q.kind === "opposite")).toHaveLength(3);
   });
 });

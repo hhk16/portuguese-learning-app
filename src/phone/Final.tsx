@@ -33,7 +33,17 @@ export function Final({ v, send }: { v: V; send: Send }) {
         </span>
         <span className={`pill ${left < 4000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>
       </div>
-      {v.kind === "stop" || v.kind === "verbs" || v.kind === "opposite" ? (
+      {v.kind === "number" || v.kind === "link" ? (
+        <div className="p-callout">
+          <b className="display">{v.kind === "number" ? `🔢 ${v.prompt?.pt}` : `🔗 ${v.prompt?.pt}`}</b>
+          <span>{v.kind === "number" ? "Write this number in Portuguese words (vinte e três…) — first right one wins!" : "Write ONE Portuguese word that fits both pictures (a colour, a category, an adjective…) — first right one wins!"}</span>
+        </div>
+      ) : v.kind === "fits" ? (
+        <div className="p-callout">
+          <b className="display">🧩 “{v.prompt?.pt}”</b>
+          <span>Which picture is “{v.prompt?.pt}”{v.prompt?.en ? ` (${v.prompt.en})` : ""}? Tap it — first right one wins!</span>
+        </div>
+      ) : v.kind === "stop" || v.kind === "verbs" || v.kind === "opposite" ? (
         <div className="p-callout">
           <b className="display">
             {v.prompt?.pic && <Picture glyph={v.prompt.pic} size="36px" />} {v.prompt?.pt}

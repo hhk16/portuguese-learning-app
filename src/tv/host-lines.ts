@@ -56,9 +56,9 @@ export const RULES: Record<Mode, Line[]> = {
     { pt: "Responde primeiro no telemóvel e ganha a coroa!", en: "Answer first on your phone and win the crown!" },
   ],
   verbs: [
-    { pt: "Um de vocês vê uma pessoa e uma ação, e escreve o verbo.", en: "One of you sees a person and an action, and writes the verb." },
-    { pt: "O outro só vê a palavra escrita: quem é, e o que faz?", en: "The other only sees the written word: who is it, and what are they doing?" },
-    { pt: "A terminação diz quem é! Três corações, cuidado.", en: "The ending tells you who! Three hearts — careful." },
+    { pt: "Cada um escolhe uma carta: fácil, ou arriscada a dobrar.", en: "Each of you picks a card: easy, or risky for double points." },
+    { pt: "Escrevam o verbo da vossa carta. Só o verbo!", en: "Write the verb for your card. Only the verb!" },
+    { pt: "Depois troquem: quem é, e o que faz? A terminação diz quem é!", en: "Then swap: who is it, and what are they doing? The ending tells you who!" },
   ],
   kitchen: [
     { pt: "Os clientes pedem em português. Ouçam bem!", en: "Customers order in Portuguese. Listen carefully!" },

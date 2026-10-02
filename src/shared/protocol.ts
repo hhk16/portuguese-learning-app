@@ -146,7 +146,7 @@ export const ControllerView = z.discriminatedUnion("mode", [
     ...round,
     /** Header label (default "Grande Final"); the lesson's lightning round reuses this view. */
     label: shortText.optional(),
-    kind: z.enum(["see", "hear", "frase", "stop", "verbs", "opposite"]),
+    kind: z.enum(["see", "hear", "frase", "stop", "verbs", "opposite", "number", "link", "fits"]),
     index: z.number().int().nonnegative(),
     total: z.number().int().positive(),
     double: z.boolean().optional(),
@@ -201,6 +201,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
     attempt: z.number().int().positive(),
     tries: z.number().int().positive().optional(),
     bank: z.array(Word).max(16),
+    /** Médio: the word list arrives in this long (type first). */
+    listInMs: z.number().nonnegative().optional(),
     submitted: z.boolean(),
     /** Your locked-in word. */
     mine: shortText.optional(),
@@ -290,6 +292,8 @@ export const ControllerView = z.discriminatedUnion("mode", [
     pictures: z.boolean().optional(),
     /** A wrong answer locks you out for a moment. */
     lockedMs: z.number().nonnegative().optional(),
+    /** The holder types the answer (Médio, from the third potato); "lifeline" brings the options back. */
+    typed: z.boolean().optional(),
     round: z.number().int().nonnegative(),
     rounds: z.number().int().positive(),
     double: z.boolean().optional(),
@@ -331,11 +335,11 @@ export const ControllerView = z.discriminatedUnion("mode", [
     /** "📞 Pedido por telefone": write the order for these pictures as a sentence (your partner cooks from it). */
     call: z.object({ items: z.array(z.object({ pic: emojiField, n: z.number().int().min(1).max(3) })).max(4), msLeft: z.number().nonnegative() }).optional(),
   }),
-  /** Quem faz o quê?: one writes the verb for a person + action, the other reads who and what. */
+  /** Quem faz o quê?: both pick a card and write the verb for it, then swap and read who and what. */
   z.object({
     mode: z.literal("verbs"),
     ...round,
-    role: z.enum(["write", "read", "wait"]),
+    role: z.enum(["pick", "write", "read", "wait"]),
     round: z.number().int().nonnegative(),
     rounds: z.number().int().positive(),
     hearts: z.number().int().min(0).max(5),
@@ -345,6 +349,13 @@ export const ControllerView = z.discriminatedUnion("mode", [
     /** Writer: who does it and the action (with a hint on Fácil/Médio). */
     person: z.object({ pt: shortText, pic: emojiField }).optional(),
     action: z.object({ pic: emojiField, hint: shortText.optional() }).optional(),
+    /** Writing a risky card (points ×2). */
+    risky: z.boolean().optional(),
+    /** Picking: an easy card (regular verb, ×1) and a risky one (irregular, ×2). */
+    offers: z
+      .array(z.object({ id: z.enum(["easy", "risky"]), mult: z.number().int().min(1).max(3), person: z.object({ pt: shortText, pic: emojiField }), action: z.object({ pic: emojiField, hint: shortText.optional() }) }))
+      .max(2)
+      .optional(),
     /** Reader: the written verb, the five persons and the action pictures. */
     written: z.string().max(40).optional(),
     persons: z.array(z.object({ id, pt: shortText, pic: emojiField })).max(5).optional(),
@@ -366,7 +377,7 @@ export const InputValue = z.discriminatedUnion("mode", [
   /** Skip the practice round. */
   z.object({ mode: z.literal("skip") }),
   z.object({ mode: z.literal("final"), answer: z.string().trim().min(1).max(40) }),
-  z.object({ mode: z.literal("verbs"), write: z.string().trim().min(1).max(30).optional(), pick: z.object({ person: id, verb: z.string().max(30) }).optional() }),
+  z.object({ mode: z.literal("verbs"), choose: z.enum(["easy", "risky"]).optional(), write: z.string().trim().min(1).max(30).optional(), pick: z.object({ person: id, verb: z.string().max(30) }).optional() }),
   z.object({
     mode: z.literal("learn"),
     answer: z.discriminatedUnion("t", [
@@ -401,7 +412,7 @@ export const InputValue = z.discriminatedUnion("mode", [
   }),
   z.object({ mode: z.literal("petName"), name: z.string().trim().min(1).max(16).optional(), skip: z.boolean().optional() }),
   z.object({ mode: z.literal("wardrobe"), top: z.string().max(32).optional(), bottom: z.string().max(32).optional(), done: z.boolean().optional() }),
-  z.object({ mode: z.literal("bomb"), answer: z.string().trim().min(1).max(40).optional(), hurry: z.boolean().optional(), steal: z.string().trim().min(1).max(40).optional() }),
+  z.object({ mode: z.literal("bomb"), answer: z.string().trim().min(1).max(40).optional(), lifeline: z.boolean().optional(), hurry: z.boolean().optional(), steal: z.string().trim().min(1).max(40).optional() }),
   z.object({ mode: z.literal("sync"), word: z.string().trim().min(1).max(40).optional(), sense: z.boolean().optional(), predict: z.boolean().optional() }),
   z.object({
     mode: z.literal("draw"),

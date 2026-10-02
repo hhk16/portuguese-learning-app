@@ -76,6 +76,7 @@ export function Sync({ v, send }: { v: V; send: Send }) {
       </div>
     );
   const typeOnly = v.bank.length === 0;
+  const listIn = v.listInMs !== undefined ? Math.max(0, v.listInMs - (v.msLeft !== undefined ? (v.msLeft ?? 0) - left : 0)) : undefined;
   return (
     <div className="p-col">
       <div className="sync-head">
@@ -120,6 +121,11 @@ export function Sync({ v, send }: { v: V; send: Send }) {
           OK
         </button>
       </form>
+      {listIn !== undefined && (
+        <div className="p-sub sync-list-in">
+          ✍️ Escreve primeiro! A lista chega em {Math.ceil(listIn / 1000)}s · Type first — the word list comes in {Math.ceil(listIn / 1000)}s
+        </div>
+      )}
       {!typeOnly && (
         <>
           <div className="kicker">Ou escolhe · Or pick</div>

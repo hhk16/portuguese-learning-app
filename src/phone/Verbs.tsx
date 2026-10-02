@@ -1,4 +1,4 @@
-/** Quem faz o quê? on the phone: write the verb for a person + action, or read a written verb (who? what?). */
+/** Quem faz o quê? on the phone: pick a card, write its verb, then read your partner's verb (who? what?). */
 import { useState } from "react";
 import type { ControllerView } from "../shared/protocol.ts";
 import { play } from "../audio/sfx.ts";
@@ -24,12 +24,44 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
       {v.msLeft !== undefined && <span className={`pill ${left < 6000 ? "low" : ""}`}>⏱ {Math.ceil(left / 1000)}s</span>}
     </div>
   );
+  if (v.role === "pick" && v.offers)
+    return (
+      <div className="p-col verbs-pad">
+        {head}
+        <div className="p-callout">
+          <b className="display">🃏 Escolhe a tua carta!</b>
+          <span>Easy: a regular verb. Risky: an irregular one, double points — but a miss still costs a heart.</span>
+        </div>
+        <div className="verbs-offers">
+          {v.offers.map((o) => (
+            <button
+              key={o.id}
+              className={`card verbs-offer ${o.id}`}
+              onClick={() => {
+                play(o.id === "risky" ? "whoosh" : "tap");
+                navigator.vibrate?.(o.id === "risky" ? [20, 40, 20] : 15);
+                send({ mode: "verbs", choose: o.id });
+              }}
+            >
+              <span className="vo-tag">{o.id === "risky" ? `Arriscada ×${o.mult} 🔥` : `Fácil ×${o.mult}`}</span>
+              <span className="vo-pics">
+                <Picture glyph={o.person.pic} size="40px" />
+                <b>{o.person.pt}</b>
+                <span>+</span>
+                <Picture glyph={o.action.pic} size="40px" />
+              </span>
+              {o.action.hint && <i>{o.action.hint}</i>}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
   if (v.role === "write" && v.person && v.action)
     return (
       <div className="p-col verbs-pad">
         {head}
         <div className="p-callout">
-          <b className="display">✍️ Escreve o verbo!</b>
+          <b className="display">✍️ Escreve o verbo!{v.risky ? " 🔥 ×2" : ""}</b>
           <span>Write the verb for this person — only the verb (your partner must read who it is).</span>
         </div>
         <div className="card verbs-prompt">
@@ -96,9 +128,11 @@ export function Verbs({ v, send }: { v: V; send: Send }) {
     <div className="p-col verbs-pad">
       {head}
       <div className="p-center">
-        <div className="p-big">{v.written ? "👀" : "✍️"}</div>
+        <div className="p-big">{v.written !== undefined ? "👀" : "✉️"}</div>
         <div className="p-sub">
-          {v.written ? `${v.other} está a ler “${v.written}”… · ${v.other} is reading your verb` : `${v.other} está a escrever o verbo… Prepara-te: a terminação diz quem é! · Get ready: the ending tells who`}
+          {v.written !== undefined
+            ? `Leste “${v.written || "—"}”. ${v.other} ainda está a ler… · waiting for ${v.other}`
+            : `Feito! ${v.other} ainda está a escolher ou a escrever… Depois trocam: a terminação diz quem é! · Then you swap and read each other's verb`}
         </div>
         {v.endings && !v.written && <div className="p-sub verbs-endings-p">{ENDINGS}</div>}
       </div>

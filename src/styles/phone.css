@@ -1661,3 +1661,37 @@ body,
   border-radius: 14px;
   border: 0.15rem solid var(--line);
 }
+
+.verbs-offers {
+  display: grid;
+  gap: 12px;
+}
+.verbs-offer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px;
+  border: 3px solid transparent;
+}
+.verbs-offer.risky {
+  border-color: var(--coral);
+  background: #fff3ef;
+}
+.verbs-offer .vo-tag {
+  font-weight: 800;
+  font-size: 1.1em;
+}
+.verbs-offer.risky .vo-tag {
+  color: var(--coral-d);
+}
+.verbs-offer .vo-pics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2em;
+}
+.verbs-offer i {
+  font-style: normal;
+  color: var(--ink-2);
+}
