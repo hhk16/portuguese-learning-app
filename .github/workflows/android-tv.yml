@@ -12,7 +12,6 @@ jobs:
         with: { node-version: 22 }
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 21 }
-      - uses: android-actions/setup-android@v3
       - name: Capacitor Android project
         working-directory: android-tv
         run: |
@@ -20,10 +19,13 @@ jobs:
           npx cap add android
           python3 ../scripts/android/patch-manifest.py android/app/src/main/AndroidManifest.xml
           mkdir -p android/app/src/main/res/drawable
+          command -v convert || (sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick)
           convert -size 320x180 gradient:'#3b82f6'-'#ff6b6b' -gravity center -fill white -font DejaVu-Sans-Bold -pointsize 30 -annotate 0 'Party\nPortuguês' android/app/src/main/res/drawable/banner.png
       - name: Build APK
         working-directory: android-tv/android
-        run: ./gradlew assembleDebug --no-daemon
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          ./gradlew assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: party-portugues-tv-apk
