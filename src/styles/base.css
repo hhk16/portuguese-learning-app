@@ -1,0 +1,244 @@
+@import "@fontsource/fredoka/500.css";
+@import "@fontsource/fredoka/600.css";
+@import "@fontsource/fredoka/700.css";
+@import "@fontsource/nunito/700.css";
+@import "@fontsource/nunito/800.css";
+@import "@fontsource/nunito/900.css";
+
+/*
+ * Toy world — one art family: soft sky, warm sand, chunky white cards, rounded everything,
+ * Fluent 3D pictures, Kenney toy characters. One daytime theme by design (the TV and phones must
+ * look the same in every living room), so colours are set explicitly rather than per OS theme.
+ */
+:root {
+  --sky-top: #74c3fb;
+  --sky: #bfe6ff;
+  --cream: #fff6e5;
+  --sand: #ffe6bf;
+  --white: #ffffff;
+  --navy: #1f2a44;
+  --ink-2: #4a5572;
+  --ink-3: #5f6982;
+  --line: #e9e2d3;
+
+  --coral: #ff6b6b;
+  --coral-d: #d64f4f;
+  --sky-p: #4ba3f5;
+  --sky-p-d: #2c7fd0;
+  --mint: #3ecf95;
+  --mint-d: #23a371;
+  --sun: #ffc23d;
+  --sun-d: #d99a14;
+
+  --good: #3ecf95;
+  --good-bg: #dcf8ec;
+  --bad: #ff6b6b;
+  --bad-bg: #ffe3e3;
+
+  --display: "Fredoka", "Nunito", system-ui, sans-serif;
+  --body: "Nunito", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+[data-color="coral"] { --pc: var(--coral); --pc-d: var(--coral-d); }
+[data-color="sky"] { --pc: var(--sky-p); --pc-d: var(--sky-p-d); }
+[data-color="mint"] { --pc: var(--mint); --pc-d: var(--mint-d); }
+[data-color="sun"] { --pc: var(--sun); --pc-d: var(--sun-d); }
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: var(--cream);
+  color: var(--navy);
+  font-family: var(--body);
+  font-weight: 800;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+:focus-visible {
+  outline: 3px solid var(--sky-p);
+  outline-offset: 3px;
+}
+
+/* ---------- shared building blocks (sized in em so TV and phone scale them) ---------- */
+
+.card {
+  background: var(--white);
+  border-radius: 1.4em;
+  box-shadow: 0 0.35em 0 rgba(31, 42, 68, 0.08), 0 0.9em 2em rgba(31, 42, 68, 0.1);
+}
+
+.kicker {
+  font-family: var(--body);
+  font-weight: 900;
+  font-size: 0.72em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.display {
+  font-family: var(--display);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+/* Chunky pressable button. */
+.btn {
+  --b: var(--coral);
+  --bd: var(--coral-d);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  border: 0;
+  border-radius: 1em;
+  padding: 0.75em 1.3em;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.15em;
+  color: var(--white);
+  background: var(--b);
+  box-shadow: 0 0.28em 0 var(--bd);
+  transform: translateY(0);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0.22em);
+  box-shadow: 0 0.06em 0 var(--bd);
+}
+.btn:disabled {
+  --b: #d8d3c7;
+  --bd: #bdb6a6;
+  color: #f7f4ee;
+}
+.btn.mint { --b: var(--mint); --bd: var(--mint-d); }
+.btn.sky { --b: var(--sky-p); --bd: var(--sky-p-d); }
+.btn.sun { --b: var(--sun); --bd: var(--sun-d); color: var(--navy); }
+.btn.coral { --b: var(--coral); --bd: var(--coral-d); }
+.btn.white { --b: var(--white); --bd: #e3dccb; color: var(--navy); }
+.btn.player { --b: var(--pc); --bd: var(--pc-d); }
+.btn.block {
+  width: 100%;
+}
+
+/* Picture: a Fluent 3D image or a fallback glyph. */
+.pic-img {
+  display: block;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.pic-glyph {
+  display: inline-grid;
+  place-items: center;
+  line-height: 1;
+}
+.pic-number {
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--sky-p-d);
+  line-height: 1;
+}
+
+/* Player chip: portrait + name. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.25em 0.9em 0.25em 0.25em;
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: 0 0.2em 0 rgba(31, 42, 68, 0.1);
+  font-family: var(--display);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.face {
+  flex: none;
+  border-radius: 50%;
+  background: var(--pc, var(--sky));
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+}
+.chip.off {
+  opacity: 0.45;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes rise-in {
+  from { transform: translateY(0.6em); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.12em); }
+}
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-0.25em); }
+  75% { transform: translateX(0.25em); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- small shared helpers ---------- */
+.muted {
+  color: var(--ink-2);
+  font-weight: 700;
+}
+.center {
+  text-align: center;
+  justify-content: center;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.3em 0.85em;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--navy);
+  font-family: var(--display);
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 0.18em 0 rgba(31, 42, 68, 0.1);
+}
+.star-pill {
+  background: var(--sun);
+  box-shadow: 0 0.18em 0 var(--sun-d);
+}

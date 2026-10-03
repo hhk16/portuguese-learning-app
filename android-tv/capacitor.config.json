@@ -1,0 +1,7 @@
+{
+  "appId": "pt.partyportugues.tv",
+  "appName": "Party Português",
+  "webDir": "www",
+  "server": { "url": "https://web-production-9cf791.up.railway.app/tv", "androidScheme": "https" },
+  "android": { "allowMixedContent": false }
+}
