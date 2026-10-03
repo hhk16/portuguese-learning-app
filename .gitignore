@@ -12,3 +12,5 @@ test-results/
 e2e-output/
 __pycache__/
 .claude/worktrees/
+android-tv/node_modules
+android-tv/android
