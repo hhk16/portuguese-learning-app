@@ -60,6 +60,12 @@ public class TvFlowTest extends Instrumentation {
         while (find(tag) == null && SystemClock.uptimeMillis() < end) SystemClock.sleep(50);
         getInstrumentation().waitForIdleSync(); assertNotNull("Missing action: " + tag + "\n" + describe(activity.getWindow().getDecorView()), find(tag));
     }
+    private void assertFullyVisible(String tag) {
+        View view = find(tag); assertNotNull(view);
+        android.graphics.Rect visible = new android.graphics.Rect();
+        assertTrue(view.getGlobalVisibleRect(visible));
+        assertTrue(visible.width() >= view.getWidth() - 2 && visible.height() >= view.getHeight() - 2);
+    }
     private String describe(View v) {
         String out = v instanceof TextView ? ((TextView) v).getText().toString() + "\n" : "";
         if (v instanceof ViewGroup) for (int i = 0; i < ((ViewGroup) v).getChildCount(); i++) out += describe(((ViewGroup) v).getChildAt(i));
@@ -231,8 +237,12 @@ public class TvFlowTest extends Instrumentation {
             assertFalse(card.art.isEmpty()); assertFalse(card.audio.isEmpty());
             try (java.io.InputStream in = activity.getAssets().open("art/" + card.art + ".webp")) { assertTrue(in.read() >= 0); }
         }
-        press("nav-games"); screenshot("play-skills"); press("game-picture"); screenshot("picture-worlds");
-        press("world-animals"); screenshot("park-words"); press("word-picture.animals.gato");
+        screenshot("enhanced-home"); press("browse"); waitFor("world-animals");
+        press("nav-games"); screenshot("play-skills");
+        for (String tag : new String[]{"game-picture", "game-cafe", "game-dialogue", "game-listen", "game-grammar", "review"}) assertFullyVisible(tag);
+        press("game-picture"); screenshot("picture-worlds");
+        for (Catalog.Topic world : catalog.worlds) assertFullyVisible("world-" + world.id);
+        press("world-animals"); assertFullyVisible("learn-world"); assertFullyVisible("match-world"); screenshot("park-words"); press("word-picture.animals.gato");
         assertTrue((activity.getWindow().getAttributes().flags & android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) != 0);
         press("learn-world"); screenshot("picture-teaching");
         for (int i = 0; i < 4; i++) {

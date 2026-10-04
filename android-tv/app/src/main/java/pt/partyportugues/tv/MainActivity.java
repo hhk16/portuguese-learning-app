@@ -247,8 +247,8 @@ public final class MainActivity extends Activity {
         progressBar(copy, progress.learned(chosen), chosen.cards.size());
         picture(scene, "home", 254, false); split(body, copy, scene, .43f);
         space(body, 8); heading(body, "Make yourself at home", 22);
-        LinearLayout learn = tile("browse", "Everyday Portuguese", "Explore the course", BLUE, () -> navigate("units"));
-        miniCard(learn, "book", "Everyday Portuguese", "Explore the course");
+        LinearLayout learn = tile("browse", "Picture worlds", "Four words at a time", BLUE, () -> navigate("worlds"));
+        miniCard(learn, "picture", "Picture worlds", "See. Hear. Remember.");
         LinearLayout play = tile("play", "Real-life phrases", "Six illustrated adventures", PEACH, () -> navigate("phrasebook"));
         miniCard(play, "together", "Real-life phrases", "Listen. Save. Try it.");
         int misses = 0; for (String id : catalog.cards.keySet()) if (progress.due(id)) misses++;
@@ -260,7 +260,8 @@ public final class MainActivity extends Activity {
     }
     private void miniCard(LinearLayout card, String kind, String name, String subtitle) {
         LinearLayout copy = column(), image = column(); cardText(copy, name, subtitle);
-        if (kind.equals("together")) picture(image, "ana-wave", 83, true);
+        if (kind.equals("picture")) picture(image, "cat", 83, true);
+        else if (kind.equals("together")) picture(image, "ana-wave", 83, true);
         else image.addView(art.symbol(this, kind), new LinearLayout.LayoutParams(-1, dp(83)));
         split(card, copy, image, .66f);
     }
@@ -348,15 +349,16 @@ public final class MainActivity extends Activity {
     }
     private void units() {
         title("Everyday Portuguese", "A small adventure, one chapter at a time.");
+        footer.setText("Arrows  Move · Down for more chapters     OK  Open     Back  Return");
         List<Catalog.Unit> us = catalog.units;
         for (int i = 0; i < us.size(); i += 3) {
             LinearLayout r = row();
             for (int j = i; j < Math.min(i + 3, us.size()); j++) {
                 Catalog.Unit u = us.get(j); int fill = new int[]{BLUE, PEACH, MINT, LILAC}[j % 4];
                 LinearLayout card = tile("unit-" + u.id, u.title, u.subtitle, fill, () -> { unitId = u.id; navigate("lessons"); });
-                picture(card, sceneForUnit(u.id), 42, false);
-                eyebrow(card, u.label); TextView name = text(u.title, 16, INK); name.setTypeface(heavy); name.setMaxLines(2); name.setEllipsize(TextUtils.TruncateAt.END); card.addView(name);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(123), 1); lp.setMargins(0, dp(5), dp(10), dp(5)); r.addView(card, lp);
+                picture(card, sceneForUnit(u.id), 72, false);
+                eyebrow(card, u.label); TextView name = text(u.title, 18, INK); name.setTypeface(heavy); name.setMaxLines(2); name.setEllipsize(TextUtils.TruncateAt.END); card.addView(name);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(158), 1); lp.setMargins(0, dp(5), dp(10), dp(5)); r.addView(card, lp);
             }
             body.addView(r);
         }
@@ -433,7 +435,7 @@ public final class MainActivity extends Activity {
                 Catalog.Topic w = catalog.worlds.get(j);
                 int known = 0; for (StudySession.Card c : w.cards) if (progress.known(c.id)) known++;
                 LinearLayout card = tile("world-" + w.id, w.title, w.goal, new int[]{PEACH, BLUE, MINT, LILAC}[j % 4], () -> { worldId = w.id; navigate("world"); });
-                picture(card, w.art, 92, false); heading(card, w.title, 21);
+                picture(card, w.art, 80, false); heading(card, w.title, 21);
                 card.addView(text("4 words  ·  " + known + " / 4 practised", 14, MUTED));
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(161), 1); lp.setMargins(0, dp(4), dp(10), dp(4)); r.addView(card, lp);
             }

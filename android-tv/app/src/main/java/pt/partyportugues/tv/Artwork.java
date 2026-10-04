@@ -61,7 +61,13 @@ final class Artwork {
             float bw = b.getWidth() * scale, bh = b.getHeight() * scale;
             Path clip = new Path(); clip.addRoundRect(new RectF(0, 0, w, h), 20, 20, Path.Direction.CW);
             c.save(); c.clipPath(clip);
-            float top = name.equals("home") || (!contain && w / h > 2f) ? 0 : (h - bh) / 2;
+            float top = (h - bh) / 2;
+            if (name.equals("home")) top = 0;
+            else if (!contain && w / h > 2f) {
+                // Focus wide previews around faces rather than the top edge of the source.
+                float focal = name.equals("journey") ? .34f : name.equals("cafe") || name.equals("conversation") ? .28f : .30f;
+                top = Math.min(0, Math.max(h - bh, h / 2 - bh * focal));
+            }
             c.drawBitmap(b, null, new RectF((w - bw) / 2, top, (w + bw) / 2, top + bh), paint); c.restore();
         }
     }
