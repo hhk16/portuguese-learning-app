@@ -20,9 +20,9 @@ The package ID remains `pt.partyportugues.tv`. Debug builds use the build machin
 
 ## Interaction design
 
-The compact top menu has Home, Lessons, Play, Progress and Settings. The playful family design uses cream, indigo, cobalt focus outlines, pastel cards and bundled Nunito type. New Portuguese street/café scenes preserve Hadi and Anna's original character likenesses; existing character poses appear in teaching, player turns, feedback and results. Settings chooses the solo companion. Real focusable Android controls handle directional navigation and scroll the focused item into view.
+The compact top menu has Home, Lessons, Play, Progress and Settings. The playful family design uses cream, indigo, cobalt focus outlines, pastel cards and bundled Nunito type. New Portuguese street/café scenes preserve Hadi and Anna's original character likenesses; original waves and new close-up character poses appear in teaching, player turns, feedback and results. Settings chooses the solo companion. Real focusable Android controls handle directional navigation and scroll the focused item into view.
 
-Café answer trays show the actual items and quantities using eight transparent food sprites. Each game has its own scene or symbol, short numbered instructions and an example. Artwork is decoded once away from the UI thread at bounded sizes. Only 21 selected images are packaged; there is no continuous render loop or loading of the old backdrop/wardrobe library. See [the visual design notes](../docs/native-tv-design.md) for asset provenance and budgets.
+Café answer trays show the actual items and quantities using eight transparent food sprites. Each game has its own scene or symbol, short numbered instructions and an example. Artwork is decoded once away from the UI thread at bounded sizes. Only 19 selected images are packaged; there is no continuous render loop or loading of the old backdrop/wardrobe library. See [the visual design notes](../docs/native-tv-design.md) for asset provenance and budgets.
 
 All games begin with a goal, instructions, controls, solo/together selection and an explanation of how turns advance. Together mode shares one remote and names the current player; it keeps a household score and progress rather than claiming to measure individual mastery.
 
