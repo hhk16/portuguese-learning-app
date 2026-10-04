@@ -12,7 +12,7 @@ Party Português is procedural by design. Almost everything you see and hear is 
 | Font: Bungee | Google Fonts via `@fontsource/bungee` | SIL OFL 1.1 |
 | Font: Press Start 2P | Google Fonts via `@fontsource/press-start-2p` | SIL OFL 1.1 |
 | Font: Nunito | Google Fonts via `@fontsource/nunito` | SIL OFL 1.1 |
-| Native TV scenes and café food | `public/art/native-tv/*.webp` — generated with OpenAI image generation; Hadi/Ana scene artwork references their existing photo-derived characters | Project art (private use) |
+| Native TV scenes, character close-ups and café food | `public/art/native-tv/*.webp` — generated with OpenAI image generation; Hadi/Ana scene artwork references their existing photo-derived characters | Project art (private use) |
 | Native TV Nunito | Google Fonts `ofl/nunito`, font and OFL licence bundled in `public/art/native-tv/fonts/` | SIL OFL 1.1 |
 | Emoji | Rendered by the device's system font | Device |
 

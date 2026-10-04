@@ -77,8 +77,16 @@ public class TvFlowTest extends Instrumentation {
     }
     private void screenshot(String name) throws Exception {
         getInstrumentation().waitForIdleSync();
-        // UI-thread idle can precede the compositor presenting the new native screen.
-        SystemClock.sleep(350);
+        // Wait for a rendered frame, rather than mistaking UI-thread idle for presentation.
+        java.util.concurrent.CountDownLatch frame = new java.util.concurrent.CountDownLatch(1);
+        getInstrumentation().runOnMainSync(() -> {
+            View view = activity.getWindow().getDecorView();
+            if (android.os.Build.VERSION.SDK_INT >= 29 && view.isHardwareAccelerated()) {
+                view.getViewTreeObserver().registerFrameCommitCallback(frame::countDown); view.invalidate();
+            } else view.postDelayed(frame::countDown, 500);
+        });
+        frame.await(3, java.util.concurrent.TimeUnit.SECONDS);
+        SystemClock.sleep(200);
         File folder = new File(getInstrumentation().getTargetContext().getExternalFilesDir(null), "screenshots"); folder.mkdirs();
         Bitmap shot = getInstrumentation().getUiAutomation().takeScreenshot();
         if (shot != null) try (FileOutputStream out = new FileOutputStream(new File(folder, name + ".png"))) {
@@ -157,6 +165,8 @@ public class TvFlowTest extends Instrumentation {
         assertTrue(contains(activity.getWindow().getDecorView(), "Skipped listening questions do not earn points"));
     }
     public void testArtworkAndNamedPlayers() throws Exception {
+        if (android.os.Build.VERSION.SDK_INT >= 28)
+            assertTrue(((TextView) find("next-lesson")).getTypeface().getWeight() >= 800);
         for (String name : new String[]{"home", "cafe", "conversation", "coffee", "milk", "bread", "soup", "icecream", "cake", "croissant", "water", "hadi-wave", "ana-wave", "hadi-cheer", "ana-cheer"}) {
             try (java.io.InputStream in = getInstrumentation().getTargetContext().getAssets().open("art/" + name + ".webp")) {
                 Bitmap picture = android.graphics.BitmapFactory.decodeStream(in);

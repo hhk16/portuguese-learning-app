@@ -23,7 +23,7 @@ final class Artwork {
         for (String name : scenes) load(context, name, 1100);
         for (String who : new String[]{"hadi", "ana"}) {
             load(context, who, 128);
-            for (String pose : new String[]{"wave", "cheer", "think", "stand"}) load(context, who + "-" + pose, 420);
+            for (String pose : new String[]{"wave", "cheer", "think"}) load(context, who + "-" + pose, 720);
         }
         for (String food : new String[]{"coffee", "milk", "bread", "soup", "icecream", "cake", "croissant", "water"})
             load(context, food, 256);
@@ -93,7 +93,7 @@ final class Artwork {
             paint.setColor(Color.rgb(244, 221, 187));
             c.drawRoundRect(new RectF(w * .085f, h * .3f, w * .915f, h * .86f), h * .09f, h * .09f, paint);
             float slot = w * .82f / Math.max(1, items.size());
-            float side = Math.min(slot * 1.2f, h * .95f);
+            float side = Math.min(slot * .96f, h * .95f);
             for (int i = 0; i < items.size(); i++) {
                 Bitmap b = images.get(items.get(i)); if (b == null) continue;
                 float center = w * .09f + slot * (i + .5f);

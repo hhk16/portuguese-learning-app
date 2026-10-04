@@ -57,8 +57,11 @@ public final class MainActivity extends Activity {
         speech.onStateChanged(() -> {
             if (audioControl != null) audioControl.setText(speech.isPlaying() ? "♪  Playing…" : "▶  Listen again");
         });
-        try { regular = Typeface.createFromAsset(getAssets(), "art/fonts/nunito.ttf"); } catch (Exception ignored) { }
         heavy = Typeface.create(regular, Typeface.BOLD);
+        try {
+            regular = Typeface.createFromAsset(getAssets(), "art/fonts/nunito.ttf");
+            heavy = Typeface.createFromAsset(getAssets(), "art/fonts/nunito-bold.ttf");
+        } catch (Exception ignored) { }
         if (state != null) {
             screen = state.getString("screen", "home"); unitId = state.getString("unit", "");
             lessonId = state.getString("lesson", ""); gameId = state.getString("game", "dialogue");
@@ -90,7 +93,7 @@ public final class MainActivity extends Activity {
     private LinearLayout row() { LinearLayout l = new LinearLayout(this); l.setOrientation(LinearLayout.HORIZONTAL); return l; }
     private TextView text(String value, int size, int color) {
         TextView t = new TextView(this); t.setText(value); t.setTextSize(size); t.setTextColor(color);
-        t.setTypeface(regular); t.setFontFeatureSettings("kern"); t.setPadding(0, dp(3), 0, dp(3)); return t;
+        t.setTypeface(regular); t.setIncludeFontPadding(false); t.setFontFeatureSettings("kern"); t.setPadding(0, dp(2), 0, dp(2)); return t;
     }
     private void title(String value, String subtitle) {
         TextView h = text(value, 28, INK); h.setTypeface(heavy); body.addView(h);
@@ -104,7 +107,7 @@ public final class MainActivity extends Activity {
     }
     private Button button(String key, String label, Runnable click) {
         Button b = new Button(this); b.setTag(key); b.setId(View.generateViewId()); b.setText(label);
-        b.setTypeface(heavy); b.setAllCaps(false); b.setTextSize(18); b.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        b.setTypeface(heavy); b.setIncludeFontPadding(false); b.setAllCaps(false); b.setTextSize(18); b.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         b.setMinHeight(dp(46)); b.setMinimumHeight(dp(46)); b.setPadding(dp(16), dp(7), dp(16), dp(7));
         b.setStateListAnimator(null); b.setMaxLines(4); b.setEllipsize(TextUtils.TruncateAt.END);
         StateListDrawable bg = new StateListDrawable();
@@ -224,16 +227,17 @@ public final class MainActivity extends Activity {
         Catalog.Lesson next = catalog.lessons.get(0);
         for (Catalog.Lesson l : catalog.lessons) if (progress.learned(l) < l.cards.size()) { next = l; break; }
         final Catalog.Lesson chosen = next;
-        if (session != null && session.phase != StudySession.Phase.RESULT)
-            add("resume", "Pick up your saved session  →", () -> { screen = "session"; draw(null); });
         LinearLayout copy = column(), scene = column();
-        eyebrow(copy, "A LITTLE, EVERY DAY"); heading(copy, "Your next stop:\nPortuguese.", 34);
+        eyebrow(copy, "A LITTLE, EVERY DAY"); heading(copy, "Your next stop:\nPortuguese.", 44);
         copy.addView(text("Real conversations. Your pace.", 17, MUTED)); space(copy, 6);
-        copy.addView(primary("next-lesson", "Continue learning  →", () -> { lessonId = chosen.id; unitId = chosen.unit; navigate("lesson"); }));
+        if (session != null && session.phase != StudySession.Phase.RESULT) {
+            copy.addView(primary("resume", "Resume your adventure  →", () -> { screen = "session"; draw(null); }));
+            copy.addView(button("next-lesson", "Explore this lesson", () -> { lessonId = chosen.id; unitId = chosen.unit; navigate("lesson"); }));
+        } else copy.addView(primary("next-lesson", "Continue learning  →", () -> { lessonId = chosen.id; unitId = chosen.unit; navigate("lesson"); }));
         copy.addView(text(chosen.title, 13, MUTED));
         copy.addView(text(progress.learned(chosen) + " / " + chosen.cards.size() + " words practised correctly", 12, MUTED));
         progressBar(copy, progress.learned(chosen), chosen.cards.size());
-        picture(scene, "home", 228, false); split(body, copy, scene, .43f);
+        picture(scene, "home", 254, false); split(body, copy, scene, .43f);
         space(body, 8); heading(body, "Make yourself at home", 22);
         LinearLayout learn = tile("browse", "Everyday Portuguese", "Explore the course", BLUE, () -> navigate("units"));
         miniCard(learn, "book", "Everyday Portuguese", "Explore the course");
@@ -331,7 +335,7 @@ public final class MainActivity extends Activity {
             else if (id.equals("cafe")) picture(card, "cafe", 124, false);
             else card.addView(art.symbol(this, id), new LinearLayout.LayoutParams(-1, dp(124)));
             space(card, 5); eyebrow(card, "UP TO 8 · YOUR PACE"); cardText(card, names[i], descriptions[i]);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(252), 1); lp.setMargins(0, dp(7), dp(10), dp(7)); cards.addView(card, lp);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(258), 1); lp.setMargins(0, dp(7), dp(10), dp(7)); cards.addView(card, lp);
         }
         body.addView(cards); space(body, 6);
         int misses = 0; for (String id : catalog.cards.keySet()) if (progress.missed(id)) misses++;
@@ -375,7 +379,7 @@ public final class MainActivity extends Activity {
         LinearLayout hint = column(); hint.setPadding(dp(12), dp(5), dp(12), dp(5)); hint.setBackground(shape(BLUE, BLUE));
         eyebrow(hint, "FOR EXAMPLE"); hint.addView(text(example, 16, INK)); right.addView(hint);
         eyebrow(right, "CONTROLS · ARROWS + OK · BACK PAUSES");
-        right.addView(text("Together: pass the remote after each turn. Shared progress. Mistakes return once.", 14, MUTED));
+        right.addView(text("Together: pass the remote after each turn.\nMistakes return once. Progress is shared.", 14, MUTED));
         LinearLayout buttons = row();
         Button solo = primary("solo", "Play solo  →", () -> startGame(1)), together = button("together", "Play together", () -> startGame(2));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1); lp.setMargins(0, dp(4), dp(8), 0);
