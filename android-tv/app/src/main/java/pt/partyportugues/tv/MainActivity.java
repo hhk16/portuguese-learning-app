@@ -185,7 +185,7 @@ public final class MainActivity extends Activity {
     private void draw(String focusKey) {
         if (catalog == null || art == null) return;
         firstAction = null; audioControl = null; boolean inSession = screen.equals("session") && session != null;
-        getWindow().setFlags(inSession ? WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON : 0, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setFlags(inSession || screen.equals("phrase") ? WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON : 0, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         root = column(); root.setBackgroundColor(BG);
         densityPadding = progress.prefs.getBoolean("safeArea", true) ? 26 : 16;
         root.setPadding(dp(densityPadding), dp(12), dp(densityPadding), dp(10));
@@ -716,7 +716,7 @@ public final class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         if (backgrounded && screen.equals("session") && session != null && session.phase != StudySession.Phase.RESULT) pause();
-        if (screen.equals("session")) getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (screen.equals("session") || screen.equals("phrase")) getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         backgrounded = false;
     }
     @Override protected void onDestroy() { if (speech != null) speech.stop(); if (modal != null) modal.dismiss(); super.onDestroy(); }

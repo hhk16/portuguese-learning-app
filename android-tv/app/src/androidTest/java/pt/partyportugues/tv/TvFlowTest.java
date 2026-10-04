@@ -166,7 +166,9 @@ public class TvFlowTest extends Instrumentation {
     }
     public void testPhrasebookAudioSavedAndPractice() throws Exception {
         press("nav-phrasebook"); screenshot("phrasebook");
-        press("topic-market"); assertTrue(contains(activity.getWindow().getDecorView(), "Quanto custa?"));
+        press("topic-market");
+        assertTrue((activity.getWindow().getAttributes().flags & android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) != 0);
+        assertTrue(contains(activity.getWindow().getDecorView(), "Quanto custa?"));
         press("listen"); SystemClock.sleep(400); assertNotNull(find("listen-slow"));
         press("next-phrase"); assertTrue(contains(activity.getWindow().getDecorView(), "Queria duas maçãs"));
         press("listen-slow"); SystemClock.sleep(350); press("save-phrase"); screenshot("market-phrase");
