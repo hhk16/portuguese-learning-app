@@ -77,6 +77,8 @@ public class TvFlowTest extends Instrumentation {
     }
     private void screenshot(String name) throws Exception {
         getInstrumentation().waitForIdleSync();
+        // UI-thread idle can precede the compositor presenting the new native screen.
+        SystemClock.sleep(350);
         File folder = new File(getInstrumentation().getTargetContext().getExternalFilesDir(null), "screenshots"); folder.mkdirs();
         Bitmap shot = getInstrumentation().getUiAutomation().takeScreenshot();
         if (shot != null) try (FileOutputStream out = new FileOutputStream(new File(folder, name + ".png"))) {
