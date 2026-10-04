@@ -1,5 +1,5 @@
 /** Export original curriculum data and only the speech used by the native TV app. No web build. */
-import { mkdir, readFile, writeFile, copyFile, rm, access } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, copyFile, rm, access, cp } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { ALL_ITEMS, LESSONS } from '../../src/curriculum/index.ts';
 import { UNITS, unitOf } from '../../src/curriculum/units.ts';
@@ -7,6 +7,12 @@ import { UNITS, unitOf } from '../../src/curriculum/units.ts';
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const output = `${root}android-tv/app/src/main/assets`;
 const checkOnly = process.argv.includes('--check');
+const sceneAssets = ['home', 'cafe', 'conversation'];
+const foodAssets = ['coffee', 'milk', 'bread', 'soup', 'icecream', 'cake', 'croissant', 'water'];
+const characterAssets = ['hadi', 'ana'].flatMap(who => [who, ...['wave', 'cheer', 'think', 'stand'].map(pose => `${who}-${pose}`)]);
+for (const name of [...sceneAssets, ...foodAssets]) await access(`${root}public/art/native-tv/${name}.webp`);
+for (const name of characterAssets) await access(`${root}public/art/characters/${name}.webp`);
+await access(`${root}public/art/native-tv/fonts/nunito.ttf`);
 const manifest = JSON.parse(await readFile(`${root}public/audio/manifest.json`, 'utf8'));
 const key = (s) => s.trim().toLowerCase().normalize('NFC').replace(/\s+/g, ' ');
 const people = { eu: 'Eu', tu: 'Tu', ele: 'Ele / ela', nos: 'Nós', eles: 'Eles / elas' };
@@ -115,6 +121,11 @@ if (!checkOnly) {
   await mkdir(output, { recursive: true });
   await rm(`${output}/audio`, { recursive: true, force: true });
   await mkdir(`${output}/audio`, { recursive: true });
+  await rm(`${output}/art`, { recursive: true, force: true });
+  await mkdir(`${output}/art`, { recursive: true });
+  for (const name of [...sceneAssets, ...foodAssets]) await copyFile(`${root}public/art/native-tv/${name}.webp`, `${output}/art/${name}.webp`);
+  for (const name of characterAssets) await copyFile(`${root}public/art/characters/${name}.webp`, `${output}/art/${name}.webp`);
+  await cp(`${root}public/art/native-tv/fonts`, `${output}/art/fonts`, { recursive: true });
   await writeFile(`${output}/curriculum.json`, JSON.stringify({ version: 1, units: UNITS, lessons,
     games: [{ id: 'dialogue', cards: dialogue }, { id: 'cafe', cards: orders }] }));
   for (const file of files) await copyFile(`${root}public/audio/${file}`, `${output}/audio/${file}`);

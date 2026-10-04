@@ -16,6 +16,11 @@ final class Speech {
     private final AudioManager audio;
     private final Handler main = new Handler(Looper.getMainLooper());
     private MediaPlayer player;
+    private Runnable changed = () -> { };
+    void onStateChanged(Runnable listener) { changed = listener; }
+    boolean isPlaying() {
+        try { return player != null && player.isPlaying(); } catch (IllegalStateException e) { return false; }
+    }
     private final AudioManager.OnAudioFocusChangeListener focus = change -> {
         if (change <= AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) main.post(this::stop);
     };
@@ -35,6 +40,7 @@ final class Speech {
             if (player != p) return;
             if (slow) p.setPlaybackParams(new PlaybackParams().setSpeed(0.8f).setPitch(1f));
             p.start();
+            changed.run();
         });
         next.setOnCompletionListener(p -> { if (player == p) stop(); });
         next.setOnErrorListener((p, what, extra) -> {
@@ -51,5 +57,6 @@ final class Speech {
         MediaPlayer old = player; player = null;
         if (old != null) old.release();
         audio.abandonAudioFocus(focus);
+        changed.run();
     }
 }

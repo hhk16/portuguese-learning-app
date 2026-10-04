@@ -20,7 +20,9 @@ The package ID remains `pt.partyportugues.tv`. Debug builds use the build machin
 
 ## Interaction design
 
-The menu has Home, Lessons, Play & practise, Your progress and Settings. Real focusable Android controls handle directional navigation and scroll the focused item into view. Large text, bounded two-column grids and TV safe margins replace the layered game stage.
+The compact top menu has Home, Lessons, Play, Progress and Settings. The playful family design uses cream, indigo, cobalt focus outlines, pastel cards and bundled Nunito type. New Portuguese street/café scenes preserve Hadi and Anna's original character likenesses; existing character poses appear in teaching, player turns, feedback and results. Settings chooses the solo companion. Real focusable Android controls handle directional navigation and scroll the focused item into view.
+
+Café answer trays show the actual items and quantities using eight transparent food sprites. Each game has its own scene or symbol, short numbered instructions and an example. Artwork is decoded once away from the UI thread at bounded sizes. Only 21 selected images are packaged; there is no continuous render loop or loading of the old backdrop/wardrobe library. See [the visual design notes](../docs/native-tv-design.md) for asset provenance and budgets.
 
 All games begin with a goal, instructions, controls, solo/together selection and an explanation of how turns advance. Together mode shares one remote and names the current player; it keeps a household score and progress rather than claiming to measure individual mastery.
 
@@ -38,7 +40,7 @@ Back opens Pause during a session, follows the hierarchy in menus, and requires 
 
 ## Verification and release limits
 
-Pure-Java checks cover finite retries, explicit advance, repeated inputs, transcript scoring, deterministic restoration and two-player restart. Instrumentation checks exercise real D-pad events, instruction screens, player turns, Back, offline packaging and relaunch restoration. Screenshots are captured from the Android TV emulator.
+Pure-Java checks cover finite retries, explicit advance, repeated inputs, transcript scoring, deterministic restoration and two-player restart. Instrumentation checks exercise real D-pad events, instruction screens, named player turns, Back, offline packaging, relaunch restoration, native-game review, artwork decoding/transparency, companion selection and a complete lesson session. Screenshots of home, all four games, character turns, settings, progress and results are captured from the Android TV emulator.
 
 The app still needs an acceptance pass on the reported Android box: 720p/1080p/4K at its configured display scaling, sustained navigation, a complete lesson and each game, Home/resume, sleep/wake and repeated Back. A successful emulator build does not establish the cause of a crash on that physical box. Use `adb logcat -b crash` if exits recur.
 

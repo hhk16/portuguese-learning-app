@@ -2,10 +2,10 @@ name: Native Android TV
 on:
   workflow_dispatch:
   pull_request:
-    paths: ['android-tv/**', 'scripts/android/**', 'src/curriculum/**', 'public/audio/**', '.github/workflows/android-tv.yml']
+    paths: ['android-tv/**', 'scripts/android/**', 'src/curriculum/**', 'public/audio/**', 'public/art/native-tv/**', 'public/art/characters/**', '.github/workflows/android-tv.yml']
   push:
     branches: ['codex/native-tv-redesign', 'master']
-    paths: ['android-tv/**', 'scripts/android/**', 'src/curriculum/**', 'public/audio/**', '.github/workflows/android-tv.yml']
+    paths: ['android-tv/**', 'scripts/android/**', 'src/curriculum/**', 'public/audio/**', 'public/art/native-tv/**', 'public/art/characters/**', '.github/workflows/android-tv.yml']
 permissions:
   contents: read
 concurrency:

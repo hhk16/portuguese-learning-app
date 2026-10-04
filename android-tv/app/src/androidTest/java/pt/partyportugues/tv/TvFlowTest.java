@@ -19,7 +19,7 @@ public class TvFlowTest extends Instrumentation {
     private Instrumentation getInstrumentation() { return this; }
     @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
     @Override public void onStart() {
-        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames"};
+        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers"};
         int failures = 0;
         for (int i = 0; i < names.length; i++) {
             Bundle status = new Bundle(); status.putString("id", "NativeTvTests");
@@ -108,6 +108,7 @@ public class TvFlowTest extends Instrumentation {
         press("show-transcript");
         assertTrue(contains(activity.getWindow().getDecorView(), "Skipped listening questions do not earn points"));
         press("continue"); assertTrue(contains(activity.getWindow().getDecorView(), "PLAYER 2"));
+        assertTrue(contains(activity.getWindow().getDecorView(), "Anna")); screenshot("anna-turn");
     }
     public void testSavedSessionSurvivesRelaunch() throws Exception {
         press("next-lesson"); press("start-lesson"); press("practice"); press("answer-0");
@@ -154,6 +155,29 @@ public class TvFlowTest extends Instrumentation {
         assertNotNull(find("show-transcript")); screenshot("cafe-review");
         press("show-transcript"); waitFor("continue");
         assertTrue(contains(activity.getWindow().getDecorView(), "Skipped listening questions do not earn points"));
+    }
+    public void testArtworkAndNamedPlayers() throws Exception {
+        for (String name : new String[]{"home", "cafe", "conversation", "coffee", "milk", "bread", "soup", "icecream", "cake", "croissant", "water", "hadi-wave", "ana-wave", "hadi-cheer", "ana-cheer"}) {
+            try (java.io.InputStream in = getInstrumentation().getTargetContext().getAssets().open("art/" + name + ".webp")) {
+                Bitmap picture = android.graphics.BitmapFactory.decodeStream(in);
+                assertNotNull("Missing artwork: " + name, picture);
+                assertTrue(picture.getWidth() > 32 && picture.getHeight() > 32);
+                if (name.equals("coffee") || name.equals("milk")) assertTrue(android.graphics.Color.alpha(picture.getPixel(0, 0)) == 0);
+                picture.recycle();
+            }
+        }
+        press("nav-settings"); press("learner-anna"); screenshot("settings");
+        assertTrue(getInstrumentation().getTargetContext().getSharedPreferences("native-learning-v1", 0).getBoolean("anna", false));
+        press("nav-home"); press("next-lesson"); press("start-lesson"); screenshot("anna-teaching");
+        assertTrue(contains(activity.getWindow().getDecorView(), "Anna"));
+        int actions = 0;
+        while (find("finish") == null && actions++ < 48) {
+            if (find("practice") != null) press("practice");
+            else if (find("answer-0") != null) press("answer-0");
+            else press("continue");
+        }
+        waitFor("finish"); screenshot("results"); press("finish");
+        press("nav-progress"); screenshot("progress");
     }
     private void tearDown() {
         closeActivity();
