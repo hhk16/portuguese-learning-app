@@ -467,7 +467,7 @@ public final class MainActivity extends Activity {
     private void intro(String id) { gameId = id; navigate("intro"); }
     private String gameTitle(String id) {
         switch (id) { case "picture": return "Picture worlds"; case "cafe": return "At the café"; case "listen": return "Listen & find";
-            case "grammar": return "Complete the sentence"; case "review": return "Review your mistakes";
+            case "grammar": return "Fill the gap"; case "review": return "Review your mistakes";
             default: return "Choose the reply"; }
     }
     private String rules(String id) {
@@ -602,9 +602,9 @@ public final class MainActivity extends Activity {
             }));
             left.addView(text("Transcript help skips this question's score.", 12, MUTED));
         } else left.addView(text(c.kind.equals("dialogue") ? "A real situation. Your reply." : "Read. Think. Choose.", 16, MUTED));
-        String prompt = audioQuestion ? (cafe ? c.prompt : c.kind.equals("picture") ? "Which picture did you hear?" : "Listen. What did you hear?") : c.kind.equals("picture") ? "Find: " + c.pt : c.prompt;
+        String prompt = audioQuestion ? (cafe ? c.prompt : c.kind.equals("picture") ? "Which picture matches the word?" : "Listen. What did you hear?") : c.kind.equals("picture") ? "Find: " + c.pt : c.prompt;
         heading(right, prompt, cafe ? 23 : 25);
-        right.addView(text(audioQuestion ? "Choose what you heard." : c.grammar() ? c.en
+        right.addView(text(audioQuestion ? (c.kind.equals("picture") ? "Press Listen, then choose a picture." : "Choose what you heard.") : c.grammar() ? c.en
             : c.kind.equals("dialogue") ? "Choose the reply that fits." : c.kind.equals("picture") ? "Choose the matching picture." : "Choose the meaning.", 16, MUTED));
         List<String> choices = s.options();
         for (int i = 0; i < choices.size(); i += 2) {
@@ -658,7 +658,7 @@ public final class MainActivity extends Activity {
                 int learned = progress.learned(l); right.addView(text(learned + " / " + l.cards.size() + " lesson items practised", 15, MUTED));
                 right.addView(primary("next-batch", learned < l.cards.size() ? "Continue this lesson  →" : "Practise again", () -> startLesson(l)));
             }
-        } else right.addView(primary("again", pictures && s.mode.equals("learn") ? "Try listening to these pictures  →" : "Practise again  →", () -> {
+        } else right.addView(primary("again", pictures && s.mode.equals("learn") ? "Listen & match these pictures  →" : "Practise again  →", () -> {
             if (pictures && s.mode.equals("learn")) start("picture", "", s.deck.subList(0, s.firstCount), 1);
             else { session = s.restart(); progress.save(session); draw(null); }
         }));
