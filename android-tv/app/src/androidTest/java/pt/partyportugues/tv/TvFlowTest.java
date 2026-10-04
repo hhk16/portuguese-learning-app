@@ -19,7 +19,7 @@ public class TvFlowTest extends Instrumentation {
     private Instrumentation getInstrumentation() { return this; }
     @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
     @Override public void onStart() {
-        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard"};
+        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices"};
         int failures = 0;
         for (int i = 0; i < names.length; i++) {
             Bundle status = new Bundle(); status.putString("id", "NativeTvTests");
@@ -96,6 +96,7 @@ public class TvFlowTest extends Instrumentation {
         press("nav-games"); screenshot("games"); press("game-cafe"); screenshot("cafe-instructions");
         assertTrue(contains(activity.getWindow().getDecorView(), "both the food and the quantities"));
         press("together"); waitFor("listen"); screenshot("cafe-question");
+        press("listen"); SystemClock.sleep(300); assertTrue(activity.hasWindowFocus());
         assertTrue(contains(activity.getWindow().getDecorView(), "PLAYER 1"));
         press("show-transcript");
         assertTrue(contains(activity.getWindow().getDecorView(), "Skipped listening questions do not earn points"));
@@ -120,6 +121,19 @@ public class TvFlowTest extends Instrumentation {
         press("nav-units"); screenshot("chapters");
         press("unit-u08"); screenshot("chapter-eight");
         assertTrue(contains(activity.getWindow().getDecorView(), "férias"));
+    }
+    public void testEveryGameHasInstructionsAndRemoteChoices() throws Exception {
+        String[] games = {"dialogue", "listen", "grammar"};
+        for (String game : games) {
+            press("nav-games"); press("game-" + game);
+            assertTrue(contains(activity.getWindow().getDecorView(), "THE GOAL"));
+            assertTrue(contains(activity.getWindow().getDecorView(), "CONTROLS"));
+            screenshot(game + "-instructions"); press("solo"); waitFor("answer-0"); screenshot(game + "-question");
+            press("answer-0"); waitFor("continue");
+            getInstrumentation().runOnMainSync(() -> activity.finish()); getInstrumentation().waitForIdleSync();
+            getInstrumentation().getTargetContext().getSharedPreferences("native-learning-v1", 0).edit().clear().commit();
+            launch();
+        }
     }
     private void tearDown() {
         if (activity != null) getInstrumentation().runOnMainSync(() -> activity.finish());

@@ -249,6 +249,15 @@ public final class MainActivity extends Activity {
     private void introduction() {
         title(gameTitle(gameId), "THE GOAL  ·  Practise useful Portuguese, one choice at a time.");
         body.addView(text(rules(gameId), 20, INK)); space(body, 10);
+        String example;
+        switch (gameId) {
+            case "cafe": example = "EXAMPLE  ·  Queria dois cafés, por favor. → Choose 2 coffees."; break;
+            case "listen": example = "EXAMPLE  ·  Hear Olá! → Choose Hi!"; break;
+            case "grammar": example = "EXAMPLE  ·  Nós ___ portugueses. → Choose somos."; break;
+            case "review": example = "A correction explains the answer. You can replay available audio."; break;
+            default: example = "EXAMPLE  ·  Como te chamas? → Chamo-me Ana.";
+        }
+        body.addView(text(example, 18, ACCENT));
         body.addView(text("CONTROLS  ·  Arrows to choose, OK to answer. Back pauses.\n8 questions. Mistakes return once. Continue advances when you are ready.", 18, MUTED));
         body.addView(text("Together: pass the remote after each turn. Work toward a shared score.", 18, GOLD));
         pair("solo", "Play solo  →", () -> startGame(1), "together", "Play together  →", () -> startGame(2));

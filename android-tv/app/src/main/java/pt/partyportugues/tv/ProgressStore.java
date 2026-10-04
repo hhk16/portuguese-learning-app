@@ -48,13 +48,14 @@ final class ProgressStore {
                 StudySession.Card c = catalog.cards.get(ids.getString(i)); if (c == null) return null; deck.add(c);
             }
             int firstCount = o.getInt("firstCount");
-            if (firstCount < 1 || firstCount > deck.size() || deck.size() > 16) return null;
+            if (firstCount < 1 || firstCount > 8 || firstCount > deck.size() || deck.size() > 16) return null;
             StudySession s = new StudySession(o.getString("mode"), o.getString("lesson"), deck,
                 o.getLong("seed"), firstCount);
             s.index = o.getInt("index"); s.correct = o.getInt("correct"); s.selected = o.getInt("selected");
             s.reviewBuilt = o.getBoolean("reviewBuilt"); s.phase = StudySession.Phase.valueOf(o.getString("phase"));
             s.players = o.optInt("players", 1) == 2 ? 2 : 1;
             if (s.index < 0 || s.index > deck.size() || (s.index == deck.size() && s.phase != StudySession.Phase.RESULT)) return null;
+            if (s.correct < 0 || s.correct > firstCount || s.selected < -1 || s.selected >= s.options().size()) return null;
             JSONArray missed = o.getJSONArray("missed");
             for (int i = 0; i < missed.length(); i++) {
                 StudySession.Card c = catalog.cards.get(missed.getString(i)); if (c != null) s.missed.add(c);
