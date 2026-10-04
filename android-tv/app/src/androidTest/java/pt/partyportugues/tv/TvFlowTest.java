@@ -58,7 +58,12 @@ public class TvFlowTest extends Instrumentation {
     private void waitFor(String tag) {
         long end = SystemClock.uptimeMillis() + 10000;
         while (find(tag) == null && SystemClock.uptimeMillis() < end) SystemClock.sleep(50);
-        getInstrumentation().waitForIdleSync(); assertNotNull("Missing action: " + tag, find(tag));
+        getInstrumentation().waitForIdleSync(); assertNotNull("Missing action: " + tag + "\n" + describe(activity.getWindow().getDecorView()), find(tag));
+    }
+    private String describe(View v) {
+        String out = v instanceof TextView ? ((TextView) v).getText().toString() + "\n" : "";
+        if (v instanceof ViewGroup) for (int i = 0; i < ((ViewGroup) v).getChildCount(); i++) out += describe(((ViewGroup) v).getChildAt(i));
+        return out;
     }
     private void press(String tag) {
         waitFor(tag); getInstrumentation().runOnMainSync(() -> find(tag).requestFocus());
@@ -106,7 +111,7 @@ public class TvFlowTest extends Instrumentation {
         press("next-lesson"); press("start-lesson"); press("practice"); press("answer-0");
         String state = getInstrumentation().getTargetContext().getSharedPreferences("native-learning-v1", 0).getString("session", "");
         assertTrue(state.contains("FEEDBACK"));
-        getInstrumentation().runOnMainSync(() -> activity.finish()); getInstrumentation().waitForIdleSync();
+        closeActivity();
         launch(); press("resume"); waitFor("continue");
         assertEquals(state, getInstrumentation().getTargetContext().getSharedPreferences("native-learning-v1", 0).getString("session", ""));
     }
@@ -130,12 +135,20 @@ public class TvFlowTest extends Instrumentation {
             assertTrue(contains(activity.getWindow().getDecorView(), "CONTROLS"));
             screenshot(game + "-instructions"); press("solo"); waitFor("answer-0"); screenshot(game + "-question");
             press("answer-0"); waitFor("continue");
-            getInstrumentation().runOnMainSync(() -> activity.finish()); getInstrumentation().waitForIdleSync();
+            closeActivity();
             getInstrumentation().getTargetContext().getSharedPreferences("native-learning-v1", 0).edit().clear().commit();
             launch();
         }
     }
     private void tearDown() {
-        if (activity != null) getInstrumentation().runOnMainSync(() -> activity.finish());
+        closeActivity();
+    }
+    private void closeActivity() {
+        if (activity == null || activity.isDestroyed()) return;
+        getInstrumentation().runOnMainSync(() -> activity.finish());
+        getInstrumentation().waitForIdleSync();
+        long end = SystemClock.uptimeMillis() + 5000;
+        while (!activity.isDestroyed() && SystemClock.uptimeMillis() < end) SystemClock.sleep(50);
+        assertTrue(activity.isDestroyed());
     }
 }
