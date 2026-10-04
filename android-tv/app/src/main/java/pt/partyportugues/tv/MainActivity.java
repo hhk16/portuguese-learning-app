@@ -266,7 +266,7 @@ public final class MainActivity extends Activity {
         if (catalog.games.containsKey(mode)) return new ArrayList<>(catalog.games.get(mode));
         List<StudySession.Card> deck = new ArrayList<>(), backup = new ArrayList<>();
         for (StudySession.Card c : catalog.cards.values()) {
-            if (c.kind.equals("cafe") || c.kind.equals("dialogue")) continue;
+            if (!mode.equals("review") && (c.kind.equals("cafe") || c.kind.equals("dialogue"))) continue;
             boolean eligible = mode.equals("review") ? progress.missed(c.id)
                 : mode.equals("grammar") ? c.grammar() : !c.audio.isEmpty() && !c.grammar();
             if (!eligible) continue;
@@ -294,7 +294,7 @@ public final class MainActivity extends Activity {
     }
     private void study() {
         StudySession s = session; StudySession.Card c = s.card();
-        boolean audioQuestion = s.mode.equals("cafe") || s.mode.equals("listen") || c.kind.equals("minimalPair");
+        boolean audioQuestion = s.mode.equals("listen") || c.kind.equals("cafe") || c.kind.equals("minimalPair");
         if (s.phase == StudySession.Phase.RESULT) { results(); return; }
         String turn = s.players == 2 ? "PLAYER " + (s.index % 2 + 1) + "  ·  " : "";
         String step = s.index >= s.firstCount ? "RETRY " + (s.index - s.firstCount + 1) + " / " + s.missed.size()
@@ -325,7 +325,7 @@ public final class MainActivity extends Activity {
             if (!c.audio.isEmpty()) add("listen", "Listen to the Portuguese", () -> listen(c));
             return;
         }
-        String prompt = audioQuestion ? (s.mode.equals("cafe") ? c.prompt : "Listen. What did you hear?") : c.prompt;
+        String prompt = audioQuestion ? (c.kind.equals("cafe") ? c.prompt : "Listen. What did you hear?") : c.prompt;
         title(prompt, audioQuestion ? "Use Listen, then choose an answer. Replay as often as you need."
             : c.grammar() ? c.en : c.kind.equals("dialogue") ? "Choose the reply that fits this situation." : "Choose the meaning.");
         if (audioQuestion) add("listen", "Listen to the question", () -> listen(c));

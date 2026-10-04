@@ -19,7 +19,7 @@ public class TvFlowTest extends Instrumentation {
     private Instrumentation getInstrumentation() { return this; }
     @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
     @Override public void onStart() {
-        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices"};
+        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames"};
         int failures = 0;
         for (int i = 0; i < names.length; i++) {
             Bundle status = new Bundle(); status.putString("id", "NativeTvTests");
@@ -141,6 +141,19 @@ public class TvFlowTest extends Instrumentation {
             getInstrumentation().getTargetContext().getSharedPreferences("native-learning-v1", 0).edit().clear().commit();
             launch();
         }
+    }
+    public void testReviewIncludesNativeGames() throws Exception {
+        closeActivity();
+        getInstrumentation().getTargetContext().getSharedPreferences("native-learning-v1", 0).edit()
+            .remove("session").putString("evidence", "{\"native.dialogue.0\":-1,\"native.cafe.0\":-1}").commit();
+        launch(); press("nav-games"); press("review"); press("solo");
+        waitFor("answer-0");
+        assertTrue(contains(activity.getWindow().getDecorView(), "Como te chamas?"));
+        press("answer-0"); press("continue"); waitFor("listen");
+        assertTrue(contains(activity.getWindow().getDecorView(), "Which tray matches the order?"));
+        assertNotNull(find("show-transcript")); screenshot("cafe-review");
+        press("show-transcript"); waitFor("continue");
+        assertTrue(contains(activity.getWindow().getDecorView(), "Skipped listening questions do not earn points"));
     }
     private void tearDown() {
         closeActivity();
