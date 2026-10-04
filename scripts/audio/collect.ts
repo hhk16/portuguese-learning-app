@@ -9,7 +9,7 @@
 import { writeFileSync, readFileSync } from "node:fs";
 import { allSpokenTexts } from "../../src/curriculum/spoken.ts";
 
-const topics = JSON.parse(readFileSync(new URL('../android/phrasebook.json', import.meta.url), 'utf8'));
+const topics: Array<{ phrases: Array<{ pt: string }> }> = JSON.parse(readFileSync(new URL('../android/phrasebook.json', import.meta.url), 'utf8'));
 const texts = [...new Set([...allSpokenTexts(), ...topics.flatMap(t => t.phrases.map(p => p.pt))])];
 const json = JSON.stringify(texts, null, 1);
 const i = process.argv.indexOf("--out");
