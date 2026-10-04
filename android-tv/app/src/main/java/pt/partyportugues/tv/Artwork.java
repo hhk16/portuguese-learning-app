@@ -61,7 +61,7 @@ final class Artwork {
             float bw = b.getWidth() * scale, bh = b.getHeight() * scale;
             Path clip = new Path(); clip.addRoundRect(new RectF(0, 0, w, h), 20, 20, Path.Direction.CW);
             c.save(); c.clipPath(clip);
-            float top = name.equals("home") ? 0 : (h - bh) / 2;
+            float top = name.equals("home") || (!contain && w / h > 2f) ? 0 : (h - bh) / 2;
             c.drawBitmap(b, null, new RectF((w - bw) / 2, top, (w + bw) / 2, top + bh), paint); c.restore();
         }
     }

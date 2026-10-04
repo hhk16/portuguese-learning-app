@@ -277,7 +277,7 @@ public final class MainActivity extends Activity {
         return cards;
     }
     private void phrasebook() {
-        title("Portuguese for real life", "Six little adventures. Useful words you can take with you.");
+        title("Portuguese for real life", "");
         int saved = 0, due = 0;
         for (String id : catalog.cards.keySet()) { if (progress.favourite(id)) saved++; if (progress.due(id)) due++; }
         final int savedCount = saved, dueCount = due;
@@ -297,9 +297,9 @@ public final class MainActivity extends Activity {
                     topicId = t.id; phraseIndex = 0; navigate("phrase");
                 });
                 if (j == 0) firstAction = card;
-                picture(card, t.art, 76, false); heading(card, t.title, 18);
+                picture(card, t.art, 90, false); heading(card, t.title, 18);
                 card.addView(text(t.goal, 12, MUTED));
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(151), 1); lp.setMargins(0, dp(5), dp(9), dp(5)); r.addView(card, lp);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(156), 1); lp.setMargins(0, dp(5), dp(9), dp(5)); r.addView(card, lp);
             }
             body.addView(r);
         }
