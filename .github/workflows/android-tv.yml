@@ -36,6 +36,8 @@ jobs:
       - name: Build and lint the native APK
         working-directory: android-tv
         run: gradle :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug --no-daemon
+      - name: Enable hardware acceleration for the TV emulator
+        run: sudo chmod a+rw /dev/kvm
       - name: TV remote, offline, Back and restoration tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
