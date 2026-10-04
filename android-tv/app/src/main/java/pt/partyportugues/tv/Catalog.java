@@ -23,6 +23,7 @@ final class Catalog {
         String id, title, goal, art;
         final List<StudySession.Card> cards = new ArrayList<>();
     }
+    final List<Topic> worlds = new ArrayList<>();
     final List<Topic> topics = new ArrayList<>();
     final List<Unit> units = new ArrayList<>();
     final List<Lesson> lessons = new ArrayList<>();
@@ -90,6 +91,14 @@ final class Catalog {
                 card.art = t.art; card.context = x.getString("situation"); t.cards.add(card); c.cards.put(card.id, card);
             }
             c.topics.add(t);
+        }
+        JSONArray worlds = data.optJSONArray("worlds");
+        if (worlds != null) for (int i = 0; i < worlds.length(); i++) {
+            JSONObject o = worlds.getJSONObject(i); Topic t = new Topic();
+            t.id = o.getString("id"); t.title = o.getString("title"); t.goal = o.getString("goal"); t.art = o.getString("art");
+            JSONArray ids = o.getJSONArray("cardIds");
+            for (int j = 0; j < ids.length(); j++) t.cards.add(c.cards.get(ids.getString(j)));
+            c.worlds.add(t);
         }
         return c;
     }

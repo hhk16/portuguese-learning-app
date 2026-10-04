@@ -19,13 +19,13 @@ import java.util.Map;
 final class Artwork {
     private final Map<String, Bitmap> images = new HashMap<>();
     Artwork(Context context) {
-        String[] scenes = {"home", "cafe", "conversation", "market", "station", "home-life", "pharmacy"};
+        String[] scenes = {"home", "cafe", "conversation", "market", "station", "home-life", "pharmacy", "park", "journey"};
         for (String name : scenes) load(context, name, 1100);
         for (String who : new String[]{"hadi", "ana"}) {
             load(context, who, 128);
             for (String pose : new String[]{"wave", "cheer", "think"}) load(context, who + "-" + pose, 720);
         }
-        for (String food : new String[]{"coffee", "milk", "bread", "soup", "icecream", "cake", "croissant", "water"})
+        for (String food : new String[]{"coffee", "milk", "bread", "soup", "icecream", "cake", "croissant", "water", "cat", "dog", "bird", "fish", "book", "chair", "table", "key", "car", "train", "bus", "bicycle"})
             load(context, food, 256);
     }
     private void load(Context context, String name, int limit) {

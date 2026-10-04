@@ -19,7 +19,7 @@ public class TvFlowTest extends Instrumentation {
     private Instrumentation getInstrumentation() { return this; }
     @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
     @Override public void onStart() {
-        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers", "testPhrasebookAudioSavedAndPractice", "testScheduledRevision"};
+        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers", "testPhrasebookAudioSavedAndPractice", "testScheduledRevision", "testPictureWorldsLearnListenAndResume"};
         int failures = 0;
         for (int i = 0; i < names.length; i++) {
             Bundle status = new Bundle(); status.putString("id", "NativeTvTests");
@@ -222,6 +222,39 @@ public class TvFlowTest extends Instrumentation {
         }
         waitFor("finish"); screenshot("results"); press("finish");
         press("nav-progress"); screenshot("progress");
+    }
+    public void testPictureWorldsLearnListenAndResume() throws Exception {
+        Catalog catalog = Catalog.load(getInstrumentation().getTargetContext());
+        assertEquals(4, catalog.worlds.size()); assertEquals(16, catalog.games.get("picture").size());
+        for (Catalog.Topic world : catalog.worlds) for (StudySession.Card card : world.cards) {
+            assertEquals(4, new java.util.HashSet<>(card.options).size());
+            assertFalse(card.art.isEmpty()); assertFalse(card.audio.isEmpty());
+            try (java.io.InputStream in = activity.getAssets().open("art/" + card.art + ".webp")) { assertTrue(in.read() >= 0); }
+        }
+        press("nav-games"); screenshot("play-skills"); press("game-picture"); screenshot("picture-worlds");
+        press("world-animals"); screenshot("park-words"); press("word-picture.animals.gato");
+        assertTrue((activity.getWindow().getAttributes().flags & android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) != 0);
+        press("learn-world"); screenshot("picture-teaching");
+        for (int i = 0; i < 4; i++) {
+            waitFor("practice"); press("practice");
+            StudySession state = new ProgressStore(activity).restore(catalog);
+            assertTrue(contains(activity.getWindow().getDecorView(), "Find: " + state.card().pt));
+            press("answer-" + state.options().indexOf(state.card().answer)); press("continue");
+        }
+        waitFor("finish"); screenshot("picture-result");
+        for (StudySession.Card card : catalog.worlds.get(2).cards) assertTrue(new ProgressStore(activity).known(card.id));
+        press("finish"); press("nav-games"); press("game-picture"); press("world-travel"); screenshot("transport-words");
+        press("match-world"); waitFor("listen");
+        StudySession state = new ProgressStore(activity).restore(catalog);
+        assertEquals("picture", state.mode);
+        assertFalse(contains(activity.getWindow().getDecorView(), state.card().pt));
+        assertFalse(contains(activity.getWindow().getDecorView(), state.card().en));
+        assertNotNull(find("answer-3")); screenshot("picture-listening"); press("listen");
+        String saved = new ProgressStore(activity).prefs.getString("session", "");
+        closeActivity(); launch(); press("resume"); waitFor("answer-3");
+        assertEquals(saved, new ProgressStore(activity).prefs.getString("session", ""));
+        press("show-transcript"); waitFor("continue"); screenshot("picture-correction");
+        assertTrue(contains(activity.getWindow().getDecorView(), "Skipped listening questions do not earn points"));
     }
     private void tearDown() {
         closeActivity();

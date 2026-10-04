@@ -7,11 +7,12 @@ import { UNITS, unitOf } from '../../src/curriculum/units.ts';
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const output = `${root}android-tv/app/src/main/assets`;
 const checkOnly = process.argv.includes('--check');
-const sceneAssets = ['home', 'cafe', 'conversation', 'market', 'station', 'home-life', 'pharmacy'];
+const sceneAssets = ['home', 'cafe', 'conversation', 'market', 'station', 'home-life', 'pharmacy', 'park', 'journey'];
 const foodAssets = ['coffee', 'milk', 'bread', 'soup', 'icecream', 'cake', 'croissant', 'water'];
+const objectAssets = ['cat', 'dog', 'bird', 'fish', 'book', 'chair', 'table', 'key', 'car', 'train', 'bus', 'bicycle'];
 const poseAssets = ['hadi', 'ana'].flatMap(who => ['cheer', 'think'].map(pose => `${who}-${pose}`));
 const characterAssets = ['hadi', 'ana'].flatMap(who => [who, `${who}-wave`]);
-for (const name of [...sceneAssets, ...foodAssets, ...poseAssets]) await access(`${root}public/art/native-tv/${name}.webp`);
+for (const name of [...sceneAssets, ...foodAssets, ...objectAssets, ...poseAssets]) await access(`${root}public/art/native-tv/${name}.webp`);
 for (const name of characterAssets) await access(`${root}public/art/characters/${name}.webp`);
 await access(`${root}public/art/native-tv/fonts/nunito.ttf`);
 await access(`${root}public/art/native-tv/fonts/nunito-bold.ttf`);
@@ -61,7 +62,7 @@ function card(it) {
     default: throw new Error(`Unsupported item kind: ${it.kind}`);
   }
   const audio = manifest[key(pt)] ?? null;
-  const pictures = { coffee: 'coffee', milk: 'milk', bread: 'bread', soup: 'soup', cake: 'cake', water: 'water', croissant: 'croissant', 'ice cream': 'icecream' };
+  const pictures = { coffee: 'coffee', milk: 'milk', bread: 'bread', soup: 'soup', cake: 'cake', water: 'water', croissant: 'croissant', 'ice cream': 'icecream', cat: 'cat', dog: 'dog', bird: 'bird', fish: 'fish', book: 'book', chair: 'chair', table: 'table', key: 'key', car: 'car', train: 'train', bus: 'bus', bicycle: 'bicycle' };
   const art = it.kind === 'noun' ? pictures[(it.en ?? '').toLowerCase()] ?? '' : '';
   const coaching = {
     noun: `Learn the article with the noun: ${it.article ?? ''} ${it.pt ?? ''}. The article helps you remember its gender.`,
@@ -131,6 +132,19 @@ const phrasebook = topics.map(t => ({...t, cards: t.phrases.map((p, i) => ({
   ...p, id: `phrase.${t.id}.${i}`, audio: manifest[key(p.pt)] ?? null,
   options: t.phrases.map(x => x.en),
 }))}));
+// Small, coherent visual sets. Every picture has one unambiguous noun and recording.
+const worlds = [
+  { id: 'snacks', title: 'A café stop', goal: 'Name four things you can order.', art: 'cafe', slugs: ['cafe', 'leite', 'pao', 'bolo'] },
+  { id: 'home', title: 'Around the house', goal: 'Recognise four everyday objects.', art: 'home-life', slugs: ['livro', 'cadeira', 'mesa', 'chave'] },
+  { id: 'animals', title: 'Friends in the park', goal: 'Meet four animals in Portuguese.', art: 'park', slugs: ['gato', 'cao', 'passaro', 'peixe'] },
+  { id: 'travel', title: 'Let’s go somewhere', goal: 'Learn four ways to travel.', art: 'journey', slugs: ['carro', 'comboio', 'autocarro', 'bicicleta'] },
+].map(w => {
+  const originals = w.slugs.map(slug => byId.get(`vocab.noun.${slug}`));
+  if (originals.some(c => !c || !c.art || !c.audio)) throw new Error(`Incomplete picture world: ${w.id}`);
+  return {...w, cards: originals.map(c => ({...c, id: `picture.${w.id}.${c.id.split('.').pop()}`, kind: 'picture',
+    prompt: c.pt, answer: c.en, options: originals.map(x => x.en),
+    why: `${c.pt} means ${c.en}. ${c.pt.startsWith('a ') ? 'A is the feminine article.' : 'O is the masculine article.'} Say the article and noun together.`}))};
+});
 for (const t of phrasebook.filter(t => !['greetings', 'cafe'].includes(t.id))) {
   for (const p of t.cards) dialogue.push({ id: `${p.id}.reply`, kind: 'dialogue', pt: p.pt, en: p.en,
     prompt: `${p.situation}\nSay: ${p.en}`, answer: p.pt, options: t.cards.map(x => x.pt),
@@ -152,11 +166,11 @@ if (!checkOnly) {
   await mkdir(`${output}/audio`, { recursive: true });
   await rm(`${output}/art`, { recursive: true, force: true });
   await mkdir(`${output}/art`, { recursive: true });
-  for (const name of [...sceneAssets, ...foodAssets, ...poseAssets]) await copyFile(`${root}public/art/native-tv/${name}.webp`, `${output}/art/${name}.webp`);
+  for (const name of [...sceneAssets, ...foodAssets, ...objectAssets, ...poseAssets]) await copyFile(`${root}public/art/native-tv/${name}.webp`, `${output}/art/${name}.webp`);
   for (const name of characterAssets) await copyFile(`${root}public/art/characters/${name}.webp`, `${output}/art/${name}.webp`);
   await cp(`${root}public/art/native-tv/fonts`, `${output}/art/fonts`, { recursive: true });
   await writeFile(`${output}/curriculum.json`, JSON.stringify({ version: 1, units: UNITS, lessons,
-    phrasebook, games: [{ id: 'dialogue', cards: dialogue }, { id: 'cafe', cards: orders }] }));
+    phrasebook, worlds: worlds.map(({cards, ...w}) => ({...w, cardIds: cards.map(c => c.id)})), games: [{ id: 'picture', cards: worlds.flatMap(w => w.cards) }, { id: 'dialogue', cards: dialogue }, { id: 'cafe', cards: orders }] }));
   for (const file of files) await copyFile(`${root}public/audio/${file}`, `${output}/audio/${file}`);
 }
 console.log(`Native curriculum: ${lessons.length} lessons, ${cards.length} items, ${files.size} bundled clips${checkOnly ? ' (structure check)' : ''}.`);
