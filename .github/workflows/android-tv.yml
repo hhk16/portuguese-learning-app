@@ -57,3 +57,4 @@ jobs:
             android-tv/app/build/reports/
             native-tv-screenshots/
           retention-days: 14
+          overwrite: true
