@@ -1,41 +1,61 @@
-name: Android TV APK
+name: Native Android TV
 on:
   workflow_dispatch:
+  pull_request:
+    paths: ['android-tv/**', 'scripts/android/**', 'src/curriculum/**', 'public/audio/**', '.github/workflows/android-tv.yml']
   push:
-    paths: ["android-tv/**", "scripts/android/**", ".github/workflows/android-tv.yml"]
+    branches: ['codex/native-tv-redesign', 'master']
+    paths: ['android-tv/**', 'scripts/android/**', 'src/curriculum/**', 'public/audio/**', '.github/workflows/android-tv.yml']
 permissions:
-  contents: write
+  contents: read
+concurrency:
+  group: native-tv-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 jobs:
-  apk:
+  build-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
+        with: { node-version: 24 }
       - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: 21 }
-      - name: Capacitor Android project
+        with: { distribution: temurin, java-version: 17 }
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.11.1' }
+      - name: Learning state regression checks
+        run: |
+          mkdir -p /tmp/native-tv-tests
+          javac -d /tmp/native-tv-tests android-tv/app/src/main/java/pt/partyportugues/tv/StudySession.java scripts/android/StudySessionTest.java
+          java -ea -cp /tmp/native-tv-tests StudySessionTest
+          node scripts/android/prepare-native.mjs --check
+      - name: Build and lint the native APK
         working-directory: android-tv
-        run: |
-          npm install
-          npx cap add android
-          python3 ../scripts/android/patch-manifest.py android/app/src/main/AndroidManifest.xml
-          mkdir -p android/app/src/main/res/drawable
-          command -v convert || (sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick)
-          convert -size 320x180 gradient:'#3b82f6'-'#ff6b6b' -gravity center -fill white -font DejaVu-Sans-Bold -pointsize 30 -annotate 0 'Party\nPortuguês' android/app/src/main/res/drawable/banner.png
-      - name: Build APK
-        working-directory: android-tv/android
-        run: |
-          echo "sdk.dir=$ANDROID_HOME" > local.properties
-          ./gradlew assembleDebug --no-daemon
-      - uses: actions/upload-artifact@v4
+        run: gradle :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug --no-daemon
+      - name: TV remote, offline, Back and restoration tests
+        uses: reactivecircus/android-emulator-runner@v2
         with:
-          name: party-portugues-tv-apk
-          path: android-tv/android/app/build/outputs/apk/debug/app-debug.apk
-      - name: Publish to the tv-latest release (direct download link)
+          api-level: 29
+          target: android-tv
+          arch: x86
+          profile: tv_1080p
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            cd android-tv
+            gradle :app:connectedDebugAndroidTest --no-daemon
+      - name: Collect screenshots
+        if: always()
         run: |
-          cp android-tv/android/app/build/outputs/apk/debug/app-debug.apk party-portugues-tv.apk
-          gh release delete tv-latest --yes --cleanup-tag 2>/dev/null || true
-          gh release create tv-latest party-portugues-tv.apk --title "Party Português — Android TV" --notes "Latest Android TV build (sideload)." --prerelease --target "$GITHUB_SHA"
-        env:
-          GH_TOKEN: ${{ github.token }}
+          mkdir -p native-tv-screenshots
+          adb pull /sdcard/Android/data/pt.partyportugues.tv/files/screenshots native-tv-screenshots/ || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-portugues-tv-${{ github.sha }}
+          path: |
+            android-tv/app/build/outputs/apk/debug/app-debug.apk
+            android-tv/app/build/reports/
+            native-tv-screenshots/
+          retention-days: 14

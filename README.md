@@ -1,4 +1,14 @@
-# Party Português 🎮🇵🇹
+# Party Português — native Android TV and browser party app
+
+## Android TV
+
+The Android TV app has been rebuilt as a **native, offline, remote-controlled app**. It bundles 78 course lessons and European Portuguese recordings. The games now teach concrete skills: choose a reply, understand a café order, identify spoken Portuguese, and complete a sentence. Play solo or take turns with one remote.
+
+Build, APK downloads, controls and verification: [android-tv/README.md](android-tv/README.md). Inspection findings: [docs/android-tv-audit.md](docs/android-tv-audit.md).
+
+## Browser party app
+
+The following describes the separate TV-browser and phone-controller experience.
 
 A couch party game for learning **A1 European Portuguese** together, built around *Português a Valer 1* (Livro do Aluno + Caderno de Exercícios).
 The **TV** is the stage (three.js): a sunny toy world where your cartoon characters stand, cheer and wobble with the game. **Phones are the controllers**: scan the QR code, pick your character, play. Only the TV speaks (pre-recorded European Portuguese), so two phones side by side never talk over each other.

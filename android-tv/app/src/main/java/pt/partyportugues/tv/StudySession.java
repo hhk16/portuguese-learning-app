@@ -1,0 +1,94 @@
+package pt.partyportugues.tv;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+/** Pure learning state. No timers: only deliberate OK presses advance a session. */
+public final class StudySession {
+    public enum Phase { TEACH, QUESTION, FEEDBACK, RESULT }
+    public static final class Card {
+        public final String id, kind, pt, en, prompt, answer, why, audio;
+        public final List<String> options;
+        public Card(String id, String kind, String pt, String en, String prompt,
+                    String answer, String why, String audio, List<String> options) {
+            this.id = id; this.kind = kind; this.pt = pt; this.en = en;
+            this.prompt = prompt; this.answer = answer; this.why = why; this.audio = audio;
+            this.options = Collections.unmodifiableList(new ArrayList<>(options));
+        }
+        public boolean grammar() {
+            return kind.equals("frame") || kind.equals("error") || kind.equals("conjugation")
+                || kind.equals("contraction") || kind.equals("origin");
+        }
+    }
+    public final String mode, lessonId;
+    public final long seed;
+    public final List<Card> deck;
+    public final List<Card> missed = new ArrayList<>();
+    public int index, correct, selected = -1;
+    public final int firstCount;
+    public boolean reviewBuilt;
+    public int players = 1;
+    public Phase phase;
+
+    public StudySession(String mode, String lessonId, List<Card> cards, long seed) {
+        this(mode, lessonId, cards, seed, cards.size());
+    }
+    public StudySession(String mode, String lessonId, List<Card> cards, long seed, int firstCount) {
+        if (cards.isEmpty()) throw new IllegalArgumentException("A session needs cards");
+        this.mode = mode; this.lessonId = lessonId; this.seed = seed;
+        this.deck = new ArrayList<>(cards); this.firstCount = firstCount;
+        phase = mode.equals("learn") ? Phase.TEACH : Phase.QUESTION;
+    }
+    public Card card() { return deck.get(Math.min(index, deck.size() - 1)); }
+    public List<String> options() {
+        Card c = card();
+        List<String> rest = new ArrayList<>(c.options);
+        rest.remove(c.answer);
+        Collections.shuffle(rest, new Random(seed ^ c.id.hashCode() ^ index));
+        List<String> out = new ArrayList<>();
+        out.add(c.answer);
+        out.addAll(rest.subList(0, Math.min(3, rest.size())));
+        Collections.shuffle(out, new Random(seed + index * 31L));
+        return out;
+    }
+    public void practice() { if (phase == Phase.TEACH) phase = Phase.QUESTION; }
+    /** A held remote button or duplicate click can never record an answer twice. */
+    public boolean answer(int option) {
+        if (phase != Phase.QUESTION || option < 0 || option >= options().size()) return false;
+        selected = option;
+        boolean right = options().get(option).equals(card().answer);
+        if (index < firstCount) {
+            if (right) correct++;
+            else missed.add(card());
+        }
+        phase = Phase.FEEDBACK;
+        return true;
+    }
+    public boolean wasCorrect() {
+        return selected >= 0 && selected < options().size() && options().get(selected).equals(card().answer);
+    }
+    public void skip() {
+        if (phase != Phase.QUESTION) return;
+        selected = -1;
+        if (index < firstCount) missed.add(card());
+        phase = Phase.FEEDBACK;
+    }
+    public void next() {
+        if (phase != Phase.FEEDBACK) return;
+        index++;
+        selected = -1;
+        if (index == firstCount && !reviewBuilt) {
+            deck.addAll(missed); // One retry of each miss; mistakes never create an endless game.
+            reviewBuilt = true;
+        }
+        if (index >= deck.size()) phase = Phase.RESULT;
+        else phase = mode.equals("learn") && index < firstCount ? Phase.TEACH : Phase.QUESTION;
+    }
+    public StudySession restart() {
+        StudySession s = new StudySession(mode, lessonId, deck.subList(0, firstCount), seed);
+        s.players = players;
+        return s;
+    }
+}

@@ -1,0 +1,32 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'pt.partyportugues.tv'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'pt.partyportugues.tv'
+        minSdk 23
+        targetSdk 35
+        versionCode 2
+        versionName '2.0.0'
+        testInstrumentationRunner 'pt.partyportugues.tv.TvFlowTest'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    buildTypes {
+        release { minifyEnabled false }
+    }
+    lint { abortOnError true }
+    androidResources { noCompress += ['mp3'] }
+}
+
+tasks.register('prepareCurriculum', Exec) {
+    workingDir rootProject.projectDir.parentFile
+    commandLine 'node', 'scripts/android/prepare-native.mjs'
+    inputs.dir(new File(rootProject.projectDir.parentFile, 'src/curriculum'))
+    inputs.dir(new File(rootProject.projectDir.parentFile, 'public/audio'))
+    outputs.dir('src/main/assets')
+}
+tasks.named('preBuild').configure { dependsOn 'prepareCurriculum' }
