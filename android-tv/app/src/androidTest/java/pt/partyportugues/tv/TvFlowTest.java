@@ -66,7 +66,13 @@ public class TvFlowTest extends Instrumentation {
         return out;
     }
     private void press(String tag) {
-        waitFor(tag); getInstrumentation().runOnMainSync(() -> find(tag).requestFocus());
+        waitFor(tag);
+        // Dialog dismissal can leave the Activity window briefly without input focus.
+        // UI-thread idle alone does not mean WindowManager has returned the remote.
+        long focusDeadline = SystemClock.uptimeMillis() + 3000;
+        while (!activity.hasWindowFocus() && SystemClock.uptimeMillis() < focusDeadline) SystemClock.sleep(20);
+        assertTrue(activity.hasWindowFocus());
+        getInstrumentation().runOnMainSync(() -> find(tag).requestFocus());
         getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER); getInstrumentation().waitForIdleSync();
     }
     private boolean contains(View view, String value) {
