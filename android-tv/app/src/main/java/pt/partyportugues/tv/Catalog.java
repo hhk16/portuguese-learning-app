@@ -19,6 +19,11 @@ final class Catalog {
         String id, unit, title;
         final List<StudySession.Card> cards = new ArrayList<>();
     }
+    static final class Topic {
+        String id, title, goal, art;
+        final List<StudySession.Card> cards = new ArrayList<>();
+    }
+    final List<Topic> topics = new ArrayList<>();
     final List<Unit> units = new ArrayList<>();
     final List<Lesson> lessons = new ArrayList<>();
     final Map<String, StudySession.Card> cards = new LinkedHashMap<>();
@@ -51,6 +56,7 @@ final class Catalog {
                 StudySession.Card card = new StudySession.Card(x.getString("id"), x.getString("kind"),
                     x.getString("pt"), x.getString("en"), x.getString("prompt"), x.getString("answer"),
                     x.getString("why"), x.isNull("audio") ? "" : x.getString("audio"), options);
+                card.art = x.optString("art", ""); card.context = x.optString("context", "");
                 l.cards.add(card); c.cards.put(card.id, card);
             }
             c.lessons.add(l);
@@ -66,9 +72,24 @@ final class Catalog {
                 StudySession.Card card = new StudySession.Card(x.getString("id"), x.getString("kind"),
                     x.getString("pt"), x.getString("en"), x.getString("prompt"), x.getString("answer"),
                     x.getString("why"), x.isNull("audio") ? "" : x.getString("audio"), opts);
+                card.art = x.optString("art", "");
                 deck.add(card); c.cards.put(card.id, card);
             }
             c.games.put(game.getString("id"), deck);
+        }
+        JSONArray topics = data.optJSONArray("phrasebook");
+        if (topics != null) for (int i = 0; i < topics.length(); i++) {
+            JSONObject o = topics.getJSONObject(i); Topic t = new Topic();
+            t.id = o.getString("id"); t.title = o.getString("title"); t.goal = o.getString("goal"); t.art = o.getString("art");
+            JSONArray cs = o.getJSONArray("cards");
+            for (int j = 0; j < cs.length(); j++) {
+                JSONObject x = cs.getJSONObject(j); List<String> opts = new ArrayList<>();
+                JSONArray os = x.getJSONArray("options"); for (int k = 0; k < os.length(); k++) opts.add(os.getString(k));
+                StudySession.Card card = new StudySession.Card(x.getString("id"), "phrase", x.getString("pt"),
+                    x.getString("en"), x.getString("pt"), x.getString("en"), x.getString("tip"), x.getString("audio"), opts);
+                card.art = t.art; card.context = x.getString("situation"); t.cards.add(card); c.cards.put(card.id, card);
+            }
+            c.topics.add(t);
         }
         return c;
     }

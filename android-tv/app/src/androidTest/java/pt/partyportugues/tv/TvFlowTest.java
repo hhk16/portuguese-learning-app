@@ -19,7 +19,7 @@ public class TvFlowTest extends Instrumentation {
     private Instrumentation getInstrumentation() { return this; }
     @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
     @Override public void onStart() {
-        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers"};
+        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers", "testPhrasebookAudioSavedAndPractice", "testScheduledRevision"};
         int failures = 0;
         for (int i = 0; i < names.length; i++) {
             Bundle status = new Bundle(); status.putString("id", "NativeTvTests");
@@ -163,6 +163,32 @@ public class TvFlowTest extends Instrumentation {
         assertNotNull(find("show-transcript")); screenshot("cafe-review");
         press("show-transcript"); waitFor("continue");
         assertTrue(contains(activity.getWindow().getDecorView(), "Skipped listening questions do not earn points"));
+    }
+    public void testPhrasebookAudioSavedAndPractice() throws Exception {
+        press("nav-phrasebook"); screenshot("phrasebook");
+        press("topic-market"); assertTrue(contains(activity.getWindow().getDecorView(), "Quanto custa?"));
+        press("listen"); SystemClock.sleep(400); assertNotNull(find("listen-slow"));
+        press("next-phrase"); assertTrue(contains(activity.getWindow().getDecorView(), "Queria duas maçãs"));
+        press("listen-slow"); SystemClock.sleep(350); press("save-phrase"); screenshot("market-phrase");
+        assertTrue(getInstrumentation().getTargetContext().getSharedPreferences("native-learning-v1", 0).getString("favourites", "").contains("phrase.market.1"));
+        closeActivity(); launch(); press("nav-phrasebook"); press("saved-phrases");
+        assertTrue(contains(activity.getWindow().getDecorView(), "Queria duas maçãs"));
+        press("practise-topic"); waitFor("practice"); screenshot("phrase-teaching");
+        press("practice"); press("answer-0"); waitFor("continue"); screenshot("phrase-feedback");
+    }
+    public void testScheduledRevision() throws Exception {
+        closeActivity();
+        String id = "phrase.travel.0";
+        getInstrumentation().getTargetContext().getSharedPreferences("native-learning-v1", 0).edit()
+            .putString("evidence", "{\"" + id + "\":1}")
+            .putString("schedule", "{\"" + id + "\":{\"stage\":1,\"due\":1,\"lastSuccess\":1}}") .commit();
+        launch(); press("nav-phrasebook"); press("daily-revision"); waitFor("answer-0");
+        assertTrue(contains(activity.getWindow().getDecorView(), "Onde fica a estação?")); screenshot("scheduled-revision");
+        ProgressStore store = new ProgressStore(getInstrumentation().getTargetContext());
+        assertTrue(store.due(id)); store.record(id, true); store.save(null);
+        assertFalse(store.due(id)); int stage = store.schedule.getJSONObject(id).getInt("stage");
+        assertEquals(2, stage); store.record(id, true); assertEquals(stage, store.schedule.getJSONObject(id).getInt("stage"));
+        store.record(id, false); assertTrue(store.due(id));
     }
     public void testArtworkAndNamedPlayers() throws Exception {
         if (android.os.Build.VERSION.SDK_INT >= 28)

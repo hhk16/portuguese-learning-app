@@ -20,9 +20,9 @@ The package ID remains `pt.partyportugues.tv`. Debug builds use the build machin
 
 ## Interaction design
 
-The compact top menu has Home, Lessons, Play, Progress and Settings. The playful family design uses cream, indigo, cobalt focus outlines, pastel cards and bundled Nunito type. New Portuguese street/café scenes preserve Hadi and Anna's original character likenesses; original waves and new close-up character poses appear in teaching, player turns, feedback and results. Settings chooses the solo companion. Real focusable Android controls handle directional navigation and scroll the focused item into view.
+The compact top menu has Home, Lessons, Play, Phrases, Progress and Settings. The playful family design uses cream, indigo, cobalt focus outlines, pastel cards and bundled Nunito type. New Portuguese street/café scenes preserve Hadi and Anna's original character likenesses; original waves and new close-up character poses appear in teaching, player turns, feedback and results. Settings chooses the solo companion. Real focusable Android controls handle directional navigation and scroll the focused item into view.
 
-Café answer trays show the actual items and quantities using eight transparent food sprites. Each game has its own scene or symbol, short numbered instructions and an example. Artwork is decoded once away from the UI thread at bounded sizes. Only 19 selected images are packaged; there is no continuous render loop or loading of the old backdrop/wardrobe library. See [the visual design notes](../docs/native-tv-design.md) for asset provenance and budgets.
+Café answer trays show the actual items and quantities using eight transparent food sprites. Each game has its own scene or symbol, short numbered instructions and an example. Artwork is decoded once away from the UI thread at bounded sizes. Only 23 selected images are packaged; there is no continuous render loop or loading of the old backdrop/wardrobe library. See [the visual design notes](../docs/native-tv-design.md) for asset provenance and budgets.
 
 All games begin with a goal, instructions, controls, solo/together selection and an explanation of how turns advance. Together mode shares one remote and names the current player; it keeps a household score and progress rather than claiming to measure individual mastery.
 
@@ -37,6 +37,12 @@ All games begin with a goal, instructions, controls, solo/together selection and
 Lessons teach before questioning. A session contains at most eight items. Errors return once; there are no timers, forced transitions, lives, penalty sounds, word association guesses, drawing controls, bets or simultaneous phone inputs. Feedback waits for Continue. Listening's Show transcript fallback does not earn listening points. A held OK button cannot answer the same question twice.
 
 Back opens Pause during a session, follows the hierarchy in menus, and requires an explicit Exit choice from Home. Losing foreground focus stops speech, saves the current state and clears the keep-awake flag. Relaunch offers Resume; Activity recreation restores the current screen and answer order. There is no automatic navigation to device TTS or Android settings.
+
+## Phrases and revision
+
+Phrases contains six illustrated topics and 45 useful utterances with situations, tips, replay, slower replay, saved favourites and practice. The reply game has 37 concrete situations. Scheduled revision uses 1, 3, 7, 14 and 30 day intervals; same-day repetitions do not advance the schedule. Old correctly practised items become available for revision without resetting progress.
+
+50 clips were generated and checked locally with free Qwen3-TTS models. Older human recordings are retained; the rest of the existing course has not been blindly revoiced. See [the speech audit](../docs/native-audio-audit.md) for evidence, provenance and the limits of automatic checks.
 
 ## Verification and release limits
 

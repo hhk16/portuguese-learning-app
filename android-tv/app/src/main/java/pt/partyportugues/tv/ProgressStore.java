@@ -10,22 +10,42 @@ import java.util.List;
 /** Small durable snapshots, written on each answer and when the Activity loses focus. */
 final class ProgressStore {
     final SharedPreferences prefs;
-    JSONObject evidence;
+    JSONObject evidence, schedule, favourites;
     ProgressStore(Context context) {
         prefs = context.getSharedPreferences("native-learning-v1", Context.MODE_PRIVATE);
         try { evidence = new JSONObject(prefs.getString("evidence", "{}")); }
         catch (Exception e) { evidence = new JSONObject(); }
+        try { schedule = new JSONObject(prefs.getString("schedule", "{}")); } catch (Exception e) { schedule = new JSONObject(); }
+        try { favourites = new JSONObject(prefs.getString("favourites", "{}")); } catch (Exception e) { favourites = new JSONObject(); }
     }
     boolean known(String id) { return evidence.optInt(id, 0) > 0; }
     boolean missed(String id) { return evidence.optInt(id, 0) < 0; }
+    boolean due(String id) {
+        if (missed(id)) return true;
+        if (!known(id)) return false;
+        JSONObject item = schedule.optJSONObject(id);
+        return item == null || item.optLong("due", 0) <= System.currentTimeMillis();
+    }
+    boolean favourite(String id) { return favourites.optBoolean(id, false); }
+    void toggleFavourite(String id) {
+        try { if (favourite(id)) favourites.remove(id); else favourites.put(id, true); } catch (Exception ignored) { }
+        prefs.edit().putString("favourites", favourites.toString()).apply();
+    }
     int learned(Catalog.Lesson l) {
         int count = 0; for (StudySession.Card c : l.cards) if (known(c.id)) count++; return count;
     }
     void record(String id, boolean correct) {
-        try { evidence.put(id, correct ? 1 : -1); } catch (Exception ignored) { }
+        try {
+            long now = System.currentTimeMillis(); JSONObject old = schedule.optJSONObject(id);
+            int stage = ReviewSchedule.nextStage(old == null ? 0 : old.optInt("stage"),
+                old == null ? 0 : old.optLong("lastSuccess"), now, correct);
+            long last = correct ? now : old == null ? 0 : old.optLong("lastSuccess");
+            schedule.put(id, new JSONObject().put("stage", stage).put("due", ReviewSchedule.nextDue(stage, now)).put("lastSuccess", last));
+            evidence.put(id, correct ? 1 : -1);
+        } catch (Exception ignored) { }
     }
     void save(StudySession s) {
-        SharedPreferences.Editor edit = prefs.edit().putString("evidence", evidence.toString());
+        SharedPreferences.Editor edit = prefs.edit().putString("evidence", evidence.toString()).putString("schedule", schedule.toString());
         if (s == null) edit.remove("session");
         else try {
             JSONObject o = new JSONObject(); JSONArray ids = new JSONArray(), misses = new JSONArray();

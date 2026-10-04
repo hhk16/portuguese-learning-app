@@ -32,6 +32,8 @@ jobs:
           mkdir -p /tmp/native-tv-tests
           javac -d /tmp/native-tv-tests android-tv/app/src/main/java/pt/partyportugues/tv/StudySession.java scripts/android/StudySessionTest.java
           java -ea -cp /tmp/native-tv-tests StudySessionTest
+          javac -d /tmp/native-tv-tests android-tv/app/src/main/java/pt/partyportugues/tv/ReviewSchedule.java scripts/android/ReviewScheduleTest.java
+          java -ea -cp /tmp/native-tv-tests ReviewScheduleTest
           node scripts/android/prepare-native.mjs --check
       - name: Build and lint the native APK
         working-directory: android-tv
@@ -48,6 +50,9 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash scripts/android/check-tv.sh
+      - name: Package speech audit and listening comparisons
+        if: always()
+        run: node scripts/android/prepare-audio-review.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

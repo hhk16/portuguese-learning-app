@@ -11,6 +11,7 @@ public final class StudySession {
     public static final class Card {
         public final String id, kind, pt, en, prompt, answer, why, audio;
         public final List<String> options;
+        public String art = "", context = "";
         public Card(String id, String kind, String pt, String en, String prompt,
                     String answer, String why, String audio, List<String> options) {
             this.id = id; this.kind = kind; this.pt = pt; this.en = en;

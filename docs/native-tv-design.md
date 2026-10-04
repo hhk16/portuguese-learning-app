@@ -10,8 +10,14 @@ The café trays compose individual food sprites from each answer's quantities, s
 
 - `public/art/native-tv/{home,cafe,conversation}.webp`: newly generated with OpenAI image generation using the original Hadi/Ana artwork as references. No unrelated replacement characters.
 - `public/art/native-tv/{coffee,milk,bread,soup,icecream,cake,croissant,water}.webp`: newly generated isolated transparent food objects.
-- Scene artwork is exported at a maximum of 1,100 pixels, food at 256 pixels and character close-ups at 720 pixels. The generated PNG originals remain outside the repository. The compressed new art and font total about 1.1 MB.
-- Only 19 selected images are packaged. Bitmaps are decoded once on the catalogue worker with bounded dimensions, not in draw calls. There is no WebGL, continuous animation loop, network fetch or import of the entire old wardrobe/backdrop library.
+- Scene artwork is exported at a maximum of 1,100 pixels, food at 256 pixels and character close-ups at 720 pixels. The generated PNG originals remain outside the repository. The compressed new art and font total about 1.7 MB.
+- Only 23 selected images are packaged. Bitmaps are decoded once on the catalogue worker with bounded dimensions, not in draw calls. There is no WebGL, continuous animation loop, network fetch or import of the entire old wardrobe/backdrop library.
 - `public/art/native-tv/fonts/{nunito,nunito-bold}.ttf`: static Nunito weights 600 and 900 from Google Fonts, SIL OFL 1.1; licence bundled beside it and in the APK.
 
 The Native Android TV workflow captures actual emulator screens, tests artwork decoding/transparency, companion selection and full session completion, and retains the previous remote, audio, scoring, Back and restoration checks. Device acceptance on the owner's Strong box is still required.
+
+## Learning expansion
+
+Six illustrated real-life topics contain 45 practical phrases with situations, usage tips, normal/slow replay, saved favourites and practice. Market, transport, home and pharmacy scenes preserve Hadi and Anna. The reply game draws from 37 explicit situations, including 29 new phrasebook situations with the intended English message so replies are unambiguous. Vocabulary teaching shows matching food sprites where available, and grammar, gender and contraction cards have additional coaching. The chapter picker uses scene thumbnails.
+
+Revision returns correctly practised items after 1, 3, 7, 14 and 30 days; unresolved mistakes are ready immediately. Same-day retries do not increase the interval. This is scheduled recognition practice, not a claim of individual mastery or a clinical learning assessment. Existing progress migrates by making previously practised unscheduled items available for revision. See [the local audio audit](native-audio-audit.md) for generation, provenance and limitations.

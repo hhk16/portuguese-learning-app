@@ -96,3 +96,7 @@ EOF
 See `docs/credits-audio.md`. The Piper voice is a fine-tune of a voice trained on research-only
 data (Blizzard 2013 Lessac). Its clips are fine for this private, non-commercial app but must be
 replaced before any commercial or public distribution.
+
+## Audited local Qwen speech
+
+The native phrasebook and selected replacements use free, locally generated Qwen3-TTS audio. See `docs/native-audio-audit.md` for setup, selection evidence and limits. `render-local-qwen.py` stages candidates outside the repo; `audit-local.py` decodes audio and optionally transcribes it. Neither automatically promotes candidates. Ordinary incremental `render.py` runs preserve locally audited speech; `--force` deliberately removes that protection. The collector includes the native phrasebook.

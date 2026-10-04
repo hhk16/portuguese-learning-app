@@ -7,7 +7,7 @@ import { UNITS, unitOf } from '../../src/curriculum/units.ts';
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const output = `${root}android-tv/app/src/main/assets`;
 const checkOnly = process.argv.includes('--check');
-const sceneAssets = ['home', 'cafe', 'conversation'];
+const sceneAssets = ['home', 'cafe', 'conversation', 'market', 'station', 'home-life', 'pharmacy'];
 const foodAssets = ['coffee', 'milk', 'bread', 'soup', 'icecream', 'cake', 'croissant', 'water'];
 const poseAssets = ['hadi', 'ana'].flatMap(who => ['cheer', 'think'].map(pose => `${who}-${pose}`));
 const characterAssets = ['hadi', 'ana'].flatMap(who => [who, `${who}-wave`]);
@@ -61,8 +61,21 @@ function card(it) {
     default: throw new Error(`Unsupported item kind: ${it.kind}`);
   }
   const audio = manifest[key(pt)] ?? null;
+  const pictures = { coffee: 'coffee', milk: 'milk', bread: 'bread', soup: 'soup', cake: 'cake', water: 'water', croissant: 'croissant', 'ice cream': 'icecream' };
+  const art = it.kind === 'noun' ? pictures[(it.en ?? '').toLowerCase()] ?? '' : '';
+  const coaching = {
+    noun: `Learn the article with the noun: ${it.article ?? ''} ${it.pt ?? ''}. The article helps you remember its gender.`,
+    conjugation: 'Match the verb form to the subject and the tense. Say the whole phrase after listening.',
+    contraction: 'Portuguese joins this preposition and article into one word. Practise the combined form.',
+    adjective: 'This is the masculine form. Adjectives agree with the noun they describe.',
+    profession: 'This is the masculine form. Some professions change their ending for a female person.',
+    nationality: 'This is the masculine singular form. Nationalities agree with the person they describe.',
+    origin: 'Use de to say where you are from. De combines with a place article: de + o = do; de + a = da.',
+    minimalPair: 'Listen for the difference. Replay slowly, then compare the words without reading the answer.',
+  };
+  const why = it.why || coaching[it.kind] || '';
   return { id: it.id, kind: it.kind, pt, en, prompt: prompt ?? pt, answer: answer ?? en,
-    options: options ?? [], why: it.why ?? '', audio, source: it.source };
+    options: options ?? [], why, art, context: '', audio, source: it.source };
 }
 
 const cards = ALL_ITEMS.map(card);
@@ -91,7 +104,7 @@ for (const l of lessons) if (!l.cards.length) throw new Error(`Empty lesson ${l.
 const files = new Set(cards.filter(c => c.audio).map(c => c.audio));
 // Original, concrete situations. Every prompt specifies why only one reply fits.
 const dialogue = [
-  ['Introduce yourself. Someone asks: Como te chamas?', 'Chamo-me Ana.', ['Tenho trinta anos.', 'Moro no Porto.', 'São duas horas.'], 'Como te chamas? asks your name. Chamo-me… means My name is…'],
+  ['Introduce yourself. Someone asks: Como te chamas?', 'O meu nome é Ana.', ['Tenho trinta anos.', 'Moro no Porto.', 'São duas horas.'], 'Como te chamas? asks your name. O meu nome é… means My name is…'],
   ['Say where you are from. Someone asks: De onde és?', 'Sou de Portugal.', ['Tenho um gato.', 'Até amanhã!', 'Queria um café.'], 'De onde és? asks where you are from. Sou de… means I am from…'],
   ['Say your age. Someone asks: Quantos anos tens?', 'Tenho trinta anos.', ['Sou português.', 'Moro em Lisboa.', 'De nada.'], 'Age uses ter: Tenho trinta anos, literally I have thirty years.'],
   ['A waiter asks: O que deseja? Order a coffee politely.', 'Queria um café, por favor.', ['Até amanhã!', 'São três euros.', 'Está frio.'], 'Queria… por favor is a polite way to order.'],
@@ -113,6 +126,20 @@ const orders = [
 ].map(([pt, answer, distractors], i) => ({ id: `native.cafe.${i}`, kind: 'cafe', pt, en: answer,
   prompt: 'Listen to the customer. Which tray matches the order?', answer, options: [answer, ...distractors],
   why: `${pt}\n${answer}. Um / uma = 1; dois / duas = 2; três = 3.`, audio: manifest[key(pt)] ?? null }));
+const topics = JSON.parse(await readFile(`${root}scripts/android/phrasebook.json`, 'utf8'));
+const phrasebook = topics.map(t => ({...t, cards: t.phrases.map((p, i) => ({
+  ...p, id: `phrase.${t.id}.${i}`, audio: manifest[key(p.pt)] ?? null,
+  options: t.phrases.map(x => x.en),
+}))}));
+for (const t of phrasebook.filter(t => !['greetings', 'cafe'].includes(t.id))) {
+  for (const p of t.cards) dialogue.push({ id: `${p.id}.reply`, kind: 'dialogue', pt: p.pt, en: p.en,
+    prompt: `${p.situation}\nSay: ${p.en}`, answer: p.pt, options: t.cards.map(x => x.pt),
+    why: p.tip, art: t.art, audio: p.audio });
+}
+for (const t of phrasebook) for (const p of t.cards) {
+  if (!p.audio) throw new Error(`Missing phrasebook recording: ${p.pt}`);
+  files.add(p.audio);
+}
 for (const c of orders) if (!c.audio) throw new Error(`Missing café recording: ${c.pt}`);
 for (const c of [...dialogue, ...orders]) if (c.audio) files.add(c.audio);
 for (const file of files) {
@@ -129,7 +156,7 @@ if (!checkOnly) {
   for (const name of characterAssets) await copyFile(`${root}public/art/characters/${name}.webp`, `${output}/art/${name}.webp`);
   await cp(`${root}public/art/native-tv/fonts`, `${output}/art/fonts`, { recursive: true });
   await writeFile(`${output}/curriculum.json`, JSON.stringify({ version: 1, units: UNITS, lessons,
-    games: [{ id: 'dialogue', cards: dialogue }, { id: 'cafe', cards: orders }] }));
+    phrasebook, games: [{ id: 'dialogue', cards: dialogue }, { id: 'cafe', cards: orders }] }));
   for (const file of files) await copyFile(`${root}public/audio/${file}`, `${output}/audio/${file}`);
 }
 console.log(`Native curriculum: ${lessons.length} lessons, ${cards.length} items, ${files.size} bundled clips${checkOnly ? ' (structure check)' : ''}.`);

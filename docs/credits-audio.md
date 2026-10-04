@@ -6,7 +6,13 @@ script instead of editing it by hand.
 
 - **48** clips are native recordings from Lingua Libre (Wikimedia Commons).
 - **0** clips are synthesised with Google Gemini TTS (`gemini-3.8-flash-tts`, voice -, language pt-PT).
-- **1851** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
+- **1831** clips are synthesised with the Piper voice `pt_PT-tugão-medium`.
+
+- **50** clips are generated locally with Qwen3-TTS (Apache-2.0 models), using CC0 European Portuguese reference recordings.
+
+## Local Qwen3-TTS
+
+Generated on a CPU by `scripts/audio/render-local-qwen.py`; no hosted TTS service or paid API. Exact model, reference recordings, seed and settings are recorded per clip in `scripts/audio/sources.json`. CC0 references: Waldyrious's Lingua Libre recordings of engenheiro, estudante and jornalista. The models support Portuguese; the reference speech is European Portuguese. See `docs/native-audio-audit.md` for checks and their limits.
 
 ## Gemini TTS
 

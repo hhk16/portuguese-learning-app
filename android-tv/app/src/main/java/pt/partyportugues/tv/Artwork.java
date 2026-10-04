@@ -19,7 +19,7 @@ import java.util.Map;
 final class Artwork {
     private final Map<String, Bitmap> images = new HashMap<>();
     Artwork(Context context) {
-        String[] scenes = {"home", "cafe", "conversation"};
+        String[] scenes = {"home", "cafe", "conversation", "market", "station", "home-life", "pharmacy"};
         for (String name : scenes) load(context, name, 1100);
         for (String who : new String[]{"hadi", "ana"}) {
             load(context, who, 128);

@@ -464,12 +464,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "a conta, por favor.": {
-  "file": "0f6baf3989.mp3",
-  "lengthScale": 1.12,
-  "say": "A conta, por favor.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "0dc52f66de.mp3",
+  "generationSeconds": 8.93,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "A conta, por favor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "A conta, por favor.",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "a cozinha": {
   "file": "5474238b43.mp3",
@@ -798,6 +838,54 @@
   "source": "piper",
   "text": "A mesma palavra? Estão em sintonia!",
   "voice": "pt_PT-tugão-medium"
+ },
+ "a minha casa é pequena.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "600d79b860.mp3",
+  "generationSeconds": 12.03,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "A minha casa é pequena.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "A minha casa é pequena.",
+  "xVectorOnly": false
  },
  "a minha mãe tem sessenta anos.": {
   "file": "12787082c6.mp3",
@@ -2012,12 +2100,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "até amanhã!": {
-  "file": "73e9657901.mp3",
-  "lengthScale": 1.12,
-  "say": "Até amanhã!",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "bfloat16",
+  "file": "bb6f54c437.mp3",
+  "generationSeconds": 22.51,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Até amanhã!",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Até amanhã!",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": true
  },
  "até bica sabia esta!": {
   "file": "9181243a7e.mp3",
@@ -2260,12 +2388,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "boa sorte!": {
-  "file": "5e2fadaa7c.mp3",
-  "lengthScale": 1.12,
-  "say": "Boa sorte!",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "885c5c6151.mp3",
+  "generationSeconds": 23.54,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Boa sorte!",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Boa sorte!",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "boa tarde!": {
   "file": "ec28049c3d.mp3",
@@ -2382,12 +2550,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "bom dia!": {
-  "file": "26dec598f4.mp3",
-  "lengthScale": 1.12,
-  "say": "Bom dia!",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "8418ad2219.mp3",
+  "generationSeconds": 6.43,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Bom dia!",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Bom dia!",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "bom fim de semana!": {
   "file": "2409ad4b65.mp3",
@@ -2910,6 +3118,54 @@
   "source": "piper",
   "text": "Como se diz  em português?",
   "voice": "pt_PT-tugão-medium"
+ },
+ "como te chamas?": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "9e3bb27c9a.mp3",
+  "generationSeconds": 7.74,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Como te chamas?",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Como te chamas?",
+  "xVectorOnly": false
  },
  "como vai estar o tempo amanhã?": {
   "file": "e6d694389a.mp3",
@@ -3786,12 +4042,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "ela dorme": {
-  "file": "ec05642a6a.mp3",
-  "lengthScale": 1.12,
-  "say": "ela dorme.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "b5a921ec55.mp3",
+  "generationSeconds": 22.52,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "ela dorme",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "ela dorme",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "ela dá": {
   "file": "4a7322fb9c.mp3",
@@ -4538,12 +4834,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "eles perdem": {
-  "file": "edbf68f73b.mp3",
-  "lengthScale": 1.12,
-  "say": "eles perdem.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "3b2e97a4fd.mp3",
+  "generationSeconds": 104.51,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "eles perdem",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "eles perdem",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "eles podem": {
   "file": "f91641f3a3.mp3",
@@ -5292,12 +5628,100 @@
   "voice": "pt_PT-tugão-medium"
  },
  "este autocarro passa pela minha rua.": {
-  "file": "dc276df98e.mp3",
-  "lengthScale": 1.12,
-  "say": "Este autocarro passa pela minha rua.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "3d42f030b9.mp3",
+  "generationSeconds": 39.18,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Este autocarro passa pela minha rua.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Este autocarro passa pela minha rua.",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
+ },
+ "este autocarro vai para o centro?": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "bfloat16",
+  "file": "dcef273ae6.mp3",
+  "generationSeconds": 17.26,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Este autocarro vai para o centro?",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Este autocarro vai para o centro?",
+  "xVectorOnly": false
  },
  "este restaurante é melhor do que aquele.": {
   "file": "b702e73e63.mp3",
@@ -5339,6 +5763,102 @@
   "text": "Estou a experimentar o casaco.",
   "voice": "pt_PT-tugão-medium"
  },
+ "estou a ler.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "fd41136b49.mp3",
+  "generationSeconds": 8.39,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Estou a ler.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Estou a ler.",
+  "xVectorOnly": false
+ },
+ "estou cansado.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "615c10d1f5.mp3",
+  "generationSeconds": 12.6,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Estou cansado.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Estou cansado.",
+  "xVectorOnly": false
+ },
  "estou com febre.": {
   "file": "2b51183496.mp3",
   "lengthScale": 1.12,
@@ -5354,6 +5874,102 @@
   "source": "piper",
   "text": "Estou constipado.",
   "voice": "pt_PT-tugão-medium"
+ },
+ "estou melhor.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "bd590adce8.mp3",
+  "generationSeconds": 7.06,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Estou melhor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Estou melhor.",
+  "xVectorOnly": false
+ },
+ "estou perdido.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "8ab90b809c.mp3",
+  "generationSeconds": 10.23,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Estou perdido.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Estou perdido.",
+  "xVectorOnly": false
  },
  "estou só a ver, obrigada.": {
   "file": "cb38a8f8b6.mp3",
@@ -6046,12 +6662,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "eu quero": {
-  "file": "2d2f90e537.mp3",
-  "lengthScale": 1.12,
-  "say": "eu quero.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "26a4935fc1.mp3",
+  "generationSeconds": 8.15,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "eu quero",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "eu quero",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "eu quero um chá, se faz favor.": {
   "file": "e2b8ab77dd.mp3",
@@ -6808,12 +7464,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "hoje faço anos!": {
-  "file": "47080711fd.mp3",
-  "lengthScale": 1.12,
-  "say": "Hoje faço anos!",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "dad7e50538.mp3",
+  "generationSeconds": 12.1,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Hoje faço anos!",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Hoje faço anos!",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "hoje não deu… tentem outra vez!": {
   "file": "54b6a9d47e.mp3",
@@ -7525,6 +8221,54 @@
   "text": "Moro em Faro.",
   "voice": "pt_PT-tugão-medium"
  },
+ "moro em lisboa.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "da5caa4bef.mp3",
+  "generationSeconds": 22.38,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Moro em Lisboa.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Moro em Lisboa.",
+  "xVectorOnly": false
+ },
  "moro no porto há três anos.": {
   "file": "4e9600b8fd.mp3",
   "lengthScale": 1.12,
@@ -7628,6 +8372,54 @@
   "source": "piper",
   "text": "Muito prazer!",
   "voice": "pt_PT-tugão-medium"
+ },
+ "muito prazer.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "1a95f677ea.mp3",
+  "generationSeconds": 6.94,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Muito prazer.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Muito prazer.",
+  "xVectorOnly": false
  },
  "muitos parabéns!": {
   "file": "3c2a243301.mp3",
@@ -8260,12 +9052,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "não me sinto bem.": {
-  "file": "1e1389a39c.mp3",
-  "lengthScale": 1.12,
-  "say": "Não me sinto bem.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "0f83339509.mp3",
+  "generationSeconds": 15.29,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Não me sinto bem.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Não me sinto bem.",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "não percebo.": {
   "file": "db121d3ad0.mp3",
@@ -8282,6 +9114,54 @@
   "source": "piper",
   "text": "Não posso, desculpa.",
   "voice": "pt_PT-tugão-medium"
+ },
+ "não preciso de saco.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "84322fbf42.mp3",
+  "generationSeconds": 7.56,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Não preciso de saco.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Não preciso de saco.",
+  "xVectorOnly": false
  },
  "não quero nada, obrigada.": {
   "file": "f5c5aef742.mp3",
@@ -9084,12 +9964,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "o blazer preto": {
-  "file": "8f0eeaff7f.mp3",
-  "lengthScale": 1.12,
-  "say": "o blazer preto.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "449f35f57c.mp3",
+  "generationSeconds": 12.72,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "o blazer preto",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "o blazer preto",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "o bolo": {
   "file": "644049550f.mp3",
@@ -9795,6 +10715,54 @@
   "text": "O livro está em cima da mesa.",
   "voice": "pt_PT-tugão-medium"
  },
+ "o livro está na mesa.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "7fad3a660d.mp3",
+  "generationSeconds": 16.48,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "O livro está na mesa.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "O livro está na mesa.",
+  "xVectorOnly": false
+ },
  "o lápis": {
   "file": "277a1861dc.mp3",
   "lengthScale": 1.12,
@@ -9866,6 +10834,54 @@
   "source": "piper",
   "text": "O meu irmão é alto e magro.",
   "voice": "pt_PT-tugão-medium"
+ },
+ "o meu nome é ana.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "bfloat16",
+  "file": "1a92a5d9c7.mp3",
+  "generationSeconds": 73.22,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "O meu nome é Ana.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "O meu nome é Ana.",
+  "xVectorOnly": false
  },
  "o meu pai é médico.": {
   "file": "b8cb2436d8.mp3",
@@ -10665,6 +11681,54 @@
   "text": "Onde estiveste no fim de semana?",
   "voice": "pt_PT-tugão-medium"
  },
+ "onde estão as chaves?": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "847b482c32.mp3",
+  "generationSeconds": 19.85,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Onde estão as chaves?",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Onde estão as chaves?",
+  "xVectorOnly": false
+ },
  "onde fica a estação de comboios?": {
   "file": "b72972b03a.mp3",
   "lengthScale": 1.12,
@@ -10672,6 +11736,54 @@
   "source": "piper",
   "text": "Onde fica a estação de comboios?",
   "voice": "pt_PT-tugão-medium"
+ },
+ "onde fica a estação?": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "6b80c0535f.mp3",
+  "generationSeconds": 7.71,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Onde fica a estação?",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Onde fica a estação?",
+  "xVectorOnly": false
  },
  "onde se fala português?": {
   "file": "1180cc75b3.mp3",
@@ -11608,12 +12720,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "pode repetir, por favor?": {
-  "file": "2b5b4e4014.mp3",
-  "lengthScale": 1.12,
-  "say": "Pode repetir, por favor?",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "c54aaec778.mp3",
+  "generationSeconds": 10.99,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Pode repetir, por favor?",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Pode repetir, por favor?",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "pode sentar-se, por favor.": {
   "file": "701ad90c37.mp3",
@@ -11646,6 +12798,54 @@
   "source": "piper",
   "text": "Podemos marcar uma reunião para terça-feira?",
   "voice": "pt_PT-tugão-medium"
+ },
+ "podes abrir a janela?": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "417d5df086.mp3",
+  "generationSeconds": 12.74,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Podes abrir a janela?",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Podes abrir a janela?",
+  "xVectorOnly": false
  },
  "podes vir jantar no sábado?": {
   "file": "407cbdcaa3.mp3",
@@ -11728,12 +12928,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "posso pagar com cartão?": {
-  "file": "6b63b6277c.mp3",
-  "lengthScale": 1.12,
-  "say": "Posso pagar com cartão?",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "7ad5605fc6.mp3",
+  "generationSeconds": 9.11,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Posso pagar com cartão?",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Posso pagar com cartão?",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "precisa de receita médica?": {
   "file": "d92094322d.mp3",
@@ -11758,6 +12998,54 @@
   "source": "piper",
   "text": "Precisa-se de empregado de mesa.",
   "voice": "pt_PT-tugão-medium"
+ },
+ "preciso de ajuda.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "8fbc31c020.mp3",
+  "generationSeconds": 10.09,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Preciso de ajuda.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Preciso de ajuda.",
+  "xVectorOnly": false
  },
  "prefiro a praia à montanha.": {
   "file": "f0e249e688.mp3",
@@ -11906,12 +13194,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "quanto custa?": {
-  "file": "82e2ea75d1.mp3",
-  "lengthScale": 1.12,
-  "say": "Quanto custa?",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "149f2219ac.mp3",
+  "generationSeconds": 5.32,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Quanto custa?",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Quanto custa?",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "quanto tempo estiveste tu nos açores?": {
   "file": "c60cb924da.mp3",
@@ -12111,6 +13439,54 @@
   "text": "Queria dois bolos, um gelado e um chocolate, por favor.",
   "voice": "pt_PT-tugão-medium"
  },
+ "queria dois cafés, por favor.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "81b33519dd.mp3",
+  "generationSeconds": 17.99,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria dois cafés, por favor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Queria dois cafés, por favor.",
+  "xVectorOnly": false
+ },
  "queria dois cafés, um gelado e dois morangos, por favor.": {
   "file": "9d0a375c20.mp3",
   "lengthScale": 1.12,
@@ -12231,6 +13607,54 @@
   "text": "Queria duas laranjas, um queijo e um café, por favor.",
   "voice": "pt_PT-tugão-medium"
  },
+ "queria duas maçãs, por favor.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "bfloat16",
+  "file": "a2e2a816ba.mp3",
+  "generationSeconds": 15.53,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria duas maçãs, por favor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Queria duas maçãs, por favor.",
+  "xVectorOnly": false
+ },
  "queria duas saladas, por favor.": {
   "file": "31a9495c95.mp3",
   "lengthScale": 1.12,
@@ -12240,12 +13664,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "queria duas sopas e um pão, por favor.": {
-  "file": "e36b7d081a.mp3",
-  "lengthScale": 1.12,
-  "say": "Queria duas sopas e um pão, por favor.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "3b603c0ba7.mp3",
+  "generationSeconds": 15.76,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria duas sopas e um pão, por favor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Queria duas sopas e um pão, por favor.",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "queria marcar uma consulta, por favor.": {
   "file": "3ad09449c2.mp3",
@@ -12254,6 +13718,54 @@
   "source": "piper",
   "text": "Queria marcar uma consulta, por favor.",
   "voice": "pt_PT-tugão-medium"
+ },
+ "queria marcar uma consulta.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "d388b8e02e.mp3",
+  "generationSeconds": 14.92,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria marcar uma consulta.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Queria marcar uma consulta.",
+  "xVectorOnly": false
  },
  "queria marcar uma hora, por favor.": {
   "file": "82195783d8.mp3",
@@ -12304,12 +13816,100 @@
   "voice": "pt_PT-tugão-medium"
  },
  "queria três águas e dois cafés, por favor.": {
-  "file": "7cae49277a.mp3",
-  "lengthScale": 1.12,
-  "say": "Queria três águas e dois cafés, por favor.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "592113dff5.mp3",
+  "generationSeconds": 16.73,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria três águas e dois cafés, por favor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Queria três águas e dois cafés, por favor.",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
+ },
+ "queria um bilhete para lisboa.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "c54e962be2.mp3",
+  "generationSeconds": 11.77,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria um bilhete para Lisboa.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Queria um bilhete para Lisboa.",
+  "xVectorOnly": false
  },
  "queria um bolo e um gelado, por favor.": {
   "file": "6424c372dc.mp3",
@@ -12352,12 +13952,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "queria um café e um leite, por favor.": {
-  "file": "171ec1a108.mp3",
-  "lengthScale": 1.12,
-  "say": "Queria um café e um leite, por favor.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "4ae313cd0d.mp3",
+  "generationSeconds": 14.85,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria um café e um leite, por favor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Queria um café e um leite, por favor.",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "queria um café e um ovo, por favor.": {
   "file": "12a06f9c1b.mp3",
@@ -12376,12 +14016,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "queria um café, por favor.": {
-  "file": "a4a751e49d.mp3",
-  "lengthScale": 1.12,
-  "say": "Queria um café, por favor.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "d3c5ce0088.mp3",
+  "generationSeconds": 11.0,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria um café, por favor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Queria um café, por favor.",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "queria um chocolate e um café, por favor.": {
   "file": "8791010b85.mp3",
@@ -12480,12 +14160,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "queria um pão, por favor.": {
-  "file": "0df7dbe89b.mp3",
-  "lengthScale": 1.12,
-  "say": "Queria um pão, por favor.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "b5509a70e8.mp3",
+  "generationSeconds": 9.96,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria um pão, por favor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Queria um pão, por favor.",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": false
  },
  "queria um quarto duplo para três noites.": {
   "file": "8cb9353371.mp3",
@@ -12518,6 +14238,102 @@
   "source": "piper",
   "text": "Queria um queijo, por favor.",
   "voice": "pt_PT-tugão-medium"
+ },
+ "queria um quilo de laranjas.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "243119dbd3.mp3",
+  "generationSeconds": 10.27,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria um quilo de laranjas.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Queria um quilo de laranjas.",
+  "xVectorOnly": false
+ },
+ "queria um saco, por favor.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "4af29a19d3.mp3",
+  "generationSeconds": 9.39,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Queria um saco, por favor.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Queria um saco, por favor.",
+  "xVectorOnly": false
  },
  "queria um tomate e um vinho, por favor.": {
   "file": "09481d0a4e.mp3",
@@ -13131,6 +14947,54 @@
   "text": "sexta-feira",
   "voice": "pt_PT-tugão-medium"
  },
+ "siga em frente.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "3b3c5d9024.mp3",
+  "generationSeconds": 13.99,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Siga em frente.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Siga em frente.",
+  "xVectorOnly": false
+ },
  "simpático, simpática": {
   "file": "640b5ece21.mp3",
   "lengthScale": 1.12,
@@ -13276,12 +15140,52 @@
   "voice": "pt_PT-tugão-medium"
  },
  "sou de portugal.": {
-  "file": "62943a2231.mp3",
-  "lengthScale": 1.12,
-  "say": "Sou de Portugal.",
-  "source": "piper",
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "bfloat16",
+  "file": "ae1bbf4780.mp3",
+  "generationSeconds": 20.96,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Sou de Portugal.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
   "text": "Sou de Portugal.",
-  "voice": "pt_PT-tugão-medium"
+  "xVectorOnly": true
  },
  "sou do brasil.": {
   "file": "f1f663c217.mp3",
@@ -13443,6 +15347,54 @@
   "text": "Tem noutra cor?",
   "voice": "pt_PT-tugão-medium"
  },
+ "tem pão?": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "872ce3fb3d.mp3",
+  "generationSeconds": 5.36,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Tem pão?",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Tem pão?",
+  "xVectorOnly": false
+ },
  "tem um dia feliz!": {
   "file": "0b6be1483b.mp3",
   "lengthScale": 1.12,
@@ -13493,6 +15445,54 @@
   "text": "Tenho dores de cabeça.",
   "voice": "pt_PT-tugão-medium"
  },
+ "tenho febre.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "103925fe30.mp3",
+  "generationSeconds": 8.11,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Tenho febre.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Tenho febre.",
+  "xVectorOnly": false
+ },
  "tenho muita pena, mas não vai dar.": {
   "file": "82c458679a.mp3",
   "lengthScale": 1.12,
@@ -13516,6 +15516,54 @@
   "source": "piper",
   "text": "Tenho um exame na segunda-feira.",
   "voice": "pt_PT-tugão-medium"
+ },
+ "tenho um gato.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "bfloat16",
+  "file": "885800156c.mp3",
+  "generationSeconds": 7.36,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Tenho um gato.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Tenho um gato.",
+  "xVectorOnly": false
  },
  "tenho uma entrevista amanhã às dez.": {
   "file": "aa62aaf090.mp3",
@@ -15143,6 +17191,54 @@
   "text": "Volte daqui a uma semana.",
   "voice": "pt_PT-tugão-medium"
  },
+ "vou cozinhar.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "2f69adee58.mp3",
+  "generationSeconds": 9.91,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "Vou cozinhar.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "Vou cozinhar.",
+  "xVectorOnly": false
+ },
  "vou passar as férias nos açores.": {
   "file": "64f8cb297a.mp3",
   "lengthScale": 1.12,
@@ -15231,6 +17327,54 @@
   "text": "É melhor, não achas?",
   "voice": "pt_PT-tugão-medium"
  },
+ "é muito caro.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "62f2f92404.mp3",
+  "generationSeconds": 6.67,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "É muito caro.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "É muito caro.",
+  "xVectorOnly": false
+ },
  "é um trabalho a tempo inteiro.": {
   "file": "1c22d87776.mp3",
   "lengthScale": 1.12,
@@ -15246,6 +17390,102 @@
   "source": "piper",
   "text": "É uma hora.",
   "voice": "pt_PT-tugão-medium"
+ },
+ "é à direita.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "0f959bb197.mp3",
+  "generationSeconds": 9.06,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "É à direita.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "É à direita.",
+  "xVectorOnly": false
+ },
+ "é à esquerda.": {
+  "accentReference": "European Portuguese",
+  "auditedLocal": true,
+  "dtype": "float32",
+  "file": "637b4e3684.mp3",
+  "generationSeconds": 8.71,
+  "language": "Portuguese",
+  "license": "Apache-2.0",
+  "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+  "referenceRecordings": [
+   {
+    "file": "b6b492e808.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "engenheiro",
+    "title": "File:LL-Q5146 (por)-Waldyrious-engenheiro.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-engenheiro.wav"
+   },
+   {
+    "file": "3e2ce6ebae.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "estudante",
+    "title": "File:LL-Q5146 (por)-Waldyrious-estudante.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-estudante.wav"
+   },
+   {
+    "file": "3cf480fef7.mp3",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "lingua-libre",
+    "speaker": "Waldyrious",
+    "text": "jornalista",
+    "title": "File:LL-Q5146 (por)-Waldyrious-jornalista.wav",
+    "url": "https://commons.wikimedia.org/wiki/File:LL-Q5146_(por)-Waldyrious-jornalista.wav"
+   }
+  ],
+  "sayAs": "É à esquerda.",
+  "seed": 16,
+  "source": "qwen3-tts-local",
+  "speed": 0.9,
+  "text": "É à esquerda.",
+  "xVectorOnly": false
  },
  "última ronda! pontos a dobrar!": {
   "file": "2ccf6798d9.mp3",
