@@ -57,7 +57,8 @@ final class ProgressStore {
                 .put("selected", s.selected).put("firstCount", s.firstCount)
                 .put("reviewBuilt", s.reviewBuilt).put("phase", s.phase.name()).put("players", s.players)
                 .put("tray", tray).put("assisted", s.assisted).put("assistedCorrect", s.assistedCorrect)
-                .put("traySubmitted", s.traySubmitted).put("trayCorrect", s.trayCorrect);
+                .put("traySubmitted", s.traySubmitted).put("trayCorrect", s.trayCorrect)
+                .put("batchTeaching", s.batchTeaching).put("teachIndex", s.teachIndex).put("pendingOption", s.pendingOption);
             edit.putString("session", o.toString());
         } catch (Exception ignored) { edit.remove("session"); }
         edit.apply();
@@ -80,6 +81,10 @@ final class ProgressStore {
             s.index = o.getInt("index"); s.correct = o.getInt("correct"); s.selected = o.getInt("selected");
             s.reviewBuilt = o.getBoolean("reviewBuilt"); s.phase = StudySession.Phase.valueOf(o.getString("phase"));
             s.players = o.optInt("players", 1) == 2 ? 2 : 1;
+            s.batchTeaching = o.optBoolean("batchTeaching", false); s.teachIndex = o.optInt("teachIndex");
+            s.pendingOption = o.optInt("pendingOption", -1);
+            if (s.teachIndex < 0 || s.teachIndex >= firstCount || s.pendingOption < -1 || s.pendingOption >= s.options().size()) return null;
+            if (s.batchTeaching && s.phase == StudySession.Phase.TEACH && s.index != 0) return null;
             JSONArray savedTray = o.optJSONArray("tray");
             if (savedTray != null) {
                 int[] counts = new int[savedTray.length()];

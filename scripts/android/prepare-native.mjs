@@ -96,13 +96,27 @@ for (const c of cards) {
   // A minimal pair is an audio discrimination task; it must never expose the answer as a prompt.
   if (c.kind === 'minimalPair' && !c.audio) c.options = [];
 }
-const lessons = LESSONS.map(l => ({ id: l.id, unit: unitOf(l.unit)?.id ?? l.unit, title: l.title,
+const lessonGoals = JSON.parse(await readFile(`${root}scripts/android/lesson-goals.json`, 'utf8'));
+const lessons = LESSONS.map(l => ({ id: l.id, unit: unitOf(l.unit)?.id ?? l.unit, title: l.title, goal: lessonGoals[l.id],
   source: l.source, cards: l.itemIds.map(id => {
     if (!byId.has(id)) throw new Error(`${l.id}: missing item ${id}`);
     return byId.get(id);
   }).filter(c => c.options.length > 1) }));
-for (const l of lessons) if (!l.cards.length) throw new Error(`Empty lesson ${l.id}`);
+for (const l of lessons) if (!l.cards.length || !l.goal) throw new Error(`Missing lesson content or English goal: ${l.id}`);
 const files = new Set(cards.filter(c => c.audio).map(c => c.audio));
+const conversationSource = JSON.parse(await readFile(`${root}scripts/android/conversations.json`, 'utf8'));
+const conversations = conversationSource.map(t => ({id: t.id, title: t.title, goal: t.goal, art: t.art,
+  cards: t.turns.map((turn, i) => ({id: `conversation.${t.id}.${i}`, pt: turn.pt, en: turn.en, prompt: turn.heard,
+    context: turn.goal, why: turn.why, heardEn: turn.heardEn, followup: turn.next, followupEn: turn.nextEn,
+    options: t.turns.map(x => x.pt), audio: manifest[key(turn.pt)], heardAudio: manifest[key(turn.heard)], followupAudio: manifest[key(turn.next)]}))
+}));
+for (const t of conversations) for (const c of t.cards) {
+  if (new Set(c.options).size !== 3 || !c.context || !c.heardEn || !c.followupEn) throw new Error(`Invalid conversation: ${c.id}`);
+  for (const clip of [c.audio, c.heardAudio, c.followupAudio]) {
+    if (!clip) throw new Error(`Missing conversation recording: ${c.id}`);
+    files.add(clip);
+  }
+}
 // Original, concrete situations. Every prompt specifies why only one reply fits.
 const dialogue = [
   ['Introduce yourself. Someone asks: Como te chamas?', 'O meu nome é Ana.', ['Tenho trinta anos.', 'Moro no Porto.', 'São duas horas.'], 'Como te chamas? asks your name. O meu nome é… means My name is…'],
@@ -170,7 +184,7 @@ if (!checkOnly) {
   for (const name of characterAssets) await copyFile(`${root}public/art/characters/${name}.webp`, `${output}/art/${name}.webp`);
   await cp(`${root}public/art/native-tv/fonts`, `${output}/art/fonts`, { recursive: true });
   await writeFile(`${output}/curriculum.json`, JSON.stringify({ version: 1, units: UNITS, lessons,
-    phrasebook, worlds: worlds.map(({cards, ...w}) => ({...w, cardIds: cards.map(c => c.id)})), games: [{ id: 'picture', cards: worlds.flatMap(w => w.cards) }, { id: 'dialogue', cards: dialogue }, { id: 'cafe', cards: orders }] }));
+    phrasebook, conversations, worlds: worlds.map(({cards, ...w}) => ({...w, cardIds: cards.map(c => c.id)})), games: [{ id: 'picture', cards: worlds.flatMap(w => w.cards) }, { id: 'dialogue', cards: dialogue }, { id: 'cafe', cards: orders }] }));
   for (const file of files) await copyFile(`${root}public/audio/${file}`, `${output}/audio/${file}`);
 }
 console.log(`Native curriculum: ${lessons.length} lessons, ${cards.length} items, ${files.size} bundled clips${checkOnly ? ' (structure check)' : ''}.`);

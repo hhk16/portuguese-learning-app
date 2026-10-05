@@ -61,6 +61,21 @@ jobs:
           path: |
             android-tv/app/build/outputs/apk/debug/app-debug.apk
             android-tv/app/build/reports/
-            native-tv-screenshots/
+            native-tv-screenshots/frames.txt
+            native-tv-screenshots/crashes.txt
+          retention-days: 14
+          overwrite: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-tv-visuals-${{ github.sha }}
+          path: native-tv-screenshots/screenshots/
+          retention-days: 14
+          overwrite: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-tv-speech-review-${{ github.sha }}
+          path: native-tv-screenshots/audio-review/
           retention-days: 14
           overwrite: true

@@ -28,7 +28,7 @@ Four coherent sets introduce 16 illustrated nouns: café food, home objects, ani
 
 The results show the set of pictures just practised and offer listening practice or another world. Each world's counter records correct practice, not fluency or pronunciation quality. Saying the words aloud is encouraged but not automatically scored. Saved sessions restore the exact card/options, including picture challenges.
 
-Home includes a direct Picture worlds card with an illustrated cat, alongside phrases and revision. The main Continue button and Lessons menu retain the course path. Play uses six equally sized cards in two rows, each explaining the skill it teaches. Chapter cards have consistent heights, a chapter label and a short title; descriptions move to the chapter page. The new park and coastal journey scenes use the approved Hadi/Anna welcome scene as their character reference. Twelve isolated transparent object sprites are newly generated: cat, dog, bird, fish, book, chair, table, key, car, train, bus and bicycle. Scene illustrations are decorative; selectable vocabulary pictures provide the explicit learning targets.
+Home includes a direct Picture worlds card with an illustrated cat, alongside phrases and revision. The main Continue button and Lessons menu retain the course path. Play uses four equally sized cards in two rows, each explaining the skill it teaches. Chapter cards have consistent heights, a chapter label and a short title; descriptions move to the chapter page. The new park and coastal journey scenes use the approved Hadi/Anna welcome scene as their character reference. Twelve isolated transparent object sprites are newly generated: cat, dog, bird, fish, book, chair, table, key, car, train, bus and bicycle. Scene illustrations are decorative; selectable vocabulary pictures provide the explicit learning targets.
 
 All 14 new illustrations were generated with OpenAI image generation. Scene exports remain bounded to 1,100 pixels; object sprites are 256-pixel WebP with alpha. No additional network permission, runtime model, rendering loop or web dependency is introduced. Audio reuses already bundled noun recordings; no additional voice generation is needed for this expansion.
 
@@ -41,3 +41,11 @@ Normal and slow playback remain available. Transcript help reveals the recorded 
 Half-built trays and assistance state survive relaunch. Pre-2.4 saved café matching sessions retain their original options in a compatibility mode; revision can still revisit all eight original café orders using tray matching. The new builder deliberately introduces only the four taught foods.
 
 Home names the next chapter's learning goal and includes a direct café shortcut. During every session the six navigation tabs give way to the activity name and Pause. Teaching and feedback footers describe their actual controls. Existing Hadi/Anna likenesses, offline packaging and deliberate advancement are retained. Physical Strong-box acceptance remains outstanding.
+
+## Whole learning flow (2.5)
+
+Play has four activities with distinct actions: match pictures, build a café tray, reply in a conversation, and recognise recorded speech. Grammar is a sentence preview and Check interaction within the course. Daily revision lives in the learning path. Every course lesson has a concise English goal alongside its original Portuguese title.
+
+Lessons teach a whole set of up to four expressions before asking for recall. Conversations introduce three replies before a three-turn scene. Each turn names the purpose, plays the other person's line and shows a recorded continuation after feedback. Three scenes use existing verified clips. Listening uses coherent phrasebook topics rather than a random pool of untaught content.
+
+Help exposes the relevant transcript or pattern while preserving the task. Helped answers count separately and return for an independent try. Recaps show first-try independent recall, replayable expressions and the next learning action. Completed course lessons advance to the next goal. Saved teaching position, sentence choice and older lesson flows survive updates; chapter navigation restores focus and scroll.

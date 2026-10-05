@@ -12,6 +12,7 @@ public final class StudySession {
         public final String id, kind, pt, en, prompt, answer, why, audio;
         public final List<String> options;
         public String art = "", context = "";
+        public String heardEn = "", heardAudio = "", followup = "", followupEn = "", followupAudio = "";
         public Card(String id, String kind, String pt, String en, String prompt,
                     String answer, String why, String audio, List<String> options) {
             this.id = id; this.kind = kind; this.pt = pt; this.en = en;
@@ -35,6 +36,8 @@ public final class StudySession {
     public CafeOrder tray = new CafeOrder();
     public boolean assisted, traySubmitted, trayCorrect;
     public int assistedCorrect;
+    public boolean batchTeaching;
+    public int teachIndex, pendingOption = -1;
 
     public StudySession(String mode, String lessonId, List<Card> cards, long seed) {
         this(mode, lessonId, cards, seed, cards.size());
@@ -43,12 +46,18 @@ public final class StudySession {
         if (cards.isEmpty()) throw new IllegalArgumentException("A session needs cards");
         this.mode = mode; this.lessonId = lessonId; this.seed = seed;
         this.deck = new ArrayList<>(cards); this.firstCount = firstCount;
-        phase = mode.equals("learn") || mode.equals("cafe") ? Phase.TEACH : Phase.QUESTION;
+        batchTeaching = mode.equals("learn") || mode.equals("listen") || mode.equals("conversation");
+        phase = batchTeaching || mode.equals("cafe") ? Phase.TEACH : Phase.QUESTION;
     }
-    public Card card() { return deck.get(Math.min(index, deck.size() - 1)); }
+    public Card card() { return deck.get(Math.min(phase == Phase.TEACH && batchTeaching ? teachIndex : index, deck.size() - 1)); }
     public List<String> options() {
         Card c = card();
         List<String> rest = new ArrayList<>(c.options);
+        if (batchTeaching && !c.kind.equals("conversation") && !c.kind.equals("minimalPair")) {
+            List<String> taught = new ArrayList<>();
+            for (Card other : deck.subList(0, firstCount)) if (other.kind.equals(c.kind) && rest.contains(other.answer) && !taught.contains(other.answer)) taught.add(other.answer);
+            if (taught.size() >= 2) rest = taught;
+        }
         rest.remove(c.answer);
         Collections.shuffle(rest, new Random(seed ^ c.id.hashCode() ^ index));
         List<String> out = new ArrayList<>();
@@ -57,7 +66,12 @@ public final class StudySession {
         Collections.shuffle(out, new Random(seed + index * 31L));
         return out;
     }
-    public void practice() { if (phase == Phase.TEACH) phase = Phase.QUESTION; }
+    public void practice() {
+        if (phase != Phase.TEACH) return;
+        if (batchTeaching && teachIndex + 1 < firstCount) teachIndex++;
+        else phase = Phase.QUESTION;
+    }
+    public void help() { if (phase == Phase.QUESTION) assisted = true; }
     public boolean guidedOrder() { return mode.equals("cafe") && index == 0; }
     public int independentCount() { return mode.equals("cafe") ? Math.max(0, firstCount - 1) : firstCount; }
     public boolean submitTray() {
@@ -76,8 +90,9 @@ public final class StudySession {
         selected = option;
         boolean right = options().get(option).equals(card().answer);
         if (index < firstCount) {
-            if (right) correct++;
-            else missed.add(card());
+            if (right && !assisted) correct++;
+            if (right && assisted) assistedCorrect++;
+            if (!right || assisted) missed.add(card());
         }
         phase = Phase.FEEDBACK;
         return true;
@@ -89,20 +104,21 @@ public final class StudySession {
     public void skip() {
         if (phase != Phase.QUESTION) return;
         selected = -1;
+        pendingOption = -1;
         if (index < firstCount) missed.add(card());
         phase = Phase.FEEDBACK;
     }
     public void next() {
         if (phase != Phase.FEEDBACK) return;
         index++;
-        selected = -1;
+        selected = -1; pendingOption = -1;
         tray.clear(); assisted = false; traySubmitted = false; trayCorrect = false;
         if (index == firstCount && !reviewBuilt) {
             deck.addAll(missed); // One retry of each miss; mistakes never create an endless game.
             reviewBuilt = true;
         }
         if (index >= deck.size()) phase = Phase.RESULT;
-        else phase = mode.equals("learn") && index < firstCount ? Phase.TEACH : Phase.QUESTION;
+        else phase = mode.equals("learn") && !batchTeaching && index < firstCount ? Phase.TEACH : Phase.QUESTION;
     }
     public StudySession restart() {
         StudySession s = new StudySession(mode, lessonId, deck.subList(0, firstCount), seed);

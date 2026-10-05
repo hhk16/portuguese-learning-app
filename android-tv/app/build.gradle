@@ -7,8 +7,8 @@ android {
         applicationId 'pt.partyportugues.tv'
         minSdk 23
         targetSdk 35
-        versionCode 6
-        versionName '2.4.0'
+        versionCode 7
+        versionName '2.5.0'
         testInstrumentationRunner 'pt.partyportugues.tv.TvFlowTest'
     }
     compileOptions {
@@ -27,6 +27,9 @@ tasks.register('prepareCurriculum', Exec) {
     commandLine 'node', 'scripts/android/prepare-native.mjs'
     inputs.dir(new File(rootProject.projectDir.parentFile, 'src/curriculum'))
     inputs.file(new File(rootProject.projectDir.parentFile, 'scripts/android/phrasebook.json'))
+    inputs.file(new File(rootProject.projectDir.parentFile, 'scripts/android/lesson-goals.json'))
+    inputs.file(new File(rootProject.projectDir.parentFile, 'scripts/android/conversations.json'))
+    inputs.file(new File(rootProject.projectDir.parentFile, 'scripts/android/prepare-native.mjs'))
     inputs.dir(new File(rootProject.projectDir.parentFile, 'public/audio'))
     inputs.dir(new File(rootProject.projectDir.parentFile, 'public/art/native-tv'))
     inputs.dir(new File(rootProject.projectDir.parentFile, 'public/art/characters'))

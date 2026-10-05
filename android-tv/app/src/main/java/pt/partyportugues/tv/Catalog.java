@@ -16,7 +16,7 @@ final class Catalog {
         String id, title, subtitle, label;
     }
     static final class Lesson {
-        String id, unit, title;
+        String id, unit, title, goal;
         final List<StudySession.Card> cards = new ArrayList<>();
     }
     static final class Topic {
@@ -25,6 +25,7 @@ final class Catalog {
     }
     final List<Topic> worlds = new ArrayList<>();
     final List<Topic> topics = new ArrayList<>();
+    final List<Topic> conversations = new ArrayList<>();
     final List<Unit> units = new ArrayList<>();
     final List<Lesson> lessons = new ArrayList<>();
     final Map<String, StudySession.Card> cards = new LinkedHashMap<>();
@@ -49,6 +50,7 @@ final class Catalog {
         for (int i = 0; i < lessons.length(); i++) {
             JSONObject o = lessons.getJSONObject(i); Lesson l = new Lesson();
             l.id = o.getString("id"); l.unit = o.getString("unit"); l.title = o.getString("title");
+            l.goal = o.optString("goal", l.title);
             JSONArray cs = o.getJSONArray("cards");
             for (int j = 0; j < cs.length(); j++) {
                 JSONObject x = cs.getJSONObject(j); List<String> options = new ArrayList<>();
@@ -99,6 +101,21 @@ final class Catalog {
             JSONArray ids = o.getJSONArray("cardIds");
             for (int j = 0; j < ids.length(); j++) t.cards.add(c.cards.get(ids.getString(j)));
             c.worlds.add(t);
+        }
+        JSONArray conversations = data.optJSONArray("conversations");
+        if (conversations != null) for (int i = 0; i < conversations.length(); i++) {
+            JSONObject o = conversations.getJSONObject(i); Topic t = new Topic();
+            t.id = o.getString("id"); t.title = o.getString("title"); t.goal = o.getString("goal"); t.art = o.getString("art");
+            JSONArray turns = o.getJSONArray("cards");
+            for (int j = 0; j < turns.length(); j++) {
+                JSONObject x = turns.getJSONObject(j); List<String> opts = new ArrayList<>(); JSONArray choices = x.getJSONArray("options");
+                for (int k = 0; k < choices.length(); k++) opts.add(choices.getString(k));
+                StudySession.Card card = new StudySession.Card(x.getString("id"), "conversation", x.getString("pt"), x.getString("en"), x.getString("prompt"), x.getString("pt"), x.getString("why"), x.getString("audio"), opts);
+                card.art = t.art; card.context = x.getString("context"); card.heardEn = x.getString("heardEn"); card.heardAudio = x.getString("heardAudio");
+                card.followup = x.getString("followup"); card.followupEn = x.getString("followupEn"); card.followupAudio = x.getString("followupAudio");
+                t.cards.add(card); c.cards.put(card.id, card);
+            }
+            c.conversations.add(t);
         }
         return c;
     }
