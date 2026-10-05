@@ -32,6 +32,9 @@ public final class StudySession {
     public boolean reviewBuilt;
     public int players = 1;
     public Phase phase;
+    public CafeOrder tray = new CafeOrder();
+    public boolean assisted, traySubmitted, trayCorrect;
+    public int assistedCorrect;
 
     public StudySession(String mode, String lessonId, List<Card> cards, long seed) {
         this(mode, lessonId, cards, seed, cards.size());
@@ -40,7 +43,7 @@ public final class StudySession {
         if (cards.isEmpty()) throw new IllegalArgumentException("A session needs cards");
         this.mode = mode; this.lessonId = lessonId; this.seed = seed;
         this.deck = new ArrayList<>(cards); this.firstCount = firstCount;
-        phase = mode.equals("learn") ? Phase.TEACH : Phase.QUESTION;
+        phase = mode.equals("learn") || mode.equals("cafe") ? Phase.TEACH : Phase.QUESTION;
     }
     public Card card() { return deck.get(Math.min(index, deck.size() - 1)); }
     public List<String> options() {
@@ -55,9 +58,21 @@ public final class StudySession {
         return out;
     }
     public void practice() { if (phase == Phase.TEACH) phase = Phase.QUESTION; }
+    public boolean guidedOrder() { return mode.equals("cafe") && index == 0; }
+    public int independentCount() { return mode.equals("cafe") ? Math.max(0, firstCount - 1) : firstCount; }
+    public boolean submitTray() {
+        if (!mode.equals("cafe") || phase != Phase.QUESTION || tray.total() == 0) return false;
+        traySubmitted = true; trayCorrect = tray.matches(card().answer);
+        if (index < firstCount) {
+            if (trayCorrect && !guidedOrder() && !assisted) correct++;
+            else if (!guidedOrder() && assisted && trayCorrect) assistedCorrect++;
+            if (!trayCorrect || (!guidedOrder() && assisted)) missed.add(card());
+        }
+        phase = Phase.FEEDBACK; return true;
+    }
     /** A held remote button or duplicate click can never record an answer twice. */
     public boolean answer(int option) {
-        if (phase != Phase.QUESTION || option < 0 || option >= options().size()) return false;
+        if (mode.equals("cafe") || phase != Phase.QUESTION || option < 0 || option >= options().size()) return false;
         selected = option;
         boolean right = options().get(option).equals(card().answer);
         if (index < firstCount) {
@@ -68,6 +83,7 @@ public final class StudySession {
         return true;
     }
     public boolean wasCorrect() {
+        if (mode.equals("cafe") && traySubmitted) return trayCorrect;
         return selected >= 0 && selected < options().size() && options().get(selected).equals(card().answer);
     }
     public void skip() {
@@ -80,6 +96,7 @@ public final class StudySession {
         if (phase != Phase.FEEDBACK) return;
         index++;
         selected = -1;
+        tray.clear(); assisted = false; traySubmitted = false; trayCorrect = false;
         if (index == firstCount && !reviewBuilt) {
             deck.addAll(missed); // One retry of each miss; mistakes never create an endless game.
             reviewBuilt = true;

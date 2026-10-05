@@ -88,6 +88,7 @@ final class Artwork {
             super(context); setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
             for (String part : label.toLowerCase(java.util.Locale.ROOT).split("\\+")) {
                 String value = part.trim();
+                if (value.isEmpty()) continue;
                 int count = Character.isDigit(value.charAt(0)) ? Character.digit(value.charAt(0), 10) : 1;
                 for (int i = 0; i < Math.min(3, count); i++) items.add(food(value));
             }

@@ -51,10 +51,13 @@ final class ProgressStore {
             JSONObject o = new JSONObject(); JSONArray ids = new JSONArray(), misses = new JSONArray();
             for (StudySession.Card c : s.deck) ids.put(c.id);
             for (StudySession.Card c : s.missed) misses.put(c.id);
+            JSONArray tray = new JSONArray(); for (int n : s.tray.snapshot()) tray.put(n);
             o.put("mode", s.mode).put("lesson", s.lessonId).put("seed", s.seed).put("deck", ids)
                 .put("missed", misses).put("index", s.index).put("correct", s.correct)
                 .put("selected", s.selected).put("firstCount", s.firstCount)
-                .put("reviewBuilt", s.reviewBuilt).put("phase", s.phase.name()).put("players", s.players);
+                .put("reviewBuilt", s.reviewBuilt).put("phase", s.phase.name()).put("players", s.players)
+                .put("tray", tray).put("assisted", s.assisted).put("assistedCorrect", s.assistedCorrect)
+                .put("traySubmitted", s.traySubmitted).put("trayCorrect", s.trayCorrect);
             edit.putString("session", o.toString());
         } catch (Exception ignored) { edit.remove("session"); }
         edit.apply();
@@ -69,13 +72,27 @@ final class ProgressStore {
             }
             int firstCount = o.getInt("firstCount");
             if (firstCount < 1 || firstCount > 8 || firstCount > deck.size() || deck.size() > 16) return null;
-            StudySession s = new StudySession(o.getString("mode"), o.getString("lesson"), deck,
+            String restoredMode = o.getString("mode");
+            // Older café sessions used tray matching; retain their exact question and answer order.
+            if (restoredMode.equals("cafe") && !o.has("tray")) restoredMode = "cafe-match";
+            StudySession s = new StudySession(restoredMode, o.getString("lesson"), deck,
                 o.getLong("seed"), firstCount);
             s.index = o.getInt("index"); s.correct = o.getInt("correct"); s.selected = o.getInt("selected");
             s.reviewBuilt = o.getBoolean("reviewBuilt"); s.phase = StudySession.Phase.valueOf(o.getString("phase"));
             s.players = o.optInt("players", 1) == 2 ? 2 : 1;
+            JSONArray savedTray = o.optJSONArray("tray");
+            if (savedTray != null) {
+                int[] counts = new int[savedTray.length()];
+                for (int i = 0; i < counts.length; i++) counts[i] = savedTray.getInt(i);
+                s.tray = CafeOrder.restore(counts);
+            }
+            s.assisted = o.optBoolean("assisted"); s.assistedCorrect = o.optInt("assistedCorrect");
+            s.traySubmitted = o.optBoolean("traySubmitted"); s.trayCorrect = o.optBoolean("trayCorrect");
             if (s.index < 0 || s.index > deck.size() || (s.index == deck.size() && s.phase != StudySession.Phase.RESULT)) return null;
             if (s.correct < 0 || s.correct > firstCount || s.selected < -1 || s.selected >= s.options().size()) return null;
+            if (s.assistedCorrect < 0 || s.assistedCorrect > firstCount) return null;
+            if (s.traySubmitted && (!s.mode.equals("cafe") || s.phase != StudySession.Phase.FEEDBACK
+                || s.trayCorrect != s.tray.matches(s.card().answer))) return null;
             JSONArray missed = o.getJSONArray("missed");
             for (int i = 0; i < missed.length(); i++) {
                 StudySession.Card c = catalog.cards.get(missed.getString(i)); if (c != null) s.missed.add(c);

@@ -30,8 +30,9 @@ jobs:
       - name: Learning state regression checks
         run: |
           mkdir -p /tmp/native-tv-tests
-          javac -d /tmp/native-tv-tests android-tv/app/src/main/java/pt/partyportugues/tv/StudySession.java scripts/android/StudySessionTest.java
+          javac -d /tmp/native-tv-tests android-tv/app/src/main/java/pt/partyportugues/tv/{StudySession,CafeOrder}.java scripts/android/{StudySessionTest,CafeOrderTest}.java
           java -ea -cp /tmp/native-tv-tests StudySessionTest
+          java -ea -cp /tmp/native-tv-tests CafeOrderTest
           javac -d /tmp/native-tv-tests android-tv/app/src/main/java/pt/partyportugues/tv/ReviewSchedule.java scripts/android/ReviewScheduleTest.java
           java -ea -cp /tmp/native-tv-tests ReviewScheduleTest
           node scripts/android/prepare-native.mjs --check

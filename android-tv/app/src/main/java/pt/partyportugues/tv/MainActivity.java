@@ -43,6 +43,7 @@ public final class MainActivity extends Activity {
     private LinearLayout root, body;
     private TextView footer;
     private Button audioControl;
+    private String audioRestLabel = "▶  Listen again";
     private AlertDialog modal;
     private View firstAction;
     private boolean backgrounded;
@@ -57,7 +58,7 @@ public final class MainActivity extends Activity {
         setVolumeControlStream(android.media.AudioManager.STREAM_MUSIC);
         progress = new ProgressStore(this); speech = new Speech(this);
         speech.onStateChanged(() -> {
-            if (audioControl != null) audioControl.setText(speech.isPlaying() ? "♪  Playing…" : "▶  Listen again");
+            if (audioControl != null) audioControl.setText(speech.isPlaying() ? "♪  Playing…" : audioRestLabel);
         });
         heavy = Typeface.create(regular, Typeface.BOLD);
         try {
@@ -121,7 +122,7 @@ public final class MainActivity extends Activity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2); lp.setMargins(dp(2), dp(4), dp(2), dp(6)); b.setLayoutParams(lp);
         b.setOnClickListener(v -> click.run()); b.setFocusable(true);
         if (firstAction == null) firstAction = b;
-        if (key.equals("listen")) audioControl = b;
+        if (key.equals("listen")) { audioControl = b; audioRestLabel = label; }
         return b;
     }
     private Button primary(String key, String label, Runnable action) {
@@ -192,6 +193,12 @@ public final class MainActivity extends Activity {
         LinearLayout header = row(); header.setGravity(Gravity.CENTER_VERTICAL);
         TextView brand = text("❖  Português", 23, INK); brand.setTypeface(heavy);
         header.addView(brand, new LinearLayout.LayoutParams(0, dp(46), 1.45f));
+        if (inSession) {
+            TextView activityName = text(session.mode.equals("learn") ? "Your lesson" : gameTitle(session.mode), 18, MUTED);
+            header.addView(activityName, new LinearLayout.LayoutParams(0, -2, 2));
+            Button pause = button("pause-session", "Pause", this::pause);
+            header.addView(pause, new LinearLayout.LayoutParams(dp(110), dp(40)));
+        } else {
         String[] ids = {"home", "units", "games", "phrasebook", "progress", "settings"};
         String[] names = {"Home", "Lessons", "Play", "Phrases", "Progress", "Settings"};
         for (int i = 0; i < ids.length; i++) {
@@ -203,6 +210,7 @@ public final class MainActivity extends Activity {
                 states.addState(new int[]{}, shape(ACCENT, ACCENT)); nav.setBackground(states); nav.setTextColor(Color.WHITE);
             }
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(36), .7f); lp.setMargins(dp(4), 0, dp(4), 0); header.addView(nav, lp);
+        }
         }
         root.addView(header); space(root, 9); firstAction = null;
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(true); scroll.setClipToPadding(false);
@@ -236,15 +244,16 @@ public final class MainActivity extends Activity {
         for (Catalog.Lesson l : catalog.lessons) if (progress.learned(l) < l.cards.size()) { next = l; break; }
         final Catalog.Lesson chosen = next;
         LinearLayout copy = column(), scene = column();
-        eyebrow(copy, "A LITTLE, EVERY DAY"); heading(copy, "Your next stop:\nPortuguese.", 44);
-        copy.addView(text("Real conversations. Your pace.", 17, MUTED)); space(copy, 6);
+        eyebrow(copy, "YOUR NEXT LEARNING GOAL"); heading(copy, lessonGoal(chosen), 32);
+        copy.addView(text("Listen, practise, then try it yourself.", 16, MUTED)); space(copy, 6);
         if (session != null && session.phase != StudySession.Phase.RESULT) {
-            copy.addView(primary("resume", "Resume your adventure  →", () -> { screen = "session"; draw(null); }));
+            copy.addView(primary("resume", "Resume " + (session.mode.equals("learn") ? "your lesson" : gameTitle(session.mode)) + "  →", () -> { screen = "session"; draw(null); }));
             copy.addView(button("next-lesson", "Explore this lesson", () -> { lessonId = chosen.id; unitId = chosen.unit; navigate("lesson"); }));
         } else copy.addView(primary("next-lesson", "Continue learning  →", () -> { lessonId = chosen.id; unitId = chosen.unit; navigate("lesson"); }));
         copy.addView(text(chosen.title, 13, MUTED));
         copy.addView(text(progress.learned(chosen) + " / " + chosen.cards.size() + " items practised correctly", 12, MUTED));
         progressBar(copy, progress.learned(chosen), chosen.cards.size());
+        copy.addView(button("cafe-journey", "Try a café adventure  →", () -> intro("cafe")));
         picture(scene, "home", 254, false); split(body, copy, scene, .43f);
         space(body, 8); heading(body, "Make yourself at home", 22);
         LinearLayout learn = tile("browse", "Picture worlds", "Four words at a time", BLUE, () -> navigate("worlds"));
@@ -257,6 +266,20 @@ public final class MainActivity extends Activity {
             () -> { if (ready) startRevision(); else navigate("progress"); });
         miniCard(review, "review", "Keep it going", ready ? misses + " items ready for revision" : "Your learning journey");
         threeCards(body, learn, play, review);
+    }
+    private String lessonGoal(Catalog.Lesson lesson) {
+        switch (lesson.unit) {
+            case "u00": return "Greetings and everyday essentials";
+            case "u01": return "Introduce yourself in Portuguese";
+            case "u02": return "Talk about family and friends";
+            case "u03": return "Food, orders and everyday routines";
+            case "u04": return "Find your way around town";
+            case "u05": return "Weather, clothes and plans";
+            case "u06": return "Explain how you feel";
+            case "u07": return "Talk about what happened";
+            case "u08": return "Talk about holidays and travel";
+            default: return "Bring your Portuguese together";
+        }
     }
     private void miniCard(LinearLayout card, String kind, String name, String subtitle) {
         LinearLayout copy = column(), image = column(); cardText(copy, name, subtitle);
@@ -413,7 +436,7 @@ public final class MainActivity extends Activity {
         title("Play with a purpose", "Pick a skill. Learn from every answer. No timer.");
         String[] ids = {"picture", "cafe", "dialogue", "listen", "grammar", "review"};
         String[] names = {"Picture worlds", "At the café", "Choose the reply", "Listen & find", "Fill the gap", "A second chance"};
-        String[] goals = {"WORDS · See, hear & remember", "ORDERS · Match food & quantities", "CONVERSATION · Say the right thing", "LISTENING · Understand what you hear", "GRAMMAR · Build a correct sentence", "REVISION · Revisit tricky items"};
+        String[] goals = {"WORDS · See, hear & remember", "ORDERS · Listen, build a tray & serve", "CONVERSATION · Say the right thing", "LISTENING · Understand what you hear", "GRAMMAR · Build a correct sentence", "REVISION · Revisit tricky items"};
         String[] scenes = {"park", "cafe", "conversation", "journey", "home-life", "market"};
         for (int i = 0; i < ids.length; i += 3) {
             LinearLayout r = row();
@@ -466,14 +489,14 @@ public final class MainActivity extends Activity {
     }
     private void intro(String id) { gameId = id; navigate("intro"); }
     private String gameTitle(String id) {
-        switch (id) { case "picture": return "Picture worlds"; case "cafe": return "At the café"; case "listen": return "Listen & find";
+        switch (id) { case "picture": return "Picture worlds"; case "cafe": case "cafe-match": return "At the café"; case "listen": return "Listen & find";
             case "grammar": return "Fill the gap"; case "review": return "Review your mistakes";
             default: return "Choose the reply"; }
     }
     private String rules(String id) {
         switch (id) {
             case "picture": return "Listen to the Portuguese word.\nChoose its picture using the arrows and OK.\nLearn the article and noun together after each answer.";
-            case "cafe": return "You are serving a customer.\nPress Listen to hear the order. Choose the matching tray.\nPay attention to both the food and the quantities.";
+            case "cafe": return "Meet four café words, then try an order with help.\nAdd or remove items with the + and − buttons. Press Serve when ready.\nListen for both the food and the quantities. Try three orders on your own.";
             case "listen": return "Press Listen to hear a Portuguese word or phrase.\nChoose its English meaning. You can listen as often as you like.\nFor similar-sounding words, choose the Portuguese word you heard.";
             case "grammar": return "Read the sentence and the hint.\nChoose the word or phrase that fills the gap.\nAfter each answer, see the complete sentence and an explanation.";
             case "review": return "Try the items you missed previously.\nChoose an answer, then read the correction.\nA correct answer removes the item from your review list.";
@@ -489,8 +512,9 @@ public final class MainActivity extends Activity {
         left.addView(text("Hadi & Anna · Your Portuguese companions", 13, MUTED));
         eyebrow(right, "THE GOAL"); heading(right, gameTitle(gameId), 29);
         String[] lines = rules(gameId).split("\n");
-        step(right, 1, gameId.equals("cafe") || gameId.equals("listen") ? "Listen" : "Look", lines[0]);
-        step(right, 2, "Choose", lines[1]); step(right, 3, "Learn", lines[2]);
+        step(right, 1, gameId.equals("cafe") ? "Meet the words" : gameId.equals("listen") ? "Listen" : "Look", lines[0]);
+        step(right, 2, gameId.equals("cafe") ? "Build your tray" : "Choose", lines[1]);
+        step(right, 3, gameId.equals("cafe") ? "Serve the order" : "Learn", lines[2]);
         String example;
         switch (gameId) {
             case "cafe": example = "Queria dois cafés, por favor. → 2 coffees"; break;
@@ -504,7 +528,7 @@ public final class MainActivity extends Activity {
         eyebrow(right, "CONTROLS · ARROWS + OK · BACK PAUSES");
         right.addView(text("Together: pass the remote after each turn.\nMistakes return once. Progress is shared.", 14, MUTED));
         LinearLayout buttons = row();
-        Button solo = primary("solo", "Play solo  →", () -> startGame(1)), together = button("together", "Play together", () -> startGame(2));
+        Button solo = primary("solo", gameId.equals("cafe") ? "Meet the words  →" : "Play solo  →", () -> startGame(1)), together = button("together", "Play together", () -> startGame(2));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1); lp.setMargins(0, dp(4), dp(8), 0);
         buttons.addView(solo, lp); buttons.addView(together, new LinearLayout.LayoutParams(0, -2, 1)); right.addView(buttons);
         split(body, left, right, .34f);
@@ -524,7 +548,12 @@ public final class MainActivity extends Activity {
     }
     private void startGame(int players) {
         List<StudySession.Card> deck = practiceDeck(gameId);
-        if (!gameId.equals("review")) Collections.shuffle(deck);
+        if (gameId.equals("cafe")) {
+            // Start with a guided coffee, then quantities and combinations of the four taught foods.
+            List<StudySession.Card> starters = new ArrayList<>();
+            for (int index : new int[]{0, 1, 2, 5}) starters.add(deck.get(index));
+            deck = starters;
+        } else if (!gameId.equals("review")) Collections.shuffle(deck);
         start(gameId, "", deck, players);
     }
     private void start(String mode, String lesson, List<StudySession.Card> deck, int players) {
@@ -541,18 +570,21 @@ public final class MainActivity extends Activity {
     }
     private void study() {
         StudySession s = session; StudySession.Card c = s.card();
+        if (s.mode.equals("cafe")) { cafeStudy(); return; }
         boolean audioQuestion = s.mode.equals("listen") || s.mode.equals("picture") || c.kind.equals("cafe") || c.kind.equals("minimalPair");
         if (s.phase == StudySession.Phase.RESULT) { results(); return; }
         String who = player(), name = who.equals("hadi") ? "Hadi" : "Anna";
         String turn = s.players == 2 ? "PLAYER " + (s.index % 2 + 1) + " · " + name + "   ·   " : name + "   ·   ";
         String step = s.index >= s.firstCount ? "RETRY " + (s.index - s.firstCount + 1) + " / " + s.missed.size()
-            : "QUESTION " + (s.index + 1) + " / " + s.firstCount;
+            : (s.phase == StudySession.Phase.TEACH ? "LEARN " : "QUESTION ") + (s.index + 1) + " / " + s.firstCount;
         LinearLayout meta = row(); meta.setGravity(Gravity.CENTER_VERTICAL);
         meta.addView(art.character(this, who), new LinearLayout.LayoutParams(dp(32), dp(32)));
         TextView label = text("  " + turn + step + "   ·   " + (s.mode.equals("learn") ? "LEARN" : gameTitle(s.mode).toUpperCase(java.util.Locale.ROOT)), 13, INK);
         label.setTypeface(heavy); meta.addView(label); body.addView(meta);
         progressBar(body, s.index, s.deck.size()); space(body, 8);
         footer.setText("↔  Arrows  Choose       OK  Answer       ↶  Back  Pause       ▷Ⅱ  Replay audio");
+        if (s.phase == StudySession.Phase.TEACH) footer.setText("Arrows  Move     OK  Listen / continue     Back  Pause     ▷Ⅱ  Replay");
+        else if (s.phase == StudySession.Phase.FEEDBACK) footer.setText("Arrows  Move     OK  Continue / replay     Back  Pause");
         LinearLayout left = column(), right = column();
         if (s.phase == StudySession.Phase.TEACH) {
             left.setBackground(shape(BLUE, BLUE)); picture(left, c.art.isEmpty() ? who + "-wave" : c.art, 254, c.art.isEmpty() || c.kind.equals("noun") || c.kind.equals("picture"));
@@ -625,6 +657,164 @@ public final class MainActivity extends Activity {
             right.addView(r);
         }
         split(body, left, right, .31f);
+    }
+    private StudySession.Card cafeWord(int item) {
+        for (StudySession.Card c : catalog.cards.values())
+            if (c.kind.equals("noun") && c.art.equals(CafeOrder.ART[item])) return c;
+        return null;
+    }
+    private void cafeStudy() {
+        StudySession s = session;
+        if (s.phase == StudySession.Phase.RESULT) { cafeResults(); return; }
+        if (s.phase == StudySession.Phase.TEACH) { cafeWords(); return; }
+        String name = player().equals("hadi") ? "Hadi" : "Anna";
+        String stage = s.guidedOrder() ? "GUIDED ORDER" : s.index >= s.firstCount ? "ANOTHER TRY" : "LISTEN ON YOUR OWN";
+        eyebrow(body, name + (s.players == 2 ? " · PLAYER " + (s.index % 2 + 1) : "") + "  ·  " + stage);
+        progressBar(body, s.index, s.deck.size()); space(body, 6);
+        footer.setText("Arrows  Move     OK  Add / remove / serve     Back  Pause     ▷Ⅱ  Replay");
+        if (s.phase == StudySession.Phase.FEEDBACK) { cafeFeedback(); return; }
+        LinearLayout customer = column(), counter = column();
+        picture(customer, "cafe", 135, false); space(customer, 6);
+        heading(customer, "The customer's order", 18);
+        LinearLayout sounds = row();
+        sounds.addView(primary("listen", "▶  Listen", () -> listen(s.card())), new LinearLayout.LayoutParams(0, dp(43), 1));
+        sounds.addView(button("listen-slow", "Slowly", () -> speech.play(s.card().audio, true, () -> notice("This recording could not play."))), new LinearLayout.LayoutParams(0, dp(43), 1));
+        customer.addView(sounds); space(customer, 7);
+        if (s.guidedOrder() || s.assisted) {
+            LinearLayout hint = column(); hint.setPadding(dp(10), dp(8), dp(10), dp(8)); hint.setBackground(shape(BLUE, BLUE));
+            eyebrow(hint, s.guidedOrder() ? "LET'S DO ONE TOGETHER" : "TRANSCRIPT HELP");
+            heading(hint, s.card().pt, 18); hint.addView(text(s.card().answer, 15, MUTED));
+            hint.addView(text(s.guidedOrder() ? "Add one coffee. Then press Serve." : "Keep building your tray. Try this order again later without help.", 14, INK));
+            customer.addView(hint);
+        } else {
+            customer.addView(text("Listen for the food and how many. Replay as often as you like.", 15, MUTED));
+            customer.addView(button("cafe-hint", "Show the words", () -> {
+                s.assisted = true; progress.save(s); draw("cafe-hint");
+            }));
+            customer.addView(text("With help now. On your own on the retry.", 12, MUTED));
+        }
+        heading(counter, "Build the customer's tray", 24);
+        counter.addView(text("Choose + to add one. Choose − to remove one.", 15, MUTED));
+        counter.addView(art.tray(this, s.tray.label()), new LinearLayout.LayoutParams(-1, dp(66)));
+        TextView contents = text(s.tray.total() == 0 ? "Your tray is empty. Add the items you hear." : "Your tray: " + s.tray.label(), 14, MUTED);
+        contents.setTag("tray-contents"); counter.addView(contents);
+        int[] items = {0, 1, 2, 5};
+        for (int row = 0; row < 2; row++) {
+            LinearLayout shelf = row();
+            for (int col = 0; col < 2; col++) {
+                final int item = items[row * 2 + col];
+                LinearLayout card = column(); card.setPadding(dp(8), dp(4), dp(8), dp(4)); card.setBackground(shape(PANEL, PANEL));
+                LinearLayout label = row(); label.setGravity(Gravity.CENTER_VERTICAL);
+                label.addView(art.character(this, CafeOrder.ART[item]), new LinearLayout.LayoutParams(dp(47), dp(45)));
+                LinearLayout copy = column(); copy.setPadding(dp(7), 0, 0, 0);
+                heading(copy, CafeOrder.PT[item], 18); copy.addView(text(CafeOrder.EN[item] + " · on tray: " + s.tray.quantity(item), 13, MUTED));
+                label.addView(copy, new LinearLayout.LayoutParams(0, -2, 1)); card.addView(label);
+                LinearLayout controls = row();
+                Button minus = button("tray-minus-" + item, "−  Remove", () -> changeTray(item, -1));
+                Button plus = button("tray-plus-" + item, "+  Add", () -> changeTray(item, 1));
+                for (Button control : new Button[]{minus, plus}) {
+                    control.setTextSize(15); control.setMinHeight(dp(34)); control.setMinimumHeight(dp(34));
+                    control.setPadding(dp(8), dp(3), dp(8), dp(3));
+                }
+                minus.setContentDescription("Remove one " + CafeOrder.EN[item]);
+                plus.setContentDescription("Add one " + CafeOrder.EN[item]);
+                LinearLayout.LayoutParams a = new LinearLayout.LayoutParams(0, dp(35), 1); a.setMargins(0, 0, dp(5), 0);
+                controls.addView(minus, a); controls.addView(plus, new LinearLayout.LayoutParams(0, dp(35), 1)); card.addView(controls);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(95), 1); lp.setMargins(0, dp(3), dp(7), dp(3)); shelf.addView(card, lp);
+                if (item == 0) firstAction = plus;
+            }
+            counter.addView(shelf);
+        }
+        LinearLayout actions = row();
+        actions.addView(primary("serve", "Serve this order  →", this::serveTray), new LinearLayout.LayoutParams(0, dp(45), 2));
+        Button clear = button("clear-tray", "Clear tray", () -> { s.tray.clear(); progress.save(s); draw("clear-tray"); });
+        actions.addView(clear, new LinearLayout.LayoutParams(0, dp(45), 1)); counter.addView(actions);
+        split(body, customer, counter, .31f);
+    }
+    private void cafeWords() {
+        LinearLayout scene = column(), introduction = column(); picture(scene, "cafe", 125, false);
+        eyebrow(introduction, "AT THE CAFÉ · MEET THE WORDS"); heading(introduction, "Four words. Your first order.", 28);
+        introduction.addView(text("Choose a picture to hear its Portuguese name.\nSay the article and word together.", 16, MUTED));
+        introduction.addView(text("Queria …, por favor.  =  I'd like …, please.", 17, INK));
+        split(body, scene, introduction, .30f); space(body, 7);
+        LinearLayout words = row();
+        for (int item : new int[]{0, 1, 2, 5}) {
+            StudySession.Card c = cafeWord(item);
+            LinearLayout word = tile("cafe-word-" + item, CafeOrder.PT[item], "Listen to " + CafeOrder.EN[item], PANEL, () -> { if (c != null) listen(c); });
+            picture(word, CafeOrder.ART[item], 63, true);
+            heading(word, CafeOrder.PT[item], 20); word.addView(text(CafeOrder.EN[item], 14, MUTED));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(125), 1); lp.setMargins(0, 0, dp(8), 0); words.addView(word, lp);
+        }
+        body.addView(words); space(body, 7);
+        body.addView(text("HOW MANY?    um café = 1 coffee       dois pães = 2 bread rolls", 16, INK));
+        body.addView(button("cafe-quantity-example", "▶  Hear a two-item order", () -> listen(session.deck.get(1))));
+        body.addView(text("One order together, then three on your own. No timer.", 15, MUTED));
+        body.addView(primary("practice", "Build my first order  →", () -> { speech.stop(); session.practice(); progress.save(session); draw(null); }));
+        footer.setText("Arrows  Choose a word     OK  Listen / start     Back  Pause");
+    }
+    private void changeTray(int item, int delta) {
+        if (session == null || session.phase != StudySession.Phase.QUESTION) return;
+        if (!session.tray.change(item, delta)) {
+            if (delta > 0) notice("Up to three of each item and five items on a tray. Remove an item to change your order.");
+            return;
+        }
+        progress.save(session); draw("tray-" + (delta > 0 ? "plus-" : "minus-") + item);
+    }
+    private void serveTray() {
+        if (session == null || session.phase != StudySession.Phase.QUESTION) return;
+        if (session.tray.total() == 0) { notice("Add something to your tray before you serve it."); return; }
+        speech.stop(); if (!session.submitTray()) return;
+        // Teaching and transcript help are practice, not evidence of independent listening.
+        if (!session.guidedOrder() && (!session.assisted || !session.wasCorrect()))
+            progress.record(session.card().id, session.wasCorrect());
+        progress.save(session); draw(null);
+    }
+    private void cafeFeedback() {
+        StudySession s = session; boolean right = s.wasCorrect();
+        LinearLayout tray = column(), copy = column();
+        tray.setPadding(dp(12), dp(10), dp(12), dp(10)); tray.setBackground(shape(right ? MINT : PEACH, right ? MINT : PEACH));
+        eyebrow(tray, "THE CUSTOMER'S ORDER");
+        tray.addView(art.tray(this, s.card().answer), new LinearLayout.LayoutParams(-1, dp(115)));
+        heading(tray, s.card().answer, 19); picture(tray, player() + (right ? "-cheer" : "-think"), 118, true);
+        eyebrow(copy, s.guidedOrder() ? "GUIDED PRACTICE" : s.assisted ? "PRACTISED WITH HELP" : "LISTENING PRACTICE");
+        heading(copy, right ? "Order served!" : "Let's check the order.", 29);
+        heading(copy, s.card().pt, 24);
+        copy.addView(text("Queria = I'd like. Por favor = please.\nUm / uma = one. Dois / duas = two.", 17, MUTED));
+        if (!right) copy.addView(text("Your tray: " + s.tray.label() + "\nThe correct tray is shown on the left. You'll try this order again.", 16, INK));
+        else copy.addView(text(s.guidedOrder() ? "You built your first order. Now listen without the words." : s.assisted ? "You used the words to help. This order will return for an independent try." : "You matched the food and quantities by listening.", 17, INK));
+        copy.addView(button("listen", "▶  Hear the order", () -> listen(s.card())));
+        copy.addView(primary("continue", "Continue  →", () -> { speech.stop(); s.next(); progress.save(s); draw(null); }));
+        firstAction = copy.findViewWithTag("continue");
+        split(body, tray, copy, .37f);
+        footer.setText("Arrows  Move     OK  Continue / replay     Back  Pause");
+    }
+    private void cafeResults() {
+        StudySession s = session; LinearLayout scene = column(), copy = column(); picture(scene, "cafe", 145, false);
+        picture(scene, learner() + "-cheer", 145, true);
+        eyebrow(copy, "YOUR CAFÉ RECAP"); heading(copy, "A café order, in Portuguese.", 26);
+        heading(copy, s.correct + " / " + s.independentCount(), 35);
+        copy.addView(text("Orders matched without help on your first try.", 16, MUTED));
+        copy.addView(text("1 guided order" + (s.assistedCorrect > 0 ? " · " + s.assistedCorrect + " matched with transcript help" : "") + " · retries counted separately", 14, MUTED));
+        int pending = 0; for (StudySession.Card c : s.deck.subList(1, s.firstCount)) if (progress.missed(c.id)) pending++;
+        final int pendingCount = pending;
+        copy.addView(text(pending > 0 ? pending + " orders still need practice. Replay them below." : "Replay an order. Say it aloud, then imagine using it at a café.", 16, INK));
+        for (int i = 1; i < s.firstCount; i++) {
+            StudySession.Card c = s.deck.get(i);
+            Button replay = button("recap-" + c.id, "▶  " + c.pt, () -> listen(c)); replay.setTextSize(15);
+            replay.setMinHeight(dp(36)); replay.setMinimumHeight(dp(36)); replay.setPadding(dp(10), dp(3), dp(10), dp(3));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, dp(36)); lp.setMargins(0, dp(3), 0, dp(3)); copy.addView(replay, lp);
+        }
+        LinearLayout actions = row();
+        Button again = primary("again", pending > 0 || s.correct < s.independentCount() ? "Try these orders again  →" : "More café phrases  →", () -> {
+            if (pendingCount > 0 || s.correct < s.independentCount()) {
+                session = s.restart(); progress.save(session); draw(null);
+            } else { session = null; progress.save(null); topicId = "cafe"; phraseIndex = 0; navigate("phrase"); }
+        });
+        again.setTextSize(16); actions.addView(again, new LinearLayout.LayoutParams(0, dp(48), 2));
+        Button finish = button("finish", "Home", () -> { session = null; progress.save(null); navigate("home"); });
+        finish.setTextSize(16); actions.addView(finish, new LinearLayout.LayoutParams(0, dp(48), 1)); copy.addView(actions);
+        firstAction = copy.findViewWithTag("again");
+        split(body, scene, copy, .32f); footer.setText("Arrows  Move     OK  Replay / choose     Back  Home");
     }
     private void listen(StudySession.Card c) {
         speech.play(c.audio, progress.prefs.getBoolean("slow", false), () ->

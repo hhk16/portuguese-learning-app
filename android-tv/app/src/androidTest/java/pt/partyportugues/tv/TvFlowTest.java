@@ -19,7 +19,7 @@ public class TvFlowTest extends Instrumentation {
     private Instrumentation getInstrumentation() { return this; }
     @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
     @Override public void onStart() {
-        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers", "testPhrasebookAudioSavedAndPractice", "testScheduledRevision", "testPictureWorldsLearnListenAndResume"};
+        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testCafeTrayLearningAndResume", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers", "testPhrasebookAudioSavedAndPractice", "testScheduledRevision", "testPictureWorldsLearnListenAndResume"};
         int failures = 0;
         for (int i = 0; i < names.length; i++) {
             Bundle status = new Bundle(); status.putString("id", "NativeTvTests");
@@ -122,13 +122,62 @@ public class TvFlowTest extends Instrumentation {
     public void testGameRulesTurnsAndTranscript() throws Exception {
         press("nav-games"); screenshot("games"); press("game-cafe"); screenshot("cafe-instructions");
         assertTrue(contains(activity.getWindow().getDecorView(), "both the food and the quantities"));
-        press("together"); waitFor("listen"); screenshot("cafe-question");
+        press("together"); waitFor("practice"); press("practice"); waitFor("listen"); screenshot("cafe-question");
         press("listen"); SystemClock.sleep(300); assertTrue(activity.hasWindowFocus());
         assertTrue(contains(activity.getWindow().getDecorView(), "PLAYER 1"));
-        press("show-transcript");
-        assertTrue(contains(activity.getWindow().getDecorView(), "Skipped listening questions do not earn points"));
+        press("tray-plus-0"); press("serve");
+        assertTrue(contains(activity.getWindow().getDecorView(), "GUIDED PRACTICE"));
         press("continue"); assertTrue(contains(activity.getWindow().getDecorView(), "PLAYER 2"));
         assertTrue(contains(activity.getWindow().getDecorView(), "Anna")); screenshot("anna-turn");
+        press("cafe-hint"); assertNotNull(find("serve"));
+        assertTrue(contains(activity.getWindow().getDecorView(), "TRANSCRIPT HELP"));
+    }
+    private void fillCafeTray(CafeOrder order) {
+        int[] quantities = order.snapshot();
+        for (int item = 0; item < quantities.length; item++)
+            for (int n = 0; n < quantities[item]; n++) press("tray-plus-" + item);
+    }
+    public void testCafeTrayLearningAndResume() throws Exception {
+        Catalog catalog = Catalog.load(activity);
+        press("cafe-journey"); press("solo"); screenshot("cafe-words");
+        for (int item : new int[]{0, 1, 2, 5}) { assertFullyVisible("cafe-word-" + item); assertNotNull(find("cafe-word-" + item)); }
+        press("cafe-word-0"); SystemClock.sleep(350); assertTrue(activity.hasWindowFocus());
+        press("practice"); screenshot("cafe-guided-order");
+        assertFullyVisible("tray-plus-0"); assertFullyVisible("tray-plus-5"); assertFullyVisible("serve");
+        assertNotNull(find("pause-session")); assertTrue(find("nav-home") == null);
+        press("tray-plus-0"); press("tray-plus-0"); press("tray-minus-0");
+        assertEquals(1, new ProgressStore(activity).restore(catalog).tray.quantity(0)); screenshot("cafe-built-tray");
+        press("serve"); waitFor("continue"); screenshot("cafe-served");
+        StudySession state = new ProgressStore(activity).restore(catalog); assertEquals(0, state.correct);
+        assertFalse(new ProgressStore(activity).known(state.card().id));
+        press("continue"); press("tray-plus-2");
+        String saved = new ProgressStore(activity).prefs.getString("session", "");
+        closeActivity(); launch(); press("resume"); assertEquals(saved, new ProgressStore(activity).prefs.getString("session", ""));
+        assertEquals(1, new ProgressStore(activity).restore(catalog).tray.quantity(2));
+        press("tray-plus-2"); press("serve"); press("continue");
+        state = new ProgressStore(activity).restore(catalog);
+        assertEquals(1, state.correct); assertFalse(contains(activity.getWindow().getDecorView(), state.card().pt));
+        press("cafe-hint"); screenshot("cafe-transcript-help");
+        state = new ProgressStore(activity).restore(catalog); fillCafeTray(CafeOrder.parse(state.card().answer));
+        press("serve"); press("continue");
+        state = new ProgressStore(activity).restore(catalog); assertEquals(1, state.correct); assertEquals(1, state.assistedCorrect);
+        fillCafeTray(CafeOrder.parse(state.card().answer)); press("serve"); press("continue");
+        state = new ProgressStore(activity).restore(catalog); assertTrue(state.index >= state.firstCount);
+        assertFalse(state.assisted); assertFalse(contains(activity.getWindow().getDecorView(), state.card().pt));
+        fillCafeTray(CafeOrder.parse(state.card().answer)); press("serve"); press("continue");
+        waitFor("finish"); screenshot("cafe-recap");
+        state = new ProgressStore(activity).restore(catalog); assertEquals(2, state.correct); assertEquals(3, state.independentCount());
+        assertNotNull(find("recap-native.cafe.2")); assertNotNull(find("recap-native.cafe.5"));
+        assertTrue(new ProgressStore(activity).known("native.cafe.2"));
+        // Existing saved café matching sessions keep their exact options after the update.
+        closeActivity();
+        StudySession legacy = new StudySession("cafe-match", "", catalog.games.get("cafe").subList(0, 1), 42);
+        ProgressStore store = new ProgressStore(getTargetContext()); store.save(legacy);
+        org.json.JSONObject snapshot = new org.json.JSONObject(store.prefs.getString("session", ""));
+        snapshot.put("mode", "cafe"); snapshot.remove("tray");
+        store.prefs.edit().putString("session", snapshot.toString()).commit();
+        launch(); press("resume"); waitFor("answer-0");
+        assertEquals(legacy.options(), new ProgressStore(activity).restore(catalog).options());
     }
     public void testSavedSessionSurvivesRelaunch() throws Exception {
         press("next-lesson"); press("start-lesson"); press("practice"); press("answer-0");
