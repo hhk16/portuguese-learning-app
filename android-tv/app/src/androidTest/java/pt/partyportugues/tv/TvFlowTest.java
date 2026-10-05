@@ -19,7 +19,7 @@ public class TvFlowTest extends Instrumentation {
     private Instrumentation getInstrumentation() { return this; }
     @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
     @Override public void onStart() {
-        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testCafeTrayLearningAndResume", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers", "testPhrasebookAudioSavedAndPractice", "testScheduledRevision", "testPictureWorldsLearnListenAndResume", "testConversationExchangeAndAssistance", "testSentencePreviewAndCompletedLesson", "testTeachingResumeAndLegacyLesson"};
+        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testCafeTrayLearningAndResume", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers", "testPhrasebookAudioSavedAndPractice", "testScheduledRevision", "testPictureWorldsLearnListenAndResume", "testConversationExchangeAndAssistance", "testSentencePreviewAndCompletedLesson", "testTeachingResumeAndLegacyLesson", "testGrammarReplayMarksHelp"};
         int failures = 0;
         for (int i = 0; i < names.length; i++) {
             Bundle status = new Bundle(); status.putString("id", "NativeTvTests");
@@ -125,7 +125,9 @@ public class TvFlowTest extends Instrumentation {
         View before = activity.getCurrentFocus();
         getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
         getInstrumentation().waitForIdleSync(); assertNotSame(before, activity.getCurrentFocus());
-        press("next-lesson"); screenshot("lesson-intro"); press("start-lesson");
+        press("next-lesson"); screenshot("lesson-intro");
+        for (StudySession.Card c : Catalog.load(activity).lessons.get(0).cards.subList(0, 3)) assertTextFits("intro-meaning-" + c.id);
+        press("start-lesson");
         screenshot("teaching"); finishTeaching(); waitFor("answer-0"); screenshot("question");
         press("answer-0"); waitFor("continue"); screenshot("feedback");
         SystemClock.sleep(1200); assertNotNull("Feedback must wait for Continue", find("continue"));
@@ -347,7 +349,8 @@ public class TvFlowTest extends Instrumentation {
         press("listen"); SystemClock.sleep(250); press("conversation-help"); answerCorrectly();
         assertEquals(0, state().correct); assertEquals(1, state().assistedCorrect);
         assertTrue(contains(activity.getWindow().getDecorView(), "WHAT HAPPENS NEXT"));
-        assertTrue(contains(activity.getWindow().getDecorView(), "É à direita.")); press("hear-followup"); screenshot("conversation-continuation");
+        assertTrue(contains(activity.getWindow().getDecorView(), "É à direita.")); assertTextFits("conversation-retry-note"); assertFullyVisible("continue");
+        press("hear-followup"); screenshot("conversation-continuation");
         press("continue"); assertTrue(contains(activity.getWindow().getDecorView(), "Anna"));
         String snapshot = new ProgressStore(activity).prefs.getString("session", ""); closeActivity(); launch(); press("resume");
         assertEquals(snapshot, new ProgressStore(activity).prefs.getString("session", ""));
@@ -369,12 +372,14 @@ public class TvFlowTest extends Instrumentation {
         launch(); press("resume"); finishTeaching(); screenshot("sentence-question");
         StudySession before = state(); int correct = before.options().indexOf(before.card().answer);
         press("word-" + correct); assertEquals(correct, state().pendingOption);
-        assertTrue(contains(find("sentence-preview"), before.card().answer)); screenshot("sentence-preview");
+        assertTrue(contains(find("sentence-preview"), before.card().answer));
+        assertFalse(contains(find("sentence-preview"), "present")); assertFullyVisible("check-sentence"); screenshot("sentence-preview");
         assertEquals(StudySession.Phase.QUESTION, state().phase);
         closeActivity(); launch(); press("resume"); assertEquals(correct, state().pendingOption);
         press("check-sentence"); assertEquals(1, state().correct); press("continue");
         for (int i = 1; i < 4; i++) { answerCorrectly(); press("continue"); }
         waitFor("next-batch"); screenshot("completed-lesson-recap"); assertFullyVisible("finish");
+        for (StudySession.Card c : lesson.cards.subList(0, 4)) assertFullyVisible("recap-" + c.id);
         assertEquals(lesson.cards.size(), new ProgressStore(activity).learned(lesson));
         press("next-batch"); assertNotNull(find("start-lesson"));
         assertTrue(contains(activity.getWindow().getDecorView(), catalog.lessons.get(catalog.lessons.indexOf(lesson) + 1).goal));
@@ -396,6 +401,20 @@ public class TvFlowTest extends Instrumentation {
         press("finish"); press("nav-units"); press("unit-u08");
         getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK); getInstrumentation().waitForIdleSync();
         assertEquals("unit-u08", activity.getCurrentFocus().getTag()); assertFullyVisible("unit-u08");
+    }
+    public void testGrammarReplayMarksHelp() throws Exception {
+        Catalog catalog = Catalog.load(activity); StudySession.Card chosen = null;
+        for (StudySession.Card c : catalog.cards.values()) if (c.grammar() && !c.audio.isEmpty()) { chosen = c; break; }
+        assertNotNull(chosen); closeActivity();
+        StudySession lab = new StudySession("learn", "", java.util.Arrays.asList(chosen), 42); lab.practice();
+        new ProgressStore(getTargetContext()).save(lab); launch(); press("resume"); waitFor("check-sentence");
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE); getInstrumentation().waitForIdleSync();
+        assertTrue(state().assisted); assertEquals(StudySession.Phase.QUESTION, state().phase);
+        assertTrue(contains(activity.getWindow().getDecorView(), chosen.pt)); screenshot("sentence-help");
+        answerCorrectly(); assertEquals(0, state().correct); assertEquals(1, state().assistedCorrect);
+        assertFalse(new ProgressStore(activity).known(chosen.id)); press("continue");
+        assertFalse(state().assisted); answerCorrectly(); press("continue"); waitFor("finish");
+        assertEquals(0, state().correct); assertTrue(new ProgressStore(activity).known(chosen.id));
     }
     private void tearDown() {
         closeActivity();

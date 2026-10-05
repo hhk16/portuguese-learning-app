@@ -439,12 +439,12 @@ public final class MainActivity extends Activity {
         step(right, 3, "Use what you learned", "Replay your recap. Tricky items return once.");
         right.addView(primary("start-lesson", "Let's learn  →", () -> startLesson(l)));
         split(body, left, right, .31f);
-        space(body, 10); eyebrow(body, "A TASTE OF THIS LESSON");
+        space(body, 5); eyebrow(body, "A TASTE OF THIS LESSON");
         int count = 0; LinearLayout samples = row();
         for (StudySession.Card c : l.cards) {
             if (count++ == 3) break;
-            LinearLayout card = column(); card.setPadding(dp(14), dp(6), dp(14), dp(6)); card.setBackground(shape(PANEL, PANEL));
-            heading(card, c.pt, 18); card.addView(text(c.en, 14, MUTED));
+            LinearLayout card = column(); card.setPadding(dp(14), dp(3), dp(14), dp(3)); card.setBackground(shape(PANEL, PANEL));
+            heading(card, c.pt, 18); TextView meaning = text(c.en, 14, MUTED); meaning.setTag("intro-meaning-" + c.id); card.addView(meaning);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1); lp.setMargins(0, 0, dp(10), 0); samples.addView(card, lp);
         } body.addView(samples);
     }
@@ -658,7 +658,7 @@ public final class MainActivity extends Activity {
             if (!c.context.isEmpty()) right.addView(text(c.context, 15, GOLD));
             if (!c.why.isEmpty()) { TextView tip = text(c.why, 15, MUTED); tip.setMaxLines(3); tip.setEllipsize(TextUtils.TruncateAt.END); right.addView(tip);
                 right.addView(button("language-tip", "Explain this expression", () -> notice(c.why))); }
-            right.addView(text("Listen and say it aloud. Recall comes after the whole set.", 15, GOLD));
+            right.addView(text((c.audio.isEmpty() ? "Read" : "Listen") + " and say it aloud. Recall comes after the whole set.", 15, GOLD));
             if (!c.audio.isEmpty()) audioPair(right, c.audio, "▶  Listen");
             right.addView(primary("practice", s.batchTeaching && s.teachIndex + 1 < s.firstCount ? "Next expression  →" : "Try this set  →", () -> { speech.stop(); s.practice(); progress.save(s); draw(null); }));
             firstAction = right.findViewWithTag(c.audio.isEmpty() ? "practice" : "listen");
@@ -730,7 +730,7 @@ public final class MainActivity extends Activity {
     }
     private void audioPair(LinearLayout parent, String file, String label) {
         LinearLayout sounds = row();
-        Button normal = button("listen", label, () -> speech.play(file, false, () -> notice("This recording could not play.")));
+        Button normal = button("listen", label, () -> speech.play(file, progress.prefs.getBoolean("slow", false), () -> notice("This recording could not play.")));
         Button slow = button("listen-slow", "▶  Slowly", () -> speech.play(file, true, () -> notice("This recording could not play.")));
         normal.setTextSize(16); slow.setTextSize(16);
         sounds.addView(normal, new LinearLayout.LayoutParams(0, dp(44), 1));
@@ -744,7 +744,7 @@ public final class MainActivity extends Activity {
     private void conversationStudy() {
         StudySession s = session; StudySession.Card c = s.card();
         LinearLayout scene = column(), exchange = column();
-        picture(scene, c.art, 142, false); picture(scene, player() + "-wave", 108, true);
+        picture(scene, c.art, 142, false); picture(scene, player() + "-wave", s.phase == StudySession.Phase.FEEDBACK ? 72 : 108, true);
         eyebrow(scene, "YOUR PURPOSE"); scene.addView(text(c.context, 17, INK));
         bubble(exchange, "THE OTHER PERSON", c.prompt, c.heardEn, BLUE);
         if (s.phase == StudySession.Phase.TEACH) {
@@ -770,7 +770,7 @@ public final class MainActivity extends Activity {
             Button next = button("hear-followup", "▶  Next line", () -> speech.play(c.followupAudio, false, () -> notice("This recording could not play."))); next.setTextSize(15);
             replays.addView(reply, new LinearLayout.LayoutParams(0, dp(42), 1)); replays.addView(next, new LinearLayout.LayoutParams(0, dp(42), 1)); exchange.addView(replays);
             scene.addView(text(c.why, 15, MUTED));
-            if (!s.wasCorrect() || s.assisted) scene.addView(text("This reply returns once for another try.", 14, GOLD));
+            if (!s.wasCorrect() || s.assisted) { TextView retry = text("This reply returns once for another try.", 14, GOLD); retry.setTag("conversation-retry-note"); scene.addView(retry); }
             exchange.addView(primary("continue", "Continue the conversation  →", () -> { speech.stop(); s.next(); progress.save(s); draw(null); }));
             firstAction = exchange.findViewWithTag("continue");
         }
@@ -784,7 +784,9 @@ public final class MainActivity extends Activity {
         coach.addView(button("sentence-help", "Show the pattern", () -> { s.help(); progress.save(s); draw("sentence-help"); }));
         if (s.assisted) coach.addView(text(c.pt, 19, INK));
         eyebrow(sentence, "YOUR SENTENCE");
-        String preview = s.pendingOption < 0 ? c.prompt : c.prompt.replace("___", s.options().get(s.pendingOption));
+        String template = c.prompt;
+        if (c.kind.equals("conjugation") || c.kind.equals("origin")) for (String line : c.prompt.split("\n")) if (line.contains("___")) template = line;
+        String preview = s.pendingOption < 0 ? template : template.replace("___", s.options().get(s.pendingOption));
         TextView built = text(preview, 28, INK); built.setTypeface(heavy); built.setTag("sentence-preview"); sentence.addView(built);
         sentence.addView(text(c.en, 17, MUTED)); space(sentence, 10);
         List<String> options = s.options();
@@ -987,9 +989,9 @@ public final class MainActivity extends Activity {
         right.addView(text("First tries" + (s.assistedCorrect > 0 ? " · " + s.assistedCorrect + " practised with help" : "") + " · retries separate", 14, MUTED));
         int pending = 0; for (StudySession.Card c : s.deck.subList(0, s.firstCount)) if (!progress.known(c.id)) pending++;
         right.addView(text(pending == 0 ? "You recalled every item. Replay one and say it aloud." : pending + " items need more practice. Replay them below.", 15, INK));
-        for (StudySession.Card c : s.deck.subList(0, Math.min(3, s.firstCount))) {
-            Button recap = button("recap-" + c.id, "▶  " + c.pt + "  ·  " + c.en, () -> listen(c));
-            recap.setTextSize(15); recap.setMinHeight(dp(36)); recap.setMinimumHeight(dp(36)); recap.setPadding(dp(9), dp(3), dp(9), dp(3));
+        for (StudySession.Card c : s.deck.subList(0, s.firstCount)) {
+            Button recap = button("recap-" + c.id, (c.audio.isEmpty() ? "Read  " : "▶  ") + c.pt + "  ·  " + c.en, () -> { if (c.audio.isEmpty()) notice(c.pt + "\n" + c.en + "\n\n" + c.why); else listen(c); });
+            recap.setTextSize(15); recap.setMaxLines(2); recap.setMinHeight(dp(36)); recap.setMinimumHeight(dp(36)); recap.setPadding(dp(9), dp(3), dp(9), dp(3));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2); lp.setMargins(0, dp(2), 0, dp(2)); right.addView(recap, lp);
         }
         if (!s.lessonId.isEmpty()) {
@@ -1107,7 +1109,15 @@ public final class MainActivity extends Activity {
             return true;
         }
         if (code == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE && session != null && screen.equals("session")) {
-            if (event.getAction() == KeyEvent.ACTION_UP) listen(session.card()); return true;
+            if (event.getAction() == KeyEvent.ACTION_UP) {
+                StudySession.Card c = session.card();
+                if (session.phase == StudySession.Phase.QUESTION && c.kind.equals("conversation"))
+                    speech.play(c.heardAudio, progress.prefs.getBoolean("slow", false), () -> notice("This recording could not play."));
+                else if (session.phase == StudySession.Phase.QUESTION && c.grammar()) {
+                    session.help(); progress.save(session); draw("sentence-help");
+                    if (!c.audio.isEmpty()) listen(c);
+                } else if (!c.audio.isEmpty()) listen(c);
+            } return true;
         }
         return super.dispatchKeyEvent(event);
     }
