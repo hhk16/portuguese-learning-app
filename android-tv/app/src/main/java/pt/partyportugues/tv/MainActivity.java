@@ -122,7 +122,7 @@ public final class MainActivity extends Activity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2); lp.setMargins(dp(2), dp(4), dp(2), dp(6)); b.setLayoutParams(lp);
         b.setOnClickListener(v -> click.run()); b.setFocusable(true);
         if (firstAction == null) firstAction = b;
-        if (key.equals("listen")) { audioControl = b; audioRestLabel = label; }
+        if (key.equals("listen")) { audioControl = b; audioRestLabel = label; b.setText(speech.isPlaying() ? "♪  Playing…" : label); }
         return b;
     }
     private Button primary(String key, String label, Runnable action) {
@@ -245,7 +245,7 @@ public final class MainActivity extends Activity {
         final Catalog.Lesson chosen = next;
         LinearLayout copy = column(), scene = column();
         eyebrow(copy, "YOUR NEXT LEARNING GOAL"); heading(copy, lessonGoal(chosen), 32);
-        copy.addView(text("Listen, practise, then try it yourself.", 16, MUTED)); space(copy, 6);
+        space(copy, 4);
         if (session != null && session.phase != StudySession.Phase.RESULT) {
             copy.addView(primary("resume", "Resume " + (session.mode.equals("learn") ? "your lesson" : gameTitle(session.mode)) + "  →", () -> { screen = "session"; draw(null); }));
             copy.addView(button("next-lesson", "Explore this lesson", () -> { lessonId = chosen.id; unitId = chosen.unit; navigate("lesson"); }));
@@ -741,8 +741,10 @@ public final class MainActivity extends Activity {
         for (int item : new int[]{0, 1, 2, 5}) {
             StudySession.Card c = cafeWord(item);
             LinearLayout word = tile("cafe-word-" + item, CafeOrder.PT[item], "Listen to " + CafeOrder.EN[item], PANEL, () -> { if (c != null) listen(c); });
-            picture(word, CafeOrder.ART[item], 63, true);
-            heading(word, CafeOrder.PT[item], 20); word.addView(text(CafeOrder.EN[item], 14, MUTED));
+            word.setPadding(dp(12), dp(6), dp(12), dp(6));
+            picture(word, CafeOrder.ART[item], 54, true);
+            heading(word, CafeOrder.PT[item], 20);
+            TextView meaning = text(CafeOrder.EN[item], 14, MUTED); meaning.setTag("cafe-meaning-" + item); word.addView(meaning);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(125), 1); lp.setMargins(0, 0, dp(8), 0); words.addView(word, lp);
         }
         body.addView(words); space(body, 7);

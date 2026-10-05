@@ -66,6 +66,11 @@ public class TvFlowTest extends Instrumentation {
         assertTrue(view.getGlobalVisibleRect(visible));
         assertTrue(visible.width() >= view.getWidth() - 2 && visible.height() >= view.getHeight() - 2);
     }
+    private void assertTextFits(String tag) {
+        assertFullyVisible(tag); TextView view = (TextView) find(tag);
+        assertNotNull(view.getLayout());
+        assertTrue(view.getHeight() >= view.getLayout().getLineBottom(view.getLineCount() - 1) + view.getCompoundPaddingBottom());
+    }
     private String describe(View v) {
         String out = v instanceof TextView ? ((TextView) v).getText().toString() + "\n" : "";
         if (v instanceof ViewGroup) for (int i = 0; i < ((ViewGroup) v).getChildCount(); i++) out += describe(((ViewGroup) v).getChildAt(i));
@@ -140,7 +145,7 @@ public class TvFlowTest extends Instrumentation {
     public void testCafeTrayLearningAndResume() throws Exception {
         Catalog catalog = Catalog.load(activity);
         press("cafe-journey"); press("solo"); screenshot("cafe-words");
-        for (int item : new int[]{0, 1, 2, 5}) { assertFullyVisible("cafe-word-" + item); assertNotNull(find("cafe-word-" + item)); }
+        for (int item : new int[]{0, 1, 2, 5}) { assertFullyVisible("cafe-word-" + item); assertTextFits("cafe-meaning-" + item); }
         press("cafe-word-0"); SystemClock.sleep(350); assertTrue(activity.hasWindowFocus());
         press("practice"); screenshot("cafe-guided-order");
         assertFullyVisible("tray-plus-0"); assertFullyVisible("tray-plus-5"); assertFullyVisible("serve");
@@ -286,6 +291,7 @@ public class TvFlowTest extends Instrumentation {
             assertFalse(card.art.isEmpty()); assertFalse(card.audio.isEmpty());
             try (java.io.InputStream in = activity.getAssets().open("art/" + card.art + ".webp")) { assertTrue(in.read() >= 0); }
         }
+        for (String tag : new String[]{"browse", "play", "home-review", "cafe-journey"}) assertFullyVisible(tag);
         screenshot("enhanced-home"); press("browse"); waitFor("world-animals");
         press("nav-games"); screenshot("play-skills");
         for (String tag : new String[]{"game-picture", "game-cafe", "game-dialogue", "game-listen", "game-grammar", "review"}) assertFullyVisible(tag);
