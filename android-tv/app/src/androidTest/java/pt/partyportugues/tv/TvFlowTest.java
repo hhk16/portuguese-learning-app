@@ -165,7 +165,7 @@ public class TvFlowTest extends Instrumentation {
         state = new ProgressStore(activity).restore(catalog); assertTrue(state.index >= state.firstCount);
         assertFalse(state.assisted); assertFalse(contains(activity.getWindow().getDecorView(), state.card().pt));
         fillCafeTray(CafeOrder.parse(state.card().answer)); press("serve"); press("continue");
-        waitFor("finish"); screenshot("cafe-recap");
+        waitFor("finish"); assertFullyVisible("again"); assertFullyVisible("finish"); screenshot("cafe-recap");
         state = new ProgressStore(activity).restore(catalog); assertEquals(2, state.correct); assertEquals(3, state.independentCount());
         assertNotNull(find("recap-native.cafe.2")); assertNotNull(find("recap-native.cafe.5"));
         assertTrue(new ProgressStore(activity).known("native.cafe.2"));

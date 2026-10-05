@@ -793,11 +793,11 @@ public final class MainActivity extends Activity {
         picture(scene, learner() + "-cheer", 145, true);
         eyebrow(copy, "YOUR CAFÉ RECAP"); heading(copy, "A café order, in Portuguese.", 26);
         heading(copy, s.correct + " / " + s.independentCount(), 35);
-        copy.addView(text("Orders matched without help on your first try.", 16, MUTED));
-        copy.addView(text("1 guided order" + (s.assistedCorrect > 0 ? " · " + s.assistedCorrect + " matched with transcript help" : "") + " · retries counted separately", 14, MUTED));
+        copy.addView(text("Matched independently on your first try.", 16, MUTED));
+        copy.addView(text("1 guided" + (s.assistedCorrect > 0 ? " · " + s.assistedCorrect + " with transcript help" : "") + " · retries separate", 14, MUTED));
         int pending = 0; for (StudySession.Card c : s.deck.subList(1, s.firstCount)) if (progress.missed(c.id)) pending++;
         final int pendingCount = pending;
-        copy.addView(text(pending > 0 ? pending + " orders still need practice. Replay them below." : "Replay an order. Say it aloud, then imagine using it at a café.", 16, INK));
+        copy.addView(text(pending > 0 ? pending + " orders need more practice. Replay them below." : "Replay an order, then say it aloud.", 16, INK));
         for (int i = 1; i < s.firstCount; i++) {
             StudySession.Card c = s.deck.get(i);
             Button replay = button("recap-" + c.id, "▶  " + c.pt, () -> listen(c)); replay.setTextSize(15);
