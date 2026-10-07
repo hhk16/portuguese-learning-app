@@ -1,0 +1,17 @@
+[
+  {"id":"meeting","title":"Meet a neighbour","goal":"Greet someone, meet them and say goodbye.","art":"conversation","turns":[
+    {"heard":"Bom dia!","heardEn":"Good morning!","pt":"Bom dia!","en":"Good morning!","goal":"It is morning. Return your neighbour's greeting.","why":"Bom dia is a greeting for the morning.","next":"Muito prazer!","nextEn":"Nice to meet you!"},
+    {"heard":"Muito prazer!","heardEn":"Nice to meet you!","pt":"Muito prazer!","en":"Nice to meet you!","goal":"You are meeting for the first time. Return the greeting.","why":"Muito prazer is a natural reply when someone introduces themselves.","next":"Até amanhã!","nextEn":"See you tomorrow!"},
+    {"heard":"Até amanhã!","heardEn":"See you tomorrow!","pt":"Até amanhã!","en":"See you tomorrow!","goal":"You will see each other tomorrow. Say goodbye.","why":"Até amanhã means See you tomorrow. Até logo means See you later.","next":"Até amanhã!","nextEn":"See you tomorrow!"}
+  ]},
+  {"id":"directions","title":"Find the station","goal":"Ask for directions, ask again and thank someone.","art":"station","turns":[
+    {"heard":"Boa tarde!","heardEn":"Good afternoon!","pt":"Onde fica a estação?","en":"Where is the station?","goal":"You need the station. Ask this person where it is.","why":"Onde fica…? asks where a place is. A estação means the station.","next":"É à direita.","nextEn":"It is on the right."},
+    {"heard":"É à direita.","heardEn":"It is on the right.","pt":"Pode repetir, por favor?","en":"Can you repeat, please?","goal":"You did not catch the direction. Ask them to repeat.","why":"Pode repetir, por favor? politely asks someone to say something again.","next":"É à direita.","nextEn":"It is on the right."},
+    {"heard":"É à direita.","heardEn":"It is on the right.","pt":"Obrigado.","en":"Thank you.","goal":"Now you understand. Thank the person for helping.","why":"Obrigado is used by a male speaker. A female speaker normally says Obrigada.","next":"De nada.","nextEn":"You are welcome."}
+  ]},
+  {"id":"helping","title":"Help a traveller","goal":"Welcome someone, give a direction and reply to thanks.","art":"journey","turns":[
+    {"heard":"Desculpe.","heardEn":"Excuse me.","pt":"Boa tarde!","en":"Good afternoon!","goal":"It is afternoon. Greet the traveller who approaches you.","why":"Desculpe gets someone's attention politely. Boa tarde greets them in the afternoon.","next":"Onde fica a estação?","nextEn":"Where is the station?"},
+    {"heard":"Onde fica a estação?","heardEn":"Where is the station?","pt":"É à direita.","en":"It is on the right.","goal":"The station is on the right. Give the traveller that direction.","why":"À direita means on the right. À esquerda means on the left.","next":"Obrigado.","nextEn":"Thank you."},
+    {"heard":"Obrigado.","heardEn":"Thank you.","pt":"De nada.","en":"You are welcome.","goal":"The traveller thanks you. Reply politely.","why":"De nada is a natural response to Obrigado or Obrigada.","next":"Até logo!","nextEn":"See you later!"}
+  ]}
+]

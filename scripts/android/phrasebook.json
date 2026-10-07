@@ -1,0 +1,320 @@
+[
+  {
+    "id": "greetings",
+    "title": "First conversations",
+    "goal": "Say hello and introduce yourself",
+    "art": "conversation",
+    "phrases": [
+      {
+        "pt": "Olá!",
+        "en": "Hello!",
+        "situation": "You meet someone.",
+        "tip": "Olá works throughout the day."
+      },
+      {
+        "pt": "Bom dia!",
+        "en": "Good morning!",
+        "situation": "You greet someone in the morning.",
+        "tip": "Use bom dia in the morning; boa tarde in the afternoon."
+      },
+      {
+        "pt": "Como te chamas?",
+        "en": "What is your name?",
+        "situation": "You ask a friend their name.",
+        "tip": "Te is informal. Como se chama? is a polite alternative."
+      },
+      {
+        "pt": "O meu nome é Ana.",
+        "en": "My name is Ana.",
+        "situation": "You introduce yourself.",
+        "tip": "O meu nome means my name. Replace Ana with your own name."
+      },
+      {
+        "pt": "Sou de Portugal.",
+        "en": "I am from Portugal.",
+        "situation": "You say where you are from.",
+        "tip": "Sou is the eu form of ser. De Portugal has no article."
+      },
+      {
+        "pt": "Muito prazer.",
+        "en": "Nice to meet you.",
+        "situation": "You are introduced to someone.",
+        "tip": "This short phrase is a natural response to an introduction."
+      },
+      {
+        "pt": "Pode repetir, por favor?",
+        "en": "Can you repeat, please?",
+        "situation": "You did not understand.",
+        "tip": "Pode + infinitive makes a polite request."
+      },
+      {
+        "pt": "Até amanhã!",
+        "en": "See you tomorrow!",
+        "situation": "You will see your friend tomorrow.",
+        "tip": "Até means until; amanhã means tomorrow."
+      }
+    ]
+  },
+  {
+    "id": "cafe",
+    "title": "At the café",
+    "goal": "Order, count and ask for the bill",
+    "art": "cafe",
+    "phrases": [
+      {
+        "pt": "Queria um café, por favor.",
+        "en": "I would like a coffee, please.",
+        "situation": "You order a coffee politely.",
+        "tip": "Queria is a polite way to order. Um café is one coffee."
+      },
+      {
+        "pt": "Queria dois cafés, por favor.",
+        "en": "I would like two coffees, please.",
+        "situation": "You order for two people.",
+        "tip": "Dois is masculine. Notice the plural cafés."
+      },
+      {
+        "pt": "Queria um pão, por favor.",
+        "en": "I would like a bread roll, please.",
+        "situation": "You order a bread roll.",
+        "tip": "Um pão becomes dois pães in the plural."
+      },
+      {
+        "pt": "Queria um café e um leite, por favor.",
+        "en": "I would like a coffee and a milk, please.",
+        "situation": "You order two different drinks.",
+        "tip": "E joins the items. Um accompanies each masculine noun."
+      },
+      {
+        "pt": "Queria duas sopas e um pão, por favor.",
+        "en": "I would like two soups and a bread roll, please.",
+        "situation": "You order a small lunch for two.",
+        "tip": "Duas agrees with the feminine noun sopas."
+      },
+      {
+        "pt": "Queria três águas e dois cafés, por favor.",
+        "en": "I would like three waters and two coffees, please.",
+        "situation": "You order drinks for a group.",
+        "tip": "Três does not change with gender. Águas and cafés are plural."
+      },
+      {
+        "pt": "A conta, por favor.",
+        "en": "The bill, please.",
+        "situation": "You are ready to pay.",
+        "tip": "A conta is a feminine noun; keep the article with the word."
+      },
+      {
+        "pt": "Obrigado.",
+        "en": "Thank you.",
+        "situation": "You thank the waiter.",
+        "tip": "A male speaker normally says obrigado; a female speaker says obrigada."
+      }
+    ]
+  },
+  {
+    "id": "market",
+    "title": "At the market",
+    "goal": "Ask prices and buy everyday things",
+    "art": "market",
+    "phrases": [
+      {
+        "pt": "Quanto custa?",
+        "en": "How much does it cost?",
+        "situation": "You point to one item and ask its price.",
+        "tip": "For several items, ask Quanto custam?"
+      },
+      {
+        "pt": "Queria duas maçãs, por favor.",
+        "en": "I would like two apples, please.",
+        "situation": "You buy apples at a market.",
+        "tip": "Maçã is feminine; duas agrees with maçãs."
+      },
+      {
+        "pt": "Queria um quilo de laranjas.",
+        "en": "I would like a kilo of oranges.",
+        "situation": "You ask the vendor for oranges.",
+        "tip": "Um quilo de describes a quantity. Laranjas is plural."
+      },
+      {
+        "pt": "Tem pão?",
+        "en": "Do you have bread?",
+        "situation": "You ask a shopkeeper whether bread is available.",
+        "tip": "Tem is a polite third-person form of ter."
+      },
+      {
+        "pt": "É muito caro.",
+        "en": "It is very expensive.",
+        "situation": "You comment on a price.",
+        "tip": "Caro describes a masculine item; cara describes a feminine one."
+      },
+      {
+        "pt": "Posso pagar com cartão?",
+        "en": "Can I pay by card?",
+        "situation": "You ask how to pay.",
+        "tip": "Posso + infinitive means can I. Com cartão means by card."
+      },
+      {
+        "pt": "Queria um saco, por favor.",
+        "en": "I would like a bag, please.",
+        "situation": "You need a bag for your shopping.",
+        "tip": "Use por favor to make a request politely."
+      },
+      {
+        "pt": "Não preciso de saco.",
+        "en": "I do not need a bag.",
+        "situation": "You brought your own shopping bag.",
+        "tip": "Precisar de means to need. Não makes the sentence negative."
+      }
+    ]
+  },
+  {
+    "id": "travel",
+    "title": "Around town",
+    "goal": "Find your way and use transport",
+    "art": "station",
+    "phrases": [
+      {
+        "pt": "Onde fica a estação?",
+        "en": "Where is the station?",
+        "situation": "You ask for directions.",
+        "tip": "Onde fica asks where a place is located."
+      },
+      {
+        "pt": "É à direita.",
+        "en": "It is on the right.",
+        "situation": "You give someone a direction.",
+        "tip": "À is the contraction of a + a. À esquerda means on the left."
+      },
+      {
+        "pt": "É à esquerda.",
+        "en": "It is on the left.",
+        "situation": "You point someone in the right direction.",
+        "tip": "Compare à esquerda with à direita."
+      },
+      {
+        "pt": "Siga em frente.",
+        "en": "Go straight ahead.",
+        "situation": "You politely explain the route.",
+        "tip": "Siga is a polite instruction. Em frente means straight ahead."
+      },
+      {
+        "pt": "Queria um bilhete para Lisboa.",
+        "en": "I would like a ticket to Lisbon.",
+        "situation": "You buy a train ticket.",
+        "tip": "Para introduces the destination."
+      },
+      {
+        "pt": "Este autocarro vai para o centro?",
+        "en": "Does this bus go to the city centre?",
+        "situation": "You check a bus route.",
+        "tip": "Autocarro is the European Portuguese word for bus."
+      },
+      {
+        "pt": "Estou perdido.",
+        "en": "I am lost.",
+        "situation": "You need help finding your way.",
+        "tip": "A female speaker says Estou perdida. Estar describes the current state."
+      }
+    ]
+  },
+  {
+    "id": "home",
+    "title": "At home",
+    "goal": "Talk about your home and daily life",
+    "art": "home-life",
+    "phrases": [
+      {
+        "pt": "Moro em Lisboa.",
+        "en": "I live in Lisbon.",
+        "situation": "You tell someone where you live.",
+        "tip": "Morar em describes where you live."
+      },
+      {
+        "pt": "A minha casa é pequena.",
+        "en": "My house is small.",
+        "situation": "You describe your home.",
+        "tip": "Minha and pequena agree with the feminine noun casa."
+      },
+      {
+        "pt": "O livro está na mesa.",
+        "en": "The book is on the table.",
+        "situation": "You explain where an object is.",
+        "tip": "Na is em + a. Estar gives the location of an object."
+      },
+      {
+        "pt": "Tenho um gato.",
+        "en": "I have a cat.",
+        "situation": "You talk about a pet.",
+        "tip": "Tenho is the eu form of ter."
+      },
+      {
+        "pt": "Vou cozinhar.",
+        "en": "I am going to cook.",
+        "situation": "You say what you plan to do.",
+        "tip": "Vou + infinitive expresses a future plan."
+      },
+      {
+        "pt": "Estou a ler.",
+        "en": "I am reading.",
+        "situation": "You say what you are doing now.",
+        "tip": "In Portugal, estar a + infinitive commonly describes an action in progress."
+      },
+      {
+        "pt": "Podes abrir a janela?",
+        "en": "Can you open the window?",
+        "situation": "You ask someone you know to open a window.",
+        "tip": "Podes is informal. Pode is a polite alternative."
+      },
+      {
+        "pt": "Onde estão as chaves?",
+        "en": "Where are the keys?",
+        "situation": "You are looking for your keys.",
+        "tip": "Estão is plural because chaves is plural."
+      }
+    ]
+  },
+  {
+    "id": "health",
+    "title": "Feeling better",
+    "goal": "Explain how you feel and ask for help",
+    "art": "pharmacy",
+    "phrases": [
+      {
+        "pt": "Não me sinto bem.",
+        "en": "I do not feel well.",
+        "situation": "You tell someone you feel unwell.",
+        "tip": "Sinto-me bem means I feel well; não makes it negative."
+      },
+      {
+        "pt": "Tenho febre.",
+        "en": "I have a fever.",
+        "situation": "You explain a symptom.",
+        "tip": "Use ter for febre: Tenho febre."
+      },
+      {
+        "pt": "Preciso de ajuda.",
+        "en": "I need help.",
+        "situation": "You ask someone for assistance.",
+        "tip": "Precisar de + a noun expresses a need."
+      },
+      {
+        "pt": "Queria marcar uma consulta.",
+        "en": "I would like to book an appointment.",
+        "situation": "You contact a medical practice.",
+        "tip": "Marcar uma consulta means to book an appointment."
+      },
+      {
+        "pt": "Estou melhor.",
+        "en": "I am better.",
+        "situation": "Someone asks how you feel today.",
+        "tip": "Melhor compares your current state with before."
+      },
+      {
+        "pt": "Estou cansado.",
+        "en": "I am tired.",
+        "situation": "You describe how you feel.",
+        "tip": "A female speaker says Estou cansada. Estar describes a temporary state."
+      }
+    ]
+  }
+]

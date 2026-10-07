@@ -12,18 +12,15 @@ Party Português is procedural by design. Almost everything you see and hear is 
 | Font: Bungee | Google Fonts via `@fontsource/bungee` | SIL OFL 1.1 |
 | Font: Press Start 2P | Google Fonts via `@fontsource/press-start-2p` | SIL OFL 1.1 |
 | Font: Nunito | Google Fonts via `@fontsource/nunito` | SIL OFL 1.1 |
+| Native TV scenes, character close-ups and café food | `public/art/native-tv/*.webp` — generated with OpenAI image generation; Hadi/Ana scene artwork references their existing photo-derived characters | Project art (private use) |
+| Native TV Nunito | Google Fonts `ofl/nunito`, font and OFL licence bundled in `public/art/native-tv/fonts/` | SIL OFL 1.1 |
 | Emoji | Rendered by the device's system font | Device |
 
 ## Voice (PT-PT speech)
 
 The audio pipeline doesn't depend on any one provider. Curriculum data stores only text; `src/audio/tts.ts` plays a pre-rendered file from `public/audio/manifest.json` when one exists, and otherwise uses the device's `pt-PT` speech synthesis.
 
-**Evaluated and not adopted (for now): Piper `pt_PT-tugão-medium`.**
-- Its model card says the tugão dataset is CC0, and the piper-voices repo is MIT.
-- But the voice was **fine-tuned from Piper's `en_US-lessac` voice**. That voice's training data is under the *Blizzard 2013 Lessac* licence, which is a **research licence**.
-- The derived weights therefore don't have a clear licence for non-research use, so under our asset rule we don't ship audio rendered with it.
-- It may be acceptable for private, non-commercial household use, but that is the owner's decision.
-- Candidates: a pt_PT voice trained from scratch on permissively licensed data, or a TTS service whose terms allow storing the rendered audio (pre-rendered once, so there's no runtime dependency).
+The native speech library includes human Lingua Libre recordings, locally generated Qwen3-TTS clips (Apache-2.0 models with CC0 European Portuguese reference recordings), and the existing Piper pt_PT-tugão-medium recordings. Exact provenance and the Piper private-use limitation are recorded in [audio credits](docs/credits-audio.md); the local checks and their limits are in [the speech audit](docs/native-audio-audit.md). Model weights and generation engines are never bundled in the APK.
 
 ## Book material
 

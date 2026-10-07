@@ -393,6 +393,7 @@ def write_credits(sources: dict[str, dict]) -> None:
     ll = sorted((v for v in sources.values() if v["source"] == "lingua-libre"), key=lambda v: v["text"].lower())
     piper = [v for v in sources.values() if v["source"] == "piper"]
     gem = [v for v in sources.values() if v["source"] == "gemini"]
+    qwen = [v for v in sources.values() if v["source"] == "qwen3-tts-local"]
     gem_voices = sorted({v.get("voice", "") for v in gem})
     lines = [
         "# Audio credits",
@@ -404,6 +405,12 @@ def write_credits(sources: dict[str, dict]) -> None:
         f"- **{len(ll)}** clips are native recordings from Lingua Libre (Wikimedia Commons).",
         f"- **{len(gem)}** clips are synthesised with Google Gemini TTS (`{GEMINI_MODEL}`, voice {', '.join(gem_voices) or '-'}, language pt-PT).",
         f"- **{len(piper)}** clips are synthesised with the Piper voice `{VOICE}`.",
+        "",
+        f"- **{len(qwen)}** clips are generated locally with Qwen3-TTS (Apache-2.0 models), using CC0 European Portuguese reference recordings.",
+        "",
+        "## Local Qwen3-TTS",
+        "",
+        "Generated on a CPU by `scripts/audio/render-local-qwen.py`; no hosted TTS service or paid API. Exact model, reference recordings, seed and settings are recorded per clip in `scripts/audio/sources.json`. CC0 references: Waldyrious's Lingua Libre recordings of engenheiro, estudante and jornalista. The models support Portuguese; the reference speech is European Portuguese. See `docs/native-audio-audit.md` for checks and their limits.",
         "",
         "## Gemini TTS",
         "",
@@ -520,6 +527,11 @@ def main() -> None:
 
     plan: dict[str, dict] = {}
     for k, text in by_key.items():
+        # Preserve locally audited replacements during ordinary incremental builds.
+        previous = sources.get(k, {})
+        if not args.force and (previous.get("source") == "qwen3-tts-local" or previous.get("auditedLocal")) and manifest.get(k) and (OUT_DIR / manifest[k]).exists():
+            plan[k] = previous
+            continue
         title = ll_candidates.get(k)
         m = meta.get(title) if title else None
         if m:

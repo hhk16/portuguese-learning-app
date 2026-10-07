@@ -1,0 +1,38 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'pt.partyportugues.tv'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'pt.partyportugues.tv'
+        minSdk 23
+        targetSdk 35
+        versionCode 8
+        versionName '2.6.0'
+        testInstrumentationRunner 'pt.partyportugues.tv.TvFlowTest'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    buildTypes {
+        release { minifyEnabled false }
+    }
+    lint { abortOnError true }
+    androidResources { noCompress += ['mp3'] }
+}
+
+tasks.register('prepareCurriculum', Exec) {
+    workingDir rootProject.projectDir.parentFile
+    commandLine 'node', 'scripts/android/prepare-native.mjs'
+    inputs.dir(new File(rootProject.projectDir.parentFile, 'src/curriculum'))
+    inputs.file(new File(rootProject.projectDir.parentFile, 'scripts/android/phrasebook.json'))
+    inputs.file(new File(rootProject.projectDir.parentFile, 'scripts/android/lesson-goals.json'))
+    inputs.file(new File(rootProject.projectDir.parentFile, 'scripts/android/conversations.json'))
+    inputs.file(new File(rootProject.projectDir.parentFile, 'scripts/android/prepare-native.mjs'))
+    inputs.dir(new File(rootProject.projectDir.parentFile, 'public/audio'))
+    inputs.dir(new File(rootProject.projectDir.parentFile, 'public/art/native-tv'))
+    inputs.dir(new File(rootProject.projectDir.parentFile, 'public/art/characters'))
+    outputs.dir('src/main/assets')
+}
+tasks.named('preBuild').configure { dependsOn 'prepareCurriculum' }

@@ -1,0 +1,494 @@
+{
+  "checkedExisting": 1899,
+  "technicalFlagsExisting": 0,
+  "existingASRSample": [
+    {
+      "expected": "200 — o livro tem duzentas páginas.",
+      "transcript": "Dos anos, o livro tem 200 páginas.",
+      "wordErrorRate": 0.6
+    },
+    {
+      "expected": "a meia",
+      "transcript": "tudo bem",
+      "wordErrorRate": 1.0
+    },
+    {
+      "expected": "ai, ai, ai…",
+      "transcript": "Ai, ai, ai!",
+      "wordErrorRate": 0.0
+    },
+    {
+      "expected": "boa sorte!",
+      "transcript": "no soco.",
+      "wordErrorRate": 1.0
+    },
+    {
+      "expected": "cozinheira",
+      "transcript": "Cozinheira!",
+      "wordErrorRate": 0.0
+    },
+    {
+      "expected": "ela dorme",
+      "transcript": "Até o domingo!",
+      "wordErrorRate": 1.5
+    },
+    {
+      "expected": "eles perdem",
+      "transcript": "Tô espelhendo!",
+      "wordErrorRate": 1.0
+    },
+    {
+      "expected": "este autocarro passa pela minha rua.",
+      "transcript": "Este é o carro que passa pela minha rua.",
+      "wordErrorRate": 0.667
+    },
+    {
+      "expected": "eu quero",
+      "transcript": "Tocando.",
+      "wordErrorRate": 1.0
+    },
+    {
+      "expected": "hoje faço anos!",
+      "transcript": "Pôs fascinantes.",
+      "wordErrorRate": 1.0
+    },
+    {
+      "expected": "moçambicana",
+      "transcript": "Não sou me cana!",
+      "wordErrorRate": 4.0
+    },
+    {
+      "expected": "não é bem isso!",
+      "transcript": "Não é pra isso.",
+      "wordErrorRate": 0.25
+    },
+    {
+      "expected": "o blazer preto",
+      "transcript": "E até o próximo vídeo.",
+      "wordErrorRate": 1.333
+    },
+    {
+      "expected": "o metro",
+      "transcript": "Meta.",
+      "wordErrorRate": 1.0
+    },
+    {
+      "expected": "olá, bolacha!",
+      "transcript": "Olá, Mulaço!",
+      "wordErrorRate": 0.5
+    },
+    {
+      "expected": "para mim, uma pizza e um pão.",
+      "transcript": "Pera mim uma pizza de um pão.",
+      "wordErrorRate": 0.286
+    },
+    {
+      "expected": "queria dois cafés, um gelado e dois morangos, por favor.",
+      "transcript": "Queria dois cafés, um gelado e dois moranos, por favor.",
+      "wordErrorRate": 0.1
+    },
+    {
+      "expected": "recuperaram um sinal!",
+      "transcript": "Eu vou comprar um sinal.",
+      "wordErrorRate": 1.0
+    },
+    {
+      "expected": "tofu também está com fome!",
+      "transcript": "Tudo também está com fome.",
+      "wordErrorRate": 0.2
+    },
+    {
+      "expected": "um café com açúcar e dois bolos, se faz favor.",
+      "transcript": "Um café com açúcar e dois bolos, se faz favor.",
+      "wordErrorRate": 0.0
+    },
+    {
+      "expected": "volte daqui a uma semana.",
+      "transcript": "Coloque-te aqui ao mesmo ânimo.",
+      "wordErrorRate": 1.2
+    },
+    {
+      "expected": "bom dia!",
+      "transcript": "Bom dia!",
+      "wordErrorRate": 0.0
+    },
+    {
+      "expected": "queria um café, por favor.",
+      "transcript": "Pedir um café, por favor.",
+      "wordErrorRate": 0.2
+    },
+    {
+      "expected": "queria duas sopas e um pão, por favor.",
+      "transcript": "Queria duro, se eu fazer um pão, por favor.",
+      "wordErrorRate": 0.5
+    },
+    {
+      "expected": "queria três águas e dois cafés, por favor.",
+      "transcript": "Haria três águas e dois cafés, por favor.",
+      "wordErrorRate": 0.125
+    }
+  ],
+  "phrasebookPhrases": 45,
+  "selectedLocalClips": 50,
+  "olderClipsReplaced": 7,
+  "selectedASR": [
+    {
+      "expected": "bom dia!",
+      "transcript": "Bom dia!",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "como te chamas?",
+      "transcript": "Como te chamas?",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "muito prazer.",
+      "transcript": "Muito prazer.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "pode repetir, por favor?",
+      "transcript": "Pode repetir. Por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria um café, por favor.",
+      "transcript": "Queria um café, por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria dois cafés, por favor.",
+      "transcript": "Queria dois cafés, por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria um pão, por favor.",
+      "transcript": "Queria um pão, por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria um café e um leite, por favor.",
+      "transcript": "Queria um café e um leite, por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria duas sopas e um pão, por favor.",
+      "transcript": "Queria duas sopas e um pão, por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria três águas e dois cafés, por favor.",
+      "transcript": "Queria três águas e dois cafés, por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "a conta, por favor.",
+      "transcript": "A conta, por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "quanto custa?",
+      "transcript": "quanto custa.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria um quilo de laranjas.",
+      "transcript": "Queria um quilo de laranjas.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "tem pão?",
+      "transcript": "tem pão.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "é muito caro.",
+      "transcript": "É muito caro.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "posso pagar com cartão?",
+      "transcript": "Posso pagar com cartão.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria um saco, por favor.",
+      "transcript": "Queria um saco, por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "não preciso de saco.",
+      "transcript": "Não preciso de saco.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "onde fica a estação?",
+      "transcript": "onde fica a estação.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "é à direita.",
+      "transcript": "É a direita.",
+      "wordErrorRate": 0.333,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "é à esquerda.",
+      "transcript": "É a esquerda.",
+      "wordErrorRate": 0.333,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "siga em frente.",
+      "transcript": "siga em frente.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria um bilhete para lisboa.",
+      "transcript": "Queria um bilhete para Lisboa.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "estou perdido.",
+      "transcript": "Estou perdido.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "moro em lisboa.",
+      "transcript": "Moro em Lisboa.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "a minha casa é pequena.",
+      "transcript": "A minha casa é pequena.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "o livro está na mesa.",
+      "transcript": "O livro está na mesa.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "vou cozinhar.",
+      "transcript": "Vou cozinhar.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "estou a ler.",
+      "transcript": "Estou a ler.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "podes abrir a janela?",
+      "transcript": "podes abrir a janela?",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "onde estão as chaves?",
+      "transcript": "Onde estão as chaves?",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "não me sinto bem.",
+      "transcript": "Não me sinto bem.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "tenho febre.",
+      "transcript": "Tenho febre.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "preciso de ajuda.",
+      "transcript": "Preciso de ajuda.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "queria marcar uma consulta.",
+      "transcript": "Queria marcar uma consulta.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "estou melhor.",
+      "transcript": "Estou melhor.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "estou cansado.",
+      "transcript": "Estou cansado.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "boa sorte!",
+      "transcript": "Boa sorte!",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "ela dorme",
+      "transcript": "Ela dorme.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "eles perdem",
+      "transcript": "Eles perdem.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "este autocarro passa pela minha rua.",
+      "transcript": "Este autocarro passa pela minha rua.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "eu quero",
+      "transcript": "Eu quero.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "hoje faço anos!",
+      "transcript": "Hoje faço anos.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "o blazer preto",
+      "transcript": "o blazer preto.",
+      "wordErrorRate": 0.0,
+      "candidate": "phrasebook"
+    },
+    {
+      "expected": "até amanhã!",
+      "transcript": "Até amanhã!",
+      "wordErrorRate": 0.0,
+      "candidate": "retry"
+    },
+    {
+      "expected": "queria duas maçãs, por favor.",
+      "transcript": "Queria duas maçãs, por favor.",
+      "wordErrorRate": 0.0,
+      "candidate": "retry"
+    },
+    {
+      "expected": "este autocarro vai para o centro?",
+      "transcript": "Este autocarro vai para o centro.",
+      "wordErrorRate": 0.0,
+      "candidate": "retry"
+    },
+    {
+      "expected": "tenho um gato.",
+      "transcript": "Tenho um gato.",
+      "wordErrorRate": 0.0,
+      "candidate": "retry"
+    },
+    {
+      "expected": "sou de portugal.",
+      "transcript": "Sou de Portugal.",
+      "wordErrorRate": 0.0,
+      "candidate": "xvector"
+    },
+    {
+      "expected": "até amanhã!",
+      "transcript": "Até amanhã!",
+      "wordErrorRate": 0.0,
+      "candidate": "xvector"
+    },
+    {
+      "expected": "o meu nome é ana.",
+      "transcript": "O meu nome é Ana.",
+      "wordErrorRate": 0.0,
+      "candidate": "clear"
+    }
+  ],
+  "limits": "ASR verifies recognisable text, not accent or pleasantness. Human listening on the target TV is still needed. Short-phrase ASR can fail even for intelligible European Portuguese. No claim that Qwen is universally best.",
+  "comparisons": [
+    {
+      "text": "boa sorte!",
+      "before": "5e2fadaa7c.mp3",
+      "after": "885c5c6151.mp3",
+      "beforeTranscript": "no soco.",
+      "afterTranscript": "Boa sorte!"
+    },
+    {
+      "text": "ela dorme",
+      "before": "ec05642a6a.mp3",
+      "after": "b5a921ec55.mp3",
+      "beforeTranscript": "Até o domingo!",
+      "afterTranscript": "Ela dorme."
+    },
+    {
+      "text": "eles perdem",
+      "before": "edbf68f73b.mp3",
+      "after": "3b2e97a4fd.mp3",
+      "beforeTranscript": "Tô espelhendo!",
+      "afterTranscript": "Eles perdem."
+    },
+    {
+      "text": "este autocarro passa pela minha rua.",
+      "before": "dc276df98e.mp3",
+      "after": "3d42f030b9.mp3",
+      "beforeTranscript": "Este é o carro que passa pela minha rua.",
+      "afterTranscript": "Este autocarro passa pela minha rua."
+    },
+    {
+      "text": "eu quero",
+      "before": "2d2f90e537.mp3",
+      "after": "26a4935fc1.mp3",
+      "beforeTranscript": "Tocando.",
+      "afterTranscript": "Eu quero."
+    },
+    {
+      "text": "hoje faço anos!",
+      "before": "47080711fd.mp3",
+      "after": "dad7e50538.mp3",
+      "beforeTranscript": "Pôs fascinantes.",
+      "afterTranscript": "Hoje faço anos."
+    },
+    {
+      "text": "o blazer preto",
+      "before": "8f0eeaff7f.mp3",
+      "after": "449f35f57c.mp3",
+      "beforeTranscript": "E até o próximo vídeo.",
+      "afterTranscript": "o blazer preto."
+    }
+  ]
+}

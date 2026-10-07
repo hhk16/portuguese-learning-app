@@ -14,3 +14,8 @@ __pycache__/
 .claude/worktrees/
 android-tv/node_modules
 android-tv/android
+android-tv/.gradle/
+android-tv/build/
+android-tv/app/build/
+android-tv/app/src/main/assets/
+android-tv/local.properties
