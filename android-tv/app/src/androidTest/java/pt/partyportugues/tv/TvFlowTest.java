@@ -463,7 +463,7 @@ public class TvFlowTest extends Instrumentation {
         press("nav-phrasebook"); press("topic-greetings"); press("practise-topic"); finishTeaching();
         java.util.Set<String> first = new java.util.HashSet<>(); for (StudySession.Card c : state().deck) first.add(c.id);
         while (state().phase != StudySession.Phase.RESULT) { answerCorrectly(); press("continue"); }
-        waitFor("next-expressions"); screenshot("critic-topic-first-recap"); press("next-expressions");
+        waitFor("next-expressions"); assertEquals("next-expressions", activity.getCurrentFocus().getTag()); assertFullyVisible("next-expressions"); assertFullyVisible("finish"); screenshot("critic-topic-first-recap"); press("next-expressions");
         StudySession second = state(); assertEquals("greetings", second.topicId); assertEquals(4, second.topicOffset);
         for (StudySession.Card c : second.deck) assertFalse(first.contains(c.id)); screenshot("critic-topic-second-teaching");
         closeActivity(); launch(); press("resume"); assertEquals("greetings", state().topicId); assertEquals(4, state().topicOffset); finishTeaching();
@@ -473,6 +473,7 @@ public class TvFlowTest extends Instrumentation {
         while (state().phase != StudySession.Phase.RESULT) { answerCorrectly(); press("continue"); }
         press("next-expressions"); assertEquals("listen", state().mode); assertEquals(4, state().topicOffset); screenshot("critic-listen-second-teaching");
         finishTeaching(); screenshot("critic-listen-second-question");
+
         for (Catalog.Topic t : Catalog.load(activity).topics) {
             int offset = 0; java.util.Set<String> ids = new java.util.HashSet<>();
             while (offset < t.cards.size()) { int n = StudySession.batchSize(t.cards.size() - offset); assertTrue(n >= 2); for (StudySession.Card c : t.cards.subList(offset, offset + n)) assertTrue(ids.add(c.id)); offset += n; }

@@ -1032,13 +1032,23 @@ public final class MainActivity extends Activity {
                     else { session = null; progress.save(null); if (nextLesson == null) navigate("units"); else { lessonId = nextLesson.id; unitId = nextLesson.unit; navigate("lesson"); } }
                 }));
             }
-        } else {
-            if (!s.topicId.isEmpty()) {
-                List<StudySession.Card> all = topicCards(s.topicId); int next = s.topicOffset + s.topicLength;
-                progress.prefs.edit().putInt("topic-next-" + s.mode + "-" + s.topicId, next).apply();
-                right.addView(text(next >= all.size() ? "Topic complete · all " + all.size() + " expressions practised." : next + " / " + all.size() + " topic expressions practised.", 14, GOLD));
-                if (next < all.size()) right.addView(primary("next-expressions", "Next expressions  →", () -> startTopic(s.mode, s.topicId, all, next, s.players)));
+        } else if (!s.topicId.isEmpty()) {
+            List<StudySession.Card> all = topicCards(s.topicId); int next = s.topicOffset + s.topicLength;
+            progress.prefs.edit().putInt("topic-next-" + s.mode + "-" + s.topicId, next).apply();
+            right.addView(text(next >= all.size() ? "Topic complete · all " + all.size() + " expressions practised." : next + " / " + all.size() + " topic expressions practised.", 14, GOLD));
+            LinearLayout actions = row();
+            if (next < all.size()) {
+                Button advance = primary("next-expressions", "Next expressions  →", () -> startTopic(s.mode, s.topicId, all, next, s.players)); advance.setTextSize(16);
+                actions.addView(advance, new LinearLayout.LayoutParams(0, dp(48), 2));
             }
+            Button again = button("again", "Try again", () -> { session = s.restart(); progress.save(session); draw(null); }); again.setTextSize(16);
+            actions.addView(again, new LinearLayout.LayoutParams(0, dp(48), 1)); right.addView(actions);
+            LinearLayout destinations = row();
+            Button more = button("more-worlds", "Other topics", () -> { session = null; progress.save(null); navigate(s.mode.equals("listen") ? "listening" : "phrasebook"); }); more.setTextSize(16);
+            destinations.addView(more, new LinearLayout.LayoutParams(0, dp(46), 1));
+            Button home = button("finish", "Home", () -> { session = null; progress.save(null); navigate("home"); }); home.setTextSize(16);
+            destinations.addView(home, new LinearLayout.LayoutParams(0, dp(46), 1)); right.addView(destinations);
+        } else {
             String action = pictures && s.mode.equals("learn") ? "Listen & match these pictures  →" : "Try this set again  →";
             right.addView(primary("again", action, () -> {
                 if (pictures && s.mode.equals("learn")) start("picture", "", s.deck.subList(0, s.firstCount), s.players);
@@ -1048,8 +1058,8 @@ public final class MainActivity extends Activity {
                 session = null; progress.save(null); navigate(pictures ? "worlds" : s.mode.equals("conversation") ? "conversations" : "listening");
             }));
         }
-        right.addView(button("finish", "Home", () -> { session = null; progress.save(null); navigate("home"); }));
-        firstAction = right.findViewWithTag(s.lessonId.isEmpty() ? "again" : "next-batch");
+        if (s.topicId.isEmpty()) right.addView(button("finish", "Home", () -> { session = null; progress.save(null); navigate("home"); }));
+        firstAction = right.findViewWithTag(!s.lessonId.isEmpty() ? "next-batch" : right.findViewWithTag("next-expressions") != null ? "next-expressions" : "again");
         split(body, left, right, .30f); footer.setText("Arrows  Move     OK  Replay / choose     Back  Home");
     }
     private void stats() {
@@ -1089,7 +1099,9 @@ public final class MainActivity extends Activity {
             modal = new AlertDialog.Builder(this).setTitle("Reset this TV's learning progress?")
                 .setMessage("This removes your saved session and answers. It cannot be undone.")
                 .setNegativeButton("Keep progress", null).setPositiveButton("Reset progress", (d, w) -> {
-                    progress.prefs.edit().remove("evidence").remove("session").remove("schedule").apply(); progress = new ProgressStore(this); session = null; draw("reset");
+                    android.content.SharedPreferences.Editor reset = progress.prefs.edit().remove("evidence").remove("session").remove("schedule");
+                    for (String key : progress.prefs.getAll().keySet()) if (key.startsWith("topic-next-")) reset.remove(key);
+                    reset.apply(); progress = new ProgressStore(this); session = null; draw("reset");
                 }).create(); modal.show(); modal.getButton(AlertDialog.BUTTON_NEGATIVE).requestFocus();
         });
     }
