@@ -680,8 +680,8 @@ public final class MainActivity extends Activity {
             if (!c.grammarHint.isEmpty()) right.addView(text(c.grammarHint, 14, GOLD));
             if (!c.examplePt.isEmpty()) { heading(left, "READ THE EXAMPLE", 14); left.addView(text(c.examplePt, 18, INK)); left.addView(text(c.exampleEn, 14, MUTED)); }
             if (!c.context.isEmpty()) right.addView(text(c.context, 15, GOLD));
-            if (!c.why.isEmpty()) { TextView tip = text(c.why, 15, MUTED); tip.setMaxLines(3); tip.setEllipsize(TextUtils.TruncateAt.END); right.addView(tip);
-                right.addView(button("language-tip", "Explain this expression", () -> notice(c.why))); }
+            if (!c.why.isEmpty()) { if (c.grammarHint.isEmpty()) { TextView tip = text(c.why, 15, MUTED); tip.setMaxLines(3); tip.setEllipsize(TextUtils.TruncateAt.END); right.addView(tip); }
+                right.addView(button("language-tip", "Explain this expression", () -> notice(c.grammarHint + "\n\n" + c.why))); }
             right.addView(text((c.audio.isEmpty() ? "Read" : "Listen") + " and say it aloud. Recall comes after the whole set.", 15, GOLD));
             if (!c.audio.isEmpty()) { audioPair(right, c.audio, "▶  Listen"); if (!c.speechText.equalsIgnoreCase(c.teachPt)) right.addView(text("Recording: " + c.speechText, 12, MUTED)); }
             right.addView(primary("practice", s.batchTeaching && s.teachIndex + 1 < s.firstCount ? "Next expression  →" : "Try this set  →", () -> { speech.stop(); s.practice(); progress.save(s); draw(null); }));
@@ -737,7 +737,7 @@ public final class MainActivity extends Activity {
             LinearLayout r = row();
             for (int j = i; j < Math.min(i + 2, choices.size()); j++) {
                 final int option = j; String answer = choices.get(j);
-                String label = answer.replace(" (masculine)", "");
+                String choiceLabel = answer.replace(" (masculine)", "");
                 LinearLayout choice = tile("answer-" + j, answer, "Press OK to " + (cafe ? "serve" : "answer"), PANEL, () -> answer(option));
                 choice.setPadding(dp(9), dp(6), dp(9), dp(6));
                 if (c.kind.equals("picture")) {
@@ -745,7 +745,7 @@ public final class MainActivity extends Activity {
                     picture(choice, asset, 98, true);
                 } else if (cafe) choice.addView(art.tray(this, answer), new LinearLayout.LayoutParams(-1, dp(82)));
                 else eyebrow(choice, new String[]{"A", "B", "C", "D"}[j]);
-                TextView value = text(c.kind.equals("picture") ? new String[]{"A", "B", "C", "D"}[j] : label, c.kind.equals("picture") ? 20 : 18, INK); value.setTypeface(heavy); value.setGravity(cafe || c.kind.equals("picture") ? Gravity.CENTER : Gravity.START);
+                TextView value = text(c.kind.equals("picture") ? new String[]{"A", "B", "C", "D"}[j] : choiceLabel, c.kind.equals("picture") ? 20 : 18, INK); value.setTypeface(heavy); value.setGravity(cafe || c.kind.equals("picture") ? Gravity.CENTER : Gravity.START);
                 choice.addView(value); choice.setMinimumHeight(dp(cafe ? 121 : 86));
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1); lp.setMargins(0, dp(4), dp(8), dp(4)); r.addView(choice, lp);
             }

@@ -438,7 +438,7 @@ public class TvFlowTest extends Instrumentation {
             StudySession.Card c = catalog.cards.get(ids[i]); assertNotNull(c);
             assertTrue(c.teachEn.toLowerCase().contains(meanings[i].toLowerCase())); assertFalse(c.examplePt.isEmpty()); assertFalse(c.grammarHint.isEmpty());
             closeActivity(); new ProgressStore(getTargetContext()).save(new StudySession("learn", "", java.util.Arrays.asList(c), 42));
-            launch(); press("resume"); assertTrue(contains(activity.getWindow().getDecorView(), c.teachEn)); screenshot("critic-grammar-" + i + "-teaching");
+            launch(); press("resume"); assertTrue(contains(activity.getWindow().getDecorView(), c.teachEn)); assertFullyVisible("practice"); screenshot("critic-grammar-" + i + "-teaching");
             press("listen"); SystemClock.sleep(250); press("practice"); assertFullyVisible("check-sentence"); screenshot("critic-grammar-" + i + "-question");
             answerCorrectly(); press("continue");
         }
