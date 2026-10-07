@@ -107,7 +107,7 @@ function card(it) {
     if (it.verb === 'ouvir') meaning = meaning.replace('hear / listen', 'listen to').replace('hears / listens', 'listens to');
     if (it.verb === 'ver') meaning = meaning.replace('see / watch', 'see').replace('sees / watches', 'sees');
     meaning = meaning.replace('makes / makes', 'makes');
-    if (it.verb === 'costumar') meaning = `${{eu:'I',tu:'you',ele:'she',nos:'we',eles:'they'}[it.person]} usually read`;
+    if (it.verb === 'costumar') meaning = `${{eu:'I',tu:'you',ele:'she',nos:'we',eles:'they'}[it.person]} usually ${it.person === 'ele' ? 'reads' : 'read'}`;
     examplePt = `${natural} ${ptTail}${it.tense === 'pps' ? ' ontem' : it.tense === 'estar_a' ? ' agora' : ''}${it.tense === 'imperativo' ? '!' : '.'}`;
     exampleEn = `${meaning}${it.verb === 'costumar' ? '' : ' ' + (it.verb === 'ser' && plural ? 'students' : it.verb === 'chamar-se' && plural ? 'Hadi and Anna' : translation)}${it.tense === 'pps' ? ' yesterday' : it.tense === 'estar_a' ? ' now' : ''}${it.tense === 'imperativo' ? '!' : '.'}`;
     // Past partir needs a past time cue, rather than 'tomorrow yesterday'.
