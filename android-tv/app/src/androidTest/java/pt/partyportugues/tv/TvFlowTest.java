@@ -19,7 +19,7 @@ public class TvFlowTest extends Instrumentation {
     private Instrumentation getInstrumentation() { return this; }
     @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
     @Override public void onStart() {
-        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testCafeTrayLearningAndResume", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers", "testPhrasebookAudioSavedAndPractice", "testScheduledRevision", "testPictureWorldsLearnListenAndResume", "testConversationExchangeAndAssistance", "testSentencePreviewAndCompletedLesson", "testTeachingResumeAndLegacyLesson", "testGrammarReplayMarksHelp"};
+        String[] names = {"testRemoteFocusAndLesson", "testGameRulesTurnsAndTranscript", "testCafeTrayLearningAndResume", "testSavedSessionSurvivesRelaunch", "testNativeOfflineAndExitGuard", "testEveryGameHasInstructionsAndRemoteChoices", "testReviewIncludesNativeGames", "testArtworkAndNamedPlayers", "testPhrasebookAudioSavedAndPractice", "testScheduledRevision", "testPictureWorldsLearnListenAndResume", "testConversationExchangeAndAssistance", "testSentencePreviewAndCompletedLesson", "testTeachingResumeAndLegacyLesson", "testGrammarReplayMarksHelp", "testCriticGrammarAndAudio", "testCriticChapterText", "testCriticTopicProgression"};
         int failures = 0;
         for (int i = 0; i < names.length; i++) {
             Bundle status = new Bundle(); status.putString("id", "NativeTvTests");
@@ -410,11 +410,74 @@ public class TvFlowTest extends Instrumentation {
         new ProgressStore(getTargetContext()).save(lab); launch(); press("resume"); waitFor("check-sentence");
         getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE); getInstrumentation().waitForIdleSync();
         assertTrue(state().assisted); assertEquals(StudySession.Phase.QUESTION, state().phase);
-        assertTrue(contains(activity.getWindow().getDecorView(), chosen.pt)); screenshot("sentence-help");
+        assertTrue(contains(activity.getWindow().getDecorView(), chosen.teachPt)); screenshot("sentence-help");
         answerCorrectly(); assertEquals(0, state().correct); assertEquals(1, state().assistedCorrect);
         assertFalse(new ProgressStore(activity).known(chosen.id)); press("continue");
         assertFalse(state().assisted); answerCorrectly(); press("continue"); waitFor("finish");
         assertEquals(0, state().correct); assertTrue(new ProgressStore(activity).known(chosen.id));
+    }
+    public void testCriticGrammarAndAudio() throws Exception {
+        Catalog catalog = Catalog.load(activity);
+        for (Catalog.Lesson lesson : catalog.lessons) {
+            for (int offset = 0; offset < lesson.cards.size();) {
+                int count = StudySession.batchSize(lesson.cards.size() - offset);
+                java.util.List<StudySession.Card> related = new java.util.ArrayList<>(lesson.cards); related.addAll(catalog.cards.values());
+                java.util.List<StudySession.Card> batch = StudySession.withTaughtContrast(lesson.cards.subList(offset, offset + count), related);
+                StudySession inventory = new StudySession("learn", lesson.id, batch, 42); inventory.phase = StudySession.Phase.QUESTION;
+                for (int i = 0; i < batch.size(); i++) if (!batch.get(i).grammar() && !batch.get(i).kind.equals("minimalPair")) {
+                    inventory.index = i; assertTrue(inventory.options().size() >= 2);
+                    for (String option : inventory.options()) { boolean taught = false; for (StudySession.Card item : batch) if (!item.grammar() && item.answer.equals(option)) taught = true; assertTrue(taught); }
+                }
+                offset += count;
+            }
+        }
+        for (StudySession.Card c : catalog.cards.values()) if (!c.kind.equals("minimalPair")) assertFalse("Missing speech: " + c.id, c.audio.isEmpty());
+        String[] ids = {"grammar.ser.eu", "grammar.ser.pps.eu", "grammar.viajar.ir_futuro.eu", "grammar.fazer.estar_a.eu", "grammar.beber.imperativo.tu"};
+        String[] meanings = {"I am", "I was", "going to travel", "am doing", "drink!"};
+        for (int i = 0; i < ids.length; i++) {
+            StudySession.Card c = catalog.cards.get(ids[i]); assertNotNull(c);
+            assertTrue(c.teachEn.toLowerCase().contains(meanings[i].toLowerCase())); assertFalse(c.examplePt.isEmpty()); assertFalse(c.grammarHint.isEmpty());
+            closeActivity(); new ProgressStore(getTargetContext()).save(new StudySession("learn", "", java.util.Arrays.asList(c), 42));
+            launch(); press("resume"); assertTrue(contains(activity.getWindow().getDecorView(), c.teachEn)); screenshot("critic-grammar-" + i + "-teaching");
+            press("listen"); SystemClock.sleep(250); press("practice"); assertFullyVisible("check-sentence"); screenshot("critic-grammar-" + i + "-question");
+            answerCorrectly(); press("continue");
+        }
+        StudySession.Card origin = null; for (StudySession.Card c : catalog.cards.values()) if (c.kind.equals("origin")) { origin = c; break; }
+        assertNotNull(origin); closeActivity(); StudySession s = new StudySession("learn", "", java.util.Arrays.asList(origin), 42); s.practice(); new ProgressStore(getTargetContext()).save(s);
+        launch(); press("resume"); assertTrue(contains(find("sentence-preview"), origin.prompt.split("\n")[0])); screenshot("critic-origin-question");
+    }
+    public void testCriticChapterText() throws Exception {
+        press("nav-units"); Catalog catalog = Catalog.load(activity);
+        // Every subtitle must fit inside its own card, even when the card is below the viewport.
+        for (Catalog.Unit unit : catalog.units) {
+            TextView v = (TextView) find("unit-subtitle-" + unit.id); assertNotNull(v); assertNotNull(v.getLayout());
+            ViewGroup parent = (ViewGroup) v.getParent();
+            assertTrue(v.getBottom() <= parent.getHeight() - parent.getPaddingBottom());
+            assertTrue(v.getHeight() >= v.getLayout().getHeight() + v.getCompoundPaddingTop() + v.getCompoundPaddingBottom());
+            for (int line = 0; line < v.getLineCount(); line++) assertEquals(0, v.getLayout().getEllipsisCount(line));
+        }
+        assertTextFits("unit-subtitle-u00"); screenshot("critic-chapters");
+        getInstrumentation().runOnMainSync(() -> find("unit-u08").requestFocus()); getInstrumentation().waitForIdleSync(); SystemClock.sleep(300); screenshot("critic-chapters-scrolled");
+    }
+    public void testCriticTopicProgression() throws Exception {
+        press("nav-phrasebook"); press("topic-greetings"); press("practise-topic"); finishTeaching();
+        java.util.Set<String> first = new java.util.HashSet<>(); for (StudySession.Card c : state().deck) first.add(c.id);
+        while (state().phase != StudySession.Phase.RESULT) { answerCorrectly(); press("continue"); }
+        waitFor("next-expressions"); screenshot("critic-topic-first-recap"); press("next-expressions");
+        StudySession second = state(); assertEquals("greetings", second.topicId); assertEquals(4, second.topicOffset);
+        for (StudySession.Card c : second.deck) assertFalse(first.contains(c.id)); screenshot("critic-topic-second-teaching");
+        closeActivity(); launch(); press("resume"); assertEquals("greetings", state().topicId); assertEquals(4, state().topicOffset); finishTeaching();
+        while (state().phase != StudySession.Phase.RESULT) { answerCorrectly(); press("continue"); }
+        assertTrue(contains(activity.getWindow().getDecorView(), "Topic complete")); assertTrue(find("next-expressions") == null); screenshot("critic-topic-complete");
+        press("finish"); press("nav-games"); press("game-listen"); press("listen-topic-greetings"); press("solo"); finishTeaching();
+        while (state().phase != StudySession.Phase.RESULT) { answerCorrectly(); press("continue"); }
+        press("next-expressions"); assertEquals("listen", state().mode); assertEquals(4, state().topicOffset); screenshot("critic-listen-second-teaching");
+        finishTeaching(); screenshot("critic-listen-second-question");
+        for (Catalog.Topic t : Catalog.load(activity).topics) {
+            int offset = 0; java.util.Set<String> ids = new java.util.HashSet<>();
+            while (offset < t.cards.size()) { int n = StudySession.batchSize(t.cards.size() - offset); assertTrue(n >= 2); for (StudySession.Card c : t.cards.subList(offset, offset + n)) assertTrue(ids.add(c.id)); offset += n; }
+            assertEquals(t.cards.size(), ids.size());
+        }
     }
     private void tearDown() {
         closeActivity();

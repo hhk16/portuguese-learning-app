@@ -59,6 +59,9 @@ final class Catalog {
                 StudySession.Card card = new StudySession.Card(x.getString("id"), x.getString("kind"),
                     x.getString("pt"), x.getString("en"), x.getString("prompt"), x.getString("answer"),
                     x.getString("why"), x.isNull("audio") ? "" : x.getString("audio"), options);
+                card.teachPt = x.optString("teachPt", card.pt); card.teachEn = x.optString("teachEn", card.en);
+                card.speechText = x.optString("speechText", card.pt); card.grammarHint = x.optString("grammarHint");
+                card.examplePt = x.optString("examplePt"); card.exampleEn = x.optString("exampleEn");
                 card.art = x.optString("art", ""); card.context = x.optString("context", "");
                 l.cards.add(card); c.cards.put(card.id, card);
             }

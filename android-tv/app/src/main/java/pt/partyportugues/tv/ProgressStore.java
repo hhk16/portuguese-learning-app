@@ -58,6 +58,7 @@ final class ProgressStore {
                 .put("reviewBuilt", s.reviewBuilt).put("phase", s.phase.name()).put("players", s.players)
                 .put("tray", tray).put("assisted", s.assisted).put("assistedCorrect", s.assistedCorrect)
                 .put("traySubmitted", s.traySubmitted).put("trayCorrect", s.trayCorrect)
+                .put("choiceRule", s.choiceRule).put("topicId", s.topicId).put("topicOffset", s.topicOffset).put("topicLength", s.topicLength)
                 .put("batchTeaching", s.batchTeaching).put("teachIndex", s.teachIndex).put("pendingOption", s.pendingOption);
             edit.putString("session", o.toString());
         } catch (Exception ignored) { edit.remove("session"); }
@@ -82,6 +83,8 @@ final class ProgressStore {
             s.reviewBuilt = o.getBoolean("reviewBuilt"); s.phase = StudySession.Phase.valueOf(o.getString("phase"));
             s.players = o.optInt("players", 1) == 2 ? 2 : 1;
             s.batchTeaching = o.optBoolean("batchTeaching", false); s.teachIndex = o.optInt("teachIndex");
+            s.choiceRule = o.optInt("choiceRule", 1); s.topicId = o.optString("topicId"); s.topicOffset = o.optInt("topicOffset"); s.topicLength = o.optInt("topicLength", firstCount);
+            if (s.topicOffset < 0) return null;
             s.pendingOption = o.optInt("pendingOption", -1);
             if (s.teachIndex < 0 || s.teachIndex >= firstCount || s.pendingOption < -1 || s.pendingOption >= s.options().size()) return null;
             if (s.batchTeaching && s.phase == StudySession.Phase.TEACH && s.index != 0) return null;

@@ -44,6 +44,15 @@ public class StudySessionTest {
         listening.help(); listening.answer(choice(listening, true)); assert listening.correct == 0 && listening.assistedCorrect == 1;
         boolean rejected = false; try { new StudySession("learn", "", Arrays.asList(), 1); } catch (IllegalArgumentException e) { rejected = true; }
         assert rejected;
+        for (int total = 2; total <= 100; total++) {
+            int remaining = total; while (remaining > 0) { int n = StudySession.batchSize(remaining); assert n >= 2 && n <= 4; remaining -= n; }
+        }
+        StudySession.Card sparse = new StudySession.Card("sparse", "phrase", "Boa noite", "Good night", "", "Good night", "", "a.mp3", Arrays.asList("Good night", "Cook wanted"));
+        StudySession direct = new StudySession("learn", "", Arrays.asList(card("a"), sparse), 42);
+        direct.practice(); direct.practice(); assert direct.options().contains("Good night") && !direct.options().contains("Cook wanted");
+        direct.choiceRule = 1; assert !direct.options().contains("Good night") : "Previous saved order is retained";
+        direct.topicId = "greetings"; direct.topicOffset = 4; direct.topicLength = 3;
+        StudySession replay = direct.restart(); assert replay.topicId.equals("greetings") && replay.topicOffset == 4 && replay.topicLength == 3 && replay.choiceRule == 1;
         System.out.println("PASS: teach whole set, delayed recall, taught distractors, assisted scoring, finite retries, legacy snapshots, stable choices.");
     }
 }

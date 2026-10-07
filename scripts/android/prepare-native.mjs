@@ -2,6 +2,7 @@
 import { mkdir, readFile, writeFile, copyFile, rm, access, cp } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { ALL_ITEMS, LESSONS } from '../../src/curriculum/index.ts';
+import { cardOf } from '../../src/curriculum/learn.ts';
 import { UNITS, unitOf } from '../../src/curriculum/units.ts';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
@@ -61,9 +62,62 @@ function card(it) {
       prompt = 'Listen and choose the word.'; answer = it.target; options = [it.contrast]; break;
     default: throw new Error(`Unsupported item kind: ${it.kind}`);
   }
-  const audio = manifest[key(pt)] ?? null;
+  const learned = cardOf(it);
+  const speechText = learned?.say ?? pt;
+  const audio = manifest[key(speechText)] ?? null;
+  const teachPt = learned?.pt ?? pt;
+  // The early present-tense translation table must not override later past forms.
+  const teachEn = it.kind === 'conjugation' && it.tense !== 'presente' ? it.en : learned?.en ?? en;
+  let grammarHint = '', examplePt = '', exampleEn = '';
+  if (it.kind === 'conjugation') {
+    const subjects = {eu: 'I', tu: 'you (one friend)', ele: 'he / she', nos: 'we', eles: 'they'};
+    const times = {presente: 'Present: a fact or a habit.', pps: 'Past: a completed event.', ir_futuro: 'A future plan: ir + infinitive.', estar_a: 'Happening now: estar a + infinitive.', imperativo: 'A command or suggestion to one friend. The subject is not spoken.'};
+    grammarHint = `${subjects[it.person]} · ${times[it.tense]}`;
+    const examples = {
+      ser: ['estudante', 'a student', 'conversation'], ter: ['um livro', 'a book', 'home-life'],
+      falar: ['português', 'Portuguese', 'conversation'], morar: ['em Lisboa', 'in Lisbon', 'home-life'],
+      trabalhar: ['em casa', 'at home', 'home-life'], estudar: ['português', 'Portuguese', 'home-life'],
+      'gostar (de)': ['de café', 'coffee', 'cafe'], 'chamar-se': ['Anna', 'Anna', 'conversation'],
+      comer: ['pão', 'bread', 'cafe'], beber: ['água', 'water', 'cafe'], viver: ['em Lisboa', 'in Lisbon', 'home-life'],
+      aprender: ['português', 'Portuguese', 'conversation'], perceber: ['a pergunta', 'the question', 'conversation'],
+      estar: ['em casa', 'at home', 'home-life'], costumar: ['ler', 'usually read', 'home-life'],
+      decidir: ['ficar', 'to stay', 'home-life'], preferir: ['chá', 'tea', 'cafe'], partir: ['amanhã', 'tomorrow', 'journey'],
+      'levantar-se': ['cedo', 'early', 'home-life'], 'deitar-se': ['cedo', 'early', 'home-life'], 'vestir-se': ['para sair', 'to go out', 'home-life'],
+      ver: ['o mar', 'the sea', 'journey'], ler: ['um livro', 'a book', 'home-life'], ouvir: ['música', 'music', 'park'],
+      ir: ['ao parque', 'to the park', 'park'], sair: ['de casa', 'home', 'home-life'], vir: ['ao café', 'to the café', 'cafe'],
+      ficar: ['em casa', 'at home', 'home-life'], poder: ['ajudar', 'help', 'conversation'], querer: ['um café', 'a coffee', 'cafe'],
+      saber: ['a resposta', 'the answer', 'conversation'], dizer: ['olá', 'hello', 'conversation'], fazer: ['o jantar', 'dinner', 'home-life'],
+      preparar: ['o jantar', 'dinner', 'home-life'], arrumar: ['a casa', 'the house', 'home-life'], dar: ['um livro à Anna', 'Anna a book', 'conversation'],
+      trazer: ['um livro', 'a book', 'conversation'], pôr: ['o livro na mesa', 'the book on the table', 'home-life'],
+      viajar: ['para Lisboa', 'to Lisbon', 'journey'], experimentar: ['um casaco', 'a coat', 'market'], procurar: ['a chave', 'the key', 'home-life'],
+      'sentir-se': ['bem', 'well', 'pharmacy'], pedir: ['um café', 'a coffee', 'cafe'], perder: ['a chave', 'the key', 'home-life'],
+      dormir: ['bem', 'well', 'home-life'], descansar: ['em casa', 'at home', 'home-life'], tomar: ['o medicamento', 'the medicine', 'pharmacy'],
+      visitar: ['Lisboa', 'Lisbon', 'journey'], conhecer: ['a Anna', 'Anna', 'conversation'],
+    };
+    const [tail, translation, scene] = examples[it.verb] ?? [];
+    if (!tail) throw new Error(`Missing contextual example: ${it.id}`);
+    const plural = ['nos', 'eles'].includes(it.person);
+    const natural = it.tense === 'imperativo' ? it.form : `${{eu:'Eu',tu:'Tu',ele:'Ela',nos:'Nós',eles:'Eles'}[it.person]} ${it.form}`;
+    const ptTail = it.verb === 'ser' && plural ? 'estudantes' : it.verb === 'chamar-se' && plural ? 'Hadi e Anna' : tail;
+    let meaning = teachEn.replace('he / she', 'she').replace(/\s*\([^)]*\)/g, '').replace(/!$/, '');
+    meaning = meaning.replace('met / got to know', 'met').replace('did / made', 'made').replace('do / make', 'make');
+    if (it.verb === 'fazer') meaning = meaning.replace(/\bdoing\b/g, 'making').replace(/\bdid\b/g, 'made').replace(/\bdoes\b/g, 'makes').replace(/\bdo\b/g, 'make');
+    if (it.verb === 'sair') meaning = meaning.replace('go out / leave', 'leave').replace('goes out / leaves', 'leaves').replace('went out / left', 'left').replace('go out', 'leave').replace('goes out', 'leaves').replace('went out', 'left');
+    if (it.verb === 'ouvir') meaning = meaning.replace('hear / listen', 'listen to').replace('hears / listens', 'listens to');
+    if (it.verb === 'ver') meaning = meaning.replace('see / watch', 'see').replace('sees / watches', 'sees');
+    if (it.verb === 'costumar') meaning = `${{eu:'I',tu:'you',ele:'she',nos:'we',eles:'they'}[it.person]} usually read`;
+    examplePt = `${natural} ${ptTail}${it.tense === 'pps' ? ' ontem' : it.tense === 'estar_a' ? ' agora' : ''}${it.tense === 'imperativo' ? '!' : '.'}`;
+    exampleEn = `${meaning}${it.verb === 'costumar' ? '' : ' ' + (it.verb === 'ser' && plural ? 'students' : it.verb === 'chamar-se' && plural ? 'Hadi and Anna' : translation)}${it.tense === 'pps' ? ' yesterday' : it.tense === 'estar_a' ? ' now' : ''}${it.tense === 'imperativo' ? '!' : '.'}`;
+    // Past partir needs a past time cue, rather than 'tomorrow yesterday'.
+    if (it.verb === 'partir' && it.tense === 'pps') { examplePt = `${natural} ontem.`; exampleEn = `${meaning} yesterday.`; }
+    if (it.tense === 'imperativo') prompt = `___!\n${teachEn}`;
+    if (it.verb === 'ser' && it.tense === 'pps') grammarHint += ' Ser means be; ir uses the same past forms but means go.';
+    if (it.verb.endsWith('-se')) grammarHint += ' Keep the reflexive pronoun with the verb.';
+    it.nativeScene = scene;
+  }
+
   const pictures = { coffee: 'coffee', milk: 'milk', bread: 'bread', soup: 'soup', cake: 'cake', water: 'water', croissant: 'croissant', 'ice cream': 'icecream', cat: 'cat', dog: 'dog', bird: 'bird', fish: 'fish', book: 'book', chair: 'chair', table: 'table', key: 'key', car: 'car', train: 'train', bus: 'bus', bicycle: 'bicycle' };
-  const art = it.kind === 'noun' ? pictures[(it.en ?? '').toLowerCase()] ?? '' : '';
+  const art = it.kind === 'conjugation' ? it.nativeScene : it.kind === 'noun' ? pictures[(it.en ?? '').toLowerCase()] ?? '' : '';
   const coaching = {
     noun: `Learn the article with the noun: ${it.article ?? ''} ${it.pt ?? ''}. The article helps you remember its gender.`,
     conjugation: 'Match the verb form to the subject and the tense. Say the whole phrase after listening.',
@@ -74,9 +128,9 @@ function card(it) {
     origin: 'Use de to say where you are from. De combines with a place article: de + o = do; de + a = da.',
     minimalPair: 'Listen for the difference. Replay slowly, then compare the words without reading the answer.',
   };
-  const why = it.why || coaching[it.kind] || '';
+  const why = ['adjective', 'profession', 'nationality'].includes(it.kind) ? `Learn both forms together. ${learned.pt.replace(' · ', ' (masculine), ')}${learned.pt.includes(' · ') ? ' (feminine)' : ' is used for both genders'}. Match the form to the person or noun.` : it.why || coaching[it.kind] || '';
   return { id: it.id, kind: it.kind, pt, en, prompt: prompt ?? pt, answer: answer ?? en,
-    options: options ?? [], why, art, context: '', audio, source: it.source };
+    options: options ?? [], why, art, context: '', audio, speechText, teachPt, teachEn, grammarHint, examplePt, exampleEn, source: it.source };
 }
 
 const cards = ALL_ITEMS.map(card);
@@ -93,6 +147,7 @@ for (const c of cards) {
     c.options = [...new Set(c.options)];
   }
   if (!c.pt || !c.answer || c.options.length < 2) throw new Error(`Unplayable item ${c.id}`);
+  if (c.kind !== 'minimalPair' && !c.audio) throw new Error(`Missing natural speech: ${c.id} (${c.speechText})`);
   // A minimal pair is an audio discrimination task; it must never expose the answer as a prompt.
   if (c.kind === 'minimalPair' && !c.audio) c.options = [];
 }

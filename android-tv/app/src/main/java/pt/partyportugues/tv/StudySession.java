@@ -12,10 +12,12 @@ public final class StudySession {
         public final String id, kind, pt, en, prompt, answer, why, audio;
         public final List<String> options;
         public String art = "", context = "";
+        public String teachPt, teachEn, speechText, grammarHint = "", examplePt = "", exampleEn = "";
         public String heardEn = "", heardAudio = "", followup = "", followupEn = "", followupAudio = "";
         public Card(String id, String kind, String pt, String en, String prompt,
                     String answer, String why, String audio, List<String> options) {
             this.id = id; this.kind = kind; this.pt = pt; this.en = en;
+            this.teachPt = pt; this.teachEn = en; this.speechText = pt;
             this.prompt = prompt; this.answer = answer; this.why = why; this.audio = audio;
             this.options = Collections.unmodifiableList(new ArrayList<>(options));
         }
@@ -38,6 +40,8 @@ public final class StudySession {
     public int assistedCorrect;
     public boolean batchTeaching;
     public int teachIndex, pendingOption = -1;
+    public int choiceRule = 2, topicOffset, topicLength;
+    public String topicId = "";
 
     public StudySession(String mode, String lessonId, List<Card> cards, long seed) {
         this(mode, lessonId, cards, seed, cards.size());
@@ -49,14 +53,27 @@ public final class StudySession {
         batchTeaching = mode.equals("learn") || mode.equals("listen") || mode.equals("conversation");
         phase = batchTeaching || mode.equals("cafe") ? Phase.TEACH : Phase.QUESTION;
     }
+    /** Teach a contrast alongside singleton/mixed remainders so every choice is familiar. */
+    public static List<Card> withTaughtContrast(List<Card> items, List<Card> related) {
+        List<Card> batch = new ArrayList<>(items); List<String> meanings = new ArrayList<>(); Card target = null;
+        for (Card c : batch) if (!c.grammar() && !c.kind.equals("conversation") && !c.kind.equals("minimalPair")) {
+            if (!meanings.contains(c.answer)) meanings.add(c.answer); target = c;
+        }
+        if (meanings.size() == 1 && target != null) for (Card c : related) if (c.kind.equals(target.kind) && !c.answer.equals(target.answer)) {
+            if (batch.size() == 4) { int remove = 3; for (int i = 3; i >= 0; i--) if (batch.get(i).grammar()) { remove = i; break; } batch.remove(remove); }
+            batch.add(c); break;
+        }
+        return batch;
+    }
+    public static int batchSize(int remaining) { return remaining == 5 ? 3 : Math.min(4, remaining); }
     public Card card() { return deck.get(Math.min(phase == Phase.TEACH && batchTeaching ? teachIndex : index, deck.size() - 1)); }
     public List<String> options() {
         Card c = card();
         List<String> rest = new ArrayList<>(c.options);
-        if (batchTeaching && !c.kind.equals("conversation") && !c.kind.equals("minimalPair")) {
+        if (batchTeaching && !c.kind.equals("conversation") && !c.kind.equals("minimalPair") && (choiceRule == 1 || !c.grammar())) {
             List<String> taught = new ArrayList<>();
-            for (Card other : deck.subList(0, firstCount)) if (other.kind.equals(c.kind) && rest.contains(other.answer) && !taught.contains(other.answer)) taught.add(other.answer);
-            if (taught.size() >= 2) rest = taught;
+            for (Card other : deck.subList(0, firstCount)) if ((choiceRule == 1 ? other.kind.equals(c.kind) && rest.contains(other.answer) : !other.grammar() && !other.kind.equals("conversation") && !other.kind.equals("minimalPair")) && !taught.contains(other.answer)) taught.add(other.answer);
+            if (choiceRule >= 2 || taught.size() >= 2) rest = taught;
         }
         rest.remove(c.answer);
         Collections.shuffle(rest, new Random(seed ^ c.id.hashCode() ^ index));
@@ -122,7 +139,7 @@ public final class StudySession {
     }
     public StudySession restart() {
         StudySession s = new StudySession(mode, lessonId, deck.subList(0, firstCount), seed);
-        s.players = players;
+        s.players = players; s.choiceRule = choiceRule; s.topicId = topicId; s.topicOffset = topicOffset; s.topicLength = topicLength;
         return s;
     }
 }

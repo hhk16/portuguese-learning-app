@@ -69,7 +69,16 @@ jobs:
         if: always()
         with:
           name: native-tv-visuals-${{ github.sha }}
-          path: native-tv-screenshots/screenshots/
+          path: |
+            native-tv-screenshots/screenshots/
+            !native-tv-screenshots/screenshots/critic-*.png
+          retention-days: 14
+          overwrite: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-tv-critic-visuals-${{ github.sha }}
+          path: native-tv-screenshots/screenshots/critic-*.png
           retention-days: 14
           overwrite: true
       - uses: actions/upload-artifact@v4
