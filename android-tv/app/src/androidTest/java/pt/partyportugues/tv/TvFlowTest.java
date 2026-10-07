@@ -254,7 +254,7 @@ public class TvFlowTest extends Instrumentation {
         closeActivity(); launch(); press("nav-phrasebook"); press("saved-phrases");
         assertTrue(contains(activity.getWindow().getDecorView(), "Queria duas maçãs"));
         press("practise-topic"); waitFor("practice"); screenshot("phrase-teaching");
-        press("practice"); press("answer-0"); waitFor("continue"); screenshot("phrase-feedback");
+        assertEquals(2, state().firstCount); finishTeaching(); press("answer-0"); waitFor("continue"); screenshot("phrase-feedback");
     }
     public void testScheduledRevision() throws Exception {
         closeActivity();
@@ -431,6 +431,7 @@ public class TvFlowTest extends Instrumentation {
                 offset += count;
             }
         }
+        for (StudySession.Card c : catalog.cards.values()) if (c.kind.equals("contraction")) assertTrue(c.grammarHint.contains("="));
         for (StudySession.Card c : catalog.cards.values()) if (!c.kind.equals("minimalPair") && !c.kind.equals("dialogue")) assertFalse("Missing speech: " + c.id, c.audio.isEmpty());
         String[] ids = {"grammar.ser.eu", "grammar.ser.pps.eu", "grammar.viajar.ir_futuro.eu", "grammar.fazer.estar_a.eu", "grammar.beber.imperativo.tu"};
         String[] meanings = {"I am", "I was", "going to travel", "am doing", "drink!"};

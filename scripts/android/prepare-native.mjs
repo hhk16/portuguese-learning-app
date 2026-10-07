@@ -67,8 +67,12 @@ function card(it) {
   const audio = manifest[key(speechText)] ?? null;
   const teachPt = learned?.pt ?? pt;
   // The early present-tense translation table must not override later past forms.
-  const teachEn = it.kind === 'conjugation' && it.tense !== 'presente' ? it.en : learned?.en ?? en;
+  let teachEn = it.kind === 'conjugation' && it.tense !== 'presente' ? it.en : learned?.en ?? en;
   let grammarHint = '', examplePt = '', exampleEn = '';
+  if (it.kind === 'contraction') {
+    grammarHint = learned.note;
+    teachEn = `${it.prep === 'de' ? 'from the' : 'in the'} (${['o', 'os'].includes(it.article) ? 'masculine' : 'feminine'} ${['os', 'as'].includes(it.article) ? 'plural' : 'singular'})`;
+  }
   if (it.kind === 'conjugation') {
     const subjects = {eu: 'I', tu: 'you (one friend)', ele: 'he / she', nos: 'we', eles: 'they'};
     const times = {presente: 'Present: a fact or a habit.', pps: 'Past: a completed event.', ir_futuro: 'A future plan: ir + infinitive.', estar_a: 'Happening now: estar a + infinitive.', imperativo: 'A command or suggestion to one friend. The subject is not spoken.'};
