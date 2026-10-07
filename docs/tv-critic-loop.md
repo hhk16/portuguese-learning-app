@@ -16,4 +16,19 @@ The critic found clipped chapter subtitles, technical metadata used as English g
 - Reuse contextual scenes for grammar examples and replace scheduling implementation details with a next-revision state.
 - Extend the 15 existing emulator flows with grammar/audio inventory, chapter-child bounds and later-topic progression/resume checks. Verify recognition options across every course batch.
 
-Round 2's score and final verification will be recorded after fresh emulator captures are independently reviewed.
+## Round 2 — 8.1/10, design threshold met
+
+The same independent critic inspected 27 fresh emulator captures plus the revised source. The weighted score is 8.05, reported as 8.1/10. Category scores: visual storytelling 7.8, art/layout 8.2, native TV interaction 8.0, instructions 8.3, learning/progression 8.2, engagement 7.4. The threshold is met after two rounds; no third design round is required.
+
+The critic confirmed complete chapter labels, meaningful grammar examples/meanings, origin cues, access to all later topic expressions, taught recognition choices and complete current-course speech. Additional source review led to clearing topic cursors on reset and focusing Next expressions in compact recap rows.
+
+Remaining follow-ups are semantic art variety, more natural past-ser examples, optional speech for full examples and more taught café/conversation scenarios. None was judged a blocking design defect. The score does not certify pronunciation, measured learning outcomes or physical Strong-box performance.
+
+Final verification is recorded with the delivered APK and captures after the clean rerun. The previous run passed 17/18; its single failure was an older fixture expecting a singleton saved phrase to begin a quiz after one Practice press. The deliberate two-expression contrast flow is now tested by completing both teaching steps and asserting the two-item set.
+
+
+## Final verification and delivery
+
+Final verification: [run37562075655](https://github.com/hhk16/portuguese-learning-app/actions/runs/37562075655) passed APK/test-APK build, lint, pure Java checks and **18/18 Android TV emulator flows**, with zero failures/skips and an empty crash buffer. The delivered APK is2.6.0/code8 from native source60c4696;69 captures accompany it. All1,421 bundled speech files match the decoded source audit, and all1,321 distinct included course cards have speech. Frame-time and physical Strong-box evidence remain unverified.
+
+Installation limit: this is a debug review APK. Its certificate differs from the previously delivered2.5 APK, so Android cannot install it over that APK. Removing an installed copy would erase its local learning progress; preserve that progress before any reinstall. A stable release signing setup is still needed for seamless future updates.
