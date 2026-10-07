@@ -100,11 +100,13 @@ function card(it) {
     const natural = it.tense === 'imperativo' ? it.form : `${{eu:'Eu',tu:'Tu',ele:'Ela',nos:'Nós',eles:'Eles'}[it.person]} ${it.form}`;
     const ptTail = it.verb === 'ser' && plural ? 'estudantes' : it.verb === 'chamar-se' && plural ? 'Hadi e Anna' : tail;
     let meaning = teachEn.replace('he / she', 'she').replace(/\s*\([^)]*\)/g, '').replace(/!$/, '');
+    meaning = meaning.replace('his / her name', 'her name').replace('she / it', 'she').replace('stays · is', 'stays').replace('stay · am', 'stay').replace('stay · are', 'stay').replace('is / stays', 'stays');
     meaning = meaning.replace('met / got to know', 'met').replace('did / made', 'made').replace('do / make', 'make');
     if (it.verb === 'fazer') meaning = meaning.replace(/\bdoing\b/g, 'making').replace(/\bdid\b/g, 'made').replace(/\bdoes\b/g, 'makes').replace(/\bdo\b/g, 'make');
     if (it.verb === 'sair') meaning = meaning.replace('go out / leave', 'leave').replace('goes out / leaves', 'leaves').replace('went out / left', 'left').replace('go out', 'leave').replace('goes out', 'leaves').replace('went out', 'left');
     if (it.verb === 'ouvir') meaning = meaning.replace('hear / listen', 'listen to').replace('hears / listens', 'listens to');
     if (it.verb === 'ver') meaning = meaning.replace('see / watch', 'see').replace('sees / watches', 'sees');
+    meaning = meaning.replace('makes / makes', 'makes');
     if (it.verb === 'costumar') meaning = `${{eu:'I',tu:'you',ele:'she',nos:'we',eles:'they'}[it.person]} usually read`;
     examplePt = `${natural} ${ptTail}${it.tense === 'pps' ? ' ontem' : it.tense === 'estar_a' ? ' agora' : ''}${it.tense === 'imperativo' ? '!' : '.'}`;
     exampleEn = `${meaning}${it.verb === 'costumar' ? '' : ' ' + (it.verb === 'ser' && plural ? 'students' : it.verb === 'chamar-se' && plural ? 'Hadi and Anna' : translation)}${it.tense === 'pps' ? ' yesterday' : it.tense === 'estar_a' ? ' now' : ''}${it.tense === 'imperativo' ? '!' : '.'}`;

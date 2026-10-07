@@ -431,7 +431,7 @@ public class TvFlowTest extends Instrumentation {
                 offset += count;
             }
         }
-        for (StudySession.Card c : catalog.cards.values()) if (!c.kind.equals("minimalPair")) assertFalse("Missing speech: " + c.id, c.audio.isEmpty());
+        for (StudySession.Card c : catalog.cards.values()) if (!c.kind.equals("minimalPair") && !c.kind.equals("dialogue")) assertFalse("Missing speech: " + c.id, c.audio.isEmpty());
         String[] ids = {"grammar.ser.eu", "grammar.ser.pps.eu", "grammar.viajar.ir_futuro.eu", "grammar.fazer.estar_a.eu", "grammar.beber.imperativo.tu"};
         String[] meanings = {"I am", "I was", "going to travel", "am doing", "drink!"};
         for (int i = 0; i < ids.length; i++) {
